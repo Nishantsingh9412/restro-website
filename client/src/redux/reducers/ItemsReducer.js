@@ -1,0 +1,38 @@
+const initialState = {
+    items: [],
+    selectedItem: null,
+};
+
+export default function itemsReducer(state = initialState, action) {
+    switch (action.type) {
+        case 'ADD_ITEM':
+            return {
+                ...state,
+                items: [...state.items, action.data],
+            };
+        case 'GET_ALL_ITEMS':
+            return {
+                ...state,
+                items: action.data,
+            };
+        case 'GET_SINGLE_ITEM':
+            return {
+                ...state,
+                selectedItem: action.data,
+            };
+        case 'UPDATE_SINGLE_ITEM':
+            return {
+                ...state,
+                items: state.items.map(item => 
+                    item._id === action.data._id ? action.data : item
+                ),
+            };
+        case 'DELETE_SINGLE_ITEM':
+            return {
+                ...state,
+                items: state.items.filter(item => item._id !== action.data._id),
+            };
+        default:
+            return state;
+    }
+}
