@@ -88,7 +88,6 @@ export const updateItem = async (req, res) => {
     if(!mongoose.Types.ObjectId.isValid(_id)){
         return res.status(400).json({ success: false, message: "Invalid Item Id" })
     }
-    
     try{
         const updateSingleItem = await ItemManagement.findByIdAndUpdate((_id),{
             $set:{

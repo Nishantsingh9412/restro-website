@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:8000' });
+const API = axios.create({ baseURL:process.env.REACT_APP_BASE_URL_FOR_APIS});
 
 // For Authentication
 // API.interceptors.request.use((req) => {
@@ -23,6 +23,11 @@ export const deleteSingleItem = (id) => API.delete(`/item-management/deleteitem/
                             // Items API End
 
 
+
+// Stocks APi 
+export const getAllStocks = () => API.get('/stock-management/get-all-stocks');
+
+export const getLowStocks = () => API.get('/stock-management/get-low-stocks');
 
 
 

@@ -33,9 +33,11 @@ const EdiItem = (props) => {
 
     const [EditItemName, setEditItemName] = useState('')
     const [EditUnit, setEditUnit] = useState('')
-    const [EditAvailable, setEditAvailable] = useState('')
-    const [EditMinimum, setEditMinimum] = useState('')
-    const [EditUsageRateValue, setEditUsageRateValue] = useState('')
+
+    const [EditAvailable, setEditAvailable] = useState(0)
+    const [EditMinimum, setEditMinimum] = useState(0)
+    const [EditUsageRateValue, setEditUsageRateValue] = useState(0)
+
     const [EditUsageRateUnit, setEditUsageRateUnit] = useState('')
     const [EditLastReplenished, setEditLastReplenished] = useState('')
     const [loadingEditModal, setLoadingEditModal] = useState(true)
@@ -75,9 +77,9 @@ const EdiItem = (props) => {
 
     useEffect(() => {
         dispatch(GetSingleItemAction(ItemId))
-        .finally(() => {
-            setLoadingEditModal(false);
-        });
+            .finally(() => {
+                setLoadingEditModal(false);
+            });
 
     }, [ItemId])
 
@@ -93,7 +95,7 @@ const EdiItem = (props) => {
             setEditUsageRateValue(SelectedItemData?.usage_rate_value)
             setEditUsageRateUnit(SelectedItemData?.usage_rate_unit)
             setEditLastReplenished(SelectedItemData?.Last_Replenished.split('T')[0])
-        }   
+        }
     }, [SelectedItemData])
 
     return (
@@ -146,18 +148,20 @@ const EdiItem = (props) => {
                                             <FormControl id="available" isRequired>
                                                 <FormLabel>Available</FormLabel>
                                                 <Input
-                                                    type="text"
+                                                    type="number"
+                                                    step={'any'}
                                                     value={EditAvailable}
-                                                    onChange={(e) => setEditAvailable(e.target.value)}
+                                                    onChange={(e) => setEditAvailable(Number(e.target.value))}
                                                 />
                                             </FormControl>
 
                                             <FormControl id="minimum" isRequired>
                                                 <FormLabel>Minimum</FormLabel>
                                                 <Input
-                                                    type="text"
+                                                    type="number"
+                                                    step={'any'}
                                                     value={EditMinimum}
-                                                    onChange={(e) => setEditMinimum(e.target.value)}
+                                                    onChange={(e) => setEditMinimum(Number(e.target.value))}
                                                 />
                                             </FormControl>
 
@@ -168,8 +172,9 @@ const EdiItem = (props) => {
                                                         flex="1"
                                                         mr="2"
                                                         type="number"
+                                                        step={'any'}
                                                         value={EditUsageRateValue}
-                                                        onChange={(e) => setEditUsageRateValue(e.target.value)}
+                                                        onChange={(e) => setEditUsageRateValue(Number(e.target.value))}
                                                         placeholder="Value"
                                                     />
                                                     <Select

@@ -63,9 +63,11 @@ export default function ItemManagement() {
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
   const [unit, setUnit] = useState('');
-  const [available, setAvailable] = useState('');
-  const [minimum, setMinimum] = useState('');
-  const [usageRateValue, setUsageRateValue] = useState('');
+  
+  const [available, setAvailable] = useState(0);
+  const [minimum, setMinimum] = useState(0);
+  const [usageRateValue, setUsageRateValue] = useState(0);
+
   const [usageRateUnit, setUsageRateUnit] = useState('');
   const [lastReplenished, setLastReplenished] = useState('');
 
@@ -154,6 +156,16 @@ export default function ItemManagement() {
   console.log("This is ItemDataReducer : \n", ItemDataReducer);
   console.log("This is ItemData : \n", ItemData);
 
+  const handleAutoAddVals = () => {
+    setItemName('Rice');
+    setUnit('KG');
+    setAvailable(100);
+    setMinimum(10);
+    setUsageRateValue(5);
+    setUsageRateUnit('KG');
+    setLastReplenished('2021-07-01');
+  }
+
   useEffect(() => {
     setItemDataArray(ItemData)
   }, [ItemData])
@@ -177,7 +189,7 @@ export default function ItemManagement() {
       {/* Table Start */}
       <Box style={{ marginTop: '2vw' }} overflowX="auto">
         <Table variant="striped" colorScheme="pink" >
-          <TableCaption>Imperial to metric conversion factors</TableCaption>
+          
           <Thead>
             <Tr>
               <Th>Item Name</Th>
@@ -263,7 +275,9 @@ export default function ItemManagement() {
             <ModalCloseButton />
             <ModalBody>
               <Text>Custom backdrop filters!</Text>
-
+              <Button onClick={handleAutoAddVals}>
+                Auto Add Values 
+              </Button>
               {/* Check for FormError */}
               {/* <FormControl isInvalid={isError}>
                 <FormLabel>Email</FormLabel>
@@ -284,7 +298,7 @@ export default function ItemManagement() {
                     <FormLabel>Item Name</FormLabel>
                     <Input
                       type="text"
-                      // value={itemName}
+                      value={itemName}
                       onChange={(e) => setItemName(e.target.value)}
                     />
                   </FormControl>
@@ -294,7 +308,7 @@ export default function ItemManagement() {
                     {/* <Input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} /> */}
                     <Select
                       placeholder="Select Unit"
-                      // value={unit}
+                      value={unit}
                       onChange={(e) => setUnit(e.target.value)}
                     >
                       <option value="Grams">Grams</option>
@@ -309,18 +323,20 @@ export default function ItemManagement() {
                   <FormControl id="available" isRequired>
                     <FormLabel>Available</FormLabel>
                     <Input
-                      type="text"
-                      // value={available}
-                      onChange={(e) => setAvailable(e.target.value)}
+                      type="number"
+                      step={'any'}
+                      value={available}
+                      onChange={(e) => setAvailable(Number(e.target.value))}
                     />
                   </FormControl>
 
                   <FormControl id="minimum" isRequired>
                     <FormLabel>Minimum</FormLabel>
                     <Input
-                      type="text"
-                      // value={minimum}
-                      onChange={(e) => setMinimum(e.target.value)}
+                      type="number"
+                      step={'any'}
+                      value={minimum}
+                      onChange={(e) => setMinimum(Number(e.target.value))}
                     />
                   </FormControl>
 
@@ -331,15 +347,16 @@ export default function ItemManagement() {
                         flex="1"
                         mr="2"
                         type="number"
-                        // value={usageRateValue}
-                        onChange={(e) => setUsageRateValue(e.target.value)}
+                        step={'any'}
+                        value={usageRateValue}
+                        onChange={(e) => setUsageRateValue(Number(e.target.value))}
                         placeholder="Value"
                       />
                       <Select
                         flex="1"
                         ml="2"
                         placeholder="Select Unit"
-                        // value={usageRateUnit}
+                        value={usageRateUnit}
                         onChange={(e) => setUsageRateUnit(e.target.value)}
                       >
                         <option value="Grams">Grams</option>
@@ -356,7 +373,7 @@ export default function ItemManagement() {
                     <FormLabel>Last Replenished</FormLabel>
                     <Input
                       type="date"
-                      // value={lastReplenished}
+                      value={lastReplenished}
                       onChange={(e) => setLastReplenished(e.target.value)}
                     />
                   </FormControl>

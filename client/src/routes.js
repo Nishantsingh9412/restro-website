@@ -8,7 +8,7 @@ import {
   MdLock,
   MdOutlineShoppingCart,
 } from "react-icons/md";
-import { LuShoppingBag } from "react-icons/lu";
+import { LuFolderClosed, LuShoppingBag } from "react-icons/lu";
 
 // Admin Imports
 import MainDashboard from "views/admin/default";
@@ -17,6 +17,7 @@ import Profile from "views/admin/profile";
 import DataTables from "views/admin/dataTables";
 import RTL from "views/admin/rtl";
 import ItemManagement from "views/admin/itemManagement";
+import LowStocks from "views/admin/lowStocks";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
@@ -35,6 +36,13 @@ const routes = [
     path: "/item-management",
     icon: <Icon as={LuShoppingBag} width='20px' height='20px' color='inherit' />,
     component: ItemManagement,
+  },
+  {
+    name: "Low Stocks Alert",
+    layout: "/admin",
+    path: "/low-stock",
+    icon: <Icon as={LuFolderClosed} width='20px' height='20px' color='inherit' />,
+    component: LowStocks,
   },
   {
     name: "NFT Marketplace",
