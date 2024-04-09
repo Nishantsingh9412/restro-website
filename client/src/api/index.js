@@ -30,4 +30,18 @@ export const getAllStocks = () => API.get('/stock-management/get-all-stocks');
 export const getLowStocks = () => API.get('/stock-management/get-low-stocks');
 
 
+// Supplier API
+// Add new Supplier
+export const addSupplier = (newSupplier) => API.post('/supplier/add-supplier', newSupplier);
+// Get All Suppliers
+export const getAllSuppliers = () => API.get('/supplier/get-suppliers');
+// Get Single Supplier
+export const getSingleSupplier = (id) => API.get(`/supplier/get-supplier-single/${id}`)
+// Update Supplier
+export const UpdateSupplier = (id,updatedData) => API.patch(`/supplier/update-supplier/${id}`, updatedData);
+// Delete Supplier
+export const DeleteSupplier = (id) => API.delete(`/supplier/delete-supplier/${id}`);
+
+
+
 

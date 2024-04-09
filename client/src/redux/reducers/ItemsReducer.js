@@ -27,11 +27,6 @@ export default function itemsReducer(state = initialState, action) {
                     item._id === action.data._id ? action.data : item
                 ),
             };
-        case 'DELETE_SINGLE_ITEM':
-            return {
-                ...state,
-                items: state.items.filter(item => item._id !== action.data._id),
-            };
         default:
             return state;
     }

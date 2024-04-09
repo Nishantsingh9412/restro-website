@@ -39,12 +39,12 @@ export const getSupplier = async (req, res) => {
 }
 
 export const getSingleSupplier = async (req, res) => {
-    const { id } = req.params;
+    const { id : _id} = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(_id)) {
             return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
         } else {
-            const getSingleSupplier = await supplier.findById(id);
+            const getSingleSupplier = await supplier.findById(_id);
             if (getSingleSupplier) {
                 return res.status(200).json({ success: true, message: 'Single Supplier', result: getSingleSupplier })
             } else {

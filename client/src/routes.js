@@ -8,6 +8,7 @@ import {
   MdLock,
   MdOutlineShoppingCart,
 } from "react-icons/md";
+import { FaBookOpen } from "react-icons/fa";
 import { LuFolderClosed, LuShoppingBag } from "react-icons/lu";
 
 // Admin Imports
@@ -18,6 +19,7 @@ import DataTables from "views/admin/dataTables";
 import RTL from "views/admin/rtl";
 import ItemManagement from "views/admin/itemManagement";
 import LowStocks from "views/admin/lowStocks";
+import SupplierManagement from "views/admin/supplierMgmt";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
@@ -43,6 +45,13 @@ const routes = [
     path: "/low-stock",
     icon: <Icon as={LuFolderClosed} width='20px' height='20px' color='inherit' />,
     component: LowStocks,
+  },
+  {
+    name: "Supplier Management",
+    layout: "/admin",
+    path: "/supplier-management",
+    icon: <Icon as={FaBookOpen} width='20px' height='20px' color='inherit' />,
+    component: SupplierManagement,
   },
   {
     name: "NFT Marketplace",
