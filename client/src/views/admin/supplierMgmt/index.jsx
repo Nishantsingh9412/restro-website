@@ -51,7 +51,7 @@ export default function SupplierManagement() {
         }
         if (pics.size > 2000000) {
             setLoading(false);
-            return toast.error('Logo size should be less than 2 MB ')
+            return toast.error('Image size should be less than 2 MB ')
         }
 
         const data = new FormData();

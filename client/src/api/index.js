@@ -43,5 +43,19 @@ export const UpdateSupplier = (id,updatedData) => API.patch(`/supplier/update-su
 export const DeleteSupplier = (id) => API.delete(`/supplier/delete-supplier/${id}`);
 
 
+// Orders API
+
+// Post an Order
+export const  AddOrderItem = (newItem) => API.post('/orders/add-order-item', newItem);
+// Get single Order Item
+export const GetSingleItemOrder = (id) => API.get(`/orders/get-single-order-item/${id}`);
+// Get All Orders
+export const getAllOrderItems = () => API.get('/orders/get-all-order-items');
+// Update Order Item
+export const UpdateSingleItemOrder = (id,updatedData) => API.patch(`/orders/update-order-item/${id}`, updatedData);
+// Delete Order Item
+export const deleteSingleItemOrder = (id) => API.delete(`/orders/delete-order-item/${id}`)
+// Search Order Item
+export const searchOrderItem = (orderNameData) => API.get(`/orders/search-order-items?orderName=${orderNameData}`);
 
 

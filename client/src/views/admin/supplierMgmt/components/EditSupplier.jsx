@@ -61,7 +61,7 @@ const EditSupplier = (props) => {
     }
     if (pics.size > 2000000) {
       setLoading(false);
-      return toast.error('Logo size should be less than 2 MB ')
+      return toast.error('Image size should be less than 2 MB ')
     }
 
     const data = new FormData();
@@ -148,10 +148,9 @@ const EditSupplier = (props) => {
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           {overlay}
           <ModalContent>
-            <ModalHeader>Modal Title {SelectedItemId}</ModalHeader>
+            <ModalHeader>Select Supplier</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Text>Custom backdrop filters!</Text>
               <Box maxW="sm" m="auto" p="4" borderWidth="1px" borderRadius="lg" background={'whiteAlpha.100'}>
                 <form onSubmit={handleEditSupplier}>
                   <FormControl id="suppliername" isRequired>

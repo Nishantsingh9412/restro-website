@@ -2,9 +2,11 @@ import express from "express";
 import mongoose, { mongo } from "mongoose";
 import cors from 'cors';
 import dotenv from 'dotenv'
+
 import itemRoutes from './routes/item.js'
 import lowStockItems from './routes/lowStocks.js'
 import supplierRoutes from './routes/suppliers.js'
+import orderRoutes from './routes/orders.js'
 // import userRoutes from './routes/users.js'
 
 const app = express();
@@ -19,6 +21,7 @@ app.use(cors());
 app.use('/item-management',itemRoutes)
 app.use('/stock-management',lowStockItems)
 app.use('/supplier',supplierRoutes)
+app.use('/orders',orderRoutes)
 
 app.get('/', (req, res) => {
     res.send(" This is restro website  ");

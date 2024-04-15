@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const SupplierSchema = mongoose.Schema({
     name: { type: String, required: true },
     Items: { type: Array, required: true },
