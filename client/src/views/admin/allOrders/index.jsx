@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { jsPDF } from "jspdf";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -50,6 +51,8 @@ export default function AllOrders() {
     const dispatch = useDispatch();
 
     const [selectedItemLength, setSelectedItemLength] = useState(0);
+    // const [Tax, setTax] = useState(0);
+    // const [discountPerc, setDiscountPerc] = useState(0);
     const [selectedItemTemp, setSelectedItemTemp] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -59,6 +62,7 @@ export default function AllOrders() {
     const [pic, setPic] = useState('');
     const [description, setDescription] = useState('');
     const [allOrderTotal, setAllOrderTotal] = useState(0);
+    const [originalTotal,setOriginalTotal] = useState(0);
     const [loading, setLoading] = useState(false);
 
 
@@ -154,9 +158,6 @@ export default function AllOrders() {
     console.log("All Order Items Reducer Data \n")
     console.log(AllOrderItemsReducer);
 
-
-
-
     const handleRemoveItemOrder = (id) => {
         console.log("Remove Item Clicked", id);
         if (id !== undefined) {
@@ -183,6 +184,44 @@ export default function AllOrders() {
 
 
 
+    function generateBill(selectedItems, total) {
+        const doc = new jsPDF();
+        doc.setFont('courier'); // Set font to Courier
+        let y = 20;
+        doc.setFontSize(18);
+        doc.text('Taj Hotels Limited', 10, y);
+        doc.setFontSize(14);
+        y += 10;
+        doc.text('Item', 10, y);
+        doc.text('Quantity', 40, y);
+        doc.text('Price', 70, y);
+        doc.text('Total', 90, y);
+        y += 10;
+        selectedItems.forEach((item, index) => {
+            const lines = doc.splitTextToSize(item.orderName, 40); // Split the item name into lines of up to 40 units long
+            for (let i = 0; i < lines.length; i++) {
+                doc.text(lines[i], 10, y);
+                if (i === 0) { // Only add quantity and price on the first line
+                    doc.text(item.quantity.toString(), 50, y);
+                    doc.text(`${item.priceVal} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 70, y);
+                    doc.text(`${(item.quantity * item.priceVal).toFixed(2)} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 90, y);
+                }
+                y += 10;
+            }
+            y += 10;
+        });
+        doc.text('------------------------', 10, y);
+        y += 10;
+        doc.text(`Total: ${parseFloat(total).toFixed(2)} €`, 10, y);
+        y += 10;
+        doc.text('------------------------', 10, y);
+        y += 10;
+        doc.text(`Date: ${new Date().toLocaleString()}`, 10, y);
+        doc.save("Bill.pdf");
+    }
+
+    // Usage
+
     // const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = () => {
@@ -202,6 +241,19 @@ export default function AllOrders() {
     //     const item = items?.find(item => item._id === id);
     //     return item ? item?.quantity : 0;
     // }
+
+
+    // // For calculating tax 
+    // useEffect(() => {
+    //     setAllOrderTotal(selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) + parseFloat(Tax));
+    //     // setAllOrderTotal(parseFloat(Tax) + allOrderTotal)
+    // }, [Tax])
+
+    // // For calculating discount
+    // useEffect(() => {
+    //     setAllOrderTotal(selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) - 
+    //     parseFloat(discountPerc * selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) / 100));
+    // }, [discountPerc]);
 
     useEffect(() => {
         setSelectedItemTemp(AllOrderItemsReducer.items);
@@ -327,7 +379,12 @@ export default function AllOrders() {
                 {/* Box1 */}
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
                     {selectedItemTemp.map((item, index) => (
-                        <Box key={index} borderWidth="1px" borderRadius="lg" overflow="hidden" mb={3}>
+                        <Box key={index}
+                            borderWidth="1px"
+                            borderRadius="lg"
+                            overflow="hidden"
+                            mb={3}
+                        >
                             <Box p="6">
                                 <Box display="flex" alignItems="center">
                                     <Box>
@@ -363,16 +420,56 @@ export default function AllOrders() {
                         </Box>
                     ))}
 
+
+                    {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <FormLabel style={{ flex: '0 0 50%' }}>Tax</FormLabel>
+                        <Input
+                            style={{ flex: '0 0 50%' }}
+                            type="number"
+                            onChange={(e) => setTax(e.target.value)}
+                            value={Tax}
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <FormLabel style={{ flex: '0 0 50%' }}>Discount Percentage </FormLabel>
+                        <Input
+                            style={{ flex: '0 0 50%' }}
+                            type="number"
+                            onChange={(e) => setDiscountPerc(e.target.value)}
+                            value={discountPerc}
+                        />
+                    </div> */}
+
+                    {/* {Tax > 0 && (<Text
+                        marginTop={'5px'}
+                        display={'flex'}
+                        justifyContent={'end'}
+                        marginRight={'1rem'}
+                    >
+                        Tax : {Tax} €
+                    </Text>
+                    )} */}
+
                     {allOrderTotal > 0 && (
                         <Text
+                            marginTop={'5px'}
                             display={'flex'}
                             justifyContent={'end'}
                             marginRight={'1rem'}
                         >
-                           Total : {parseFloat(allOrderTotal).toFixed(2)} €
+                            Total : {parseFloat(allOrderTotal).toFixed(2)} €
                         </Text>
                     )}
+
+
                 </Box>
+
+                <Button
+                    onClick={() => generateBill(selectedItemTemp, allOrderTotal)}
+                >
+                    Generate Bill
+                </Button>
 
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
                     <InputGroup>

@@ -7,6 +7,7 @@ import itemRoutes from './routes/item.js'
 import lowStockItems from './routes/lowStocks.js'
 import supplierRoutes from './routes/suppliers.js'
 import orderRoutes from './routes/orders.js'
+import qrRoutes from './routes/qr.js'
 // import userRoutes from './routes/users.js'
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/item-management',itemRoutes)
 app.use('/stock-management',lowStockItems)
 app.use('/supplier',supplierRoutes)
 app.use('/orders',orderRoutes)
+app.use('/qr-items',qrRoutes)
 
 app.get('/', (req, res) => {
     res.send(" This is restro website  ");

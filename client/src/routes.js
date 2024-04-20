@@ -11,6 +11,8 @@ import {
 } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { LuFolderClosed, LuShoppingBag } from "react-icons/lu";
+import { BiBarcodeReader } from "react-icons/bi";
+
 
 // Admin Imports
 import MainDashboard from "views/admin/default";
@@ -22,7 +24,7 @@ import ItemManagement from "views/admin/itemManagement";
 import LowStocks from "views/admin/lowStocks";
 import SupplierManagement from "views/admin/supplierMgmt";
 import AllOrders from 'views/admin/allOrders'
-
+import BarcodeGenerator from 'views/admin/barcodeGenerator'
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
 
@@ -61,6 +63,13 @@ const routes = [
     path: "/orders",
     icon: <Icon as={MdShoppingCart} width='20px' height='20px' color='inherit' />,
     component: AllOrders,
+  },
+  {
+    name: "Barcode Generator",
+    layout: "/admin",
+    path: "/barcode",
+    icon: <Icon as={BiBarcodeReader} width='20px' height='20px' color='inherit' />,
+    component: BarcodeGenerator,
   },
   {
     name: "NFT Marketplace",
