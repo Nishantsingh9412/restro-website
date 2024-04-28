@@ -37,14 +37,12 @@ const __dirname1 = path.resolve();
 // console.log(__dirname1)
 
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname1, "./frontend/build")));
-    // app.get('/horizon-ui-chakra/admin/item-management', (req, res) => {
-    //     res.sendFile(path.resolve(__dirname1, "./frontend", "build", "index.html"));
-    // });
+    app.use(express.static(("./frontend/build")));
+    
     app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname1, "./frontend", "build", "index.html"));
+        res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"));
     });
-} else {
+} else {    
     app.get('/', (req, res) => {
         res.send("on 8000 port ")
     })

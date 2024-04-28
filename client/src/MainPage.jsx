@@ -27,7 +27,7 @@ const MainPage = (props) => {
     >
       <Flex align="center" mr={5}>
         <Heading as="h1" size="lg" letterSpacing={"tighter"}>
-          <a href="http://localhost:3000/admin/default"> 
+          <a href="/admin/default"> 
            <Button 
             color={"#000000"}
 
