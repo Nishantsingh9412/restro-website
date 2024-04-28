@@ -1,6 +1,6 @@
 {
-    "homepage": "https://horizon-ui.com/horizon-ui-chakra",
-    "name": "horizon-ui-chakra",
+    "name": "react-app",
+    
     "version": "1.0.1",
     "private": true,
     "dependencies": {
@@ -26,6 +26,7 @@
         "framer-motion": "^4.1.17",
         "jspdf": "^2.5.1",
         "nanoid": "^5.0.7",
+        "pngjs": "^7.0.0",
         "react": "^18.2.0",
         "react-apexcharts": "1.4.0",
         "react-calendar": "^3.7.0",
@@ -55,6 +56,9 @@
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
         "sitemap": "babel-node ./sitemap-builder.js"
+    },
+    "engines": {
+        "node": "20.11.1"
     },
     "resolutions": {
         "react-error-overlay": "6.0.9"

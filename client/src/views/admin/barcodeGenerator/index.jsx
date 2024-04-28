@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from 'react-toastify';
-// import { v4 as uuidv } from 'uuid';
 import { nanoid } from 'nanoid';
+import bwipjs from 'bwip-js';
+
+// import * as bwipjs from 'bwip-js';
+
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2'
 import {
@@ -38,6 +41,7 @@ import { IoMdEye, IoMdTrash } from 'react-icons/io';
 import { IoPencil } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import { getALlItemsActionQR, postQRItemAction } from '../../../redux/action/QRItems.js';
+import { BiBarcodeReader } from 'react-icons/bi';
 
 
 
@@ -168,6 +172,22 @@ const BarcodeGenerator = () => {
         setLastReplenished('2021-07-01');
     }
 
+    const handleGenerateBarcode = (item) => {
+        try {
+            let canvas = bwipjs.toCanvas('mycanvas', {
+                bcid: 'code128',       // Barcode type
+                text: item.qr_code,    // Text to encode
+                scale: 3,               // 3x scaling factor
+                height: 10,              // Bar height, in millimeters
+                includetext: true,            // Show human-readable text
+                textxalign: 'center',        // Always good to set this
+            });
+        } catch (e) {
+            console.log('Error in generating barcode')
+        }
+
+    }
+
     useEffect(() => {
         setItemDataArray(QRItemsReducerData)
     }, [QRItemsReducerData])
@@ -190,6 +210,7 @@ const BarcodeGenerator = () => {
 
             {/* Table Start */}
             <Box style={{ marginTop: '2vw' }} overflowX="auto">
+
                 <Table variant="striped" colorScheme="pink" >
 
                     <Thead>
@@ -215,7 +236,10 @@ const BarcodeGenerator = () => {
                                     <Td isNumeric>{item.minimum_quantity}</Td>
                                     <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
                                     <Td isNumeric>{item.Last_Replenished.split('T')[0]}</Td>
-                                    <Td>
+                                    <Td
+                                        onClick={() => handleGenerateBarcode(item)}
+                                    >
+                                        <BiBarcodeReader />
                                     </Td>
                                 </Tr>
                             );
@@ -225,6 +249,7 @@ const BarcodeGenerator = () => {
                         <Tr>
                             <Th>Item Name</Th>
                             <Th>Unit</Th>
+                            <Th> Item Quantity </Th>
                             <Th isNumeric>Available</Th>
                             <Th isNumeric>Minimum</Th>
                             <Th isNumeric>Usage Rate</Th>
@@ -233,6 +258,10 @@ const BarcodeGenerator = () => {
                         </Tr>
                     </Tfoot>
                 </Table>
+                <Box marginTop={'50px'}>
+                    <canvas id="mycanvas"></canvas>
+                </Box>
+
             </Box>
             {/* Table End */}
 
@@ -279,7 +308,7 @@ const BarcodeGenerator = () => {
 
                                     <FormControl id="itemCount" isRequired>
                                         <FormLabel>Item Count</FormLabel>
-                                        <Input 
+                                        <Input
                                             type='number'
                                             step={'any'}
                                             value={item_count}

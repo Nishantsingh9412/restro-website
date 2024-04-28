@@ -2,12 +2,16 @@ import express from "express";
 import mongoose, { mongo } from "mongoose";
 import cors from 'cors';
 import dotenv from 'dotenv'
+import path from 'path'
+
+import passportSetup from './controllers/passport.js'
 
 import itemRoutes from './routes/item.js'
 import lowStockItems from './routes/lowStocks.js'
 import supplierRoutes from './routes/suppliers.js'
 import orderRoutes from './routes/orders.js'
 import qrRoutes from './routes/qr.js'
+import authRoutes from './routes/authRoutes.js'
 // import userRoutes from './routes/users.js'
 
 const app = express();
@@ -19,15 +23,38 @@ app.use(express.urlencoded({ limit: "30mb", extended: true }))
 app.use(cors());
 
 
-app.use('/item-management',itemRoutes)
-app.use('/stock-management',lowStockItems)
-app.use('/supplier',supplierRoutes)
-app.use('/orders',orderRoutes)
-app.use('/qr-items',qrRoutes)
+app.use('/item-management', itemRoutes)
+app.use('/stock-management', lowStockItems)
+app.use('/supplier', supplierRoutes)
+app.use('/orders', orderRoutes)
+app.use('/qr-items', qrRoutes)
+app.use('/auth', authRoutes)
 
-app.get('/', (req, res) => {
-    res.send(" This is restro website  ");
-})
+
+// ----------------------------deployment--------------------------------------
+
+const __dirname1 = path.resolve();
+// console.log(__dirname1)
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname1, "./frontend/build")));
+    // app.get('/horizon-ui-chakra/admin/item-management', (req, res) => {
+    //     res.sendFile(path.resolve(__dirname1, "./frontend", "build", "index.html"));
+    // });
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname1, "./frontend", "build", "index.html"));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send("on 8000 port ")
+    })
+}
+// ----------------------------deployment--------------------------------------
+
+
+// app.get('/', (req, res) => {
+//     res.send(" Server is up and running  ");
+// })
 const PORT = process.env.PORT || 8000;
 const DATABASE_URL = process.env.CONNECTION_URL
 

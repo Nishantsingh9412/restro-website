@@ -48,7 +48,7 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 
-function SignIn() {
+function SignUp() {
   // Chakra color mode
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
@@ -127,10 +127,9 @@ function SignIn() {
             _active={googleActive}
             _focus={googleActive}
             onClick={handleGoogleLogin}
-            
             >
             <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
-            Sign in with Google
+            Sign Up with Google
           </Button>
           <Flex align='center' mb='25px'>
             <HSeparator />
@@ -220,7 +219,7 @@ function SignIn() {
               w='100%'
               h='50'
               mb='24px'>
-              Sign In
+              Sign Up
             </Button>
           </FormControl>
           <Flex
@@ -248,4 +247,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default SignUp;

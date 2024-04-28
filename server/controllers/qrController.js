@@ -13,6 +13,7 @@ export const searchItemsQR = async (req, res) => {
                 { $inc: { item_count: 1 } },
                 { new: true });
             if (!searchItem) {
+                
                 return res.status(404).json({ success: false, message: "QR Item not found" })
             } else {
                 return res.status(200).json({ success: true, result: searchItem })
