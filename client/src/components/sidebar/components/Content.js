@@ -12,10 +12,10 @@ function SidebarContent(props) {
   const { routes } = props;
   // SIDEBAR
   return (
-    <Flex direction='column' height='100%' pt='25px' px="16px" borderRadius='30px'>
+    <Flex direction='column' height='100%' pt='25px' borderRadius='30px' color="#fff">
       <Brand />
       <Stack direction='column' mb='auto' mt='8px'>
-        <Box ps='20px' pe={{ md: "16px", "2xl": "1px" }}>
+        <Box ps='20px'>
           <Links routes={routes} />
         </Box>
       </Stack>

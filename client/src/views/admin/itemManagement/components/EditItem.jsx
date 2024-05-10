@@ -113,10 +113,14 @@ const EdiItem = (props) => {
                         </ModalContent>
                         : <>
                             {props.overlay}
-                            <ModalContent>
-                                <ModalHeader>Modal Title</ModalHeader>
+                            <ModalContent
+                                background={'#9BF0F2'}
+                                border={'5px solid #fff'}
+                            >
+                                <ModalHeader>Edit Item</ModalHeader>
                                 <ModalCloseButton />
-                                <ModalBody>
+                                <ModalBody
+                                >
                                     <Box maxW="sm" m="auto" p="4" borderWidth="1px" borderRadius="lg" background={'whiteAlpha.100'}>
                                         <form onSubmit={handleSubmit}>
                                             <FormControl id="itemName" isRequired>

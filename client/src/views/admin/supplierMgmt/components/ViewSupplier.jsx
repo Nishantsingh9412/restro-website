@@ -13,12 +13,9 @@ import {
     Text,
     Flex,
     Box,
-    useDisclosure,
 } from '@chakra-ui/react'
 
-import { getSingleSupplierAction } from '../../../../redux/action/supplier.js'
-
-
+import { clearSelectedSupplierAction, getSingleSupplierAction } from '../../../../redux/action/supplier.js'
 
 
 const ViewSupplier = (props) => {
@@ -31,7 +28,7 @@ const ViewSupplier = (props) => {
 
     useEffect(() => {
         dispatch(getSingleSupplierAction(SelectedItemId))
-    }, [SelectedItemId])
+    }, [SelectedItemId,isOpen])
 
     const selectedSupplier = useSelector(state => state.supplierReducer.seletectedSupplier);
     console.log(selectedSupplier);
@@ -51,69 +48,74 @@ const ViewSupplier = (props) => {
     return (
         <div>
             <>
-                <Modal isCentered isOpen={isOpen} onClose={onClose}>
+                <Modal isCentered isOpen={isOpen} onClose={() => {
+                    onClose();
+                    dispatch(clearSelectedSupplierAction());
+                }}>
                     {overlay}
-                    <ModalContent
-                        maxW='45rem'
-                    >
-                        <ModalHeader>
-                            <Flex>
-                                <Image
-                                    marginRight={2}
-                                    borderRadius='full'
-                                    boxSize='50px'
-                                    src={selectedSupplier?.pic}
-                                    alt='Dan Abramov'
-                                />
-                                <Text
-                                    marginTop={2}
-                                >
-                                    {selectedSupplier?.name}
-                                </Text>
-                            </Flex>
+                    
+                        <ModalContent
+                            maxW='45rem'
+                            background={'#F3F2EE'}
+                            color={'#ee7213'}
+                        >
+                            <ModalHeader>
+                                <Flex>
+                                    <Image
+                                        marginRight={2}
+                                        borderRadius='full'
+                                        boxSize='50px'
+                                        src={selectedSupplier?.pic}
+                                        alt='Dan Abramov'
+                                    />
+                                    <Text
+                                        marginTop={2}
+                                    >
+                                        {selectedSupplier?.name}
+                                    </Text>
+                                </Flex>
 
-                        </ModalHeader>
-                        <ModalCloseButton />
-                        <ModalBody>
-                            {/* <Text>  Hello </Text> */}
-                            {/* <Text>Custom backdrop filters!</Text> */}
-
-                            <Text> Last Updated : {selectedSupplier?.updatedAt?.split('T')[0]}  </Text>
-                            <h1
-                                style={
-                                    {
+                            </ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                                <Text> Last Updated : {selectedSupplier?.updatedAt?.split('T')[0]}  </Text>
+                                <h1
+                                    style={{
                                         fontSize: '20px',
                                         fontWeight: 'bold',
-                                        marginBottom: '10px'
-                                    }
-                                }
-                            >Items</h1>
-                            <ol style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                flexWrap: 'wrap',
-                                justifyContent: 'start'
-                            }}>
-                                {selectedSupplier?.Items?.map((item, index) => {
-                                    return (
-                                        <Box
-                                            marginLeft={'1vw'}
-                                            marginTop={'1vw'}
-                                            borderRadius={'20px'}
-                                            padding={'6px'}
-                                            border={'1px solid #ddd'}
-                                            background={'#a4ee9f99'}
-                                        >
-                                            {item}
-                                        </Box>
-                                    )
-                                })}
-                            </ol>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button onClick={onClose}>Close</Button>
-                        </ModalFooter>
-                    </ModalContent>
+                                        marginBottom: '5px',
+                                        marginTop: '5px'
+                                    }}
+                                >
+                                    Items
+                                </h1>
+                                <ol style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'start'
+                                }}>
+                                    {selectedSupplier?.Items?.map((item, index) => {
+                                        return (
+                                            <Box
+                                                marginLeft={'1vw'}
+                                                marginTop={'1vw'}
+                                                borderRadius={'20px'}
+                                                padding={'6px'}
+                                                border={'1px solid #ddd'}
+                                                background={'#fff'}
+                                            >
+                                                {item}
+                                            </Box>
+                                        )
+                                    })}
+                                </ol>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button onClick={onClose}>Close</Button>
+                            </ModalFooter>
+                        </ModalContent>
+                    
                 </Modal>
             </>
         </div>

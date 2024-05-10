@@ -28,10 +28,10 @@ import { ThemeEditor } from './ThemeEditor';
 export default function HeaderLinks(props) {
 	const { secondary } = props;
 	// Chakra Color Mode
-	const navbarIcon = useColorModeValue('gray.400', 'white');
+	const navbarIcon = useColorModeValue('white', 'white');
 	let menuBg = useColorModeValue('white', 'navy.800');
-	const textColor = useColorModeValue('secondaryGray.900', 'white');
-	const textColorBrand = useColorModeValue('brand.700', 'brand.400');
+	const textColor = useColorModeValue('white', 'white');
+	const textColorBrand = useColorModeValue('white', 'brand.400');
 	const ethColor = useColorModeValue('gray.700', 'white');
 	const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
 	const ethBg = useColorModeValue('secondaryGray.300', 'navy.900');
@@ -46,7 +46,6 @@ export default function HeaderLinks(props) {
 			w={{ sm: '100%', md: 'auto' }}
 			alignItems="center"
 			flexDirection="row"
-			bg={menuBg}
 			flexWrap={secondary ? { base: 'wrap', md: 'nowrap' } : 'unset'}
 			p="10px"
 			borderRadius="30px"
@@ -71,7 +70,7 @@ export default function HeaderLinks(props) {
 					</Text>
 				</Text>
 			</Flex>
-			<SidebarResponsive routes={routes} />
+			{/* <SidebarResponsive routes={routes} /> */}
 			<Menu>
 				<MenuButton p="0px">
 					<Icon mt="6px" as={MdNotificationsNone} color={navbarIcon} w="18px" h="18px" me="10px" />

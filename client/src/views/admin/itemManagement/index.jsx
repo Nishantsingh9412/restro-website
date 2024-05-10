@@ -40,6 +40,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AddItemAction, GetAllItemsAction, deleteSingleItemAction } from '../../../redux/action/Items';
 import ViewItem from './components/ViewItem'
 import EdiItem from './components/EditItem';
+import styles from './ItemManagement.module.css'
 
 
 export default function ItemManagement() {
@@ -63,7 +64,7 @@ export default function ItemManagement() {
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
   const [unit, setUnit] = useState('');
-  
+
   const [available, setAvailable] = useState(0);
   const [minimum, setMinimum] = useState(0);
   const [usageRateValue, setUsageRateValue] = useState(0);
@@ -73,8 +74,8 @@ export default function ItemManagement() {
 
   // Remove this code
   const [input, setInput] = useState('')
-  const handleInputChange = (e) => setInput(e.target.value)
-  const isError = input === ''
+  // const handleInputChange = (e) => setInput(e.target.value)
+  // const isError = input === ''
   // End of this code
 
 
@@ -131,6 +132,17 @@ export default function ItemManagement() {
 
 
   const handleDeleteItem = (id) => {
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .swal-bg {
+        background-color: #F3F2EE !important;
+    }
+    .swal-border {
+        border: 5px solid #fff !important;
+    }`;
+    document.head.appendChild(style);
+
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -138,7 +150,10 @@ export default function ItemManagement() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: 'swal-bg swal-border'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         handleConfirmDelete(id);
@@ -174,44 +189,108 @@ export default function ItemManagement() {
     <div style={{ marginTop: '5vw' }} >
       <div >
         <ToastContainer />
-        <Button
-          leftIcon={<FiPlusCircle />}
-          colorScheme='pink'
+        <button
+          className={styles.addbtn}
           onClick={() => {
             setOverlay(<OverlayOne />)
             onOpen()
           }}
         >
           Add Item
-        </Button>
+        </button>
       </div>
 
+
+      <div
+        className={styles.tableHeader}
+      >
+        <div>Item Name</div>
+        <div>Unit</div>
+        <div>Available</div>
+        <div>Minimum</div>
+        <div>Usage Rate</div>
+        <div>Last Replenished</div>
+        <div>Action</div>
+      </div>
+
+      {itemDataArray?.map((item, index) => {
+        return (
+          <div
+            className={styles.tableRow}
+            key={index}
+          >
+            <div>{item.item_name}</div>
+            <div>{item.item_unit}</div>
+            <div>{item.available_quantity}</div>
+            <div>{item.minimum_quantity}</div>
+            <div>{item.usage_rate_value}{item.usage_rate_unit}</div>
+            <div>{item.Last_Replenished.split('T')[0]}</div>
+            <div>
+              <IconButton
+                aria-label='Delete Item'
+                colorScheme='red'
+                size='sm'
+                icon={<IoMdTrash />}
+                onClick={() => handleDeleteItem(item._id)}
+              />
+
+              <IconButton
+                // ml={2}
+                aria-label='Edit Item'
+                colorScheme='yellow'
+                size='sm'
+                icon={<IoPencil />}
+                onClick={() => {
+                  setPencilIconSelectedId(item._id)
+                  setOverlay(<OverlayOne />)
+                  onOpenThree()
+                }}
+              />
+              <IconButton
+                // ml={2}
+                aria-label='Edit Item'
+                colorScheme='green'
+                size='sm'
+                icon={<IoMdEye />}
+                onClick={() => {
+                  setEyeIconSelectedId(item._id)
+                  setOverlay(<OverlayOne />)
+                  onOpenTwo()
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+
       {/* Table Start */}
-      <Box style={{ marginTop: '2vw' }} overflowX="auto">
-        <Table variant="striped" colorScheme="pink" >
-          
+      {/* <Box style={{ marginTop: '2vw' }} overflowX="auto">
+        <Table variant="striped" colorScheme="teal" >
           <Thead>
             <Tr>
-              <Th>Item Name</Th>
-              <Th>Unit</Th>
-              <Th isNumeric>Available</Th>
-              <Th isNumeric>Minimum</Th>
-              <Th isNumeric>Usage Rate</Th>
-              <Th isNumeric>Last Replenished</Th>
-              <Th>Action</Th>
+                <Th>Item Name</Th>
+                <Th>Unit</Th>
+                <Th isNumeric>Available</Th>
+                <Th isNumeric>Minimum</Th>
+                <Th isNumeric>Usage Rate</Th>
+                <Th isNumeric>Last Replenished</Th>
+                <Th>Action</Th>
             </Tr>
           </Thead>
-          <Tbody>
+          <Tbody
+          >
             {itemDataArray?.map((item, index) => {
               return (
-                <Tr key={index}>
+                <Tr  key={index}>
                   <Td>{item.item_name}</Td>
                   <Td>{item.item_unit}</Td>
                   <Td isNumeric>{item.available_quantity}</Td>
                   <Td isNumeric>{item.minimum_quantity}</Td>
                   <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
                   <Td isNumeric>{item.Last_Replenished.split('T')[0]}</Td>
-                  <Td>
+                  <Td
+                    display={'flex'}
+                  >
 
                     <IconButton
                       aria-label='Delete Item'
@@ -222,9 +301,9 @@ export default function ItemManagement() {
                       />} />
 
                     <IconButton
-                      ml={2}
+                      // ml={2}
                       aria-label='Edit Item'
-                      colorScheme='blackAlpha'
+                      colorScheme='yellow'
                       size='sm'
                       icon={<IoPencil />}
                       onClick={() => {
@@ -235,9 +314,9 @@ export default function ItemManagement() {
                     />
 
                     <IconButton
-                      ml={2}
+                      // ml={2}
                       aria-label='Edit Item'
-                      colorScheme='blackAlpha'
+                      colorScheme='green'
                       size='sm'
                       icon={<IoMdEye />}
                       onClick={() => {
@@ -263,7 +342,7 @@ export default function ItemManagement() {
             </Tr>
           </Tfoot>
         </Table>
-      </Box>
+      </Box> */}
       {/* Table End */}
 
       {/* Add Modal Start */}
@@ -273,10 +352,11 @@ export default function ItemManagement() {
           <ModalContent>
             <ModalHeader>Add Item</ModalHeader>
             <ModalCloseButton />
-            <ModalBody>
-              <Text>Custom backdrop filters!</Text>
+            <ModalBody
+              background={'#9BF0F2'}
+            >
               <Button onClick={handleAutoAddVals}>
-                Auto Add Values 
+                Auto Add Values
               </Button>
               {/* Check for FormError */}
               {/* <FormControl isInvalid={isError}>
@@ -378,7 +458,11 @@ export default function ItemManagement() {
                     />
                   </FormControl>
 
-                  <Button mt="4" colorScheme="blue" type="submit">
+                  <Button
+                    mt="4"
+                    colorScheme="blue"
+                    type="submit"
+                  >
                     Add Item
                   </Button>
                 </form>
@@ -418,6 +502,6 @@ export default function ItemManagement() {
         setOverlay={setOverlay}
       />
       {/* Edit Item Modal End  */}
-    </div>
+    </div >
   )
 }

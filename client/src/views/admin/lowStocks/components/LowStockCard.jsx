@@ -51,10 +51,9 @@ const LowStockCard = () => {
     return (
 
         <>
-            <div style={{ marginTop: '5vw' }}>
-                {/* <Container maxW={'300px'} bg={''} padding={'20px'}> */}
+            <div style={{ marginTop: '5vw', fontWeight: 'bold' }}>
                 <h3
-                    style={{ marginLeft: '10px', fontWeight: '900' }}
+                    style={{ marginLeft: '10px', fontWeight: '900', color: '#3e97cd' }}
                 > Low Stocks Alert  </h3>
 
                 <div
@@ -64,30 +63,39 @@ const LowStockCard = () => {
                         flexWrap: 'wrap',
                         padding: '10px',
                         marginLeft: '10px',
+
                     }}
                 >
 
                     {lowStockItems.map((item, index) => (
                         <Box
                             key={index}
-                            minWidth={'300px'}
+                            minWidth={'340px'}
                             marginLeft={'25px'}
                             marginTop={'25px'}
                             maxW={'300px'}
-                            bg={'pink.100'}
+                            bg={'#f3f2ee'}
+                            boxShadow={'2px 2px 2px #b39b9b'}
+                            border={'5px solid #fff'}
                             borderRadius={'3xl'}
                             padding={'20px'}
+                            color={index & 1 ? '#ee2d4f' : '#ee7213'}
                         >
                             <>
                                 <Flex justifyContent="space-between">
                                     <Box>
-                                        <h4 style={{ fontWeight: '600' }}>{item.item_name}</h4>
-                                        <Text color='gray.500'>Last Updated {item.Last_Replenished.split('T')[0]} </Text>
+                                        <h4 style={{ fontWeight: '600', }}>{item.item_name}</h4>
+                                        <Text >Last Updated {item.Last_Replenished.split('T')[0]} </Text>
                                     </Box>
                                     <Box justifyContent={'end'}>
-                                        <LuSoup
-                                            size={'30'}
-                                        />
+                                        <Box
+                                            color={'saddlebrown'}
+                                            backgroundColor={'white'}
+                                            borderRadius={'3xl'}
+                                            padding={'10px'}
+                                        >
+                                            <LuSoup size={'30'} />
+                                        </Box>
                                     </Box>
                                 </Flex>
                                 <Flex justifyContent={'end'} marginTop={'15px'} marginBottom={'20px'}>
@@ -98,7 +106,9 @@ const LowStockCard = () => {
                                             marginRight={'5px'}
                                             bg='red'
                                         />
-                                        <h6>Low Stock</h6>
+                                        <h6
+                                            style={{ color: 'red' }}
+                                        >Low Stock</h6>
                                     </Flex>
                                 </Flex>
                                 <Box marginTop={'10px'}>
@@ -123,30 +133,28 @@ const LowStockCard = () => {
                                 </Box>
                                 <Flex justifyContent={'space-between'} marginTop={'4'}>
                                     <Stack direction={'row'}>
-                                        <Text>{`${item.usage_rate_value} / ${item.available_quantity}`}</Text>
-                                        <Text color='gray.500'>Total Amount</Text>
+                                        <Text
+                                        > {`${item.usage_rate_value} / ${item.available_quantity}`} </Text>
+                                        <Text >Total Amount</Text>
                                     </Stack>
-                                    <span>{(item.usage_rate_value / item.available_quantity).toFixed(1) * 100}%</span>
+                                    <span
+                                        style={{
+                                            border: index & 1 ? '2px solid #ee2d4f' : '2px solid #ee7213',
+                                            padding: '3px',
+                                            borderRadius: '10%',
+                                            fontSize: 'smaller'
+                                        }}
+                                    > {(item.usage_rate_value / item.available_quantity).toFixed(1) * 100}%</span>
                                 </Flex>
                             </>
                         </Box>
                     ))}
-
-
                 </div>
-
-
-
-
-
-
-
             </div >
 
             <div style={{ marginTop: '5vw' }}>
-                {/* <Container maxW={'300px'} bg={''} padding={'20px'}> */}
                 <h3
-                    style={{ marginLeft: '10px', fontWeight: '900' }}
+                    style={{ marginLeft: '10px', fontWeight: '900', color: '#3e97cd' }}
                 >  Overall Stocks  </h3>
 
                 <div
@@ -162,24 +170,33 @@ const LowStockCard = () => {
                     {allStockItems.map((item, index) => (
                         <Box
                             key={index}
-                            minWidth={'300px'}
+                            minWidth={'340px'}
                             marginLeft={'25px'}
                             marginTop={'25px'}
+                            boxShadow={'2px 2px 2px #b39b9b'}
                             maxW={'300px'}
-                            bg={'pink.100'}
+                            bg={'#F3F2EE'}
+                            color={index & 1 ? '#ee7213' : '#ee2d4f'}
+                            fontWeight={'bold'}
                             borderRadius={'3xl'}
                             padding={'20px'}
+                            border={'5px solid #fff'}
                         >
                             <>
                                 <Flex justifyContent="space-between">
                                     <Box>
                                         <h4 style={{ fontWeight: '600' }}>{item.item_name}</h4>
-                                        <Text color='gray.500'>Last Updated {item.Last_Replenished.split('T')[0]} </Text>
+                                        <Text >Last Updated {item.Last_Replenished.split('T')[0]} </Text>
                                     </Box>
                                     <Box justifyContent={'end'}>
-                                        <LuSoup
-                                            size={'30'}
-                                        />
+                                        <Box
+                                            color={'saddlebrown'}
+                                            backgroundColor={'white'}
+                                            borderRadius={'3xl'}
+                                            padding={'10px'}
+                                        >
+                                            <LuSoup size={'30'} />
+                                        </Box>
                                     </Box>
                                 </Flex>
                                 <Flex justifyContent={'end'} marginTop={'15px'} marginBottom={'20px'}>
@@ -193,11 +210,15 @@ const LowStockCard = () => {
 
                                         {parseInt((item.usage_rate_value / item.available_quantity) * 100) >= 70 ?
                                             <>
-                                                <h6> Low Stock</h6>
+                                                <h6
+                                                    style={{ color: 'red' }}
+                                                > Low Stock</h6>
                                             </>
                                             :
                                             <>
-                                                <h6> In Stock</h6>
+                                                <h6
+                                                    style={{ color: 'green' }}
+                                                > In Stock</h6>
                                             </>
                                         }
                                     </Flex>
@@ -225,9 +246,17 @@ const LowStockCard = () => {
                                 <Flex justifyContent={'space-between'} marginTop={'4'}>
                                     <Stack direction={'row'}>
                                         <Text>{`${item.usage_rate_value} / ${item.available_quantity}`}</Text>
-                                        <Text color='gray.500'>Total Amount</Text>
+                                        <Text >Total Amount</Text>
                                     </Stack>
-                                    <span>{parseFloat(((item.usage_rate_value / item.available_quantity) * 100).toFixed(1))}%</span>
+                                    <span
+                                        style={{
+                                            border: index & 1 ? '2px solid #ee7213' : '2px solid #ee2d4f',
+                                            padding: '3px',
+                                            borderRadius: '10%',
+                                            fontSize: 'smaller'
+                                        }}
+
+                                    >{parseFloat(((item.usage_rate_value / item.available_quantity) * 100).toFixed(1))}%</span>
                                 </Flex>
                             </>
                         </Box>
@@ -235,8 +264,6 @@ const LowStockCard = () => {
 
 
                 </div>
-
-
             </div >
 
 

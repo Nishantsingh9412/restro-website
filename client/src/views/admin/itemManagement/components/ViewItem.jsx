@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react'
+import { FaEye } from "react-icons/fa6"
 import {
+    Table,
+    Tbody,
+    Tr,
+    Td,
+    Text,
+    Box,
     Modal,
-    ModalOverlay,
     ModalContent,
     ModalHeader,
     ModalFooter,
     ModalBody,
     ModalCloseButton,
-    useDisclosure,
     Button,
-    Text,
 } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -21,6 +25,7 @@ const ViewItem = (props) => {
     const ItemId = props.EyeIconSelectedId;
     // const { isOpen, onOpen, onClose } = useDisclosure()
     // const [overlay, setOverlay] = useState(<OverlayOne />)
+
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -34,23 +39,58 @@ const ViewItem = (props) => {
         <div>
             <Modal isCentered isOpen={props.isOpen} onClose={props.onClose}>
                 {props.overlay}
-                <ModalContent>
-                    <ModalHeader>Modal Title</ModalHeader>
+                <ModalContent
+                    background={'#9EF6F7'}
+                >
+                    <ModalHeader>
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                            gap="1rem"
+                            flexDirection="row-reverse"
+                            alignItems={'center'}
+                        >
+                            <Text>View Item</Text>
+                            <FaEye />
+                        </Box>
+                    </ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody>
-                        <Text> Item Name: {SelectedItemData?.item_name} </Text>
-                        <Text> Item Unit: {SelectedItemData?.item_unit} </Text>
-                        <Text> Available Quantity: {SelectedItemData?.available_quantity} </Text>
-                        <Text> Minimum Quantity : {SelectedItemData?.minimum_quantity} </Text>
-                        <Text> Usage Rate : {SelectedItemData?.usage_rate_value} {SelectedItemData?.usage_rate_unit} </Text>
-                        <Text> Last Replenished: {SelectedItemData?.Last_Replenished.split('T')[0]} </Text>
+                    <ModalBody fontFamily={'math'} alignItems={'center'}>
+                        <Table variant="simple" size="md">
+                            <Tbody>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Item Name : </Td>
+                                    <Td>{SelectedItemData?.item_name}</Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Item Unit:</Td>
+                                    <Td>{SelectedItemData?.item_unit}</Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Available Quantity:</Td>
+                                    <Td>{SelectedItemData?.available_quantity}</Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Minimum Quantity:</Td>
+                                    <Td>{SelectedItemData?.minimum_quantity}</Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Usage Rate:</Td>
+                                    <Td>{SelectedItemData?.usage_rate_value} {SelectedItemData?.usage_rate_unit}</Td>
+                                </Tr>
+                                <Tr>
+                                    <Td fontWeight={'bold'}>Last Replenished:</Td>
+                                    <Td>{SelectedItemData?.Last_Replenished.split('T')[0]}</Td>
+                                </Tr>
+                            </Tbody>
+                        </Table>
                     </ModalBody>
                     <ModalFooter>
                         <Button onClick={props.onClose}>Close</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
- 
+
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { FaRegUser } from "react-icons/fa";
 import {
   Modal,
   ModalOverlay,
@@ -86,7 +87,7 @@ const EditSupplier = (props) => {
 
   useEffect(() => {
     dispatch(getSingleSupplierAction(SelectedItemId))
-  }, [SelectedItemId])
+  }, [SelectedItemId,isOpen])
 
   const selectedSupplierData = useSelector(state => state.supplierReducer.seletectedSupplier);
   console.log("This is Selected Supplier \n");
@@ -111,9 +112,9 @@ const EditSupplier = (props) => {
       pic: supplierPicEdit
     }
 
-    
 
-    const updatedSupplier =  dispatch(UpdateSupplierAction(id,editedSupplierData)).then((res) => {
+
+    const updatedSupplier = dispatch(UpdateSupplierAction(id, editedSupplierData)).then((res) => {
       if (res.success) {
         onClose();
         return res.message;
@@ -147,8 +148,16 @@ const EditSupplier = (props) => {
       <>
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           {overlay}
-          <ModalContent>
-            <ModalHeader>Select Supplier</ModalHeader>
+          <ModalContent
+            background={'#F3F2EE'}
+            color={'#ee7213'}
+          >
+            <ModalHeader>
+              <Box display="flex" justifyContent="center" alignItems="center" gap="10px">
+                <FaRegUser />
+                <Text>Update Supplier</Text>
+              </Box>
+            </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <Box maxW="sm" m="auto" p="4" borderWidth="1px" borderRadius="lg" background={'whiteAlpha.100'}>
@@ -159,6 +168,7 @@ const EditSupplier = (props) => {
                       type="text"
                       onChange={(e) => setSupplierNameEdit(e.target.value)}
                       value={supplierNameEdit}
+                      _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                     />
                   </FormControl>
 
@@ -169,17 +179,25 @@ const EditSupplier = (props) => {
                       onChange={(e) => setSupplierItemsEdit(e.target.value.split(','))}
                       value={supplierItemsEdit.map((item) => item)}
                       placeholder={"Tomato,Cauliflower,Brinjal"}
+                      _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                     />
                   </FormControl>
 
                   <FormControl id="pic" >
                     <FormLabel>Upload Picture</FormLabel>
-                    <Input type="file" accept='image/*' onChange={(e) => postSupplierImageEdit(e.target.files[0])} />
+                    <Input
+                      type="file"
+                      accept='image/*'
+                      onChange={(e) => postSupplierImageEdit(e.target.files[0])}
+                      _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                    />
                   </FormControl>
 
                   <Button
                     mt="4"
-                    colorScheme="blue"
+                    bg="#ee7213"
+                    color="white"
+                    _hover={{ bg: '#ff8c42' }}
                     type="submit"
                     isLoading={loading}
                   >

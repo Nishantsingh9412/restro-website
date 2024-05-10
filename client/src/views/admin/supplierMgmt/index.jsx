@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { FiPlusCircle } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -86,19 +87,19 @@ export default function SupplierManagement() {
 
     const handleAddSupplier = (e) => {
         e.preventDefault();
-        
+
         const newSupplier = {
-            name:suppliername,
+            name: suppliername,
             pic,
             Items
         }
         console.log("This is new Supplier Data \n");
         console.log(newSupplier);
         dispatch(AddNewSupplierAction(newSupplier)).then((res) => {
-            if(res.success){
+            if (res.success) {
                 toast.success('Item Added successfully');
                 onClose();
-            }else{
+            } else {
                 toast.error(res.message);
             }
         })
@@ -115,6 +116,9 @@ export default function SupplierManagement() {
     console.log(" allstates Data \n")
     console.log(allSuppliers);
 
+
+    
+
     return (
         <div>
             <ToastContainer />
@@ -122,7 +126,7 @@ export default function SupplierManagement() {
                 <SupplierCards
                     data={allSuppliers}
                     selectedSupplier={selectedSupplier}
-                />  
+                />
             </div>
             <div
                 style={{
@@ -156,8 +160,23 @@ export default function SupplierManagement() {
             <>
                 <Modal isCentered isOpen={isOpen} onClose={onClose}>
                     {overlay}
-                    <ModalContent>
-                        <ModalHeader> Add Supplier </ModalHeader>
+                    <ModalContent
+                        background={'#F3F2EE'}
+                        color={'#ee7213'}
+                    >
+                        <ModalHeader>
+                            <Box
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                gap="10px"
+                            >
+                                <FiPlusCircle />
+                                <Text>Add Supplier</Text>
+                            </Box>
+
+
+                        </ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
                             {/* <Text> This is custom Backdrop Filter ! </Text> */}
@@ -169,6 +188,7 @@ export default function SupplierManagement() {
                                         <Input
                                             type="text"
                                             onChange={(e) => setSupplierName(e.target.value)}
+                                            _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                                         // value={itemName}
                                         />
                                     </FormControl>
@@ -179,19 +199,27 @@ export default function SupplierManagement() {
                                             type="text"
                                             onChange={(e) => setItem(e.target.value.split(','))}
                                             placeholder={"Tomato,Cauliflower,Brinjal"}
+                                            _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                                         />
                                     </FormControl>
 
                                     <FormControl id="pic" >
                                         <FormLabel>Upload Picture</FormLabel>
-                                        <Input type="file" accept='image/*' onChange={(e) => postSupplierImage(e.target.files[0])} />
+                                        <Input
+                                            type="file"
+                                            accept='image/*'
+                                            onChange={(e) => postSupplierImage(e.target.files[0])}
+                                            _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                                        />
                                     </FormControl>
 
                                     <Button
                                         mt="4"
-                                        colorScheme="blue"
+                                        bg="#ee7213"
+                                        color="white"
                                         type="submit"
                                         isLoading={loading}
+                                        _hover={{ bg: '#ff8c42' }}
                                     >
                                         Add Supplier
                                     </Button>

@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import React from "react";
+import React from 'react';
 import {
   Flex,
   Link,
@@ -9,92 +9,79 @@ import {
   Button,
   useColorMode,
   useColorModeValue,
-} from "@chakra-ui/react";
+  Icon,
+} from '@chakra-ui/react';
 
 export default function Footer() {
-  const textColor = useColorModeValue("gray.400", "white");
+  const textColor = useColorModeValue('white', 'white');
+  const bg = useColorModeValue('var(--primary)', 'gray.700');
   const { toggleColorMode } = useColorMode();
   return (
     <Flex
-      zIndex='3'
-      flexDirection={{
-        base: "column",
-        xl: "row",
-      }}
-      alignItems={{
-        base: "center",
-        xl: "start",
-      }}
-      justifyContent='space-between'
-      px={{ base: "30px", md: "50px" }}
-      pb='30px'>
-      <Text
-        color={textColor}
-        textAlign={{
-          base: "center",
-          xl: "start",
-        }}
-        mb={{ base: "20px", xl: "0px" }}>
-        {" "}
-        {/* &copy; {1900 + new Date().getYear()} */}
-        <Text as='span' fontWeight='500' ms='4px'>
-          {/* Horizon UI. All Rights Reserved. Made with love by */}
-          <Link
-            mx='3px'
-            color={textColor}
-            href='https://www.simmmple.com?ref=horizon-chakra-free'
-            target='_blank'
-            fontWeight='700'>
-            {/* Simmmple! */}
-          </Link>
-        </Text>
-      </Text>
-      <List display='flex'>
-        <ListItem
-          me={{
-            base: "20px",
-            md: "44px",
-          }}>
-          <Link
-            fontWeight='500'
-            color={textColor}
-            href='mailto:hello@simmmple.com'>
-            {/* Support */}
-          </Link>
-        </ListItem>
-        <ListItem
-          me={{
-            base: "20px",
-            md: "44px",
-          }}>
-          <Link
-            fontWeight='500'
-            color={textColor}
-            href='https://www.simmmple.com/licenses?ref=horizon-chakra-free'>
-            {/* License */}
-          </Link>
-        </ListItem>
-        <ListItem
-          me={{
-            base: "20px",
-            md: "44px",
-          }}>
-          <Link
-            fontWeight='500'
-            color={textColor}
-            href='https://simmmple.com/terms-of-service?ref=horizon-chakra-free'>
-            {/* Terms of Use */}
-          </Link>
-        </ListItem>
-        <ListItem>
-          <Link
-            fontWeight='500'
-            color={textColor}
-            href='https://www.blog.simmmple.com/?ref=horizon-chakra-free'>
-            {/* Blog */}
-          </Link>
-        </ListItem>
-      </List>
+      bg={bg}
+      alignItems="center"
+      gap="10px"
+      justifyContent="space-between"
+      position="fixed"
+      bottom="0"
+      left="0"
+      w="100%"
+      h="80px"
+      px="10%"
+      borderTopRadius="20px"
+      display={{ xl: 'none', base: 'flex' }}
+    >
+      {footerLinks.map((item, i) => (
+        <Link
+          href={item.href}
+          key={i}
+          title={item.name}
+          style={{
+            position: 'relative',
+            bottom: item.type === 'focus' ? '10px' : '0',
+            scale: item.type === 'focus' ? '1.6' : '1',
+            marginInline: item.type === 'focus' ? '20px' : '0',
+            padding: '10px',
+            borderRadius: '50%',
+            backgroundColor: bg,
+          }}
+        >
+          <Icon as={item.icon} w="30px" h="30px" color={textColor} />
+        </Link>
+      ))}
     </Flex>
   );
 }
+
+const footerLinks = [
+  {
+    name: 'Home',
+    icon: '',
+    href: '',
+    type: 'common',
+  },
+  {
+    name: 'Notifications',
+    icon: '',
+    href: '',
+    type: 'common',
+  },
+  {
+    name: 'Add',
+    icon: '',
+    href: '',
+    type: 'focus',
+  },
+  {
+    name: 'Cart',
+    icon: '',
+    href: '',
+    type: 'common',
+  },
+  {
+    name: 'Profile',
+    icon: '',
+    href: '',
+    type: 'common',
+  },
+];

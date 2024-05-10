@@ -1,10 +1,10 @@
 const initialState = {
-    suppliers:[],
+    suppliers: [],
     seletectedSupplier: null
 }
 
 const supplierReducer = (state = initialState, action) => {
-    switch(action.type){
+    switch (action.type) {
         case 'ADD_SUPPLIER':
             return {
                 ...state,
@@ -23,10 +23,14 @@ const supplierReducer = (state = initialState, action) => {
         case 'UPDATE_SUPPLIER':
             return {
                 ...state,
-                suppliers: state.suppliers.map(supplier => 
+                suppliers: state.suppliers.map(supplier =>
                     supplier._id === action.data._id ? action.data : supplier
                 )
             }
+        case 'CLEAR_SELECTED_SUPPLIER':
+            console.log('Clearing Data from reducrr ')
+            return {...state,seletectedSupplier: null}
+
         default:
             return state;
     }

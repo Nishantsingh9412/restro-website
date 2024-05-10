@@ -135,6 +135,16 @@ const BarcodeGenerator = () => {
 
 
     const handleDeleteItem = (id) => {
+        const style = document.createElement('style');
+        style.innerHTML = `
+        .swal-bg {
+            background-color: #F3F2EE !important;
+        }
+        .swal-border {
+            border: 5px solid #fff !important;
+        }`;
+        document.head.appendChild(style);
+
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -142,7 +152,10 @@ const BarcodeGenerator = () => {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, delete it!",
+            customClass: {
+                popup: 'swal-bg swal-border'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 handleConfirmDelete(id);

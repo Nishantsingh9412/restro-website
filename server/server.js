@@ -39,7 +39,7 @@ const __dirname = path.resolve();
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(("./frontend/build")));
-    
+
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, "./frontend", "build", "index.html"));
     });
@@ -52,8 +52,9 @@ if (process.env.NODE_ENV === 'production') {
 
 
 // app.get('/', (req, res) => {
-//     res.send(" Server is up and running  ");
+//     res.send(" Server is up and running on PORT 8000");
 // })
+
 const PORT = process.env.PORT || 8000;
 const DATABASE_URL = process.env.CONNECTION_URL
 
@@ -62,3 +63,4 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true
         () => app.listen(PORT,
             () => console.log(`Server running on port: ${PORT}`))).catch((error) => console.log(error.message)
             );
+

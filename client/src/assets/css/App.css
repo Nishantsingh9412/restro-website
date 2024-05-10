@@ -1,8 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
 body {
-  font-family: "DM Sans", sans-serif;
+  font-family: 'DM Sans', sans-serif;
 }
 
 option {
   color: black;
+}
+
+:root {
+  --primary: rgb(2, 156, 255);
+  --primary-bg: rgb(217, 240, 254);
+  --primary-accent: rgb(71, 182, 254);
+}
+
+.sidebar-link {
+  position: relative;
+  padding-right: 16px;
+  transition: all 0.5s;
+}
+.active-sidebar-link {
+  border-radius: 50px 0 0 50px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  padding-right: 0px;
 }
