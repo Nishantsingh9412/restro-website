@@ -19,7 +19,6 @@
 .addbtn:active {
     transform: scale(0.9);
 }
-
 .tableHeader,
 .tableRow {
     display: flex;
@@ -56,4 +55,14 @@
 .tableHeader>div:nth-last-child(2),
 .tableRow>div:nth-last-child(2) {
     flex: 2;
+} 
+
+
+@media screen and (max-width:576px) {
+    .addbtn{
+        margin-top: 4rem;
+        margin-bottom: 1rem;
+        width: 12rem;
+        font-size: 1.4rem;
+    }
 }

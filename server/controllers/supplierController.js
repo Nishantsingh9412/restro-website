@@ -3,14 +3,17 @@ import supplier from "../models/supplier.js"
 
 export const AddSupplier = async (req, res) => {
     try {
-        const { name, pic, Items } = req.body;
-        if (!name || !Items) {
+        const { name, pic, Items, phone, email, countryCode } = req.body;
+        if (!name || !Items || !phone || !countryCode) {
             return res.status(400).json({ success: false, message: 'All fields are required' })
         } else {
             const newSupplier = await supplier.create({
                 name,
                 pic,
-                Items
+                Items,
+                countryCode,
+                phone,
+                email
             })
             if (!newSupplier) {
                 return res.status(400).json({ success: false, message: 'error in creating supplier' })
@@ -39,14 +42,18 @@ export const getSupplier = async (req, res) => {
 }
 
 export const getSingleSupplier = async (req, res) => {
-    const { id : _id} = req.params;
+    const { id: _id } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(_id)) {
             return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
         } else {
             const getSingleSupplier = await supplier.findById(_id);
             if (getSingleSupplier) {
-                return res.status(200).json({ success: true, message: 'Single Supplier', result: getSingleSupplier })
+                return res.status(200).json({
+                    success: true,
+                    message: 'Single Supplier',
+                    result: getSingleSupplier
+                })
             } else {
                 return res.status(400).json({ success: false, message: 'No Supplier Found' })
             }
@@ -59,22 +66,25 @@ export const getSingleSupplier = async (req, res) => {
 
 export const UpdateSupplier = async (req, res) => {
     const { id: _id } = req.params;
-    const { name, pic, Items } = req.body;
+    const { name, pic, Items, phone, email, countryCode } = req.body;
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
     }
     try {
         const updateSupplier = await supplier.findByIdAndUpdate(_id, {
             $set: {
-                'name':name,
-                'pic':pic,
-                'Items':Items
+                'name': name,
+                'pic': pic,
+                'Items': Items,
+                'countryCode': countryCode,
+                'phone': phone,
+                'email': email
             }
         }, { new: true })
 
-        if(updateSupplier){
+        if (updateSupplier) {
             return res.status(200).json({ success: true, message: 'Supplier Updated Successfully', result: updateSupplier })
-        }else{
+        } else {
             return res.status(400).json({ success: false, message: 'Error in Updating Supplier' })
         }
     } catch (error) {
@@ -86,18 +96,18 @@ export const UpdateSupplier = async (req, res) => {
 }
 
 export const deleteSupplier = async (req, res) => {
-    const {id:_id} = req.params;
-    if(!mongoose.Types.ObjectId.isValid(_id)){
-        return res.status(400).json({success:false,message:'Invalid Supplier Id'})
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: 'Invalid Supplier Id' })
     }
-    try{
+    try {
         const removeSupplier = await supplier.findByIdAndDelete(_id);
-        if(removeSupplier){
-            return res.status(200).json({success:true,message:'Supplier Deleted Successfully'})
-        }else{
-            return res.status(400).json({success:false,message:'Error in Deleting Supplier'})
+        if (removeSupplier) {
+            return res.status(200).json({ success: true, message: 'Supplier Deleted Successfully' })
+        } else {
+            return res.status(400).json({ success: false, message: 'Error in Deleting Supplier' })
         }
-    }catch(error){
+    } catch (error) {
         console.log('Error in deleteSupplier', error.message)
         return res.status(500).json({ success: false, message: 'Internal Server Error' })
     }

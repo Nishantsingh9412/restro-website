@@ -35,8 +35,8 @@ const ViewSupplier = (props) => {
 
     const OverlayOne = () => (
         <ModalOverlay
-            bg='blackAlpha.800'
-            backdropFilter='blur(10px) hue-rotate(90deg)'
+            // bg='blackAlpha.800'
+            // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
     const [overlay, setOverlay] = useState(<OverlayOne />)

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import PhoneInput from 'react-phone-number-input'
+import { parsePhoneNumber } from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 import { FaRegUser } from "react-icons/fa";
 import {
   Modal,
@@ -30,6 +33,9 @@ const EditSupplier = (props) => {
   const [supplierNameEdit, setSupplierNameEdit] = useState('');
   const [supplierItemsEdit, setSupplierItemsEdit] = useState([]);
   const [supplierPicEdit, setSupplierPicEdit] = useState('');
+  const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('');
+  const [phone_no, setPhone_no] = useState('');
   const [loading, setLoading] = useState(false);
 
   const SelectedItemId = props.selectedId;
@@ -39,8 +45,8 @@ const EditSupplier = (props) => {
 
   const OverlayOne = () => (
     <ModalOverlay
-      bg='blackAlpha.800'
-      backdropFilter='blur(10px) hue-rotate(90deg)'
+      // bg='blackAlpha.800'
+      // backdropFilter='blur(10px) hue-rotate(90deg)'
     />
   )
 
@@ -87,7 +93,7 @@ const EditSupplier = (props) => {
 
   useEffect(() => {
     dispatch(getSingleSupplierAction(SelectedItemId))
-  }, [SelectedItemId,isOpen])
+  }, [SelectedItemId, isOpen])
 
   const selectedSupplierData = useSelector(state => state.supplierReducer.seletectedSupplier);
   console.log("This is Selected Supplier \n");
@@ -98,6 +104,9 @@ const EditSupplier = (props) => {
       setSupplierNameEdit(selectedSupplierData?.name);
       setSupplierItemsEdit(selectedSupplierData?.Items);
       setSupplierPicEdit(selectedSupplierData?.pic);
+      setEmail(selectedSupplierData?.email);
+      setCountryCode(selectedSupplierData?.countryCode);
+      setPhone_no(selectedSupplierData?.phone);
     }
   }, [selectedSupplierData])
 
@@ -109,10 +118,11 @@ const EditSupplier = (props) => {
     const editedSupplierData = {
       name: supplierNameEdit,
       Items: supplierItemsEdit,
-      pic: supplierPicEdit
+      pic: supplierPicEdit,
+      countryCode,
+      phone: phone_no,
+      email,
     }
-
-
 
     const updatedSupplier = dispatch(UpdateSupplierAction(id, editedSupplierData)).then((res) => {
       if (res.success) {
@@ -179,6 +189,44 @@ const EditSupplier = (props) => {
                       onChange={(e) => setSupplierItemsEdit(e.target.value.split(','))}
                       value={supplierItemsEdit.map((item) => item)}
                       placeholder={"Tomato,Cauliflower,Brinjal"}
+                      _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                    />
+                  </FormControl>
+
+                  <FormControl id="phone" isRequired>
+                    <FormLabel>Phone</FormLabel>
+                    <Box borderRadius="md" overflow="hidden">
+                      <PhoneInput
+                        international
+                        defaultCountry="DE"
+                        style={{ width: '100%' }} // Make the input take up the full width of its container
+                        onChange={
+                          (phoneNumber) => {
+                            if (typeof phoneNumber === 'string') {
+                              const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
+                              if (parsedPhoneNumber) {
+                                setCountryCode(parsedPhoneNumber.countryCallingCode)
+                                setPhone_no(parsedPhoneNumber.nationalNumber)
+                              }
+                            }
+                          }
+                        }
+                        placeholder="Phone"
+                        value={phone_no ? `+${countryCode} ${phone_no}` : ''}
+                        inputComponent={Input}
+                        inputProps={{
+                          _focus: { borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }
+                        }}
+                      />
+                    </Box>
+                  </FormControl>
+
+                  <FormControl id="email" >
+                    <FormLabel>Email</FormLabel>
+                    <Input
+                      type="email"
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)}
                       _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                     />
                   </FormControl>

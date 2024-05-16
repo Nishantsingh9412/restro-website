@@ -40,8 +40,8 @@ export default function AllOrders() {
 
     const OverlayOne = () => (
         <ModalOverlay
-            bg='blackAlpha.800'
-            backdropFilter='blur(10px) hue-rotate(90deg)'
+            // bg='blackAlpha.800'
+            // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
 

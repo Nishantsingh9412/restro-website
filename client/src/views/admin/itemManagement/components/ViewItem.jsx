@@ -23,6 +23,9 @@ import { GetSingleItemAction } from '../../../../redux/action/Items.js';
 const ViewItem = (props) => {
 
     const ItemId = props.EyeIconSelectedId;
+    const isOpen = props.isOpen;
+    const onClose = props.onClose;
+
     // const { isOpen, onOpen, onClose } = useDisclosure()
     // const [overlay, setOverlay] = useState(<OverlayOne />)
 
@@ -30,7 +33,7 @@ const ViewItem = (props) => {
 
     useEffect(() => {
         dispatch(GetSingleItemAction(ItemId));
-    }, [ItemId])
+    }, [ItemId, isOpen])
 
     const SelectedItemData = useSelector((state) => state.itemsReducer.selectedItem);
     console.log(30, "SelectedItemData: \n", SelectedItemData)
@@ -39,9 +42,7 @@ const ViewItem = (props) => {
         <div>
             <Modal isCentered isOpen={props.isOpen} onClose={props.onClose}>
                 {props.overlay}
-                <ModalContent
-                    background={'#9EF6F7'}
-                >
+                <ModalContent>
                     <ModalHeader>
                         <Box
                             display="flex"
@@ -80,13 +81,21 @@ const ViewItem = (props) => {
                                 </Tr>
                                 <Tr>
                                     <Td fontWeight={'bold'}>Last Replenished:</Td>
-                                    <Td>{SelectedItemData?.Last_Replenished.split('T')[0]}</Td>
+                                    <Td>{SelectedItemData?.updatedAt.split('T')[0]}</Td>
                                 </Tr>
                             </Tbody>
                         </Table>
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={props.onClose}>Close</Button>
+                        <Button
+                            bg={'#029CFF'}
+                            color={'white'}
+                            _hover={{
+                                bg: "#40BFF8",
+                                color: "white"
+                            }}
+                            onClick={props.onClose}
+                        >Close</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

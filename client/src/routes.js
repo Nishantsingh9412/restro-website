@@ -11,7 +11,7 @@ import {
 } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { LuFolderClosed, LuShoppingBag } from 'react-icons/lu';
-import { BiBarcodeReader } from 'react-icons/bi';
+// import { BiBarcodeReader } from 'react-icons/bi';
 import { HiDocumentChartBar } from 'react-icons/hi2';
 
 // Admin Imports
@@ -24,7 +24,7 @@ import ItemManagement from 'views/admin/itemManagement';
 import LowStocks from 'views/admin/lowStocks';
 import SupplierManagement from 'views/admin/supplierMgmt';
 import AllOrders from 'views/admin/allOrders';
-import BarcodeGenerator from 'views/admin/barcodeGenerator';
+// import BarcodeGenerator from 'views/admin/barcodeGenerator';
 // Auth Imports
 // import SignInCentered from 'views/auth/signIn';
 import { IoAlertCircleSharp } from 'react-icons/io5';
@@ -134,15 +134,15 @@ const routes2 = [
         ),
         component: AllOrders,
       },
-      {
-        name: 'Barcode Generator',
-        layout: '/admin',
-        path: '/dashboards/barcode',
-        icon: (
-          <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
-        ),
-        component: BarcodeGenerator,
-      },
+      // {
+      //   name: 'Barcode Generator',
+      //   layout: '/admin',
+      //   path: '/dashboards/barcode',
+      //   icon: (
+      //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
+      //   ),
+      //   component: BarcodeGenerator,
+      // },
     ],
   },
   {
@@ -291,15 +291,15 @@ const routes = [
     ),
     component: AllOrders,
   },
-  {
-    name: 'Barcode Generator',
-    layout: '/admin',
-    path: '/barcode',
-    icon: (
-      <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
-    ),
-    component: BarcodeGenerator,
-  },
+  // {
+  //   name: 'Barcode Generator',
+  //   layout: '/admin',
+  //   path: '/barcode',
+  //   icon: (
+  //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
+  //   ),
+  //   component: BarcodeGenerator,
+  // },
   // {
   //   name: "NFT Marketplace",
   //   layout: "/admin",

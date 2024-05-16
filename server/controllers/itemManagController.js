@@ -10,7 +10,7 @@ export const addItem = async (req, res) => {
             minimum_quantity,
             usage_rate_value,
             usage_rate_unit,
-            Last_Replenished,
+            bar_code,
         } = req.body;
 
         if (!item_name ||
@@ -19,7 +19,7 @@ export const addItem = async (req, res) => {
             !minimum_quantity ||
             !usage_rate_value ||
             !usage_rate_unit ||
-            !Last_Replenished
+            !bar_code
         ) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         } else {
@@ -30,7 +30,7 @@ export const addItem = async (req, res) => {
                 minimum_quantity,
                 usage_rate_value,
                 usage_rate_unit,
-                Last_Replenished,
+                bar_code,
             });
             if (newItem) {
                 return res.status(201).json({ success: true, message: "Item Added", result: newItem })
@@ -82,7 +82,7 @@ export const updateItem = async (req, res) => {
         minimum_quantity,
         usage_rate_value,
         usage_rate_unit,
-        Last_Replenished,
+        bar_code,
     } = req.body;
 
     if(!mongoose.Types.ObjectId.isValid(_id)){
@@ -97,9 +97,12 @@ export const updateItem = async (req, res) => {
                 'minimum_quantity': minimum_quantity,
                 'usage_rate_value': usage_rate_value,
                 'usage_rate_unit': usage_rate_unit,
-                'Last_Replenished': Last_Replenished,
+                'bar_code': bar_code,
             }
-        },{new: true});
+        },{
+            new: true,
+            timestamps: { createdAt: false, updatedAt: true }
+        });
 
         if(updateSingleItem){
             return res.status(200).json({ success: true, message: "Item Updated", result: updateSingleItem })

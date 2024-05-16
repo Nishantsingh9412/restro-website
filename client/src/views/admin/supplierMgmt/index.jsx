@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import PhoneInput from 'react-phone-number-input'
+import { parsePhoneNumber } from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 import { FiPlusCircle } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
@@ -25,7 +28,7 @@ import {
 
 import SupplierCards from "./components/SupplierCards"
 import { AddNewSupplierAction, GetAllSuppliersAction } from "../../../redux/action/supplier";
-
+import styles from './SupplierManagement.module.css'
 
 export default function SupplierManagement() {
 
@@ -33,6 +36,9 @@ export default function SupplierManagement() {
     const [suppliername, setSupplierName] = useState('');
     const [pic, setPic] = useState(undefined);
     const [Items, setItem] = useState([]);
+    const [email, setEmail] = useState('');
+    const [countryCode, setCountryCode] = useState('');
+    const [phone_no, setPhone_no] = useState('');
     const [loading, setLoading] = useState(false);
 
 
@@ -77,8 +83,8 @@ export default function SupplierManagement() {
 
     const OverlayOne = () => (
         <ModalOverlay
-            bg='blackAlpha.800'
-            backdropFilter='blur(10px) hue-rotate(90deg)'
+            // bg='blackAlpha.800'
+            // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
 
@@ -87,11 +93,13 @@ export default function SupplierManagement() {
 
     const handleAddSupplier = (e) => {
         e.preventDefault();
-
         const newSupplier = {
             name: suppliername,
             pic,
-            Items
+            Items, 
+            countryCode,
+            phone: phone_no,
+            email,
         }
         console.log("This is new Supplier Data \n");
         console.log(newSupplier);
@@ -109,15 +117,10 @@ export default function SupplierManagement() {
         dispatch(GetAllSuppliersAction());
     }, [])
 
-
-
     const allSuppliers = useSelector(state => state.supplierReducer.suppliers);
     const selectedSupplier = useSelector(state => state.supplierReducer.seletectedSupplier);
     console.log(" allstates Data \n")
     console.log(allSuppliers);
-
-
-    
 
     return (
         <div>
@@ -147,7 +150,7 @@ export default function SupplierManagement() {
                     height: '60px',
                     borderRadius: '50%',
                     cursor: 'pointer',
-                }}>
+                }} className={styles.plusBtn}  >
                     <GoPlusCircle
                         onClick={() => {
                             setOverlay(<OverlayOne />)
@@ -199,6 +202,42 @@ export default function SupplierManagement() {
                                             type="text"
                                             onChange={(e) => setItem(e.target.value.split(','))}
                                             placeholder={"Tomato,Cauliflower,Brinjal"}
+                                            _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                                        />
+                                    </FormControl>
+
+                                    <FormControl id="phone" isRequired>
+                                        <FormLabel>Phone</FormLabel>
+                                        <Box borderRadius="md" overflow="hidden">
+                                            <PhoneInput
+                                                international
+                                                defaultCountry="DE"
+                                                style={{ width: '100%' }} // Make the input take up the full width of its container
+                                                onChange={
+                                                    (phoneNumber) => {
+                                                        if (typeof phoneNumber === 'string') {
+                                                            const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
+                                                            if (parsedPhoneNumber) {
+                                                                setCountryCode(parsedPhoneNumber.countryCallingCode)
+                                                                setPhone_no(parsedPhoneNumber.nationalNumber)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                placeholder="Phone"
+                                                inputComponent={Input}
+                                                inputProps={{
+                                                    _focus: { borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }
+                                                }}
+                                            />
+                                        </Box>
+                                    </FormControl>
+
+                                    <FormControl id="email" >
+                                        <FormLabel>Email</FormLabel>
+                                        <Input
+                                            type="email"
+                                            onChange={(e) => setEmail(e.target.value)}
                                             _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                                         />
                                     </FormControl>

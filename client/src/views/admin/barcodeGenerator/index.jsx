@@ -50,8 +50,8 @@ const BarcodeGenerator = () => {
 
     const OverlayOne = () => (
         <ModalOverlay
-            bg='blackAlpha.800'
-            backdropFilter='blur(10px) hue-rotate(90deg)'
+            // bg='blackAlpha.800'
+            // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
 
@@ -248,7 +248,7 @@ const BarcodeGenerator = () => {
                                     <Td isNumeric>{item.available_quantity}</Td>
                                     <Td isNumeric>{item.minimum_quantity}</Td>
                                     <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
-                                    <Td isNumeric>{item.Last_Replenished.split('T')[0]}</Td>
+                                    <Td isNumeric>{item.updatedAt.split('T')[0]}</Td>
                                     <Td
                                         onClick={() => handleGenerateBarcode(item)}
                                     >

@@ -7,7 +7,7 @@ const itemManageMentSchema = mongoose.Schema({
     minimum_quantity: { type: Number, required: true },
     usage_rate_value: { type: Number, required: true },
     usage_rate_unit: { type: String, required: true },
-    Last_Replenished : { type: Date, required: true },
+    bar_code: { type: String, required: true },
 }, { timestamps: true });
 
 

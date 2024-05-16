@@ -85,7 +85,7 @@ const LowStockCard = () => {
                                 <Flex justifyContent="space-between">
                                     <Box>
                                         <h4 style={{ fontWeight: '600', }}>{item.item_name}</h4>
-                                        <Text >Last Updated {item.Last_Replenished.split('T')[0]} </Text>
+                                        <Text >Last Updated {item.updatedAt.split('T')[0]} </Text>
                                     </Box>
                                     <Box justifyContent={'end'}>
                                         <Box
@@ -186,7 +186,7 @@ const LowStockCard = () => {
                                 <Flex justifyContent="space-between">
                                     <Box>
                                         <h4 style={{ fontWeight: '600' }}>{item.item_name}</h4>
-                                        <Text >Last Updated {item.Last_Replenished.split('T')[0]} </Text>
+                                        <Text >Last Updated {item.updatedAt.split('T')[0]} </Text>
                                     </Box>
                                     <Box justifyContent={'end'}>
                                         <Box

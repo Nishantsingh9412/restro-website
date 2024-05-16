@@ -39,7 +39,7 @@ const EdiItem = (props) => {
     const [EditUsageRateValue, setEditUsageRateValue] = useState(0)
 
     const [EditUsageRateUnit, setEditUsageRateUnit] = useState('')
-    const [EditLastReplenished, setEditLastReplenished] = useState('')
+    // const [EditLastReplenished, setEditLastReplenished] = useState('')
     const [loadingEditModal, setLoadingEditModal] = useState(true)
 
     const handleSubmit = (e) => {
@@ -51,7 +51,7 @@ const EdiItem = (props) => {
             minimum_quantity: EditMinimum,
             usage_rate_value: EditUsageRateValue,
             usage_rate_unit: EditUsageRateUnit,
-            Last_Replenished: EditLastReplenished
+            // // Last_Replenished: EditLastReplenished
         }
         const EditItemPromise = dispatch(updateSingleItemAction(ItemId, updatedItemsData)).then((res) => {
             if (res.success) {
@@ -94,7 +94,7 @@ const EdiItem = (props) => {
             setEditMinimum(SelectedItemData?.minimum_quantity)
             setEditUsageRateValue(SelectedItemData?.usage_rate_value)
             setEditUsageRateUnit(SelectedItemData?.usage_rate_unit)
-            setEditLastReplenished(SelectedItemData?.Last_Replenished.split('T')[0])
+            // setEditLastReplenished(SelectedItemData?.Last_Replenished.split('T')[0])
         }
     }, [SelectedItemData])
 
@@ -114,8 +114,8 @@ const EdiItem = (props) => {
                         : <>
                             {props.overlay}
                             <ModalContent
-                                background={'#9BF0F2'}
-                                border={'5px solid #fff'}
+                            // background={'#9BF0F2'}
+                            // border={'5px solid #059BFD'}
                             >
                                 <ModalHeader>Edit Item</ModalHeader>
                                 <ModalCloseButton />
@@ -198,16 +198,26 @@ const EdiItem = (props) => {
                                                 </Flex>
                                             </FormControl>
 
-                                            <FormControl id="lastReplenished" isRequired>
+                                            {/* <FormControl id="lastReplenished" isRequired>
                                                 <FormLabel>Last Replenished</FormLabel>
                                                 <Input
                                                     type="date"
                                                     value={EditLastReplenished}
                                                     onChange={(e) => setEditLastReplenished(e.target.value)}
                                                 />
-                                            </FormControl>
+                                            </FormControl> */}
 
-                                            <Button mt="4" colorScheme="blue" type="submit">
+                                            <Button
+                                                bg={'#029CFF'}
+                                                color={'white'}
+                                                _hover={{
+                                                    bg: "#40BFF8",
+                                                    color: "white"
+                                                }}
+                                                mt="4"
+                                                colorScheme="blue"
+                                                type="submit"
+                                            >
                                                 Update Item
                                             </Button>
                                         </form>

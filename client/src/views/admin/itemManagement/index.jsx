@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from 'react-toastify';
+import { nanoid } from 'nanoid';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2'
+import bwipjs from 'bwip-js';
 import {
   Table,
   Thead,
@@ -41,14 +43,16 @@ import { AddItemAction, GetAllItemsAction, deleteSingleItemAction } from '../../
 import ViewItem from './components/ViewItem'
 import EdiItem from './components/EditItem';
 import styles from './ItemManagement.module.css'
+import { BiBarcodeReader } from 'react-icons/bi';
+import ViewCode from './components/ViewCode';
 
 
 export default function ItemManagement() {
 
   const OverlayOne = () => (
     <ModalOverlay
-      bg='blackAlpha.800'
-      backdropFilter='blur(10px) hue-rotate(90deg)'
+      // bg='blackAlpha.800'
+      // backdropFilter='blur(10px) hue-rotate(90deg)'
     />
   )
 
@@ -57,6 +61,7 @@ export default function ItemManagement() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isOpenTwo, onOpen: onOpenTwo, onClose: onCloseTwo } = useDisclosure()
   const { isOpen: isOpenThree, onOpen: onOpenThree, onClose: onCloseThree } = useDisclosure()
+  const { isOpen: isOpenBarCode, onOpen: onOpenBarCode, onClose: onCloseBarCode } = useDisclosure()
   const [overlay, setOverlay] = useState(<OverlayOne />)
   const [itemDataArray, setItemDataArray] = useState([])
 
@@ -70,14 +75,47 @@ export default function ItemManagement() {
   const [usageRateValue, setUsageRateValue] = useState(0);
 
   const [usageRateUnit, setUsageRateUnit] = useState('');
-  const [lastReplenished, setLastReplenished] = useState('');
+  const [pin, setPin] = useState(null);
+  const [barCodeData, setbarCodeData] = useState('');
+  const [barcodeDataUrl, setBarcodeDataUrl] = useState(null)
 
+
+  // const [lastReplenished, setLastReplenished] = useState('');
   // Remove this code
-  const [input, setInput] = useState('')
+  // const [input, setInput] = useState('')
   // const handleInputChange = (e) => setInput(e.target.value)
   // const isError = input === ''
   // End of this code
 
+
+  const handleGenerateBarcode = (item) => {
+    try {
+      let canvas = bwipjs.toCanvas('mycanvas', {
+        bcid: 'code128',       // Barcode type
+        text: item.bar_code,    // Text to encode
+        scale: 3,               // 3x scaling factor
+        height: 10,              // Bar height, in millimeters
+        includetext: true,            // Show human-readable text
+        textxalign: 'center',        // Always good to set this
+      });
+      // Convert the canvas to a data URL and save it in the state
+      let dataUrl = canvas.toDataURL();
+      setBarcodeDataUrl(dataUrl);
+    } catch (e) {
+      console.log('Error in generating barcode')
+    }
+  }
+
+
+
+  const checkPin = (inputPin) => {
+    if (inputPin === '1234') {
+      return true;
+    } else {
+      alert('Wrong Pin');
+      return false;
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -89,7 +127,8 @@ export default function ItemManagement() {
       minimum_quantity: minimum,
       usage_rate_value: usageRateValue,
       usage_rate_unit: usageRateUnit,
-      Last_Replenished: lastReplenished
+      bar_code: nanoid(13),
+      // Last_Replenished: lastReplenished
     }
 
     const AddItemPromise = dispatch(AddItemAction(newItemData)).then((res) => {
@@ -132,7 +171,6 @@ export default function ItemManagement() {
 
 
   const handleDeleteItem = (id) => {
-
     const style = document.createElement('style');
     style.innerHTML = `
     .swal-bg {
@@ -178,7 +216,8 @@ export default function ItemManagement() {
     setMinimum(10);
     setUsageRateValue(5);
     setUsageRateUnit('KG');
-    setLastReplenished('2021-07-01');
+
+    // setLastReplenished('2021-07-01');
   }
 
   useEffect(() => {
@@ -200,31 +239,27 @@ export default function ItemManagement() {
         </button>
       </div>
 
+      <div className={`d-none d-lg-block`} style={{ marginTop: '40px' }}>
+        <div
+          className={styles.tableHeader}
+        >
+          <div>Item Name</div>
+          <div>Unit</div>
+          <div>Available</div>
+          <div>Minimum</div>
+          <div>Usage Rate</div>
+          <div>Last Replenished</div>
+          <div>Action</div>
+        </div>
 
-      <div
-        className={styles.tableHeader}
-      >
-        <div>Item Name</div>
-        <div>Unit</div>
-        <div>Available</div>
-        <div>Minimum</div>
-        <div>Usage Rate</div>
-        <div>Last Replenished</div>
-        <div>Action</div>
-      </div>
-
-      {itemDataArray?.map((item, index) => {
-        return (
-          <div
-            className={styles.tableRow}
-            key={index}
-          >
+        {itemDataArray?.map((item, index) => (
+          <div className={styles.tableRow} key={index}>
             <div>{item.item_name}</div>
             <div>{item.item_unit}</div>
             <div>{item.available_quantity}</div>
             <div>{item.minimum_quantity}</div>
             <div>{item.usage_rate_value}{item.usage_rate_unit}</div>
-            <div>{item.Last_Replenished.split('T')[0]}</div>
+            <div>{item.updatedAt.split('T')[0]}</div>
             <div>
               <IconButton
                 aria-label='Delete Item'
@@ -233,21 +268,21 @@ export default function ItemManagement() {
                 icon={<IoMdTrash />}
                 onClick={() => handleDeleteItem(item._id)}
               />
-
               <IconButton
-                // ml={2}
                 aria-label='Edit Item'
                 colorScheme='yellow'
                 size='sm'
                 icon={<IoPencil />}
                 onClick={() => {
-                  setPencilIconSelectedId(item._id)
-                  setOverlay(<OverlayOne />)
-                  onOpenThree()
+                  const inputPin = prompt('Enter your pin');
+                  // if (checkPin(inputPin)) {
+                  setPencilIconSelectedId(item._id);
+                  setOverlay(<OverlayOne />);
+                  onOpenThree();
+                  // }
                 }}
               />
               <IconButton
-                // ml={2}
                 aria-label='Edit Item'
                 colorScheme='green'
                 size='sm'
@@ -258,11 +293,106 @@ export default function ItemManagement() {
                   onOpenTwo()
                 }}
               />
+              <IconButton
+                aria-label='Generate Barcode'
+                colorScheme='blue'
+                size='sm'
+                icon={<BiBarcodeReader />}
+                onClick={() => {
+                  handleGenerateBarcode(item)
+                  setbarCodeData(item)
+                  onOpenBarCode()
+                }}
+              />
             </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
 
+
+      <div className="d-sm-block d-md-block d-lg-none">
+        <div className="row">
+          {itemDataArray?.map((item, index) => (
+            <div className="col-12 col-sm-6 col-lg-4">
+              <div className="card mt-2"
+                style={{
+                  border: '3px solid #029CFF',
+                  borderRadius: '2rem'
+                }}
+                key={index}
+              >
+                <div className="card-body">
+                  <h5 className="card-title d-flex justify-content-center font-weight-bold">{item.item_name}</h5>
+                  <table className="table">
+                    <tbody>
+                      <tr>
+                        <th scope="row">Unit</th>
+                        <td>{item.item_unit}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Available</th>
+                        <td>{item.available_quantity}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Minimum</th>
+                        <td>{item.minimum_quantity}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Usage Rate</th>
+                        <td>{item.usage_rate_value}{item.usage_rate_unit}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last Replenished</th>
+                        <td>{item.updatedAt.split('T')[0]}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className='d-flex justify-content-evenly' >
+                    <IconButton
+                      aria-label='Delete Item'
+                      colorScheme='red'
+                      size='sm'
+                      icon={<IoMdTrash />}
+                      onClick={() => handleDeleteItem(item._id)}
+                    />
+                    <IconButton
+                      aria-label='Edit Item'
+                      colorScheme='yellow'
+                      size='sm'
+                      icon={<IoPencil />}
+                      onClick={() => {
+                        setPencilIconSelectedId(item._id)
+                        setOverlay(<OverlayOne />)
+                        onOpenThree()
+                      }}
+                    />
+                    <IconButton
+                      aria-label='Edit Item'
+                      colorScheme='green'
+                      size='sm'
+                      icon={<IoMdEye />}
+                      onClick={() => {
+                        setEyeIconSelectedId(item._id)
+                        setOverlay(<OverlayOne />)
+                        onOpenTwo()
+                      }}
+                    />
+                    <IconButton
+                      aria-label='Generate Barcode'
+                      colorScheme='blue'
+                      size='sm'
+                      icon={<BiBarcodeReader />}
+                      onClick={() => {
+                        // handleGenerateBarcode(item)
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       {/* Table Start */}
       {/* <Box style={{ marginTop: '2vw' }} overflowX="auto">
         <Table variant="striped" colorScheme="teal" >
@@ -287,7 +417,7 @@ export default function ItemManagement() {
                   <Td isNumeric>{item.available_quantity}</Td>
                   <Td isNumeric>{item.minimum_quantity}</Td>
                   <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
-                  <Td isNumeric>{item.Last_Replenished.split('T')[0]}</Td>
+                  <Td isNumeric>{item.updatedAt.split('T')[0]}</Td>
                   <Td
                     display={'flex'}
                   >
@@ -349,12 +479,15 @@ export default function ItemManagement() {
       <>
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           {overlay}
-          <ModalContent>
-            <ModalHeader>Add Item</ModalHeader>
+          <ModalContent
+            background={'#9BF0F2'}
+            border='5px solid #fff'
+          >
+            <ModalHeader
+              textAlign='center'
+            >Add Item</ModalHeader>
             <ModalCloseButton />
-            <ModalBody
-              background={'#9BF0F2'}
-            >
+            <ModalBody>
               <Button onClick={handleAutoAddVals}>
                 Auto Add Values
               </Button>
@@ -372,7 +505,15 @@ export default function ItemManagement() {
               </FormControl> */}
 
               {/* Form Start */}
-              <Box maxW="sm" m="auto" p="4" borderWidth="1px" borderRadius="lg" background={'whiteAlpha.100'}>
+              <Box
+                maxW="sm"
+                m="auto"
+                p="4"
+                // borderWidth="1px"
+                borderRadius="lg"
+                border='4px solid #fff'
+              // background={'whiteAlpha.100'}
+              >
                 <form onSubmit={handleSubmit}>
                   <FormControl id="itemName" isRequired>
                     <FormLabel>Item Name</FormLabel>
@@ -449,14 +590,14 @@ export default function ItemManagement() {
                     </Flex>
                   </FormControl>
 
-                  <FormControl id="lastReplenished" isRequired>
+                  {/* <FormControl id="lastReplenished" isRequired>
                     <FormLabel>Last Replenished</FormLabel>
                     <Input
                       type="date"
                       value={lastReplenished}
                       onChange={(e) => setLastReplenished(e.target.value)}
                     />
-                  </FormControl>
+                  </FormControl> */}
 
                   <Button
                     mt="4"
@@ -501,6 +642,20 @@ export default function ItemManagement() {
         overlay={overlay}
         setOverlay={setOverlay}
       />
+
+      <canvas id="mycanvas"
+        style={{ display: 'none' }}
+      ></canvas>
+
+      <ViewCode 
+        isOpen={isOpenBarCode}
+        onOpen={onOpenBarCode}
+        onClose={onCloseBarCode}
+        barCodeData={barCodeData}
+        barcodeDataUrl={barcodeDataUrl}
+      />
+
+
       {/* Edit Item Modal End  */}
     </div >
   )
