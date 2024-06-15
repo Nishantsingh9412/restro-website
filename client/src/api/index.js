@@ -13,7 +13,7 @@ const API = axios.create({ baseURL: process.env.REACT_APP_BASE_URL_FOR_APIS });
 // Add Item
 export const AddItem = (newItem) => API.post('/item-management/additem', newItem);
 // Get All Items
-export const GetAllItems = () => API.get('item-management/get-all-items');
+export const GetAllItems = () => API.get('/item-management/get-all-items');
 // Get Single Item
 export const GetSingleItem = (id) => API.get(`/item-management/get-item/${id}`);
 // Update Item 
