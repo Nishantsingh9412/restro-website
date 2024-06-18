@@ -6,7 +6,7 @@ export const AddItemAction = (ItemData) => async (dispatch) => {
         dispatch({ type: 'ADD_ITEM',data:data.result });
         return { success: true, message: 'Item Added Successfully' };
     } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.log("Error from AddItem Action: " + err.message, err.stack);
         return { success: false, message: 'something went wrong' };
     }
 } 
@@ -17,7 +17,7 @@ export const GetAllItemsAction = () => async (dispatch) => {
         dispatch({ type: 'GET_ALL_ITEMS', data:data.result});
         return { success: true, message: 'Items Fetched Successfully' };
     }catch(err){
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.log("Error from GetAllItems Action : " + err.message, err.stack);
         return { success: false, message: 'something went wrong' };
     }
 }
@@ -28,7 +28,7 @@ export const GetSingleItemAction = (id) => async(dispatch) => {
         dispatch({ type: 'GET_SINGLE_ITEM', data:data.result});
         return { success: true, message: 'Item Fetched Successfully' };
     }catch(err){
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.log("Error from GetSingleItem Action : " + err.message, err.stack);
         return { success: false, message: 'something went wrong' };
     }
 }
@@ -39,7 +39,7 @@ export const updateSingleItemAction = (id,updatedData) => async(dispatch) => {
         dispatch({type: 'UPDATE_SINGLE_ITEM', data:data.result});
         return { success: true, message: 'Item Updated Successfully' };
     }catch(err){
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.log("Error from updateSingleItem Action: " + err.message, err.stack);
         return { success: false, message: 'something went wrong' };
     }
 }
@@ -49,7 +49,7 @@ export const deleteSingleItemAction = (id) => async(dispatch) => {
         await api.deleteSingleItem(id);
         return { success: true, message: 'Item Deleted Successfully' };
     }catch(err){
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.log("Error from deleteSingleItem Action: " + err.message, err.stack);
         return { success: false, message: 'something went wrong' };
     }
 }

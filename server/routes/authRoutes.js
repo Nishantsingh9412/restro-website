@@ -1,14 +1,15 @@
 import express from 'express';
+import passport from 'passport';
 
 import {
-    // signupController,
-    // loginController,
+    signupController,
+    loginController,
     authenticateUser,
     authFailed,
     authSuccess,
     logoutUser
 } from '../controllers/auth.js'
-import passport from 'passport';
+import { upload } from '../middleware/fileupload.js';
 
 const router = express.Router();
 
@@ -24,10 +25,9 @@ router.get('/logout', logoutUser);
 
 
 
+router.post('/signup', upload.single('profile_picture') , signupController);
 
-// router.post('/signup', signupController);
-
-// router.post('/login', loginController);
+router.post('/login', loginController);
 
 
 

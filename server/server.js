@@ -22,6 +22,9 @@ app.use(express.json({ limit: "30mb", extended: true }))
 app.use(express.urlencoded({ limit: "30mb", extended: true }))
 app.use(cors());
 
+// // For image upload
+// app.use(express.static(__dirname + '/public'));
+app.use('/uploads',express.static('uploads'))
 
 app.use('/item-management', itemRoutes)
 app.use('/stock-management', lowStockItems)
@@ -39,7 +42,7 @@ const __dirname = path.resolve();
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(("./frontend/build")));
-
+    
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, "./frontend", "build", "index.html"));
     });
@@ -63,4 +66,3 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true
         () => app.listen(PORT,
             () => console.log(`Server running on port: ${PORT}`))).catch((error) => console.log(error.message)
             );
-

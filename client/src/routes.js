@@ -7,7 +7,8 @@ import {
   MdChevronRight,
   MdShoppingBag,
   MdBatchPrediction,
-  MdVideoLibrary
+  MdVideoLibrary,
+  MdLock,
 } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { LuFolderClosed, LuShoppingBag } from 'react-icons/lu';
@@ -26,7 +27,8 @@ import SupplierManagement from 'views/admin/supplierMgmt';
 import AllOrders from 'views/admin/allOrders';
 // import BarcodeGenerator from 'views/admin/barcodeGenerator';
 // Auth Imports
-// import SignInCentered from 'views/auth/signIn';
+import SignInCentered from "views/auth/signIn";
+import SignUpCentered from "views/auth/signup";
 import { IoAlertCircleSharp } from 'react-icons/io5';
 import { TbReorder, TbTruckDelivery } from 'react-icons/tb';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6';
@@ -246,6 +248,20 @@ const routes2 = [
         component: () => <></>,
       },
     ],
+  },
+  {
+    name: "Sign In",
+    layout: "/auth",
+    path: "/sign-in",
+    icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+    component: SignInCentered,
+  },
+  {
+    name: "Sign Up",
+    layout: "/auth",
+    path: "/sign-up",
+    icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+    component: SignUpCentered,
   },
 ];
 

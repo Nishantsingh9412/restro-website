@@ -9,6 +9,17 @@ const API = axios.create({ baseURL: process.env.REACT_APP_BASE_URL_FOR_APIS });
 //     }
 //     return req;
 // });
+
+// Auth API 
+// Signup 
+export const signUpAPI = (newUser) => API.post('/auth/signup', newUser); 
+
+// Login
+export const loginAPI = (userData) => API.post('/auth/login', userData); 
+
+
+
+
 // Items API Start
 // Add Item
 export const AddItem = (newItem) => API.post('/item-management/additem', newItem);
@@ -60,7 +71,6 @@ export const searchOrderItem = (orderNameData) => API.get(`/orders/search-order-
 
 
 // Item Using QR 
-
 export const postItemUsingQR = (newItem) => API.post('/qr-items/add-qr-item', newItem);
 
 export const getSingleQRItem = (id) => API.get(`/qr-items/get-single-qr-item/${id}`);

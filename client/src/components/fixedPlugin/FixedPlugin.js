@@ -7,7 +7,8 @@ import React from "react";
 export default function FixedPlugin(props) {
   const { ...rest } = props;
   const { colorMode, toggleColorMode } = useColorMode();
-  let bgButton = "linear-gradient(135deg, #868CFF 0%, #4318FF 100%)";
+  // let bgButton = "linear-gradient(135deg, #868CFF 0%, #4318FF 100%)";
+  let bgButton = "#029CFF";
 
   return (
     <Button
