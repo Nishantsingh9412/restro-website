@@ -5,9 +5,11 @@ import supplierReducer from "./supplierReducer";
 import OrderItemReducer from "./orderItems";
 import QRItemsReducer from "./qrItems";
 import authReducer from "./auth";
+import userReducer from "./user";
 
 export default combineReducers({
     authReducer,
+    userReducer,
     itemsReducer,
     stocksReducer,
     supplierReducer,

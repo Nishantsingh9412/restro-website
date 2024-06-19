@@ -36,31 +36,31 @@ import { GiNuclearWaste } from 'react-icons/gi';
 import { AiFillPrinter } from 'react-icons/ai';
 
 const routes2 = [
-  {
-    name: '',
-    layout: '/admin',
-    path: '/default',
-    type: 'list',
-    icon: '',
-    links: [
-      {
-        name: 'Overview',
-        layout: '/admin',
-        path: '/default',
-        icon: '',
-        type: 'link',
-        component: MainDashboard,
-      },
-      {
-        name: 'Orders',
-        layout: '/admin',
-        path: '/orders',
-        icon: '',
-        type: 'link',
-        component: () => <></>,
-      },
-    ],
-  },
+  // {
+  //   name: '',
+  //   layout: '/admin',
+  //   path: '/default',
+  //   type: 'list',
+  //   icon: '',
+  //   links: [
+  //     {
+  //       name: 'Overview',
+  //       layout: '/admin',
+  //       path: '/default',
+  //       icon: '',
+  //       type: 'link',
+  //       component: MainDashboard,
+  //     },
+  //     {
+  //       name: 'Orders',
+  //       layout: '/admin',
+  //       path: '/orders',
+  //       icon: '',
+  //       type: 'link',
+  //       component: () => <></>,
+  //     },
+  //   ],
+  // },
   {
     name: 'Dashboards',
     layout: '/admin',

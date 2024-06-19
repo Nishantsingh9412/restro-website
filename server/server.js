@@ -12,6 +12,7 @@ import supplierRoutes from './routes/suppliers.js'
 import orderRoutes from './routes/orders.js'
 import qrRoutes from './routes/qr.js'
 import authRoutes from './routes/authRoutes.js'
+import userRoutes from './routes/user.js'
 // import userRoutes from './routes/users.js'
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(cors());
 
 // // For image upload
 // app.use(express.static(__dirname + '/public'));
+// To serve static files to frontend for multer 
 app.use('/uploads',express.static('uploads'))
 
 app.use('/item-management', itemRoutes)
@@ -32,6 +34,7 @@ app.use('/supplier', supplierRoutes)
 app.use('/orders', orderRoutes)
 app.use('/qr-items', qrRoutes)
 app.use('/auth', authRoutes)
+app.use('/user',userRoutes)
 
 
 // ----------------------------deployment--------------------------------------

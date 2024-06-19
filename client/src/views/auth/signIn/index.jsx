@@ -21,7 +21,7 @@
 
 */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
@@ -52,6 +52,7 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
+import { useHistory } from 'react-router-dom'
 import { LoginAction } from "../../../redux/action/auth.js";
 
 function SignIn() {
@@ -74,8 +75,18 @@ function SignIn() {
   const [show, setShow] = React.useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
+  const history = useHistory();
   const handleClick = () => setShow(!show);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('ProfileData'));
+    if (user) {
+      history.push('/admin/dashboards/default')
+    }
+  }, [history])
 
   const handleGoogleLogin = () => {
     window.open(
@@ -101,6 +112,7 @@ function SignIn() {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setLoading(true)
     console.log("Email: ", email);
     console.log("Password: ", password);
     if (!validate()) return;
@@ -113,8 +125,11 @@ function SignIn() {
     dispatch(LoginAction(loginData)).then((res) => {
       console.log("Login Response: ", res);
       if (res.success) {
-        toast.success(res.message);
+        // toast.success(res.message);
+        setLoading(false)
+        history.push('/admin/dashboards/default');
       } else {
+        setLoading(false)
         toast.error(res.message);
       }
     })
@@ -138,7 +153,7 @@ function SignIn() {
         mt={{ base: "40px", md: "14vh" }}
         flexDirection='column'>
         <Box me='auto'>
-          <Heading color={textColor} fontSize='36px' mb='10px'>
+          <Heading color={textColor} fontSize='36px' mb='20px'>
             Sign In
           </Heading>
           {/* <Text
@@ -160,7 +175,8 @@ function SignIn() {
           mx={{ base: "auto", lg: "unset" }}
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
-          <Button
+
+          {/* <Button
             fontSize='sm'
             me='0px'
             mb='26px'
@@ -178,14 +194,15 @@ function SignIn() {
           >
             <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
             Sign in with Google
-          </Button>
-          <Flex align='center' mb='25px'>
+          </Button> */}
+
+          {/* <Flex align='center' mb='25px'>
             <HSeparator />
             <Text color='gray.400' mx='14px'>
               or
             </Text>
             <HSeparator />
-          </Flex>
+          </Flex> */}
           <form onSubmit={handleLogin}>
             <FormControl>
               <FormLabel
@@ -207,6 +224,7 @@ function SignIn() {
                 mb='24px'
                 fontWeight='500'
                 size='lg'
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <FormLabel
@@ -227,6 +245,7 @@ function SignIn() {
                   size='lg'
                   type={show ? "text" : "password"}
                   variant='auth'
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <InputRightElement display='flex' alignItems='center' mt='4px'>
@@ -267,18 +286,30 @@ function SignIn() {
               <Button
                 type="submit"
                 fontSize='sm'
-                // variant='brand'
                 colorScheme="blue"
-                // background={'#029CFF'}
-                // color='white'
-                // __hover={{ bg: '#029CFF' }}
-                // __active={{ bg: '#029CFF' }}
                 fontWeight='500'
                 w='100%'
                 h='50'
                 mb='24px'
+                isLoading={loading}
               >
                 Sign In
+              </Button>
+
+              <Button
+                fontSize='sm'
+                colorScheme="green"
+                fontWeight='500'
+                w='100%'
+                h='50'
+                mb='24px'
+                isLoading={loading}
+                onClick={() => {
+                  setEmail('prakash@gmail.com');
+                  setPassword('111111');
+                }} 
+              >
+                Test Application
               </Button>
             </FormControl>
           </form>

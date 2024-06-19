@@ -56,7 +56,8 @@ export const logoutUser = async (req, res) => {
 
 export const signupController = async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
-    const  profile_picture  = req.file ? req.file.path : null;
+    const profile_picture = req.file ? req.file.filename : null;
+    console.log(req.file);
     try {
         const existingUser = await Auth.findOne({ email });
         if (existingUser) {
@@ -75,8 +76,7 @@ export const signupController = async (req, res) => {
             password: hashedPassword,
             profile_picture: profile_picture
         });
-        const token = jwt.sign({ email: newUser.email, id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-
+        const token = jwt.sign({ email: newUser.email, id: newUser._id },process.env.JWT_SECRET,{ expiresIn: '24h' });
         return res.status(201).json({ success: true, result: newUser, token });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Something went wrong", error: error });

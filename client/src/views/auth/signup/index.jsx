@@ -21,7 +21,7 @@
 
 */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
@@ -52,7 +52,9 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { SignUpAction } from "../../../redux/action/auth.js";
+
 
 function SignUp() {
   // Chakra color mode
@@ -79,9 +81,18 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
+  const [loading,setLoading] = useState(false);
 
   const dispatch = useDispatch();
+  const history = useHistory();
 
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('ProfileData'));
+    if (user) {
+      history.push('/admin/dashboards/default')
+    }
+  }, [history])
 
   const handleGoogleLogin = () => {
     window.open(
@@ -151,9 +162,10 @@ function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(name, email, password, confirmPassword)
+    setLoading(true);
+    // console.log(name, email, password, confirmPassword)
     if (!validate()) return;
-    
+
 
     const formData = new FormData();
     formData.append('name', name);
@@ -170,10 +182,13 @@ function SignUp() {
 
     dispatch(SignUpAction(formData)).then((res) => {
       if (!(res.success)) {
+        setLoading(false)
         toast.error(res.message);
         console.log(res);
       } else {
-        toast.success(res.message);
+        // toast.success(res.message);
+        setLoading(false);
+        history.push('/admin/dashboards/default');
         console.log(res);
       }
     });
@@ -196,7 +211,7 @@ function SignUp() {
         mt={{ base: "40px", md: "14vh" }}
         flexDirection='column'>
         <Box me='auto'>
-          <Heading color={textColor} fontSize='36px' mb='10px'>
+          <Heading color={textColor} fontSize='36px' mb='20px'>
             Sign Up
           </Heading>
           <Button
@@ -223,7 +238,7 @@ function SignUp() {
           mx={{ base: "auto", lg: "unset" }}
           me='auto'
           mb={{ base: "20px", md: "auto" }}>
-          <Button
+          {/* <Button
             fontSize='sm'
             me='0px'
             mb='26px'
@@ -240,14 +255,14 @@ function SignUp() {
           >
             <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
             Sign Up with Google
-          </Button>
-          <Flex align='center' mb='25px'>
+          </Button> */}
+          {/* <Flex align='center' mb='25px'>
             <HSeparator />
             <Text color='gray.400' mx='14px'>
               or
             </Text>
             <HSeparator />
-          </Flex>
+          </Flex> */}
           <form onSubmit={handleSubmit} encType="multipart/form-data" >
             <FormControl >
               <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' color={textColor} mb='8px'>
@@ -354,13 +369,14 @@ function SignUp() {
                 </NavLink>
               </Flex>
               <Button
-                type="submit"
-                fontSize='sm'
-                variant='brand'
-                fontWeight='500'
-                w='100%'
-                h='50'
-                mb='24px'
+               type="submit"
+               fontSize='sm'
+               colorScheme="blue"
+               fontWeight='500'
+               w='100%'
+               h='50'
+               mb='24px'
+               isLoading={loading}
               >
                 Sign Up
               </Button>
@@ -375,7 +391,7 @@ function SignUp() {
             mt='0px'>
             <Text color={textColorDetails} fontWeight='400' fontSize='14px'>
               Not registered yet?
-              <NavLink to='/auth/sign-in'>
+              <NavLink to='/'>
                 <Text
                   color={textColorBrand}
                   as='span'

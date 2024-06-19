@@ -14,7 +14,6 @@ import {
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import AdminNavbarLinks from 'components/navbar/NavbarLinksAdmin';
-import { FaChromecast, FaRegStar } from 'react-icons/fa';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes';
 
@@ -82,7 +81,7 @@ export default function AdminNavbar(props) {
       top={{ base: '12px', md: '16px', lg: '20px', xl: '20px' }}
       w="90%"
     >
-      <Flex
+      {/* <Flex
         alignItems="center"
         gap="10px"
         me="10px"
@@ -91,7 +90,7 @@ export default function AdminNavbar(props) {
       >
         <Icon as={FaChromecast} w="20px" />
         <Icon as={FaRegStar} w="20px" />
-      </Flex>
+      </Flex> */}
       <Flex
         alignItems="center"
         justifyContent="space-between"
@@ -105,7 +104,7 @@ export default function AdminNavbar(props) {
           <Img src="" w="50px" h="50px"  />
           <Box>
             <Text>Hey</Text>
-            <Text>Rishi Rosanov</Text>
+            <Text>Rohi Rosanov</Text>
           </Box>
         </Flex>
         <SidebarResponsive routes={routes} />

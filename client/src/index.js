@@ -4,7 +4,8 @@ import 'assets/css/App.css';
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import AuthLayout from 'layouts/auth';
 import AdminLayout from 'layouts/admin';
-import MainPage from './MainPage.jsx'
+// import MainPage from './MainPage.jsx'
+import SignIn from 'views/auth/signIn';
 import RtlLayout from 'layouts/rtl';
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from 'theme/theme';
@@ -38,7 +39,8 @@ ReactDOM.render(
 							<Route path={`/admin`} component={AdminLayout} />
 							<Route path={`/rtl`} component={RtlLayout} />
 							{/* <Redirect from='/' to='/admin' /> */}
-							<Route path='/' component={MainPage} />
+							{/* <Route path='/' component={MainPage} /> */}
+							<Route path={'/'} component={SignIn} />
 						</Switch>
 					</BrowserRouter>
 					{/* </HashRouter> */}

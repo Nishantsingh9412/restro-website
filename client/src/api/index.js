@@ -82,3 +82,7 @@ export const upadteAllQRItems = (id, updatedData) => API.patch(`/qr-items/update
 export const deleteSingleQRItem = (id) => API.delete(`/qr-items/delete-qr-item/${id}`);
 
 
+// Single User Data
+export const getSingleUserData = (id) => API.get(`/user/get-user/${id}`);
+// Update Single User Data Profile Pic
+export const UpdateUserProfilePic = (id, updatedData) => API.patch(`/user/profile-pic-update/${id}`, updatedData);

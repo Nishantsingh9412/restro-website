@@ -13,19 +13,27 @@ import {
 	Text,
 	useColorModeValue
 } from '@chakra-ui/react';
+import { jwtDecode } from "jwt-decode";
 // Custom Components
 import { ItemContent } from 'components/menu/ItemContent';
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect } from 'react';
 // Assets
 import navImage from 'assets/img/layout/Navbar.png';
 import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md';
 import { FaEthereum } from 'react-icons/fa';
 import routes from 'routes.js';
 import { ThemeEditor } from './ThemeEditor';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { singleUserDataAction } from '../../redux/action/user.js';
+
 export default function HeaderLinks(props) {
+
+
+
 	const { secondary } = props;
 	// Chakra Color Mode
 	const navbarIcon = useColorModeValue('white', 'white');
@@ -41,6 +49,53 @@ export default function HeaderLinks(props) {
 		'14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
 	);
 	const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
+
+	const dispatch = useDispatch();
+	const history = useHistory();
+
+
+	// const User = useSelector((state) => (state))
+	// console.log("All States \n")
+	// console.log(User);
+
+	const localData = JSON.parse(localStorage.getItem('ProfileData'));
+	const singleUserData = useSelector((state) => state.userReducer);
+	// console.log("Single User Data \n")
+	// console.log(singleUserData);
+	// console.log("Local Data \n")
+	// console.log(localData);
+
+	const handleLogout = () => {
+		dispatch({ type: 'LOGOUT' });
+		history.push('/');
+	}
+
+
+	useEffect(() => {
+		dispatch(singleUserDataAction(localData?.result?._id))
+	}, [])
+
+	useEffect( () => {
+		if(!localData){
+			history.push('/')
+		}
+	},[]) 
+	
+
+	useEffect(() => {
+		const token = localData?.token;
+		if (token) {
+			const decodedToken = jwtDecode(token);
+			// const durationInSeconds = decodedToken.exp - decodedToken.iat;
+			// console.log(`Token duration: ${durationInSeconds} seconds`);
+			if (decodedToken.exp * 1000 < new Date().getTime()) {
+				handleLogout();
+			}
+		}
+	}, [dispatch])
+
+
+
 	return (
 		<Flex
 			w={{ sm: '100%', md: 'auto' }}
@@ -71,7 +126,7 @@ export default function HeaderLinks(props) {
 				</Text>
 			</Flex>
 			{/* <SidebarResponsive routes={routes} /> */}
-			<Menu>
+			{/* <Menu>
 				<MenuButton p="0px">
 					<Icon mt="6px" as={MdNotificationsNone} color={navbarIcon} w="18px" h="18px" me="10px" />
 				</MenuButton>
@@ -102,82 +157,89 @@ export default function HeaderLinks(props) {
 						</MenuItem>
 					</Flex>
 				</MenuList>
-			</Menu>
+			</Menu> */}
 
-      <Menu>
-        <MenuButton p='0px'>
-          <Icon
-            mt='6px'
-            as={MdInfoOutline}
-            color={navbarIcon}
-            w='18px'
-            h='18px'
-            me='10px'
-          />
-        </MenuButton>
-        <MenuList
-          boxShadow={shadow}
-          p='20px'
-          me={{ base: "30px", md: "unset" }}
-          borderRadius='20px'
-          bg={menuBg}
-          border='none'
-          mt='22px'
-          minW={{ base: "unset" }}
-          maxW={{ base: "360px", md: "unset" }}>
-          <Image src={navImage} borderRadius='16px' mb='28px' />
-          <Flex flexDirection='column'>
-            <Link
-              w='100%'
-              href='https://horizon-ui.com/pro?ref=horizon-chakra-free'>
-              <Button w='100%' h='44px' mb='10px' variant='brand'>
-                Buy Horizon UI PRO
-              </Button>
-            </Link>
-            <Link
-              w='100%'
-              href='https://horizon-ui.com/documentation/docs/introduction?ref=horizon-chakra-free'>
-              <Button
-                w='100%'
-                h='44px'
-                mb='10px'
-                border='1px solid'
-                bg='transparent'
-                borderColor={borderButton}>
-                See Documentation
-              </Button>
-            </Link>
-            <Link
-              w='100%'
-              href='https://github.com/horizon-ui/horizon-ui-chakra'>
-              <Button
-                w='100%'
-                h='44px'
-                variant='no-hover'
-                color={textColor}
-                bg='transparent'>
-                Try Horizon Free
-              </Button>
-            </Link>
-          </Flex>
-        </MenuList>
-      </Menu>
+			{/* <Menu>
+				<MenuButton p='0px'>
+					<Icon
+						mt='6px'
+						as={MdInfoOutline}
+						color={navbarIcon}
+						w='18px'
+						h='18px'
+						me='10px'
+					/>
+				</MenuButton>
+				<MenuList
+					boxShadow={shadow}
+					p='20px'
+					me={{ base: "30px", md: "unset" }}
+					borderRadius='20px'
+					bg={menuBg}
+					border='none'
+					mt='22px'
+					minW={{ base: "unset" }}
+					maxW={{ base: "360px", md: "unset" }}>
+					<Image src={navImage} borderRadius='16px' mb='28px' />
+					<Flex flexDirection='column'>
+						<Link
+							w='100%'
+							href='https://horizon-ui.com/pro?ref=horizon-chakra-free'>
+							<Button w='100%' h='44px' mb='10px' variant='brand'>
+								Buy Horizon UI PRO
+							</Button>
+						</Link>
+						<Link
+							w='100%'
+							href='https://horizon-ui.com/documentation/docs/introduction?ref=horizon-chakra-free'>
+							<Button
+								w='100%'
+								h='44px'
+								mb='10px'
+								border='1px solid'
+								bg='transparent'
+								borderColor={borderButton}>
+								See Documentation
+							</Button>
+						</Link>
+						<Link
+							w='100%'
+							href='https://github.com/horizon-ui/horizon-ui-chakra'>
+							<Button
+								w='100%'
+								h='44px'
+								variant='no-hover'
+								color={textColor}
+								bg='transparent'>
+								Try Horizon Free
+							</Button>
+						</Link>
+					</Flex>
+				</MenuList>
+			</Menu> */}
 
-			<ThemeEditor navbarIcon={navbarIcon} />
+			{/* <ThemeEditor navbarIcon={navbarIcon} /> */}
 
 			<Menu>
 				<MenuButton p="0px">
 					<Avatar
 						_hover={{ cursor: 'pointer' }}
 						color="white"
-						name="Adela Parkson"
+						name={singleUserData?.user?.name}
 						bg="#11047A"
 						size="sm"
 						w="40px"
 						h="40px"
 					/>
 				</MenuButton>
-				<MenuList boxShadow={shadow} p="0px" mt="10px" borderRadius="20px" bg={menuBg} border="none">
+				<MenuList
+					boxShadow={shadow}
+					p="0px"
+					mt="10px"
+					borderRadius="20px"
+					bg={menuBg}
+					border="none"
+				>
 					<Flex w="100%" mb="0px">
 						<Text
 							ps="20px"
@@ -188,23 +250,25 @@ export default function HeaderLinks(props) {
 							borderColor={borderColor}
 							fontSize="sm"
 							fontWeight="700"
-							color={textColor}>
-							👋&nbsp; Hey, Adela
+							color={'black'}>
+							👋&nbsp; Hey, {singleUserData?.user?.name}
 						</Text>
 					</Flex>
 					<Flex flexDirection="column" p="10px">
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
+						{/* <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
 							<Text fontSize="sm">Profile Settings</Text>
-						</MenuItem>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
+						</MenuItem> */}
+						{/* <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
 							<Text fontSize="sm">Newsletter Settings</Text>
-						</MenuItem>
+						</MenuItem> */}
 						<MenuItem
 							_hover={{ bg: 'none' }}
 							_focus={{ bg: 'none' }}
 							color="red.400"
 							borderRadius="8px"
-							px="14px">
+							px="14px"
+							onClick={handleLogout}
+						>
 							<Text fontSize="sm">Log out</Text>
 						</MenuItem>
 					</Flex>
