@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/df98b72d-f28d-4273-9b1a-f6e73df0e87b/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/foodiewoodie",
+    "appService.deploySubpath": "server"
+}

@@ -235,6 +235,7 @@ const BarcodeGenerator = () => {
                             <Th isNumeric>Minimum</Th>
                             <Th isNumeric>Usage Rate</Th>
                             <Th isNumeric>Last Replenished</Th>
+                            <Th isNumeric>Expiry Date</Th>
                             <Th>Action</Th>
                         </Tr>
                     </Thead>
@@ -249,6 +250,7 @@ const BarcodeGenerator = () => {
                                     <Td isNumeric>{item.minimum_quantity}</Td>
                                     <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
                                     <Td isNumeric>{item.updatedAt.split('T')[0]}</Td>
+                                    <Td isNumeric>{item.expiry_date.split('T')[0]}</Td>
                                     <Td
                                         onClick={() => handleGenerateBarcode(item)}
                                     >

@@ -206,7 +206,7 @@ export default function SupplierManagement() {
                                         />
                                     </FormControl>
 
-                                    <FormControl id="phone" isRequired>
+                                    <FormControl id="phone" >
                                         <FormLabel>Phone</FormLabel>
                                         <Box borderRadius="md" overflow="hidden">
                                             <PhoneInput

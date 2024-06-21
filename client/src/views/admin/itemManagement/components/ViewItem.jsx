@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { FaEye } from "react-icons/fa6"
 import {
     Table,
@@ -75,10 +75,23 @@ const ViewItem = (props) => {
                                     <Td fontWeight={'bold'}>Minimum Quantity:</Td>
                                     <Td>{SelectedItemData?.minimum_quantity}</Td>
                                 </Tr>
-                                <Tr>
+                                {/* <Tr>
                                     <Td fontWeight={'bold'}>Usage Rate:</Td>
                                     <Td>{SelectedItemData?.usage_rate_value} {SelectedItemData?.usage_rate_unit}</Td>
-                                </Tr>
+                                </Tr> */}
+                                {
+                                    SelectedItemData?.usage_rate_value &&
+                                    <Tr>
+                                        <Td fontWeight={'bold'}>Barcode No:</Td>
+                                        <Td>{SelectedItemData?.existing_barcode_no} </Td>
+                                    </Tr>
+                                }
+                                {
+                                    SelectedItemData?.expiry_date &&
+                                    <Tr>
+                                        <Td fontWeight={'bold'}>Expiry Date:</Td>
+                                        <Td>{SelectedItemData?.expiry_date.split('T')[0]} </Td>
+                                    </Tr>}
                                 <Tr>
                                     <Td fontWeight={'bold'}>Last Replenished:</Td>
                                     <Td>{SelectedItemData?.updatedAt.split('T')[0]}</Td>

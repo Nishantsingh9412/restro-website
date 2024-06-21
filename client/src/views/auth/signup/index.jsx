@@ -150,10 +150,10 @@ function SignUp() {
     } else if (password !== confirmPassword) {
       toast.error("Password didn't matched")
       return false;
-    } else if (profilePicture && !profilePicture.type === 'image/jpeg' || !profilePicture.type === 'image/png' || !profilePicture.type === 'image/jpg') {
+    } else if (profilePicture && !profilePicture?.type === 'image/jpeg' || !profilePicture?.type === 'image/png' || !profilePicture?.type === 'image/jpg') {
       toast.error("Please upload a valid image file")
       return false;
-    } else if (profilePicture && profilePicture.length > 2000000) {
+    } else if (profilePicture && profilePicture?.length > 2000000) {
       toast.error("Image size should be less than 1MB")
       return false;
     }

@@ -39,6 +39,8 @@ const EdiItem = (props) => {
     const [EditUsageRateValue, setEditUsageRateValue] = useState(0)
 
     const [EditUsageRateUnit, setEditUsageRateUnit] = useState('')
+    const [EditExistingBarcodeNo, setEditExistingBarcodeNo] = useState('')
+    const [EditExpirationDate, setEditExpirationDate] = useState('')
     // const [EditLastReplenished, setEditLastReplenished] = useState('')
     const [loadingEditModal, setLoadingEditModal] = useState(true)
 
@@ -49,8 +51,10 @@ const EdiItem = (props) => {
             item_unit: EditUnit,
             available_quantity: EditAvailable,
             minimum_quantity: EditMinimum,
-            usage_rate_value: EditUsageRateValue,
-            usage_rate_unit: EditUsageRateUnit,
+            existing_barcode_no: EditExistingBarcodeNo,
+            expiry_date: EditExpirationDate
+            // usage_rate_value: EditUsageRateValue,
+            // usage_rate_unit: EditUsageRateUnit,
             // // Last_Replenished: EditLastReplenished
         }
         const EditItemPromise = dispatch(updateSingleItemAction(ItemId, updatedItemsData)).then((res) => {
@@ -94,6 +98,8 @@ const EdiItem = (props) => {
             setEditMinimum(SelectedItemData?.minimum_quantity)
             setEditUsageRateValue(SelectedItemData?.usage_rate_value)
             setEditUsageRateUnit(SelectedItemData?.usage_rate_unit)
+            setEditExistingBarcodeNo(SelectedItemData?.existing_barcode_no)
+            setEditExpirationDate(SelectedItemData?.expiry_date?.split('T')[0])
             // setEditLastReplenished(SelectedItemData?.Last_Replenished.split('T')[0])
         }
     }, [SelectedItemData])
@@ -169,7 +175,25 @@ const EdiItem = (props) => {
                                                 />
                                             </FormControl>
 
-                                            <FormControl id="usageRate" isRequired>
+                                            <FormControl id='existingBarcodeNo' >
+                                                <FormLabel>Existing Barcode No</FormLabel>
+                                                <Input
+                                                    type="text"
+                                                    value={EditExistingBarcodeNo}
+                                                    onChange={(e) => setEditExistingBarcodeNo(e.target.value)}
+                                                />
+                                            </FormControl>
+
+                                            <FormControl id='expirationDate' >
+                                                <FormLabel>Expiration Date</FormLabel>  
+                                                <Input
+                                                    type="date"
+                                                    value={EditExpirationDate}
+                                                    onChange={(e) => setEditExpirationDate(e.target.value)}
+                                                />
+                                            </FormControl>
+
+                                            {/* <FormControl id="usageRate" isRequired>
                                                 <FormLabel>Usage Rate</FormLabel>
                                                 <Flex>
                                                     <Input
@@ -196,7 +220,7 @@ const EdiItem = (props) => {
                                                         <option value="Dozen">Dozen</option>
                                                     </Select>
                                                 </Flex>
-                                            </FormControl>
+                                            </FormControl> */}
 
                                             {/* <FormControl id="lastReplenished" isRequired>
                                                 <FormLabel>Last Replenished</FormLabel>
@@ -208,14 +232,8 @@ const EdiItem = (props) => {
                                             </FormControl> */}
 
                                             <Button
-                                                bg={'#029CFF'}
-                                                color={'white'}
-                                                _hover={{
-                                                    bg: "#40BFF8",
-                                                    color: "white"
-                                                }}
+                                                colorScheme="cyan"
                                                 mt="4"
-                                                colorScheme="blue"
                                                 type="submit"
                                             >
                                                 Update Item

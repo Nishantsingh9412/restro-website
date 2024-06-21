@@ -8,18 +8,20 @@ export const addItem = async (req, res) => {
             item_unit,
             available_quantity,
             minimum_quantity,
-            usage_rate_value,
-            usage_rate_unit,
             bar_code,
+            existing_barcode_no,
+            expiry_date
+            // usage_rate_unit,
+            // usage_rate_value,
         } = req.body;
 
         if (!item_name ||
             !item_unit ||
             !available_quantity ||
             !minimum_quantity ||
-            !usage_rate_value ||
-            !usage_rate_unit ||
             !bar_code
+            // !usage_rate_value ||
+            // !usage_rate_unit ||
         ) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         } else {
@@ -28,9 +30,11 @@ export const addItem = async (req, res) => {
                 item_unit,
                 available_quantity,
                 minimum_quantity,
-                usage_rate_value,
-                usage_rate_unit,
                 bar_code,
+                existing_barcode_no,
+                expiry_date,
+                // usage_rate_unit,
+                // usage_rate_value,
             });
             if (newItem) {
                 return res.status(201).json({ success: true, message: "Item Added", result: newItem })
@@ -67,7 +71,7 @@ export const getItemById = async (req, res) => {
                 return res.status(500).json({ success: false, message: "No Item Found" })
             }
         }
-    }catch(error){
+    } catch (error) {
         console.log("Error from ItemManagemnt Controller : ", error.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
@@ -80,37 +84,41 @@ export const updateItem = async (req, res) => {
         item_unit,
         available_quantity,
         minimum_quantity,
-        usage_rate_value,
-        usage_rate_unit,
         bar_code,
+        existing_barcode_no,
+        expiry_date,
+        // usage_rate_value,
+        // usage_rate_unit,
     } = req.body;
 
-    if(!mongoose.Types.ObjectId.isValid(_id)){
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Item Id" })
     }
-    try{
-        const updateSingleItem = await ItemManagement.findByIdAndUpdate((_id),{
-            $set:{
+    try {
+        const updateSingleItem = await ItemManagement.findByIdAndUpdate((_id), {
+            $set: {
                 'item_name': item_name,
                 'item_unit': item_unit,
                 'available_quantity': available_quantity,
                 'minimum_quantity': minimum_quantity,
-                'usage_rate_value': usage_rate_value,
-                'usage_rate_unit': usage_rate_unit,
                 'bar_code': bar_code,
+                'existing_barcode_no': existing_barcode_no,
+                'expiry_date': expiry_date,
+                // 'usage_rate_value': usage_rate_value,
+                // 'usage_rate_unit': usage_rate_unit,
             }
-        },{
+        }, {
             new: true,
             timestamps: { createdAt: false, updatedAt: true }
         });
 
-        if(updateSingleItem){
+        if (updateSingleItem) {
             return res.status(200).json({ success: true, message: "Item Updated", result: updateSingleItem })
-        }else{
+        } else {
             return res.status(500).json({ success: false, message: "Error Updating Item" })
         }
 
-    }catch(error){
+    } catch (error) {
         console.log("Error from ItemManagemnt Controller : ", error.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
@@ -118,31 +126,33 @@ export const updateItem = async (req, res) => {
 
 export const deleteItem = async (req, res) => {
     const { id: _id } = req.params;
-    if(!mongoose.Types.ObjectId.isValid(_id)){
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Item Id" })
     }
-    try{
+    try {
         const deleteSingleItem = await ItemManagement.findByIdAndDelete(_id);
-        if(deleteSingleItem){
+        if (deleteSingleItem) {
             return res.status(200).json({ success: true, message: "Item Deleted" })
-        }else{
+        } else {
             return res.status(500).json({ success: false, message: "Error Deleting Item" })
         }
-    }catch(error){
+    } catch (error) {
         console.log("Error from ItemManagemnt Controller : ", error.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
 
+// Only for development purpose 
+
 export const DeletAllItems = async (req, res) => {
-    try{
+    try {
         const deleteAllItems = await ItemManagement.deleteMany();
-        if(deleteAllItems){
+        if (deleteAllItems) {
             return res.status(200).json({ success: true, message: "All Items Deleted" })
-        }else{
+        } else {
             return res.status(500).json({ success: false, message: "Error Deleting Items" })
         }
-    }catch(error){
+    } catch (error) {
         console.log("Error from ItemManagemnt Controller : ", error.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }

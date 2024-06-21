@@ -51,8 +51,8 @@ export default function ItemManagement() {
 
   const OverlayOne = () => (
     <ModalOverlay
-      // bg='blackAlpha.800'
-      // backdropFilter='blur(10px) hue-rotate(90deg)'
+    // bg='blackAlpha.800'
+    // backdropFilter='blur(10px) hue-rotate(90deg)'
     />
   )
 
@@ -78,6 +78,8 @@ export default function ItemManagement() {
   const [pin, setPin] = useState(null);
   const [barCodeData, setbarCodeData] = useState('');
   const [barcodeDataUrl, setBarcodeDataUrl] = useState(null)
+  const [existingBarcodeNo, setExistingBarcodeNo] = useState('')
+  const [expiryDate, setExpiryDate] = useState('')
 
 
   // const [lastReplenished, setLastReplenished] = useState('');
@@ -125,9 +127,11 @@ export default function ItemManagement() {
       item_unit: unit,
       available_quantity: available,
       minimum_quantity: minimum,
-      usage_rate_value: usageRateValue,
-      usage_rate_unit: usageRateUnit,
+      existing_barcode_no: existingBarcodeNo,
+      expiry_date: expiryDate,
       bar_code: nanoid(13),
+      // usage_rate_value: usageRateValue,
+      // usage_rate_unit: usageRateUnit,
       // Last_Replenished: lastReplenished
     }
 
@@ -216,6 +220,8 @@ export default function ItemManagement() {
     setMinimum(10);
     setUsageRateValue(5);
     setUsageRateUnit('KG');
+    setExistingBarcodeNo('1FRE6ZE124R78');
+    setExpiryDate('2021-07-01');
 
     // setLastReplenished('2021-07-01');
   }
@@ -247,8 +253,9 @@ export default function ItemManagement() {
           <div>Unit</div>
           <div>Available</div>
           <div>Minimum</div>
-          <div>Usage Rate</div>
+          <div>Barcode No.</div>
           <div>Last Replenished</div>
+          <div>Expiry Date</div>
           <div>Action</div>
         </div>
 
@@ -258,8 +265,10 @@ export default function ItemManagement() {
             <div>{item.item_unit}</div>
             <div>{item.available_quantity}</div>
             <div>{item.minimum_quantity}</div>
-            <div>{item.usage_rate_value}{item.usage_rate_unit}</div>
+            {/* <div>{item.usage_rate_value}{item.usage_rate_unit}</div> */}
+            <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
             <div>{item.updatedAt.split('T')[0]}</div>
+            <div>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'} </div>
             <div>
               <IconButton
                 aria-label='Delete Item'
@@ -338,12 +347,19 @@ export default function ItemManagement() {
                         <td>{item.minimum_quantity}</td>
                       </tr>
                       <tr>
-                        <th scope="row">Usage Rate</th>
-                        <td>{item.usage_rate_value}{item.usage_rate_unit}</td>
+                        <th scope="row">Barcode No.</th>
+                        {/* <td>{item.usage_rate_value}{item.usage_rate_unit}</td> */}
+                        <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
+
                       </tr>
                       <tr>
                         <th scope="row">Last Replenished</th>
                         <td>{item.updatedAt.split('T')[0]}</td>
+                      </tr>
+
+                      <tr>
+                        <th scope="row">Expiry Date</th>
+                        <td>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -480,7 +496,7 @@ export default function ItemManagement() {
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           {overlay}
           <ModalContent
-            background={'#9BF0F2'}
+            background={'#D8EFFE'}
             border='5px solid #fff'
           >
             <ModalHeader
@@ -488,9 +504,12 @@ export default function ItemManagement() {
             >Add Item</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Button onClick={handleAutoAddVals}>
-                Auto Add Values
+
+              <Button onClick={handleAutoAddVals} >
+                +
               </Button>
+
+
               {/* Check for FormError */}
               {/* <FormControl isInvalid={isError}>
                 <FormLabel>Email</FormLabel>
@@ -511,7 +530,7 @@ export default function ItemManagement() {
                 p="4"
                 // borderWidth="1px"
                 borderRadius="lg"
-                border='4px solid #fff'
+              // border='4px solid #fff'
               // background={'whiteAlpha.100'}
               >
                 <form onSubmit={handleSubmit}>
@@ -561,7 +580,7 @@ export default function ItemManagement() {
                     />
                   </FormControl>
 
-                  <FormControl id="usageRate" isRequired>
+                  {/* <FormControl id="usageRate" isRequired>
                     <FormLabel>Usage Rate</FormLabel>
                     <Flex>
                       <Input
@@ -588,7 +607,7 @@ export default function ItemManagement() {
                         <option value="Dozen">Dozen</option>
                       </Select>
                     </Flex>
-                  </FormControl>
+                  </FormControl> */}
 
                   {/* <FormControl id="lastReplenished" isRequired>
                     <FormLabel>Last Replenished</FormLabel>
@@ -598,10 +617,28 @@ export default function ItemManagement() {
                       onChange={(e) => setLastReplenished(e.target.value)}
                     />
                   </FormControl> */}
-
+                  <FormControl id="expiryDate">
+                      <FormLabel>
+                        Expiry Date
+                      </FormLabel>
+                      <Input
+                        type="date"
+                        value={expiryDate}
+                        onChange={(e) => setExpiryDate(e.target.value)}
+                      />
+                  </FormControl>
+                  <FormControl id="existingBarcodeNo" >
+                    <FormLabel>Barcode No</FormLabel>
+                    <Input
+                      type="text"
+                      value={existingBarcodeNo}
+                      onChange={(e) => setExistingBarcodeNo(e.target.value)}
+                    />
+                  </FormControl>
                   <Button
                     mt="4"
-                    colorScheme="blue"
+                    colorScheme='cyan'
+                    color='#fff'
                     type="submit"
                   >
                     Add Item
@@ -612,7 +649,10 @@ export default function ItemManagement() {
 
             </ModalBody>
             <ModalFooter>
-              <Button onClick={onClose}>Close</Button>
+              <Button
+                colorScheme='gray'
+
+                onClick={onClose}>Close</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
@@ -647,7 +687,7 @@ export default function ItemManagement() {
         style={{ display: 'none' }}
       ></canvas>
 
-      <ViewCode 
+      <ViewCode
         isOpen={isOpenBarCode}
         onOpen={onOpenBarCode}
         onClose={onCloseBarCode}

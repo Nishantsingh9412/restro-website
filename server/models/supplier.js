@@ -8,8 +8,8 @@ const SupplierSchema = mongoose.Schema({
         default: 'https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png',
         required: false
     },
-    countryCode: { type: String, required: true },
-    phone:{type:String,required:true},
+    countryCode: { type: String, required: false },
+    phone:{type:String,required:false},
     email:{type:String,required:false},
 }, { timestamps: true });
 

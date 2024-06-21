@@ -4,7 +4,7 @@ import supplier from "../models/supplier.js"
 export const AddSupplier = async (req, res) => {
     try {
         const { name, pic, Items, phone, email, countryCode } = req.body;
-        if (!name || !Items || !phone || !countryCode) {
+        if (!name || !Items ) {
             return res.status(400).json({ success: false, message: 'All fields are required' })
         } else {
             const newSupplier = await supplier.create({
