@@ -80,6 +80,7 @@
     "serve-static": "^1.15.0",
     "set-function-length": "^1.2.2",
     "setprototypeof": "^1.2.0",
+    "short-unique-id": "^5.2.0",
     "side-channel": "^1.0.6",
     "sift": "^16.0.1",
     "sparse-bitfield": "^3.0.3",
@@ -89,6 +90,7 @@
     "type-is": "^1.6.18",
     "unpipe": "^1.0.0",
     "utils-merge": "^1.0.1",
+    "uuid": "^10.0.0",
     "vary": "^1.1.2",
     "webidl-conversions": "^7.0.0",
     "whatwg-url": "^13.0.0"

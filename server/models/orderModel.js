@@ -10,6 +10,7 @@ const OrderdItemsSchema = mongoose.Schema({
         required: false
     },
     description: { type: String, required: false },
+    isFavorite: { type: Boolean, default: false },
 }
 , { timestamps: true }
 )

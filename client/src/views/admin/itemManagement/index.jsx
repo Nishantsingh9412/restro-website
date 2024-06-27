@@ -37,14 +37,17 @@ import {
 } from "@chakra-ui/react"
 import { IoMdEye, IoMdTrash } from 'react-icons/io';
 import { IoPencil } from 'react-icons/io5';
+import { BiBarcodeReader } from 'react-icons/bi';
+import { IoMdAnalytics } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AddItemAction, GetAllItemsAction, deleteSingleItemAction } from '../../../redux/action/Items';
 import ViewItem from './components/ViewItem'
 import EdiItem from './components/EditItem';
-import styles from './ItemManagement.module.css'
-import { BiBarcodeReader } from 'react-icons/bi';
 import ViewCode from './components/ViewCode';
+import ViewAnalytics from './components/ViewAnalytics';
+import styles from './ItemManagement.module.css'
+
 
 
 export default function ItemManagement() {
@@ -62,10 +65,12 @@ export default function ItemManagement() {
   const { isOpen: isOpenTwo, onOpen: onOpenTwo, onClose: onCloseTwo } = useDisclosure()
   const { isOpen: isOpenThree, onOpen: onOpenThree, onClose: onCloseThree } = useDisclosure()
   const { isOpen: isOpenBarCode, onOpen: onOpenBarCode, onClose: onCloseBarCode } = useDisclosure()
+  const { isOpen: isOpenAnalytics, onOpen: onOpenAnalytics, onClose: onCloseAnalytics } = useDisclosure();
   const [overlay, setOverlay] = useState(<OverlayOne />)
   const [itemDataArray, setItemDataArray] = useState([])
 
   const [EyeIconSelectedId, setEyeIconSelectedId] = useState(null);
+  const [AnalyticsSelectedId,setAnalyticsSelectedId] = useState(null);
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
   const [unit, setUnit] = useState('');
@@ -311,6 +316,17 @@ export default function ItemManagement() {
                   handleGenerateBarcode(item)
                   setbarCodeData(item)
                   onOpenBarCode()
+                }}
+              />
+
+              <IconButton
+                aria-label='Generate Barcode'
+                colorScheme='teal'
+                size='sm'
+                icon={<IoMdAnalytics />}
+                onClick={() => {
+                  setAnalyticsSelectedId(item._id)
+                  onOpenAnalytics()
                 }}
               />
             </div>
@@ -618,14 +634,14 @@ export default function ItemManagement() {
                     />
                   </FormControl> */}
                   <FormControl id="expiryDate">
-                      <FormLabel>
-                        Expiry Date
-                      </FormLabel>
-                      <Input
-                        type="date"
-                        value={expiryDate}
-                        onChange={(e) => setExpiryDate(e.target.value)}
-                      />
+                    <FormLabel>
+                      Expiry Date
+                    </FormLabel>
+                    <Input
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                    />
                   </FormControl>
                   <FormControl id="existingBarcodeNo" >
                     <FormLabel>Barcode No</FormLabel>
@@ -683,6 +699,8 @@ export default function ItemManagement() {
         setOverlay={setOverlay}
       />
 
+      {/* Edit Item Modal End  */}
+
       <canvas id="mycanvas"
         style={{ display: 'none' }}
       ></canvas>
@@ -695,8 +713,14 @@ export default function ItemManagement() {
         barcodeDataUrl={barcodeDataUrl}
       />
 
+      <ViewAnalytics
+        isOpen={isOpenAnalytics}
+        onOpen={onOpenAnalytics}
+        onClose={onCloseAnalytics}
+        AnalyticsSelectedId={AnalyticsSelectedId}
+      />
 
-      {/* Edit Item Modal End  */}
+
     </div >
   )
 }

@@ -25,7 +25,6 @@ import {
     Text,
     Input
 } from '@chakra-ui/react'
-
 import SupplierCards from "./components/SupplierCards"
 import { AddNewSupplierAction, GetAllSuppliersAction } from "../../../redux/action/supplier";
 import styles from './SupplierManagement.module.css'
@@ -39,6 +38,7 @@ export default function SupplierManagement() {
     const [email, setEmail] = useState('');
     const [countryCode, setCountryCode] = useState('');
     const [phone_no, setPhone_no] = useState('');
+    const [supplierLocation, setSupplierLocation] = useState('');
     const [loading, setLoading] = useState(false);
 
 
@@ -100,9 +100,10 @@ export default function SupplierManagement() {
             countryCode,
             phone: phone_no,
             email,
+            location: supplierLocation
         }
-        console.log("This is new Supplier Data \n");
-        console.log(newSupplier);
+        // console.log("This is new Supplier Data \n");
+        // console.log(newSupplier);
         dispatch(AddNewSupplierAction(newSupplier)).then((res) => {
             if (res.success) {
                 toast.success('Item Added successfully');
@@ -119,8 +120,8 @@ export default function SupplierManagement() {
 
     const allSuppliers = useSelector(state => state.supplierReducer.suppliers);
     const selectedSupplier = useSelector(state => state.supplierReducer.seletectedSupplier);
-    console.log(" allstates Data \n")
-    console.log(allSuppliers);
+    // console.log(" allstates Data \n")
+    // console.log(allSuppliers);
 
     return (
         <div>
@@ -146,6 +147,7 @@ export default function SupplierManagement() {
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent:'end',
                     width: '60px',
                     height: '60px',
                     borderRadius: '50%',
@@ -238,6 +240,16 @@ export default function SupplierManagement() {
                                         <Input
                                             type="email"
                                             onChange={(e) => setEmail(e.target.value)}
+                                            _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                                        />
+                                    </FormControl>
+
+                                    <FormControl id="location">
+                                        <FormLabel> Location  </FormLabel> 
+                                        <Input 
+                                            type="text"
+                                            placeholder="Location"
+                                            onChange={(e) => setSupplierLocation(e.target.value)}
                                             _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                                         />
                                     </FormControl>

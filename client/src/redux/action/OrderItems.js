@@ -26,7 +26,7 @@ export const getAllOrderItemsAction = () => async (dispatch) => {
     try {
         const { data } = await api.getAllOrderItems();
         dispatch ({type:'GET_ALL_ORDER_ITEMS', data: data?.result});
-        return { success: true, message: 'Order Items fetched Successfully' };
+        return { success: true, message: 'Order Items fetched Successfully', data:data?.result};
     } catch (err) {
         console.log("Error from courseFilter Action: " + err.message, err.stack);
         return { success: false, message: err.message };

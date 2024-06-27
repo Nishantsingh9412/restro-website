@@ -1,5 +1,5 @@
 import passport from 'passport'
-
+import ShortUniqueId from 'short-unique-id';
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
@@ -56,8 +56,7 @@ export const logoutUser = async (req, res) => {
 
 export const signupController = async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
-    const profile_picture = req.file ? req.file.filename : null;
-    console.log(req.file);
+    const profile_picture = req.file ? req.file.filename : undefined;
     try {
         const existingUser = await Auth.findOne({ email });
         if (existingUser) {
@@ -70,14 +69,21 @@ export const signupController = async (req, res) => {
             return res.status(401).json({ success: false, message: "Password does not match" });
         }
         const hashedPassword = await bcrypt.hash(password, 12);
+        const uid = new ShortUniqueId({ length: 10 });
+        const uniqueId = uid.rnd();
         const newUser = await Auth.create({
             name,
             email,
             password: hashedPassword,
-            profile_picture: profile_picture
+            profile_picture: profile_picture,
+            uniqueId: uniqueId
         });
-        const token = jwt.sign({ email: newUser.email, id: newUser._id },process.env.JWT_SECRET,{ expiresIn: '24h' });
-        return res.status(201).json({ success: true, result: newUser, token });
+        if (!newUser) {
+            return res.status(401).json({ success: false, message: "User not created" });
+        } else {
+            const token = jwt.sign({ email: newUser.email, id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            return res.status(201).json({ success: true, result: newUser, token });
+        }
     } catch (error) {
         return res.status(500).json({ success: false, message: "Something went wrong", error: error });
     }

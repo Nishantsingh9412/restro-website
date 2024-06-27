@@ -86,3 +86,16 @@ export const deleteSingleQRItem = (id) => API.delete(`/qr-items/delete-qr-item/$
 export const getSingleUserData = (id) => API.get(`/user/get-user/${id}`);
 // Update Single User Data Profile Pic
 export const UpdateUserProfilePic = (id, updatedData) => API.patch(`/user/profile-pic-update/${id}`, updatedData);
+
+
+// Delivery Personnel API
+// Add Delivery Personnel
+export const addDeliveryPersonnel = (newPersonnel) => API.post('/delivery-person/create-one', newPersonnel);
+// Get All Delivery Personnel
+export const getAllDeliveryPersonnels = () => API.get('/delivery-person/get-all');
+// Get Single Delivery Personnel
+export const getSingleDeliveryPersonnel = (id) => API.get(`/delivery-person/get-single/${id}`);
+// Update Delivery Personnel
+export const updateSingleDeliveryPersonnel = (id, updatedData) => API.patch(`/delivery-person/update-del-person/${id}`, updatedData);
+// Delete Delivery Personnel
+export const deleteSingleDeliveryPersonnel = (id) => API.delete(`/delivery-person/delete-single/${id}`);

@@ -3,7 +3,7 @@ import supplier from "../models/supplier.js"
 
 export const AddSupplier = async (req, res) => {
     try {
-        const { name, pic, Items, phone, email, countryCode } = req.body;
+        const { name, pic, Items, phone, email, countryCode , location} = req.body;
         if (!name || !Items ) {
             return res.status(400).json({ success: false, message: 'All fields are required' })
         } else {
@@ -13,7 +13,8 @@ export const AddSupplier = async (req, res) => {
                 Items,
                 countryCode,
                 phone,
-                email
+                email,
+                location
             })
             if (!newSupplier) {
                 return res.status(400).json({ success: false, message: 'error in creating supplier' })
@@ -66,7 +67,7 @@ export const getSingleSupplier = async (req, res) => {
 
 export const UpdateSupplier = async (req, res) => {
     const { id: _id } = req.params;
-    const { name, pic, Items, phone, email, countryCode } = req.body;
+    const { name, pic, Items, phone, email, countryCode , location } = req.body;
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
     }
@@ -78,7 +79,8 @@ export const UpdateSupplier = async (req, res) => {
                 'Items': Items,
                 'countryCode': countryCode,
                 'phone': phone,
-                'email': email
+                'email': email,
+                'location': location
             }
         }, { new: true })
 

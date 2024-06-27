@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { jsPDF } from "jspdf";
+import { MdCancel } from "react-icons/md";
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { FaCartShopping } from 'react-icons/fa6';
+
+import { IoMdCart } from "react-icons/io";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -20,35 +24,34 @@ import {
     Button,
     Textarea,
     Select,
-    IconButton,
     InputLeftElement,
     InputGroup,
     List,
-    ListItem,
+    InputRightElement,
+    Badge,
 } from '@chakra-ui/react'
 import { BiSolidTrash } from "react-icons/bi";
-import { SearchIcon } from '@chakra-ui/icons'
-import { IoMdSearch, IoMdTrash } from 'react-icons/io';
+import { IoMdSearch } from 'react-icons/io';
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
-import { AddIcon, MinusIcon } from '@chakra-ui/icons';
 
-import { AddOrderItemAction, searchOrderItemAction } from '../../../redux/action/OrderItems';
-import { CiTrash } from "react-icons/ci";
+import { AddOrderItemAction, getAllOrderItemsAction, searchOrderItemAction } from '../../../redux/action/OrderItems';
+import CartDrawer from './components/CartDrawer';
+
 
 export default function AllOrders() {
 
     const OverlayOne = () => (
         <ModalOverlay
-            // bg='blackAlpha.800'
-            // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen: isOpenCart, onOpen: onOpenCart, onClose: onCloseCart } = useDisclosure()
     const [overlay, setOverlay] = React.useState(<OverlayOne />)
 
     const dispatch = useDispatch();
+    const history = useHistory();
 
     const [selectedItemLength, setSelectedItemLength] = useState(0);
     // const [Tax, setTax] = useState(0);
@@ -59,13 +62,29 @@ export default function AllOrders() {
     const [ItemName, setItemName] = useState('');
     const [priceVal, setPriceVal] = useState(0);
     const [priceUnit, setPriceUnit] = useState('');
-    const [pic, setPic] = useState('');
+    const [pic, setPic] = useState(undefined);
     const [description, setDescription] = useState('');
     const [allOrderTotal, setAllOrderTotal] = useState(0);
-    const [originalTotal,setOriginalTotal] = useState(0);
+    const [cartCount, setCartCount] = useState(0);
+    const [originalTotal, setOriginalTotal] = useState(0);
+    const [searchPerformed, setSearchPerformed] = useState(false);
+    const [allItemsData, setAllItemsData] = useState([]);
     const [loading, setLoading] = useState(false);
 
 
+    const handleProcessOrder = () => {
+        history.push('/admin/process-order', { selectedItemTemp, allOrderTotal });
+    }
+
+    // const handleAddToCart = (item) => {
+    //     console.log("Add to Cart Clicked", item);
+    //     dispatch(addItemAction(item));
+    // }
+
+    // const handleRemoveFromCart = (item) => {
+    //     console.log("Remove from Cart Clicked", item);
+    //     dispatch(removeItemAction(item));
+    // }
 
     const postOrderImage = (pics) => {
         console.log("This is Image Data \n")
@@ -131,10 +150,6 @@ export default function AllOrders() {
             description: description
         }
 
-        // const neWItemAddPromise = dispatch(AddOrderItemAction(newItemData)).then((res) => {
-
-        // })
-
         const AddItemPromise = dispatch(AddOrderItemAction(newItemOrderData)).then((res) => {
             if (res.success) {
                 onClose();
@@ -155,8 +170,9 @@ export default function AllOrders() {
 
 
     const AllOrderItemsReducer = useSelector((state) => state.OrderItemReducer);
-    console.log("All Order Items Reducer Data \n")
-    console.log(AllOrderItemsReducer);
+    const AllOrderItemsLength = AllOrderItemsReducer?.length;
+    const cartDataReducer = useSelector((state) => state);
+    console.log("Cart Data Reducer", cartDataReducer)
 
     const handleRemoveItemOrder = (id) => {
         console.log("Remove Item Clicked", id);
@@ -184,41 +200,43 @@ export default function AllOrders() {
 
 
 
-    function generateBill(selectedItems, total) {
-        const doc = new jsPDF();
-        doc.setFont('courier'); // Set font to Courier
-        let y = 20;
-        doc.setFontSize(18);
-        doc.text('Taj Hotels Limited', 10, y);
-        doc.setFontSize(14);
-        y += 10;
-        doc.text('Item', 10, y);
-        doc.text('Quantity', 40, y);
-        doc.text('Price', 70, y);
-        doc.text('Total', 90, y);
-        y += 10;
-        selectedItems.forEach((item, index) => {
-            const lines = doc.splitTextToSize(item.orderName, 40); // Split the item name into lines of up to 40 units long
-            for (let i = 0; i < lines.length; i++) {
-                doc.text(lines[i], 10, y);
-                if (i === 0) { // Only add quantity and price on the first line
-                    doc.text(item.quantity.toString(), 50, y);
-                    doc.text(`${item.priceVal} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 70, y);
-                    doc.text(`${(item.quantity * item.priceVal).toFixed(2)} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 90, y);
-                }
-                y += 10;
-            }
-            y += 10;
-        });
-        doc.text('------------------------', 10, y);
-        y += 10;
-        doc.text(`Total: ${parseFloat(total).toFixed(2)} €`, 10, y);
-        y += 10;
-        doc.text('------------------------', 10, y);
-        y += 10;
-        doc.text(`Date: ${new Date().toLocaleString()}`, 10, y);
-        doc.save("Bill.pdf");
-    }
+
+
+    // function generateBill(selectedItems, total) {
+    //     const doc = new jsPDF();
+    //     doc.setFont('courier'); // Set font to Courier
+    //     let y = 20;
+    //     doc.setFontSize(18);
+    //     doc.text('Taj Hotels Limited', 10, y);
+    //     doc.setFontSize(14);
+    //     y += 10;
+    //     doc.text('Item', 10, y);
+    //     doc.text('Quantity', 40, y);
+    //     doc.text('Price', 70, y);
+    //     doc.text('Total', 90, y);
+    //     y += 10;
+    //     selectedItems.forEach((item, index) => {
+    //         const lines = doc.splitTextToSize(item.orderName, 40); // Split the item name into lines of up to 40 units long
+    //         for (let i = 0; i < lines.length; i++) {
+    //             doc.text(lines[i], 10, y);
+    //             if (i === 0) { // Only add quantity and price on the first line
+    //                 doc.text(item.quantity.toString(), 50, y);
+    //                 doc.text(`${item.priceVal} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 70, y);
+    //                 doc.text(`${(item.quantity * item.priceVal).toFixed(2)} ${item.priceUnit === 'Euro' ? '€' : item.priceUnit}`, 90, y);
+    //             }
+    //             y += 10;
+    //         }
+    //         y += 10;
+    //     });
+    //     doc.text('------------------------', 10, y);
+    //     y += 10;
+    //     doc.text(`Total: ${parseFloat(total).toFixed(2)} €`, 10, y);
+    //     y += 10;
+    //     doc.text('------------------------', 10, y);
+    //     y += 10;
+    //     doc.text(`Date: ${new Date().toLocaleString()}`, 10, y);
+    //     doc.save("Bill.pdf");
+    // }
 
     // Usage
 
@@ -235,38 +253,29 @@ export default function AllOrders() {
         })
     };
 
-    // const items = useSelector(state => state.orderItems.items);
-
-    // const getItemQuantity = (id) => {
-    //     const item = items?.find(item => item._id === id);
-    //     return item ? item?.quantity : 0;
-    // }
-
-
-    // // For calculating tax 
-    // useEffect(() => {
-    //     setAllOrderTotal(selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) + parseFloat(Tax));
-    //     // setAllOrderTotal(parseFloat(Tax) + allOrderTotal)
-    // }, [Tax])
-
-    // // For calculating discount
-    // useEffect(() => {
-    //     setAllOrderTotal(selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) - 
-    //     parseFloat(discountPerc * selectedItemTemp.reduce((acc, item) => acc + item.priceVal * item.quantity, 0) / 100));
-    // }, [discountPerc]);
-
     useEffect(() => {
         setSelectedItemTemp(AllOrderItemsReducer.items);
-        // setSelectedItemLength(AllOrderItemsReducer.itemsLength);
     }, [handleAddItemOrder])
 
+    useEffect(() => {
+        dispatch(getAllOrderItemsAction()).then((res) => {
+            if (res.success) {
+                setAllItemsData(res?.data);
+            } else {
+                console.log("Erorr Getting Data")
+            }
+        })
+    }, [])
 
-
+    // const Allstates = useSelector((state) => state)
+    // console.log("ALL States Data",Allstates)
+    // console.log("All Items Data", allItemsData)
     return (
         <div style={{ marginTop: '4vw' }}>
             {/* Item name , Item Image , Item price  */}
             <ToastContainer />
             {/* <h2>Hello From AllOrders</h2> */}
+
             <Button
                 leftIcon={<FiPlusCircle />}
                 colorScheme='pink'
@@ -281,7 +290,29 @@ export default function AllOrders() {
                 Add Items
             </Button>
 
-
+            <Box position="relative" display="inline-block">
+                <Button
+                    leftIcon={<FaCartShopping />}
+                    marginLeft="12px"
+                    colorScheme="cyan"
+                    variant="solid"
+                    onClick={onOpenCart}
+                >
+                    Cart
+                </Button>
+                {/* {cartItemsLength.length > 0 && ( */}
+                <Badge
+                    colorScheme="cyan"
+                    variant='solid'
+                    position="absolute"
+                    top="-1"
+                    right="-1"
+                    borderRadius="full"
+                >
+                    {AllOrderItemsLength}
+                </Badge>
+                {/* )} */}
+            </Box>
             {/* <Button
                 onClick={() => {
                     setOverlay()
@@ -378,7 +409,148 @@ export default function AllOrders() {
             <Box display={{ base: "block", md: "flex" }}>
                 {/* Box1 */}
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
-                    {selectedItemTemp.map((item, index) => (
+                    <InputGroup>
+                        {/* Box2 */}
+                        <InputLeftElement
+                            pointerEvents={'none'}
+                        >
+                            <IoMdSearch
+                                size={'20'}
+                                aria-label="Search database"
+                            />
+                        </InputLeftElement>
+                        <InputRightElement>
+                            <MdCancel
+                                size={'20'}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    setSearchPerformed(false);
+                                    setSearchTerm('');
+                                }}
+                            />
+                        </InputRightElement>
+
+                        <Input
+                            paddingLeft={'2.5rem'}
+                            borderRadius={'50px'}
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setSearchPerformed(true);
+                                if (e.target.value.trim() !== '') {
+                                    handleSearch();
+                                } else {
+                                    setSearchResults([]);
+                                }
+                            }}
+                        />
+                    </InputGroup>
+                    {searchPerformed ?
+                        <>
+                            <List mt={2}>
+                                {searchResults?.map((result, index) => (
+                                    <Box
+                                        key={index}
+                                        borderWidth="1px"
+                                        borderRadius="lg"
+                                        overflow="hidden"
+                                        mb={3}
+                                    >
+                                        <Box p="6">
+                                            <Box display="flex" alignItems="center">
+                                                <Box>
+                                                    <Image
+                                                        borderRadius='full'
+                                                        boxSize='50px'
+                                                        src={result?.pic}
+                                                        alt='Food-Image'
+                                                    />
+                                                </Box>
+                                                <Box marginLeft={'1rem'}>
+                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                        {result?.orderName}
+                                                    </Text>
+                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                        {result?.priceVal} {result?.priceUnit}
+                                                    </Text>
+                                                </Box>
+                                            </Box>
+
+                                            <Box display={'flex'} justifyContent={'end'}>
+                                                <Box
+                                                    display={'flex'}
+                                                    background={'#fa4a0c'}
+                                                    color={'white'}
+                                                    gap={'1rem'}
+                                                    borderRadius={'50px'}
+                                                    paddingRight={'10px'}
+                                                    paddingLeft={'10px'}
+                                                >
+                                                    <Text
+                                                        style={{ cursor: 'pointer', userSelect: 'none' , padding:'10px' }}
+                                                        onClick={() => {
+                                                            handleAddItemOrder(result);
+                                                            }
+                                                        }
+                                                    >Add To Cart</Text>
+
+                                                    {/* <Text
+                                                        style={{ cursor: 'pointer', userSelect: 'none', fontSize: '20px' }}
+                                                        onClick={() => {
+                                                            handleRemoveItemOrder(result._id);
+                                                        }}
+                                                    >-</Text> */}
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </List>
+                        </> :
+                        <>
+                            <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
+                                {allItemsData.sort((a, b) => a.orderName.localeCompare(b.orderName))?.map((result, index) => (
+                                    <Box key={result._id} display="flex" flexDirection="column" alignItems="center">
+                                        <Box>
+                                            <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
+                                        </Box>
+                                        <Box marginLeft="1rem">
+                                            <Text mt="1" fontWeight="semibold" as="h6" lineHeight="tight" isTruncated>
+                                                {result?.orderName}
+                                            </Text>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </>
+                    }
+                </Box>
+
+
+                {/* <Button
+                    onClick={() => generateBill(selectedItemTemp, allOrderTotal)}
+                >
+                    Generate Bill
+                </Button> */}
+                {/* Box 2 */}
+                {/* <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
+                    <h1
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            fontSize: '20px',
+                            fontWeight: '500',
+                        }}
+
+
+                    >
+                        <IoMdCart
+                            style={{ marginRight: '1rem' }}
+                        />
+                        Your Cart
+                    </h1>
+                    {selectedItemTemp?.map((item, index) => (
                         <Box key={index}
                             borderWidth="1px"
                             borderRadius="lg"
@@ -392,7 +564,6 @@ export default function AllOrders() {
                                             borderRadius='full'
                                             boxSize='50px'
                                             src={item?.pic}
-                                            // src='https://bit.ly/dan-abramov'
                                             alt='Food-Image'
                                         />
                                     </Box>
@@ -402,7 +573,6 @@ export default function AllOrders() {
                                             <BiSolidTrash
                                                 size={'20'}
                                                 style={{ marginLeft: '8px', marginTop: '2px', cursor: 'pointer', color: 'red' }}
-                                                // onClick={handleRemoveItemOrder.bind(this, item._id}}
                                                 onClick={() => handleRemoveItemOrderCompletely(item._id)}
                                             />
                                         </Text>
@@ -416,41 +586,8 @@ export default function AllOrders() {
                                     {item?.quantity * item?.priceVal} {item?.priceUnit === 'Euro' ? ' €' : item?.priceUnit}
                                 </Box>
                             </Box>
-
                         </Box>
                     ))}
-
-
-                    {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <FormLabel style={{ flex: '0 0 50%' }}>Tax</FormLabel>
-                        <Input
-                            style={{ flex: '0 0 50%' }}
-                            type="number"
-                            onChange={(e) => setTax(e.target.value)}
-                            value={Tax}
-                        />
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <FormLabel style={{ flex: '0 0 50%' }}>Discount Percentage </FormLabel>
-                        <Input
-                            style={{ flex: '0 0 50%' }}
-                            type="number"
-                            onChange={(e) => setDiscountPerc(e.target.value)}
-                            value={discountPerc}
-                        />
-                    </div> */}
-
-                    {/* {Tax > 0 && (<Text
-                        marginTop={'5px'}
-                        display={'flex'}
-                        justifyContent={'end'}
-                        marginRight={'1rem'}
-                    >
-                        Tax : {Tax} €
-                    </Text>
-                    )} */}
-
                     {allOrderTotal > 0 && (
                         <Text
                             marginTop={'5px'}
@@ -459,108 +596,29 @@ export default function AllOrders() {
                             marginRight={'1rem'}
                         >
                             Total : {parseFloat(allOrderTotal).toFixed(2)} €
+
                         </Text>
                     )}
-
-
-                </Box>
-
-                <Button
-                    onClick={() => generateBill(selectedItemTemp, allOrderTotal)}
-                >
-                    Generate Bill
-                </Button>
-
-                <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
-                    <InputGroup>
-                        {/* Box2 */}
-                        <InputLeftElement
-                            pointerEvents={'none'}
-                        >
-                            <IoMdSearch
-                                size={'20'}
-                                aria-label="Search database"
-                            />
-                        </InputLeftElement>
-
-                        <Input
-                            paddingLeft={'2.5rem'}
-                            borderRadius={'50px'}
-                            placeholder="Search..."
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                if (e.target.value.trim() !== '') {
-                                    handleSearch();
-                                } else {
-                                    setSearchResults([]);
-                                }
-                            }}
-                        />
-                    </InputGroup>
-                    <List mt={2}>
-                        {searchResults?.map((result, index) => (
-                            <Box
-                                key={index}
-                                borderWidth="1px"
-                                borderRadius="lg"
-                                overflow="hidden"
-                                // onClick={() => ha(result)}
-                                mb={3}
+                    {
+                        selectedItemTemp.length > 0 && (
+                            <Button
+                                colorScheme='cyan'
+                                onClick={handleProcessOrder}
                             >
-                                <Box p="6">
-                                    <Box display="flex" alignItems="center">
-                                        <Box>
-                                            <Image
-                                                borderRadius='full'
-                                                boxSize='50px'
-                                                src={result?.pic}
-                                                alt='Food-Image'
-                                            />
-                                        </Box>
-                                        <Box marginLeft={'1rem'}>
-                                            <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                                {result?.orderName}
-                                            </Text>
-                                            <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                                {result?.priceVal} {result?.priceUnit}
-                                            </Text>
-                                        </Box>
-                                    </Box>
-
-                                    <Box display={'flex'} justifyContent={'end'}>
-                                        <Box
-                                            display={'flex'}
-                                            background={'#fa4a0c'}
-                                            color={'white'}
-                                            gap={'1rem'}
-                                            borderRadius={'50px'}
-                                            paddingRight={'10px'}
-                                            paddingLeft={'10px'}
-                                        >
-                                            <Text
-                                                style={{ cursor: 'pointer', userSelect: 'none', fontSize: '20px' }}
-                                                onClick={() => {
-                                                    handleAddItemOrder(result);
-                                                }
-                                                }
-                                            >+</Text>
-                                            {/* <Box>{getItemQuantity(result._id)}</Box> */}
-                                            {/* <Box>{selectedItemLength}</Box> */}
-                                            <Text
-                                                style={{ cursor: 'pointer', userSelect: 'none', fontSize: '20px' }}
-                                                onClick={() => {
-                                                    handleRemoveItemOrder(result._id);
-                                                }}
-                                            >-</Text>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        ))}
-                    </List>
-                </Box>
+                                Process Order
+                            </Button>
+                        )}
+                </Box> */}
             </Box>
+
+
+            {/* Cart Drawer Start */}
+            <CartDrawer
+                isOpen={isOpenCart}
+                onOpen={onOpenCart}
+                onClose={onCloseCart}
+            />
+            {/* Cart Drawer End */}
         </div>
 
     )

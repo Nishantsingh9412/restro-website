@@ -7,8 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Custom components
-import { HorizonLogo } from 'components/icons/Icons';
-import { HSeparator } from 'components/separator/Separator';
+// import { HorizonLogo } from 'components/icons/Icons';
+// import { HSeparator } from 'components/separator/Separator';
 import { useDispatch, useSelector } from 'react-redux';
 import { singleUserDataAction, updateProfilePicAction } from '../../../redux/action/user.js';
 
@@ -21,8 +21,7 @@ export function SidebarBrand() {
   const localData = JSON.parse(localStorage.getItem('ProfileData'));
   const userProfileData = useSelector((state) => state?.userReducer?.user);
   const user_id = localData?.result?._id;
-  console.log("USERPDATA FORM BRAND.JS \n")
-  console.log(userProfileData);
+  console.log("USERPDATA FORM BRAND.JS \n", userProfileData)
 
   const handleProfilePicUpdate = () => {
     fileInputRef.current.click();
@@ -33,10 +32,10 @@ export function SidebarBrand() {
     if (file) {
       const formData = new FormData();
       formData.append('profile_picture', file);
-      dispatch(updateProfilePicAction(user_id,formData)).then((res) => {
-        if(res.success){
+      dispatch(updateProfilePicAction(user_id, formData)).then((res) => {
+        if (res.success) {
           toast.success(res.message);
-        }else{
+        } else {
           toast.error(res.message);
         }
         console.log(file);
@@ -48,7 +47,12 @@ export function SidebarBrand() {
     dispatch(singleUserDataAction(localData?.result?._id))
   }, [])
 
-  const ImageUrl = `${process.env.REACT_APP_BASE_URL_FOR_APIS}/uploads/${userProfileData?.profile_picture}`;
+  let ImageUrl = 'https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png';
+  if (userProfileData?.profile_picture.includes('http')) {
+    ImageUrl = userProfileData?.profile_picture;
+  } else {
+    ImageUrl = `${process.env.REACT_APP_BASE_URL_FOR_APIS}/uploads/${userProfileData?.profile_picture}`;
+  }
 
   return (
     <Flex align="center" direction="column" justifyContent="center" gap="20px">
@@ -70,6 +74,17 @@ export function SidebarBrand() {
           style={{ display: 'none' }}
           accept="image/*" // Accept only images
         />
+      </Box>
+      <Box
+        display={'flex'}
+        flexDirection={'column'}
+        fontSize={'larger'}
+        fontWeight={'500'}
+      >
+        Membership Id
+        <Box
+          letterSpacing={'2px'}
+        > {userProfileData?.uniqueId} </Box>
       </Box>
       <Flex alignItems="center" justifyContent="space-between">
         <Button bg="var(--primary)" color="#fff">

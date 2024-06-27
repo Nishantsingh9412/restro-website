@@ -6,6 +6,7 @@ import OrderItemReducer from "./orderItems";
 import QRItemsReducer from "./qrItems";
 import authReducer from "./auth";
 import userReducer from "./user";
+import delBoyReducer from "./delboyReducer";
 
 export default combineReducers({
     authReducer,
@@ -14,6 +15,6 @@ export default combineReducers({
     stocksReducer,
     supplierReducer,
     OrderItemReducer,
-    QRItemsReducer
-
+    QRItemsReducer,
+    delBoyReducer,
 })

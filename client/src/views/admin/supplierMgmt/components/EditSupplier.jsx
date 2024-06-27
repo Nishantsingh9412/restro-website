@@ -36,6 +36,7 @@ const EditSupplier = (props) => {
   const [email, setEmail] = useState('');
   const [countryCode, setCountryCode] = useState('');
   const [phone_no, setPhone_no] = useState('');
+  const [supplierLocationEdit, setSupplierLocationEdit] = useState('');
   const [loading, setLoading] = useState(false);
 
   const SelectedItemId = props.selectedId;
@@ -45,8 +46,8 @@ const EditSupplier = (props) => {
 
   const OverlayOne = () => (
     <ModalOverlay
-      // bg='blackAlpha.800'
-      // backdropFilter='blur(10px) hue-rotate(90deg)'
+    // bg='blackAlpha.800'
+    // backdropFilter='blur(10px) hue-rotate(90deg)'
     />
   )
 
@@ -106,6 +107,7 @@ const EditSupplier = (props) => {
       setSupplierPicEdit(selectedSupplierData?.pic);
       setEmail(selectedSupplierData?.email);
       setCountryCode(selectedSupplierData?.countryCode);
+      setSupplierLocationEdit(selectedSupplierData?.location);
       setPhone_no(selectedSupplierData?.phone);
     }
   }, [selectedSupplierData])
@@ -122,6 +124,7 @@ const EditSupplier = (props) => {
       countryCode,
       phone: phone_no,
       email,
+      location: supplierLocationEdit
     }
 
     const updatedSupplier = dispatch(UpdateSupplierAction(id, editedSupplierData)).then((res) => {
@@ -225,8 +228,19 @@ const EditSupplier = (props) => {
                     <FormLabel>Email</FormLabel>
                     <Input
                       type="email"
-                      value={email} 
+                      value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                    />
+                  </FormControl>
+
+                  <FormControl id="location">
+                    <FormLabel> Location  </FormLabel>
+                    <Input
+                      type="text"
+                      placeholder="Location"
+                      value={supplierLocationEdit}
+                      onChange={(e) => setSupplierLocationEdit(e.target.value)}
                       _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
                     />
                   </FormControl>

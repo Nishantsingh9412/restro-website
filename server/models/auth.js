@@ -10,6 +10,7 @@ const authSchema = mongoose.Schema({
         default: 'https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png',
         required: false
     },
+    uniqueId: { type: String, required: true },
 }
 , { timestamps: true });
 

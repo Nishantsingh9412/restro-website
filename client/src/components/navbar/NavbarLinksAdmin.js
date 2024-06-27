@@ -75,12 +75,12 @@ export default function HeaderLinks(props) {
 		dispatch(singleUserDataAction(localData?.result?._id))
 	}, [])
 
-	useEffect( () => {
-		if(!localData){
+	useEffect(() => {
+		if (!localData) {
 			history.push('/')
 		}
-	},[]) 
-	
+	}, [])
+
 
 	useEffect(() => {
 		const token = localData?.token;
@@ -254,13 +254,22 @@ export default function HeaderLinks(props) {
 							👋&nbsp; Hey, {singleUserData?.user?.name}
 						</Text>
 					</Flex>
+					<Flex>
+						<Text
+							ps="20px"
+							pt="16px"
+							pb="10px"
+							w="100%"
+							borderBottom="1px solid"
+							borderColor={borderColor}
+							fontSize="sm"
+							fontWeight="700"
+							color={'black'}
+						>
+							 
+						</Text>
+					</Flex>
 					<Flex flexDirection="column" p="10px">
-						{/* <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
-							<Text fontSize="sm">Profile Settings</Text>
-						</MenuItem> */}
-						{/* <MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
-							<Text fontSize="sm">Newsletter Settings</Text>
-						</MenuItem> */}
 						<MenuItem
 							_hover={{ bg: 'none' }}
 							_focus={{ bg: 'none' }}

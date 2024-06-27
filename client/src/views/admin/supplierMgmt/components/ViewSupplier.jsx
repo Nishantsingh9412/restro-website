@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-
+import { IoMail } from "react-icons/io5";
+import { FaPhoneAlt } from "react-icons/fa";
+import { IoLocation } from "react-icons/io5";
 import { Image } from '@chakra-ui/react'
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -86,16 +88,37 @@ const ViewSupplier = (props) => {
                                 selectedSupplier?.email &&
                                 <Text
                                     marginTop={2}
+                                    display={'flex'}
+                                    gap='5px'
+                                    alignItems={'center'}
                                 >
-                                    Email : {selectedSupplier?.email}
+                                    <IoMail
+                                        size={'20'}
+                                    /> {selectedSupplier?.email}
                                 </Text>
                             }
                             {
                                 selectedSupplier?.phone &&
                                 <Text
                                     marginTop={2}
+                                    display={'flex'}
+                                    gap='5px'
+                                    alignItems={'center'}
                                 >
-                                    Phone : +{selectedSupplier?.countryCode} {selectedSupplier?.phone}
+                                    <FaPhoneAlt /> +{selectedSupplier?.countryCode} - {selectedSupplier?.phone}
+                                </Text>
+                            }
+                             {
+                                selectedSupplier?.location &&
+                                <Text
+                                    marginTop={2}
+                                    display={'flex'}
+                                    gap='5px'
+                                    alignItems={'center'}
+                                >
+                                    <IoLocation 
+                                        size={'20'}
+                                    /> {selectedSupplier?.location} 
                                 </Text>
                             }
                             <h1
@@ -103,7 +126,7 @@ const ViewSupplier = (props) => {
                                     fontSize: '20px',
                                     fontWeight: 'bold',
                                     marginBottom: '5px',
-                                    marginTop: '5px'
+                                    marginTop: '20px'
                                 }}
                             >
                                 Items

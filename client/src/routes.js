@@ -9,6 +9,7 @@ import {
   MdBatchPrediction,
   MdVideoLibrary,
   MdLock,
+  MdLocalShipping,
 } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { LuFolderClosed, LuShoppingBag } from 'react-icons/lu';
@@ -25,6 +26,7 @@ import ItemManagement from 'views/admin/itemManagement';
 import LowStocks from 'views/admin/lowStocks';
 import SupplierManagement from 'views/admin/supplierMgmt';
 import AllOrders from 'views/admin/allOrders';
+import OrderShipping from 'views/admin/orderShipping';
 // import BarcodeGenerator from 'views/admin/barcodeGenerator';
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
@@ -62,7 +64,7 @@ const routes2 = [
   //   ],
   // },
   {
-    name: 'Dashboards',
+    name: 'Dashboard',
     layout: '/admin',
     path: '/dashboards/default',
     type: 'list',
@@ -127,15 +129,7 @@ const routes2 = [
         // type: 'link',
         component: SupplierManagement,
       },
-      {
-        name: 'Orders',
-        layout: '/admin',
-        path: '/dashboards/orders',
-        icon: (
-          <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
-        ),
-        component: AllOrders,
-      },
+     
       // {
       //   name: 'Barcode Generator',
       //   layout: '/admin',
@@ -146,6 +140,54 @@ const routes2 = [
       //   component: BarcodeGenerator,
       // },
     ],
+  },
+  {
+    name: 'Orders',
+    layout: '/admin',
+    path:'/orders',
+    type: 'list',
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    links:[
+      {
+        name: 'Orders',
+        layout: '/admin',
+        path: '/orders',
+        icon: (
+          <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
+        ),
+        component: AllOrders,
+      },
+      {
+        name: 'Order Processing',
+        layout: '/admin',
+        path: '/process-order',
+        icon: (
+          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+        ),
+        component: OrderShipping,
+      },
+      {
+        name: 'Track Orders',
+        layout: '/admin',
+        path:'/track-orders',
+        icon: (
+          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+        ),
+        component: () => <></>,
+      },
+      {
+        name: 'Delivery partners',
+        layout: '/admin',
+        path:'/delivery-partners',
+        icon: (
+          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+        ),
+        component: () => <></>,
+      },
+
+    ]
   },
   {
     name: 'Tracking',
@@ -263,6 +305,7 @@ const routes2 = [
     icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
     component: SignUpCentered,
   },
+ 
 ];
 
 const routes = [
@@ -307,6 +350,7 @@ const routes = [
     ),
     component: AllOrders,
   },
+
   // {
   //   name: 'Barcode Generator',
   //   layout: '/admin',
