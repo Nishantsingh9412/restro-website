@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { MdCancel } from "react-icons/md";
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { FaCartShopping } from 'react-icons/fa6';
-
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { IoMdCart } from "react-icons/io";
+import { MdAddShoppingCart } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
@@ -65,7 +66,7 @@ export default function AllOrders() {
     const [pic, setPic] = useState(undefined);
     const [description, setDescription] = useState('');
     const [allOrderTotal, setAllOrderTotal] = useState(0);
-    const [cartCount, setCartCount] = useState(0);
+    const [isFavourite, setIsFavourite] = useState(false);
     const [originalTotal, setOriginalTotal] = useState(0);
     const [searchPerformed, setSearchPerformed] = useState(false);
     const [allItemsData, setAllItemsData] = useState([]);
@@ -75,16 +76,6 @@ export default function AllOrders() {
     const handleProcessOrder = () => {
         history.push('/admin/process-order', { selectedItemTemp, allOrderTotal });
     }
-
-    // const handleAddToCart = (item) => {
-    //     console.log("Add to Cart Clicked", item);
-    //     dispatch(addItemAction(item));
-    // }
-
-    // const handleRemoveFromCart = (item) => {
-    //     console.log("Remove from Cart Clicked", item);
-    //     dispatch(removeItemAction(item));
-    // }
 
     const postOrderImage = (pics) => {
         console.log("This is Image Data \n")
@@ -147,7 +138,8 @@ export default function AllOrders() {
             priceVal: priceVal,
             priceUnit: priceUnit,
             pic: pic,
-            description: description
+            description: description,
+            isFavorite: isFavourite
         }
 
         const AddItemPromise = dispatch(AddOrderItemAction(newItemOrderData)).then((res) => {
@@ -167,7 +159,6 @@ export default function AllOrders() {
             }
         );
     }
-
 
     const AllOrderItemsReducer = useSelector((state) => state.OrderItemReducer);
     const AllOrderItemsLength = AllOrderItemsReducer?.length;
@@ -197,10 +188,6 @@ export default function AllOrders() {
             dispatch({ type: 'ADD_ORDER_ITEM_TEMP', data: product })
         }
     }
-
-
-
-
 
     // function generateBill(selectedItems, total) {
     //     const doc = new jsPDF();
@@ -313,16 +300,6 @@ export default function AllOrders() {
                 </Badge>
                 {/* )} */}
             </Box>
-            {/* <Button
-                onClick={() => {
-                    setOverlay()
-                    onOpen()
-                }}
-            >
-                Use Overlay one
-            </Button> */}
-
-            {/* Model Start */}
             <>
                 <Modal isCentered isOpen={isOpen} onClose={onClose}>
                     {overlay}
@@ -376,6 +353,18 @@ export default function AllOrders() {
                                         />
                                     </FormControl>
 
+                                    <FormControl id="isFavourite" >
+                                        <FormLabel>Favourite</FormLabel>
+                                        <Select
+                                            onChange={(e) => setIsFavourite(e.target.value)}
+                                            value={isFavourite}
+                                        >
+                                            <option value=''> Select Favourite </option>
+                                            <option value={false}>No</option>
+                                            <option value={true}>Yes</option>
+                                        </Select>
+
+                                    </FormControl>
 
                                     <FormControl id="pic" >
                                         <FormLabel>Upload Picture</FormLabel>
@@ -488,10 +477,10 @@ export default function AllOrders() {
                                                     paddingLeft={'10px'}
                                                 >
                                                     <Text
-                                                        style={{ cursor: 'pointer', userSelect: 'none' , padding:'10px' }}
+                                                        style={{ cursor: 'pointer', userSelect: 'none', padding: '10px' }}
                                                         onClick={() => {
                                                             handleAddItemOrder(result);
-                                                            }
+                                                        }
                                                         }
                                                     >Add To Cart</Text>
 
@@ -510,7 +499,7 @@ export default function AllOrders() {
                         </> :
                         <>
                             <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
-                                {allItemsData.sort((a, b) => a.orderName.localeCompare(b.orderName))?.map((result, index) => (
+                                {allItemsData?.map((result, index) => (
                                     <Box key={result._id} display="flex" flexDirection="column" alignItems="center">
                                         <Box>
                                             <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
@@ -518,7 +507,14 @@ export default function AllOrders() {
                                         <Box marginLeft="1rem">
                                             <Text mt="1" fontWeight="semibold" as="h6" lineHeight="tight" isTruncated>
                                                 {result?.orderName}
+                                                {/* {result?.isFavorite ? 'Yes' : 'No'} */}
                                             </Text>
+                                            <Text
+                                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                                                onClick={() => {
+                                                    handleAddItemOrder(result);
+                                                }}
+                                            >  Add To Cart </Text>
                                         </Box>
                                     </Box>
                                 ))}

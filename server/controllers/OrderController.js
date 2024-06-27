@@ -3,7 +3,7 @@ import OrderdItems from '../models/orderModel.js';
 
 export const AddOrderItem = async (req, res) => {
     try {
-        const { orderName, priceVal, priceUnit, pic, description } = req.body;
+        const { orderName, priceVal, priceUnit, pic, description, isFavorite } = req.body;
         if (!orderName || !priceVal || !priceUnit) {
             return res.status(400).json({ success: false, message: "Please provide all the required fields" })
         } else {
@@ -12,7 +12,8 @@ export const AddOrderItem = async (req, res) => {
                 priceVal,
                 priceUnit,
                 pic,
-                description
+                description,
+                isFavorite
             })
             if (!newOrderItem) {
                 return res.status(400).json({
@@ -53,7 +54,8 @@ export const getSingleOrderItem = async (req, res) => {
 
 export const getAllOrderItems = async (req, res) => {
     try {
-        const allOrderItems = await OrderdItems.find({});
+        const allOrderItems = await OrderdItems.find({}).sort({ isFavorite: -1, orderName: 1 })
+        // const allOrderItems = await OrderdItems.find({ isFavourite: -1, orderName: 1 });
         if (!allOrderItems) {
             return res.status(400).json({ success: false, message: "Failed to get Order Items" })
         } else {
@@ -71,15 +73,16 @@ export const updateOrderItem = async (req, res) => {
         return res.status(400).json({ success: false, message: "Invalid Order Item ID" })
     }
     try {
-        const { orderName, priceVal, priceUnit, pic, description } = req.body;
+        const { orderName, priceVal, priceUnit, pic, description, isFavorite } = req.body;
         const updateOrderSingleItem = await OrderdItems.findByIdAndUpdate(_id,
             {
                 $set: {
-                    'orderName':orderName,
-                    'priceVal':priceVal,
-                    'priceUnit':priceUnit,
-                    'pic':pic,
-                    'description':description
+                    'orderName': orderName,
+                    'priceVal': priceVal,
+                    'priceUnit': priceUnit,
+                    'pic': pic,
+                    'description': description,
+                    'isFavorite': isFavorite
                 }
             },
             { new: true });

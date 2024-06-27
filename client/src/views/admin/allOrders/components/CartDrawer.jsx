@@ -164,8 +164,17 @@ const CartDrawer = (props) => {
                                                     alt='Food-Image'
                                                 />
                                                 <Box marginLeft={'1rem'}>
+                                                    {/* <Text mt="1" display={'flex'} alignItems={'center'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                        {item?.orderName}
+                                                    </Text> */}
                                                     <Text mt="1" display={'flex'} alignItems={'center'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
                                                         {item?.orderName}
+                                                        <BiSolidTrash
+                                                            size={'20'}
+                                                            style={{ marginLeft: '8px', marginTop: '2px', cursor: 'pointer', color: 'red' }}
+                                                            // onClick={handleRemoveItemOrder.bind(this, item._id}}
+                                                            onClick={() => handleRemoveItemOrderCompletely(item._id)}
+                                                        />
                                                     </Text>
                                                     <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
                                                         {item?.quantity} X {item?.priceVal}
@@ -245,7 +254,6 @@ const CartDrawer = (props) => {
                                     background={'#029CFF'}
                                     color={'white'}
                                     _hover={{ color: '#029CFF', bg: 'whitesmoke' }}
-                                // colorScheme='blue'
                                 >
                                     Checkout
                                 </Button>
