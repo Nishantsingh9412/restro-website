@@ -7,7 +7,8 @@ import {
     authenticateUser,
     authFailed,
     authSuccess,
-    logoutUser
+    logoutUser,
+    delivBoyLoginController
 } from '../controllers/auth.js'
 import { upload } from '../middleware/fileupload.js';
 
@@ -28,6 +29,9 @@ router.get('/logout', logoutUser);
 router.post('/signup', upload.single('profile_picture') , signupController);
 
 router.post('/login', loginController);
+
+router.post('/login-delivboy', delivBoyLoginController);
+
 
 
 

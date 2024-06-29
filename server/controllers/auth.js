@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 import Auth from '../models/auth.js'
+import authDeliv from '../models/authDeliv.js';
 
 export const authenticateUser = async (req, res) => {
     passport.authenticate("google", {
@@ -105,6 +106,31 @@ export const loginController = async (req, res) => {
             } else {
                 const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
                 return res.status(200).json({ success: true, result: existingUser, token });
+            }
+        }
+    } catch (err) {
+        return res.status(500).json({ success: false, message: ' Something went wrong ' });
+    }
+}
+
+export const delivBoyLoginController = async (req, res) => {
+    const { country_code, phone_number, membership_id } = req.body;
+    if (!country_code || !phone_number || !membership_id) {
+        return res.status(401).json({ success: false, message: "Please fill all the fields" });
+    }
+    try {
+        const existingUser = await authDeliv.findOne({ country_code, phone: phone_number })
+            .populate('created_by');
+
+        if (!existingUser) {
+            return res.status(401).json({ success: false, message: "Please Create Account" });
+        }
+        else {
+            if (existingUser && existingUser.created_by.uniqueId === membership_id) {
+                const token = jwt.sign({ phone_number: existingUser.phone_number, id: existingUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+                return res.status(200).json({ success: true, result: existingUser, token });
+            } else {
+                res.status(404).json({ success: false, message: "Invalid credentials" });
             }
         }
     } catch (err) {

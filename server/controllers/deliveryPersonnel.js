@@ -1,4 +1,5 @@
-import DeliveryPersonnel from '../models/delivery.js';
+import authDeliv from '../models/authDeliv.js';
+// import DeliveryPersonnel from '../models/delivery.js';
 import mongoose from 'mongoose';
 
 
@@ -8,7 +9,7 @@ export const createDeliveryPersonnel = async (req, res) => {
         if (!name || !country_code || !phone || !created_by) {
             return res.status(400).json({ success: false, message: "All fields are required" })
         } else {
-            const newDelBoy = await DeliveryPersonnel.create({
+            const newDelBoy = await authDeliv.create({
                 name,
                 country_code,
                 phone,
@@ -27,7 +28,7 @@ export const createDeliveryPersonnel = async (req, res) => {
 }
 
 export const getDeliveryPersonnels = async (req, res) => {
-    const allDelBoyz = await DeliveryPersonnel.find();
+    const allDelBoyz = await authDeliv.find();
     if (allDelBoyz) {
         return res.status(200).json({ success: true, message: "All Delivery Personnel", result: allDelBoyz })
     } else {
@@ -45,12 +46,11 @@ export const updateDeliveryPersonnel = async (req, res) => {
         return res.status(400).json({ success: false, message: "All fields are required" })
 
     try {
-        const updatedDelBoy = await DeliveryPersonnel.findByIdAndUpdate((_id), {
+        const updatedDelBoy = await authDeliv.findByIdAndUpdate((_id), {
             $set: {
-                'name': req.body.name,
-                'country_code': req.body.country_code,
-                'phone': req.body.phone,
-                'updated_by': req.body.updated_by
+                'name': name,
+                'country_code': country_code,
+                'phone': phone,
             }
         },
             {
@@ -70,11 +70,11 @@ export const updateDeliveryPersonnel = async (req, res) => {
 }
 
 export const getDeliveryPersonnelSingle = async (req, res) => {
-    const {id: _id} = req.params;
+    const { id: _id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(_id))
         return res.status(404).send('No Delivery Personnel with that id');
     try {
-        const singleDelBoy = await DeliveryPersonnel.findById(_id);
+        const singleDelBoy = await authDeliv.findById(_id);
         if (singleDelBoy) {
             return res.status(200).json({ success: true, message: "Delivery Personnel", result: singleDelBoy })
         } else {
@@ -87,32 +87,19 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
 }
 
 export const deleteDeliveryPersonnel = async (req, res) => {
-    const {id: _id} = req.params;
+    const { id: _id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(_id))
         return res.status(404).send('No Delivery Personnel with that id');
     try {
-        const delBoyToDelete = await DeliveryPersonnel.findByIdAndDelete(_id);
+        const delBoyToDelete = await authDeliv.findByIdAndDelete(_id);
         if (delBoyToDelete) {
-            return res.status(200).json({ success: true, message: "Delivery Personnel Deleted", result: delBoyToDelete })
+            return res.status(200).json({success: true,message: "Delivery Personnel Deleted",result: delBoyToDelete})
         } else {
-            return res.status(500).json({ success: false, message: "Delivery Personnel not deleted" })
+            return res.status(500).json({success: false,message: "Delivery Personnel not deleted"})
         }
-    }catch(err){
+    } catch (err) {
         console.log("Error from DeliveryPersonnel Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
-// Only for production use
-export const deleteAllDeliveryPersonnel = async (req, res) => {
-    try {
-        const delAllDelBoyz = await DeliveryPersonnel.deleteMany();
-        if (delAllDelBoyz) {
-            return res.status(200).json({ success: true, message: "All Delivery Personnel Deleted", result: delAllDelBoyz })
-        } else {
-            return res.status(500).json({ success: false, message: "Delivery Personnel not deleted" })
-        }
-    }catch(err){
-        console.log("Error from DeliveryPersonnel Controller : ", err.message)
-        return res.status(500).json({ success: false, message: "Internal Server Error" })
-    }
-}
+

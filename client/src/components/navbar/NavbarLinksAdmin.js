@@ -254,21 +254,6 @@ export default function HeaderLinks(props) {
 							👋&nbsp; Hey, {singleUserData?.user?.name}
 						</Text>
 					</Flex>
-					<Flex>
-						<Text
-							ps="20px"
-							pt="16px"
-							pb="10px"
-							w="100%"
-							borderBottom="1px solid"
-							borderColor={borderColor}
-							fontSize="sm"
-							fontWeight="700"
-							color={'black'}
-						>
-							 
-						</Text>
-					</Flex>
 					<Flex flexDirection="column" p="10px">
 						<MenuItem
 							_hover={{ bg: 'none' }}

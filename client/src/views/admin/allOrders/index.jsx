@@ -480,8 +480,7 @@ export default function AllOrders() {
                                                         style={{ cursor: 'pointer', userSelect: 'none', padding: '10px' }}
                                                         onClick={() => {
                                                             handleAddItemOrder(result);
-                                                        }
-                                                        }
+                                                        }}
                                                     >Add To Cart</Text>
 
                                                     {/* <Text

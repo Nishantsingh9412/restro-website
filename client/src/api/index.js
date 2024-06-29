@@ -17,6 +17,8 @@ export const signUpAPI = (newUser) => API.post('/auth/signup', newUser);
 // Login
 export const loginAPI = (userData) => API.post('/auth/login', userData); 
 
+export const loginDelivBoyAPI = (userData) => API.post('/auth/login-delivboy', userData);
+
 
 
 
