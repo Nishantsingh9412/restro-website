@@ -3,7 +3,9 @@ import {
     AddOrderItem,
     deleteOrderItem,
     getAllOrderItems,
+    getDrinksOnly,
     getSingleOrderItem,
+    searchDrinksOnly,
     searchOrderItems,
     updateOrderItem
 } from '../controllers/OrderController.js';
@@ -16,11 +18,16 @@ router.get('/get-single-order-item/:id', getSingleOrderItem);
 
 router.get('/get-all-order-items', getAllOrderItems);
 
+router.get('/getDrinksOnly', getDrinksOnly);
+
 router.patch('/update-order-item/:id', updateOrderItem);
 
 router.delete('/delete-order-item/:id', deleteOrderItem);
 
 router.get('/search-order-items', searchOrderItems);
+
+router.get('/search-drinks-only', searchDrinksOnly);
+
 
 
 

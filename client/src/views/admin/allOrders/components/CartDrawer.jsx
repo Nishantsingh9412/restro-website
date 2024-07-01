@@ -10,12 +10,15 @@ import {
     DrawerBody,
     Button,
     Flex,
-    IconButton
+    IconButton,
+    useDisclosure
 } from '@chakra-ui/react';
 import { FaCartShopping } from 'react-icons/fa6';
 import { BiSolidTrash } from 'react-icons/bi';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
+
+import CheckoutComp from './CheckoutComp';
 
 
 const CartDrawer = (props) => {
@@ -23,6 +26,12 @@ const CartDrawer = (props) => {
     const isOpen = props.isOpen
     const onOpen = props.onOpen
     const onClose = props.onClose
+
+    const {
+        isOpen: isOpenCheckout,
+        onOpen: onOpenCheckout,
+        onClose: onCloseCheckout
+    } = useDisclosure()
     const [placement, setPlacement] = useState('right')
     const dispatch = useDispatch();
 
@@ -249,11 +258,21 @@ const CartDrawer = (props) => {
                                         {parseFloat(AllOrderItemsTotal).toFixed(2)} €
                                     </Text>
                                 </Box>
+                                    {/* Checkout drawer starts */}
+                                <CheckoutComp
+                                    allOrderItems={allOrderItems}
+                                    AllOrderItemsTotal={AllOrderItemsTotal}
+                                    onOpen={onOpenCheckout}
+                                    onClose={onCloseCheckout}
+                                    isOpen={isOpenCheckout}
+                                />
 
+                                    {/* Checkout drawer ends */}
                                 <Button
                                     background={'#029CFF'}
                                     color={'white'}
                                     _hover={{ color: '#029CFF', bg: 'whitesmoke' }}
+                                    onClick={onOpenCheckout}
                                 >
                                     Checkout
                                 </Button>

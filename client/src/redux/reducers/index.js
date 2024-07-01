@@ -7,6 +7,9 @@ import QRItemsReducer from "./qrItems";
 import authReducer from "./auth";
 import userReducer from "./user";
 import delBoyReducer from "./delboyReducer";
+// import addressReducer from "./addressReducer";
+import stepperFormReducer from "./stepperReducer";
+import compOrderReducer from "./compOrderReducer";
 
 export default combineReducers({
     authReducer,
@@ -17,4 +20,7 @@ export default combineReducers({
     OrderItemReducer,
     QRItemsReducer,
     delBoyReducer,
+    // addressReducer,
+    form:stepperFormReducer,
+    compOrder:compOrderReducer,
 })

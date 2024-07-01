@@ -74,7 +74,6 @@ const AddDelperson = (props) => {
 
     return (
         <div>
-            <ToastContainer />
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
                 <ModalContent>

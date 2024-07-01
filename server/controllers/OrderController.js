@@ -3,7 +3,7 @@ import OrderdItems from '../models/orderModel.js';
 
 export const AddOrderItem = async (req, res) => {
     try {
-        const { orderName, priceVal, priceUnit, pic, description, isFavorite } = req.body;
+        const { orderName, priceVal, priceUnit, pic, description, isFavorite, isDrink } = req.body;
         if (!orderName || !priceVal || !priceUnit) {
             return res.status(400).json({ success: false, message: "Please provide all the required fields" })
         } else {
@@ -13,7 +13,8 @@ export const AddOrderItem = async (req, res) => {
                 priceUnit,
                 pic,
                 description,
-                isFavorite
+                isFavorite,
+                isDrink
             })
             if (!newOrderItem) {
                 return res.status(400).json({
@@ -54,7 +55,7 @@ export const getSingleOrderItem = async (req, res) => {
 
 export const getAllOrderItems = async (req, res) => {
     try {
-        const allOrderItems = await OrderdItems.find({}).sort({ isFavorite: -1, orderName: 1 })
+        const allOrderItems = await OrderdItems.find({ isDrink: { $ne: true } }).sort({ isFavorite: -1, orderName: 1 })
         // const allOrderItems = await OrderdItems.find({ isFavourite: -1, orderName: 1 });
         if (!allOrderItems) {
             return res.status(400).json({ success: false, message: "Failed to get Order Items" })
@@ -67,13 +68,27 @@ export const getAllOrderItems = async (req, res) => {
     }
 }
 
+export const getDrinksOnly = async (req, res) => {
+    try {
+        const getDrinks = await OrderdItems.find({ isDrink: true }).sort({isFavorite: -1, orderName: 1 })
+        if (!getDrinks) {
+            return res.status(400).json({ success: false, message: "Failed to get Drinks" })
+        } else {
+            return res.status(200).json({ success: true, message: "All Drinks", result: getDrinks })
+        }
+    } catch (err) {
+        console.log("Error from getDrinksOnly Controller : ", err.message)
+        return res.status(500).json({ success: false, message: "Internal Server Error" })
+    }
+}
+
 export const updateOrderItem = async (req, res) => {
     const { id: _id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Order Item ID" })
     }
     try {
-        const { orderName, priceVal, priceUnit, pic, description, isFavorite } = req.body;
+        const { orderName, priceVal, priceUnit, pic, description, isFavorite, isDrink } = req.body;
         const updateOrderSingleItem = await OrderdItems.findByIdAndUpdate(_id,
             {
                 $set: {
@@ -82,7 +97,8 @@ export const updateOrderItem = async (req, res) => {
                     'priceUnit': priceUnit,
                     'pic': pic,
                     'description': description,
-                    'isFavorite': isFavorite
+                    'isFavorite': isFavorite,
+                    'isDrink': isDrink
                 }
             },
             { new: true });
@@ -137,4 +153,17 @@ export const searchOrderItems = async (req, res) => {
     }
 }
 
-
+export const searchDrinksOnly = async (req, res) => {
+    try {
+        const { orderName } = req.query;
+        const searchDrinks = await OrderdItems.find({ orderName: { $regex: orderName, $options: 'i' }, isDrink: true });
+        if (!searchDrinks) {
+            return res.status(400).json({ success: false, message: "Failed to search Drinks" })
+        } else {
+            return res.status(200).json({ success: true, message: "Searched Drinks", result: searchDrinks })
+        }
+    } catch (err) {
+        console.log("Error from searchDrinksOnly Controller : ", err.message)
+        return res.status(500).json({ success: false, message: "Internal Server Error" })
+    }
+}

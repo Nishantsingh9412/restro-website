@@ -64,12 +64,16 @@ export const AddOrderItem = (newItem) => API.post('/orders/add-order-item', newI
 export const GetSingleItemOrder = (id) => API.get(`/orders/get-single-order-item/${id}`);
 // Get All Orders
 export const getAllOrderItems = () => API.get('/orders/get-all-order-items');
+// Get Drinks Only
+export const getDrinksOnly = () => API.get('/orders/getDrinksOnly')
 // Update Order Item
 export const UpdateSingleItemOrder = (id, updatedData) => API.patch(`/orders/update-order-item/${id}`, updatedData);
 // Delete Order Item
 export const deleteSingleItemOrder = (id) => API.delete(`/orders/delete-order-item/${id}`)
 // Search Order Item
 export const searchOrderItem = (orderNameData) => API.get(`/orders/search-order-items?orderName=${orderNameData}`);
+// Search Drinks Only
+export const searchDrinksOnly = (drinksData) => API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
 
 
 // Item Using QR 
@@ -101,3 +105,23 @@ export const getSingleDeliveryPersonnel = (id) => API.get(`/delivery-person/get-
 export const updateSingleDeliveryPersonnel = (id, updatedData) => API.patch(`/delivery-person/update-del-person/${id}`, updatedData);
 // Delete Delivery Personnel
 export const deleteSingleDeliveryPersonnel = (id) => API.delete(`/delivery-person/delete-single/${id}`);
+
+// Address API 
+// creating new address
+// export const postAddressAPI = (addressdata) => API.post('/address/post-address', addressdata);
+// // get single address
+// export const getSinglAddressAPI = (id) => API.get(`/address/get-single-address/${id}`);
+// //update address 
+// export const updateSingleAddressAPI = (id, updatedData) => API.patch(`/address/update-address/${id}`, updatedData);
+
+// Complete Order API
+// Add Complete Order
+export const addCompleteOrderAPI = (newOrder) => API.post('/complete-order/create', newOrder);
+// Get All Complete Orders
+export const getAllCompleteOrdersAPI = () => API.get('/complete-order/get-all');
+// Get Single Complete Order
+export const getSingleCompleteOrderAPI = (id) => API.get(`/complete-order/get-single/${id}`);
+// Update Complete Order
+export const updateSingleCompleteOrderAPI = (id, updatedData) => API.patch(`/complete-order/update/${id}`, updatedData);
+// Delete Complete Order
+export const deleteSingleCompleteOrderAPI = (id) => API.delete(`/complete-order/delete/${id}`);

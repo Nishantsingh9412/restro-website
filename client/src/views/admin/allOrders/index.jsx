@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MdCancel } from "react-icons/md";
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { FaCartShopping } from 'react-icons/fa6';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaGlassCheers, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { IoMdCart } from "react-icons/io";
 import { MdAddShoppingCart } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
@@ -36,8 +36,9 @@ import { IoMdSearch } from 'react-icons/io';
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AddOrderItemAction, getAllOrderItemsAction, searchOrderItemAction } from '../../../redux/action/OrderItems';
+import { AddOrderItemAction, getAllOrderItemsAction, searchOrderItemAction, searchDrinksOnlyAction, getDrinksOnlyAction } from '../../../redux/action/OrderItems';
 import CartDrawer from './components/CartDrawer';
+import DrinksModal from './components/DrinksModal';
 
 
 export default function AllOrders() {
@@ -49,6 +50,7 @@ export default function AllOrders() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isOpen: isOpenCart, onOpen: onOpenCart, onClose: onCloseCart } = useDisclosure()
+    const { isOpen: isOpenDrinks, onOpen: onOpenDrinks, onClose: onCloseDrinks } = useDisclosure()
     const [overlay, setOverlay] = React.useState(<OverlayOne />)
 
     const dispatch = useDispatch();
@@ -70,8 +72,22 @@ export default function AllOrders() {
     const [originalTotal, setOriginalTotal] = useState(0);
     const [searchPerformed, setSearchPerformed] = useState(false);
     const [allItemsData, setAllItemsData] = useState([]);
+    const [drinksSearchPerformed, setDrinksSearchPerformed] = useState(false);
+    const [searchTermDrinks, setSearchTermDrinks] = useState('');
+    const [searchResultsDrinks, setSearchResultsDrinks] = useState([]);
+    const [drinksData, setDrinksData] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const handleSearchDrinks = () => {
+        dispatch(searchDrinksOnlyAction(searchTermDrinks)).then((res) => {
+            if (res.success) {
+                setSearchResultsDrinks(res.data);
+                console.log("Search Results: ", res.data)
+            } else {
+                console.log("error from searchDrinksOnlyAction: " + res.message)
+            }
+        })
+    }
 
     const handleProcessOrder = () => {
         history.push('/admin/process-order', { selectedItemTemp, allOrderTotal });
@@ -139,7 +155,8 @@ export default function AllOrders() {
             priceUnit: priceUnit,
             pic: pic,
             description: description,
-            isFavorite: isFavourite
+            isFavorite: isFavourite,
+            isDrink: false
         }
 
         const AddItemPromise = dispatch(AddOrderItemAction(newItemOrderData)).then((res) => {
@@ -254,9 +271,16 @@ export default function AllOrders() {
         })
     }, [])
 
-    // const Allstates = useSelector((state) => state)
-    // console.log("ALL States Data",Allstates)
-    // console.log("All Items Data", allItemsData)
+    useEffect(() => {
+        dispatch(getDrinksOnlyAction()).then((res) => {
+            if (res.success) {
+                setDrinksData(res?.data);
+            } else {
+                console.log("Error Getting Drinks Data")
+            }
+        })
+    }, [])
+
     return (
         <div style={{ marginTop: '4vw' }}>
             {/* Item name , Item Image , Item price  */}
@@ -300,6 +324,26 @@ export default function AllOrders() {
                 </Badge>
                 {/* )} */}
             </Box>
+            <Box
+                display={'flex'}
+                justifyContent={'center'}
+                marginLeft='12rem'
+            >
+                <Button
+                    leftIcon={<FiPlusCircle />}
+                    ml={'10px'}
+                    colorScheme='cyan'
+                    variant='solid'
+                    onClick={
+                        () => {
+                            onOpenDrinks();
+                        }
+                    }
+                >
+                    Add Drinks
+                </Button>
+            </Box>
+            {/* Modal Starts Here */}
             <>
                 <Modal isCentered isOpen={isOpen} onClose={onClose}>
                     {overlay}
@@ -394,8 +438,18 @@ export default function AllOrders() {
             </>
             {/* Modal Ends here */}
 
+            {/* Drinks Modal Starts */}
+            <DrinksModal
+                isOpen={isOpenDrinks}
+                onOpen={onOpenDrinks}
+                onClose={onCloseDrinks}
+            />
+
+            {/* Drinks modal Ends */}
+
 
             <Box display={{ base: "block", md: "flex" }}>
+
                 {/* Box1 */}
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
                     <InputGroup>
@@ -482,13 +536,6 @@ export default function AllOrders() {
                                                             handleAddItemOrder(result);
                                                         }}
                                                     >Add To Cart</Text>
-
-                                                    {/* <Text
-                                                        style={{ cursor: 'pointer', userSelect: 'none', fontSize: '20px' }}
-                                                        onClick={() => {
-                                                            handleRemoveItemOrder(result._id);
-                                                        }}
-                                                    >-</Text> */}
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -528,82 +575,125 @@ export default function AllOrders() {
                 >
                     Generate Bill
                 </Button> */}
+
                 {/* Box 2 */}
-                {/* <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
-                    <h1
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            fontSize: '20px',
-                            fontWeight: '500',
-                        }}
+                <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
+                    <InputGroup>
+                        {/* Box2 */}
+                        <InputLeftElement
+                            pointerEvents={'none'}
+                        >
+                            <IoMdSearch
+                                size={'20'}
+                                aria-label="Search database"
+                            />
+                        </InputLeftElement>
+                        <InputRightElement>
+                            <MdCancel
+                                size={'20'}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => {
+                                    setDrinksSearchPerformed(false);
+                                    setSearchTermDrinks('');
+                                }}
+                            />
+                        </InputRightElement>
 
-
-                    >
-                        <IoMdCart
-                            style={{ marginRight: '1rem' }}
+                        <Input
+                            paddingLeft={'2.5rem'}
+                            borderRadius={'50px'}
+                            placeholder="Search..."
+                            value={searchTermDrinks}
+                            onChange={(e) => {
+                                setSearchTermDrinks(e.target.value);
+                                setDrinksSearchPerformed(true);
+                                if (e.target.value.trim() !== '') {
+                                    handleSearchDrinks();
+                                } else {
+                                    setSearchResultsDrinks([]);
+                                }
+                            }}
                         />
-                        Your Cart
-                    </h1>
-                    {selectedItemTemp?.map((item, index) => (
-                        <Box key={index}
-                            borderWidth="1px"
-                            borderRadius="lg"
-                            overflow="hidden"
-                            mb={3}
-                        >
-                            <Box p="6">
-                                <Box display="flex" alignItems="center">
-                                    <Box>
-                                        <Image
-                                            borderRadius='full'
-                                            boxSize='50px'
-                                            src={item?.pic}
-                                            alt='Food-Image'
-                                        />
-                                    </Box>
-                                    <Box marginLeft={'1rem'}>
-                                        <Text mt="1" display={'flex'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                            {item?.orderName}
-                                            <BiSolidTrash
-                                                size={'20'}
-                                                style={{ marginLeft: '8px', marginTop: '2px', cursor: 'pointer', color: 'red' }}
-                                                onClick={() => handleRemoveItemOrderCompletely(item._id)}
-                                            />
-                                        </Text>
-                                        <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                            {item?.quantity} X  {item?.priceVal}
-                                            {item?.priceUnit === 'Euro' ? ' €' : item?.priceUnit}
-                                        </Text>
-                                    </Box>
-                                </Box>
-                                <Box display={'flex'} justifyContent={'end'}>
-                                    {item?.quantity * item?.priceVal} {item?.priceUnit === 'Euro' ? ' €' : item?.priceUnit}
-                                </Box>
-                            </Box>
-                        </Box>
-                    ))}
-                    {allOrderTotal > 0 && (
-                        <Text
-                            marginTop={'5px'}
-                            display={'flex'}
-                            justifyContent={'end'}
-                            marginRight={'1rem'}
-                        >
-                            Total : {parseFloat(allOrderTotal).toFixed(2)} €
+                    </InputGroup>
+                    {drinksSearchPerformed ?
+                        <>
+                            <List mt={2}>
+                                {searchResultsDrinks?.map((result, index) => (
+                                    <Box
+                                        key={index}
+                                        borderWidth="1px"
+                                        borderRadius="lg"
+                                        overflow="hidden"
+                                        mb={3}
+                                    >
+                                        <Box p="6">
+                                            <Box display="flex" alignItems="center">
+                                                <Box>
+                                                    <Image
+                                                        borderRadius='full'
+                                                        boxSize='50px'
+                                                        src={result?.pic}
+                                                        alt='Food-Image'
+                                                    />
+                                                </Box>
+                                                <Box marginLeft={'1rem'}>
+                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                        {result?.orderName}
+                                                    </Text>
+                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                        {result?.priceVal} {result?.priceUnit}
+                                                    </Text>
+                                                </Box>
+                                            </Box>
 
-                        </Text>
-                    )}
-                    {
-                        selectedItemTemp.length > 0 && (
-                            <Button
-                                colorScheme='cyan'
-                                onClick={handleProcessOrder}
-                            >
-                                Process Order
-                            </Button>
-                        )}
-                </Box> */}
+                                            <Box display={'flex'} justifyContent={'end'}>
+                                                <Box
+                                                    display={'flex'}
+                                                    background={'#fa4a0c'}
+                                                    color={'white'}
+                                                    gap={'1rem'}
+                                                    borderRadius={'50px'}
+                                                    paddingRight={'10px'}
+                                                    paddingLeft={'10px'}
+                                                >
+                                                    <Text
+                                                        style={{ cursor: 'pointer', userSelect: 'none', padding: '10px' }}
+                                                        onClick={() => {
+                                                            handleAddItemOrder(result);
+                                                        }}
+                                                    >Add To Cart</Text>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </List>
+                        </> :
+                        <>
+                            <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
+                                {drinksData?.map((result, index) => (
+                                    <Box key={result._id} display="flex" flexDirection="column" alignItems="center">
+                                        <Box>
+                                            <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
+                                        </Box>
+                                        <Box marginLeft="1rem">
+                                            <Text mt="1" fontWeight="semibold" as="h6" lineHeight="tight" isTruncated>
+                                                {result?.orderName}
+                                                {/* {result?.isFavorite ? 'Yes' : 'No'} */}
+                                            </Text>
+                                            <Text
+                                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                                                onClick={() => {
+                                                    handleAddItemOrder(result);
+                                                }}
+                                            >  Add To Cart </Text>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </>
+                    }
+                </Box>
             </Box>
 
 

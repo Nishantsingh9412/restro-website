@@ -62,7 +62,7 @@ const OrderShipping = () => {
         dispatch(deleteSingleDelBoyAction(id)).then((res) => {
             if (res.success) {
                 dispatch(getAllDelboyzAction());
-                toast.success('Item Deleted Successfully');
+                toast.success('Delivery Boy Deleted Successfully');
             } else {
                 toast.error('Error Deleting Item');
             }
