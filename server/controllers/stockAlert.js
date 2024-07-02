@@ -8,7 +8,7 @@ export const getLowStockItems = async (req, res) => {
                 {
                     $expr: {
                         $gte:
-                            ["$usage_rate_value", {
+                            ["$minimum_quantity", {
                                 $multiply:
                                     [0.7, "$available_quantity"]
                             }]

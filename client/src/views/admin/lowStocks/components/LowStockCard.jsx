@@ -126,7 +126,7 @@ const LowStockCard = () => {
                                                 background: 'red',
                                                 height: '6px',
                                                 borderRadius: '50px',
-                                                width: `${parseInt((item.usage_rate_value / item.available_quantity) * 100)}%`,
+                                                width: `${parseInt((item.minimum_quantity / item.available_quantity) * 100)}%`,
                                             }}
                                         ></div>
                                     </div>
@@ -134,7 +134,7 @@ const LowStockCard = () => {
                                 <Flex justifyContent={'space-between'} marginTop={'4'}>
                                     <Stack direction={'row'}>
                                         <Text
-                                        > {`${item.usage_rate_value} / ${item.available_quantity}`} </Text>
+                                        > {`${item.minimum_quantity} / ${item.available_quantity}`} </Text>
                                         <Text >Total Amount</Text>
                                     </Stack>
                                     <span
@@ -144,7 +144,7 @@ const LowStockCard = () => {
                                             borderRadius: '10%',
                                             fontSize: 'smaller'
                                         }}
-                                    > {(item.usage_rate_value / item.available_quantity).toFixed(1) * 100}%</span>
+                                    > {(item.minimum_quantity / item.available_quantity).toFixed(1) * 100}%</span>
                                 </Flex>
                             </>
                         </Box>
@@ -205,10 +205,10 @@ const LowStockCard = () => {
                                             size="10px"
                                             marginTop={'8px'}
                                             marginRight={'5px'}
-                                            bg={parseInt((item.usage_rate_value / item.available_quantity) * 100) >= 70 ? 'red' : 'green'} // Change color based on percentage (70% threshold)
+                                            bg={parseInt((item.minimum_quantity / item.available_quantity) * 100) >= 70 ? 'red' : 'green'} // Change color based on percentage (70% threshold)
                                         />
 
-                                        {parseInt((item.usage_rate_value / item.available_quantity) * 100) >= 70 ?
+                                        {parseInt((item.minimum_quantity / item.available_quantity) * 100) >= 70 ?
                                             <>
                                                 <h6
                                                     style={{ color: 'red' }}
@@ -235,17 +235,17 @@ const LowStockCard = () => {
                                     >
                                         <div
                                             style={{
-                                                background: parseInt((item.usage_rate_value / item.available_quantity) * 100) >= 70 ? 'red' : 'green', // Change color based on percentage (70% threshold)
+                                                background: parseInt((item.minimum_quantity / item.available_quantity) * 100) >= 70 ? 'red' : 'green', // Change color based on percentage (70% threshold)
                                                 height: '6px',
                                                 borderRadius: '50px',
-                                                width: `${parseInt((item.usage_rate_value / item.available_quantity) * 100)}%`,
+                                                width: `${parseInt((item.minimum_quantity / item.available_quantity) * 100)}%`,
                                             }}
                                         ></div>
                                     </div>
                                 </Box>
                                 <Flex justifyContent={'space-between'} marginTop={'4'}>
                                     <Stack direction={'row'}>
-                                        <Text>{`${item.usage_rate_value} / ${item.available_quantity}`}</Text>
+                                        <Text>{`${item.minimum_quantity} / ${item.available_quantity}`}</Text>
                                         <Text >Total Amount</Text>
                                     </Stack>
                                     <span
@@ -256,7 +256,7 @@ const LowStockCard = () => {
                                             fontSize: 'smaller'
                                         }}
 
-                                    >{parseFloat(((item.usage_rate_value / item.available_quantity) * 100).toFixed(1))}%</span>
+                                    >{parseFloat(((item.minimum_quantity / item.available_quantity) * 100).toFixed(1))}%</span>
                                 </Flex>
                             </>
                         </Box>

@@ -191,7 +191,7 @@ const routes2 = [
     ]
   },
   {
-    name: 'Tracking',
+    name: 'Warehouse',
     layout: '/admin',
     path: '/tracking/batch-tracking',
     type: 'list',
