@@ -27,6 +27,7 @@ import LowStocks from 'views/admin/lowStocks';
 import SupplierManagement from 'views/admin/supplierMgmt';
 import AllOrders from 'views/admin/allOrders';
 import OrderShipping from 'views/admin/orderShipping';
+import OrderHistory from 'views/admin/orderHistory'
 // import BarcodeGenerator from 'views/admin/barcodeGenerator';
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
@@ -169,13 +170,13 @@ const routes2 = [
         component: OrderShipping,
       },
       {
-        name: 'Track Orders',
+        name: 'Order History',
         layout: '/admin',
-        path:'/track-orders',
+        path:'/order-history',
         icon: (
           <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
         ),
-        component: () => <></>,
+        component: OrderHistory,
       },
       {
         name: 'Delivery partners',

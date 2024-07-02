@@ -87,3 +87,13 @@ export const searchDrinksOnlyAction = (drinksData) => async (dispatch) => {
     }
 }
 
+export const ResetOrderItemAction = () => async (dispatch) => {
+    try {
+        dispatch({ type: 'RESET_ORDER_ITEM_TEMP' });
+        return { success: true, message: 'Order Item Reset Successfully' };
+    } catch (err) {
+        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        return { success: false, message: err.message };
+    }
+}
+

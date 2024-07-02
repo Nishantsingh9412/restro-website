@@ -4,7 +4,7 @@ export const postCompleteOrderAction = (orderData) => async (dispatch) => {
     try {
         const { data } = await api.addCompleteOrderAPI(orderData);
         dispatch({ type: 'POST_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order placed successfully' };
+        return { success: true, message: 'Order placed successfully' };
     } catch (err) {
         console.log("Error from courseFilter Action: " + err.message, err.stack);
         return { success: false, message: err?.response?.data?.message };

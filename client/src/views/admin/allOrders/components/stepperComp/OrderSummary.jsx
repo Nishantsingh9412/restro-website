@@ -1,4 +1,6 @@
 import React from 'react';
+import { toast } from 'react-toastify';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
@@ -11,7 +13,8 @@ import {
     Stack,
 } from '@chakra-ui/react';
 import { postCompleteOrderAction } from '../../../../../redux/action/completeOrder';
-import { toast } from 'react-toastify';
+import { resetFormDataAction } from '../../../../../redux/action/stepperFormAction';
+import { ResetOrderItemAction } from '../../../../../redux/action/OrderItems';
 
 const OrderSummary = ({ goToNextStep, goToPreviousStep }) => {
     const bgColor = useColorModeValue('white', 'gray.800');
@@ -19,6 +22,7 @@ const OrderSummary = ({ goToNextStep, goToPreviousStep }) => {
     const textColor = useColorModeValue('gray.800', 'white');
 
     const dispatch = useDispatch();
+    const history = useHistory();
     const addressData = useSelector((state) => state.form)
     console.log("addressData :", addressData)
 
@@ -50,15 +54,12 @@ const OrderSummary = ({ goToNextStep, goToPreviousStep }) => {
             TotalPrice: totalAmount,
             created_by: userId
         }
-
-        console.log("addressData", addressData)
-        console.log("cartItems", cartItems)
-        console.log("totalAmount", totalAmount)
-        // console.log("Order Completed");
         dispatch(postCompleteOrderAction(completeOrderData)).then((res) => {
-            if(res.success){
-                toast.success(res.message)
-            }else{
+            if (res.success) {
+                dispatch(resetFormDataAction());
+                dispatch(ResetOrderItemAction());
+                history.push('/admin/order-history');
+            } else {
                 toast.error(res.message)
             }
         })

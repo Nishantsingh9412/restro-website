@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { MdCancel } from "react-icons/md";
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { FaCartShopping } from 'react-icons/fa6';
-import { FaGlassCheers, FaHeart, FaRegHeart } from 'react-icons/fa';
-import { IoMdCart } from "react-icons/io";
-import { MdAddShoppingCart } from "react-icons/md";
+// import { FaGlassCheers, FaHeart, FaRegHeart } from 'react-icons/fa';
+// import { IoMdCart } from "react-icons/io";
+// import { MdAddShoppingCart } from "react-icons/md";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
