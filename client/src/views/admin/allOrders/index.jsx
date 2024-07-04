@@ -77,9 +77,12 @@ export default function AllOrders() {
     const [searchResultsDrinks, setSearchResultsDrinks] = useState([]);
     const [drinksData, setDrinksData] = useState([]);
     const [loading, setLoading] = useState(false);
+    
+    const localUserData = JSON.parse(localStorage.getItem('ProfileData'));
+    const userId = localUserData?.result?._id;
 
     const handleSearchDrinks = () => {
-        dispatch(searchDrinksOnlyAction(searchTermDrinks)).then((res) => {
+        dispatch(searchDrinksOnlyAction(searchTermDrinks,userId)).then((res) => {
             if (res.success) {
                 setSearchResultsDrinks(res?.data);
                 console.log("Search Results: ", res?.data)
@@ -156,7 +159,8 @@ export default function AllOrders() {
             pic: pic,
             description: description,
             isFavorite: isFavourite,
-            isDrink: false
+            isDrink: false,
+            created_by: userId
         }
 
         const AddItemPromise = dispatch(AddOrderItemAction(newItemOrderData)).then((res) => {
@@ -247,7 +251,7 @@ export default function AllOrders() {
     // const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = () => {
-        dispatch(searchOrderItemAction(searchTerm)).then((res) => {
+        dispatch(searchOrderItemAction(searchTerm , userId)).then((res) => {
             if (res.success) {
                 setSearchResults(res?.data);
                 console.log("Search Results: ", res?.data)
@@ -262,7 +266,7 @@ export default function AllOrders() {
     }, [handleAddItemOrder])
 
     useEffect(() => {
-        dispatch(getAllOrderItemsAction()).then((res) => {
+        dispatch(getAllOrderItemsAction(userId)).then((res) => {
             if (res.success) {
                 setAllItemsData(res?.data);
             } else {
@@ -272,7 +276,7 @@ export default function AllOrders() {
     }, [])
 
     useEffect(() => {
-        dispatch(getDrinksOnlyAction()).then((res) => {
+        dispatch(getDrinksOnlyAction(userId)).then((res) => {
             if (res.success) {
                 setDrinksData(res?.data);
             } else {

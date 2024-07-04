@@ -63,17 +63,17 @@ export const AddOrderItem = (newItem) => API.post('/orders/add-order-item', newI
 // Get single Order Item
 export const GetSingleItemOrder = (id) => API.get(`/orders/get-single-order-item/${id}`);
 // Get All Orders
-export const getAllOrderItems = () => API.get('/orders/get-all-order-items');
+export const getAllOrderItems = (localStorageId) => API.get(`/orders/get-all-order-items/${localStorageId}`);
 // Get Drinks Only
-export const getDrinksOnly = () => API.get('/orders/getDrinksOnly')
+export const getDrinksOnly = (localStorageId) => API.get(`/orders/getDrinksOnly/${localStorageId}`)
 // Update Order Item
 export const UpdateSingleItemOrder = (id, updatedData) => API.patch(`/orders/update-order-item/${id}`, updatedData);
 // Delete Order Item
 export const deleteSingleItemOrder = (id) => API.delete(`/orders/delete-order-item/${id}`)
 // Search Order Item
-export const searchOrderItem = (orderNameData) => API.get(`/orders/search-order-items?orderName=${orderNameData}`);
+export const searchOrderItem = (orderNameData, localStorageId) => API.get(`/orders/search-order-items/${localStorageId}?orderName=${orderNameData}`);
 // Search Drinks Only
-export const searchDrinksOnly = (drinksData) => API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
+export const searchDrinksOnly = (drinksData, localStorageId) => API.get(`/orders/search-drinks-onlys/${localStorageId}?orderName=${drinksData}`);
 
 
 // Item Using QR 
@@ -118,7 +118,7 @@ export const deleteSingleDeliveryPersonnel = (id) => API.delete(`/delivery-perso
 // Add Complete Order
 export const addCompleteOrderAPI = (newOrder) => API.post('/complete-order/create', newOrder);
 // Get All Complete Orders
-export const getAllCompleteOrdersAPI = () => API.get('/complete-order/get-all');
+export const getAllCompleteOrdersAPI = (localStorageId) => API.get(`/complete-order/get-all/${localStorageId}`);
 // Get Single Complete Order
 export const getSingleCompleteOrderAPI = (id) => API.get(`/complete-order/get-single/${id}`);
 // Update Complete Order

@@ -12,6 +12,11 @@ const OrderdItemsSchema = mongoose.Schema({
     description: { type: String, required: false },
     isFavorite: { type: Boolean, default: false },
     isDrink: { type: Boolean, default: false },
+    created_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Auth',
+        required: true
+    }
 }
 , { timestamps: true }
 )

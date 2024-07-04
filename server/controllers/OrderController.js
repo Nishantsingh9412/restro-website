@@ -3,7 +3,7 @@ import OrderdItems from '../models/orderModel.js';
 
 export const AddOrderItem = async (req, res) => {
     try {
-        const { orderName, priceVal, priceUnit, pic, description, isFavorite, isDrink } = req.body;
+        const { orderName, priceVal, priceUnit, pic, description, isFavorite, isDrink, created_by } = req.body;
         if (!orderName || !priceVal || !priceUnit) {
             return res.status(400).json({ success: false, message: "Please provide all the required fields" })
         } else {
@@ -14,7 +14,8 @@ export const AddOrderItem = async (req, res) => {
                 pic,
                 description,
                 isFavorite,
-                isDrink
+                isDrink,
+                created_by
             })
             if (!newOrderItem) {
                 return res.status(400).json({
@@ -54,8 +55,12 @@ export const getSingleOrderItem = async (req, res) => {
 }
 
 export const getAllOrderItems = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: "Invalid User ID" })
+    }
     try {
-        const allOrderItems = await OrderdItems.find({ isDrink: { $ne: true } }).sort({ isFavorite: -1, orderName: 1 })
+        const allOrderItems = await OrderdItems.find({ isDrink: { $ne: true }, created_by: _id }).sort({ isFavorite: -1, orderName: 1 });
         // const allOrderItems = await OrderdItems.find({ isFavourite: -1, orderName: 1 });
         if (!allOrderItems) {
             return res.status(400).json({ success: false, message: "Failed to get Order Items" })
@@ -69,8 +74,12 @@ export const getAllOrderItems = async (req, res) => {
 }
 
 export const getDrinksOnly = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: "Invalid User ID" })
+    }
     try {
-        const getDrinks = await OrderdItems.find({ isDrink: true }).sort({isFavorite: -1, orderName: 1 })
+        const getDrinks = await OrderdItems.find({ isDrink: true, created_by: _id }).sort({ isFavorite: -1, orderName: 1 });
         if (!getDrinks) {
             return res.status(400).json({ success: false, message: "Failed to get Drinks" })
         } else {
@@ -139,9 +148,19 @@ export const deleteOrderItem = async (req, res) => {
 }
 
 export const searchOrderItems = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: "Invalid User ID" })
+    }
     try {
         const { orderName } = req.query;
-        const searchOrderItem = await OrderdItems.find({ orderName: { $regex: orderName, $options: 'i' } });
+        const searchOrderItem = await OrderdItems.find({
+            orderName: {
+                $regex: orderName,
+                $options: 'i'
+            },
+            created_by: _id
+        });
         if (!searchOrderItem) {
             return res.status(400).json({ success: false, message: "Failed to search Order Items" })
         } else {
@@ -154,9 +173,20 @@ export const searchOrderItems = async (req, res) => {
 }
 
 export const searchDrinksOnly = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: "Invalid User ID" })
+    }
     try {
         const { orderName } = req.query;
-        const searchDrinks = await OrderdItems.find({ orderName: { $regex: orderName, $options: 'i' }, isDrink: true });
+        const searchDrinks = await OrderdItems.find({
+            orderName: {
+                $regex: orderName,
+                $options: 'i'
+            },
+            isDrink: true,
+            created_by: _id
+        });
         if (!searchDrinks) {
             return res.status(400).json({ success: false, message: "Failed to search Drinks" })
         } else {

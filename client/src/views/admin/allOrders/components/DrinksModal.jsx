@@ -39,6 +39,9 @@ const DrinksModal = (props) => {
     const [pic, setPic] = useState('https://res.cloudinary.com/dezifvepx/image/upload/v1719740144/restro-website/drinks_aqtzou.jpg');
     const [loading, setLoading] = useState(false);
 
+    const localUserId = JSON.parse(localStorage.getItem('ProfileData'));
+    const userId = localUserId?.result?._id;
+
     const autoFillform = () => {
         setItemName('Coke');
         setPriceVal(2);
@@ -94,7 +97,8 @@ const DrinksModal = (props) => {
             description: description,
             isFavorite: isFavourite,
             pic: pic,
-            isDrink: true
+            isDrink: true,
+            created_by: userId
         }
 
         const AddItemPromise = dispatch(AddOrderItemAction(drinksData)).then((res) => {

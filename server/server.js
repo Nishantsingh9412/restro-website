@@ -31,7 +31,6 @@ app.use(cors());
 // app.use(express.static(__dirname + '/public'));
 // To serve static files to frontend for multer 
 app.use('/uploads', express.static('uploads'))
-
 app.use('/item-management', itemRoutes)
 app.use('/stock-management', lowStockItems)
 app.use('/supplier', supplierRoutes)

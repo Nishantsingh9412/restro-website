@@ -12,7 +12,7 @@ const router = express.Router();
 // create complete order
 router.post('/create', createCompleteOrder)
 // get all complete orders
-router.get('/get-all', getCompleteOrders)
+router.get('/get-all/:id', getCompleteOrders)
 // get single complete order
 router.get('/get-single/:id', getCompleteOrderById)
 // update complete order

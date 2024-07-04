@@ -16,17 +16,17 @@ router.post('/add-order-item', AddOrderItem);
 
 router.get('/get-single-order-item/:id', getSingleOrderItem);
 
-router.get('/get-all-order-items', getAllOrderItems);
+router.get('/get-all-order-items/:id', getAllOrderItems);
 
-router.get('/getDrinksOnly', getDrinksOnly);
+router.get('/getDrinksOnly/:id', getDrinksOnly);
 
 router.patch('/update-order-item/:id', updateOrderItem);
 
 router.delete('/delete-order-item/:id', deleteOrderItem);
 
-router.get('/search-order-items', searchOrderItems);
+router.get('/search-order-items/:id', searchOrderItems);
 
-router.get('/search-drinks-only', searchDrinksOnly);
+router.get('/search-drinks-only/:id', searchDrinksOnly);
 
 
 

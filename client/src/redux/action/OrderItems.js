@@ -22,9 +22,9 @@ export const GetSingleItemOrderAction = (id) => async (dispatch) => {
     }
 }
 
-export const getAllOrderItemsAction = () => async (dispatch) => {
+export const getAllOrderItemsAction = (localStorageId) => async (dispatch) => {
     try {
-        const { data } = await api.getAllOrderItems();
+        const { data } = await api.getAllOrderItems(localStorageId);
         dispatch({ type: 'GET_ALL_ORDER_ITEMS', data: data?.result });
         return { success: true, message: 'Order Items fetched Successfully', data: data?.result };
     } catch (err) {
@@ -33,9 +33,9 @@ export const getAllOrderItemsAction = () => async (dispatch) => {
     }
 }
 
-export const getDrinksOnlyAction = () => async (dispatch) => {
+export const getDrinksOnlyAction = (localStorageId) => async (dispatch) => {
     try {
-        const { data } = await api.getDrinksOnly();
+        const { data } = await api.getDrinksOnly(localStorageId);
         dispatch({ type: 'GET_DRINKS_ONLY', data: data?.result });
         return { success: true, message: 'Drinks fetched Successfully', data: data?.result };
     } catch (err) {
@@ -65,9 +65,9 @@ export const deleteSingleItemOrderAction = (id) => async (dispatch) => {
     }
 }
 
-export const searchOrderItemAction = (orderNameData) => async (dispatch) => {
+export const searchOrderItemAction = (orderNameData, localStorageId) => async (dispatch) => {
     try {
-        const { data } = await api.searchOrderItem(orderNameData);
+        const { data } = await api.searchOrderItem(orderNameData, localStorageId);
         dispatch({ type: 'SEARCH_ORDER_ITEM', data: data?.result });
         return { success: true, message: 'Order Item Searched Successfully', data: data?.result };
     } catch (err) {
@@ -76,9 +76,9 @@ export const searchOrderItemAction = (orderNameData) => async (dispatch) => {
     }
 }
 
-export const searchDrinksOnlyAction = (drinksData) => async (dispatch) => {
+export const searchDrinksOnlyAction = (drinksData, localStorageId) => async (dispatch) => {
     try {
-        const { data } = await api.searchDrinksOnly(drinksData);
+        const { data } = await api.searchDrinksOnly(drinksData, localStorageId);
         dispatch({ type: 'SEARCH_DRINKS_ONLY', data: data?.result });
         return { success: true, message: 'Drinks Searched Successfully', data: data?.result };
     } catch (err) {

@@ -11,9 +11,9 @@ export const postCompleteOrderAction = (orderData) => async (dispatch) => {
     }
 }
 
-export const getCompleteOrderAction = () => async (dispatch) => {
+export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
     try {
-        const { data } = await api.getAllCompleteOrdersAPI();
+        const { data } = await api.getAllCompleteOrdersAPI(localstorageId);
         dispatch({ type: 'GET_COMPLETE_ORDER', data: data?.result });
         return { success: true, message: 'order fetched successfully' };
     } catch (err) {

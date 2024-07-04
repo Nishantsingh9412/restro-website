@@ -28,7 +28,7 @@ export const createCompleteOrder = async (req, res) => {
         else {
             const formattedOrderItems = orderItems.map(item => ({
                 // item: new mongoose.Types.ObjectId(item._id),
-                item : new mongoose.Types.ObjectId(item._id),
+                item: new mongoose.Types.ObjectId(item._id),
                 quantity: item.quantity,
                 total: item.priceVal * item.quantity
             }));
@@ -62,8 +62,12 @@ export const createCompleteOrder = async (req, res) => {
 }
 
 export const getCompleteOrders = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(404).json({ success: false, message: "Invalid Id" })
+    }
     try {
-        const completeOrders = await completeOrder.find().populate('orderItems.item').sort({ createdAt: -1 });
+        const completeOrders = await completeOrder.find({created_by:_id}).populate('orderItems.item').sort({ createdAt: -1 });
         console.log("completeOrders :", completeOrders);
         return res.status(200).json({ success: true, message: "All Orders", result: completeOrders })
     } catch (err) {

@@ -20,12 +20,15 @@ const OrderHistory = () => {
     const compOrderData = useSelector((state) => state?.compOrder?.data)
     console.log("compOrderData :", compOrderData)
 
+    const localUserData = JSON.parse(localStorage.getItem('ProfileData'));
+    const localUserId = localUserData?.result?._id
+
     useEffect(() => {
-        dispatch(getCompleteOrderAction())
+        dispatch(getCompleteOrderAction(localUserId))
     }, [])
 
     const handleAllotDeliveryBoy = () => {
-        console.log('Allot Delivery Boy based on their status and show location in map')
+       console.log('Allot Delivery Boy Pending .........')
     }
 
     return (
