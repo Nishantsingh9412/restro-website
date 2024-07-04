@@ -41,6 +41,8 @@ export default function SupplierManagement() {
     const [supplierLocation, setSupplierLocation] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const localData = JSON.parse(localStorage.getItem('ProfileData'));
+    const localStorageId = localData?.result?._id;
 
     const postSupplierImage = (pics) => {
         console.log("This is Image Data \n")
@@ -83,29 +85,42 @@ export default function SupplierManagement() {
 
     const OverlayOne = () => (
         <ModalOverlay
-            // bg='blackAlpha.800'
-            // backdropFilter='blur(10px) hue-rotate(90deg)'
+        // bg='blackAlpha.800'
+        // backdropFilter='blur(10px) hue-rotate(90deg)'
         />
     )
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [overlay, setOverlay] = useState(<OverlayOne />)
 
+
+    const resetStates = () => {
+        setSupplierName('');
+        setItem([]);
+        setEmail('');
+        setCountryCode('');
+        setPhone_no('');
+        setSupplierLocation('');
+        setPic(undefined);
+    }
+
     const handleAddSupplier = (e) => {
         e.preventDefault();
         const newSupplier = {
             name: suppliername,
             pic,
-            Items, 
+            Items,
             countryCode,
             phone: phone_no,
             email,
-            location: supplierLocation
+            location: supplierLocation,
+            created_by: localStorageId
         }
         // console.log("This is new Supplier Data \n");
         // console.log(newSupplier);
         dispatch(AddNewSupplierAction(newSupplier)).then((res) => {
             if (res.success) {
+                resetStates();
                 toast.success('Item Added successfully');
                 onClose();
             } else {
@@ -115,13 +130,22 @@ export default function SupplierManagement() {
     }
 
     useEffect(() => {
-        dispatch(GetAllSuppliersAction());
+        dispatch(GetAllSuppliersAction(localStorageId));
     }, [])
 
     const allSuppliers = useSelector(state => state.supplierReducer.suppliers);
     const selectedSupplier = useSelector(state => state.supplierReducer.seletectedSupplier);
     // console.log(" allstates Data \n")
     // console.log(allSuppliers);
+
+    // const AutoAddSupplier = () => {
+    //     setSupplierName('Supplier 1');
+    //     setItem(['Item 1', 'Item 2', 'Item 3']);
+    //     setEmail('supplier1@gmail.com');
+    //     setCountryCode('91');
+    //     setPhone_no('1234567890');
+    //     setSupplierLocation('Location 1');
+    // }
 
     return (
         <div>
@@ -147,7 +171,7 @@ export default function SupplierManagement() {
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent:'end',
+                    justifyContent: 'end',
                     width: '60px',
                     height: '60px',
                     borderRadius: '50%',
@@ -245,8 +269,8 @@ export default function SupplierManagement() {
                                     </FormControl>
 
                                     <FormControl id="location">
-                                        <FormLabel> Location  </FormLabel> 
-                                        <Input 
+                                        <FormLabel> Location  </FormLabel>
+                                        <Input
                                             type="text"
                                             placeholder="Location"
                                             onChange={(e) => setSupplierLocation(e.target.value)}

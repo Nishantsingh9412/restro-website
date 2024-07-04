@@ -187,6 +187,8 @@ function SidebarRight({ location }) {
     return null;
   }
 
+  
+
   return (
     <Box
       w="300px"
@@ -199,8 +201,9 @@ function SidebarRight({ location }) {
       display={{ base: 'none', xl: 'block' }}
     >
       <Notifications data={notifications} />
-      <Logs data={logs} />
-      <Contacts data={contacts} />
+      {/* <Logs data={logs} /> */}
+      {/* <Contacts data={contacts} /> */}
+      <Contacts  />
     </Box>
   );
 }

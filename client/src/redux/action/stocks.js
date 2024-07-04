@@ -1,8 +1,8 @@
 import * as api from '../../api/index';
 
-export const getAllStocksAction = () => async (dispatch) => {
+export const getAllStocksAction = (localStorageId) => async (dispatch) => {
     try{
-        const {data} = await api.getAllStocks();
+        const {data} = await api.getAllStocks(localStorageId);
         dispatch({ type: 'GET_ALL_STOCKS', data:data.result});
         console.log("this is the data from getAllStocksAction: ", data.result)
         return { success: true, message: 'Stocks Fetched Successfully' };
@@ -13,9 +13,9 @@ export const getAllStocksAction = () => async (dispatch) => {
 }
 
 
-export const getLowStocksAction = () => async (dispatch) => {
+export const getLowStocksAction = (localStorageId) => async (dispatch) => {
     try{
-        const {data} = await api.getLowStocks();
+        const {data} = await api.getLowStocks(localStorageId);
         dispatch({ type: 'GET_LOW_STOCKS', data:data.result});
         console.log("this is the data from getLowStocksAction: ", data.result)
         return {success: true, message: 'Low Stocks Fetched Successfully'}

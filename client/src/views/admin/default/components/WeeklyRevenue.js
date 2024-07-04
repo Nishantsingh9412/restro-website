@@ -35,22 +35,24 @@ export default function WeeklyRevenue(props) {
     { bg: 'whiteAlpha.100' }
   );
   return (
-    <Card direction="column" w="100%" {...rest}>
-      <Text fontSize="14px" mb="10px">This Week</Text>
-      <Text
-        me="auto"
-        color={textColor}
-        fontWeight="500"
-      >
-        Waste Tracking
-      </Text>
+    // <Card direction="column" w="100%" {...rest}>
+    //   <Text fontSize="14px" mb="10px">This Week</Text>
+    //   <Text
+    //     me="auto"
+    //     color={textColor}
+    //     fontWeight="500"
+    //   >
+    //     Waste Tracking
+    //   </Text>
 
-      <Box h="240px" mt="auto">
-        <BarChart
-          chartData={barChartDataDailyTraffic}
-          chartOptions={barChartOptionsDailyTraffic}
-        />
-      </Box>
-    </Card>
+    //   <Box h="240px" mt="auto">
+    //     <BarChart
+    //       chartData={barChartDataDailyTraffic}
+    //       chartOptions={barChartOptionsDailyTraffic}
+    //     />
+    //   </Box>
+    // </Card>
+    <>
+    </>
   );
 }

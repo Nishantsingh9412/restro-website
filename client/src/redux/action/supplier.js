@@ -3,7 +3,7 @@ import * as api from '../../api';
 export const AddNewSupplierAction = (supplierData) => async (dispatch) => {
     try {
         const { data } = await api.addSupplier(supplierData);
-        dispatch({ type: 'ADD_SUPPLIER', data: data.result });
+        dispatch({ type: 'ADD_SUPPLIER', data: data?.result });
         return { success: true, message: data.message }
     } catch (error) {
         console.log("Error in AddNewSupplierAction: ", error)
@@ -11,10 +11,10 @@ export const AddNewSupplierAction = (supplierData) => async (dispatch) => {
     }
 }
 
-export const GetAllSuppliersAction = () => async (dispatch) => {
+export const GetAllSuppliersAction = (localStorageId) => async (dispatch) => {
     try {
-        const { data } = await api.getAllSuppliers();
-        dispatch({ type: 'GET_ALL_SUPPLIERS', data: data.result });
+        const { data } = await api.getAllSuppliers(localStorageId);
+        dispatch({ type: 'GET_ALL_SUPPLIERS', data: data?.result });
         return { success: true, message: data.message }
     } catch (error) {
         console.log("Error in GetAllSuppliersAction: ", error)
@@ -25,7 +25,7 @@ export const GetAllSuppliersAction = () => async (dispatch) => {
 export const getSingleSupplierAction = (id) => async (dispatch) => {
     try {
         const { data } = await api.getSingleSupplier(id);
-        dispatch({ type: 'GET_SINGLE_SUPPLIER', data: data.result });
+        dispatch({ type: 'GET_SINGLE_SUPPLIER', data: data?.result });
         return { success: true, message: data.message }
     } catch (error) {
         console.log("Error in getSingleSupplierAction: ", error)
@@ -34,16 +34,16 @@ export const getSingleSupplierAction = (id) => async (dispatch) => {
 }
 
 export const clearSelectedSupplierAction = () => {
-  return {
-    type: 'CLEAR_SELECTED_SUPPLIER'
-  }
+    return {
+        type: 'CLEAR_SELECTED_SUPPLIER'
+    }
 }
 
 
 export const UpdateSupplierAction = (id, updatedData) => async (dispatch) => {
     try {
         const { data } = await api.UpdateSupplier(id, updatedData);
-        dispatch({ type: 'UPDATE_SUPPLIER', data: data.result });
+        dispatch({ type: 'UPDATE_SUPPLIER', data: data?.result });
         return { success: true, message: data.message }
     } catch (error) {
         console.log("Error in UpdateSupplierAction: ", error)

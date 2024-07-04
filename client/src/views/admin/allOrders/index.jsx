@@ -81,8 +81,8 @@ export default function AllOrders() {
     const handleSearchDrinks = () => {
         dispatch(searchDrinksOnlyAction(searchTermDrinks)).then((res) => {
             if (res.success) {
-                setSearchResultsDrinks(res.data);
-                console.log("Search Results: ", res.data)
+                setSearchResultsDrinks(res?.data);
+                console.log("Search Results: ", res?.data)
             } else {
                 console.log("error from searchDrinksOnlyAction: " + res.message)
             }
@@ -249,8 +249,8 @@ export default function AllOrders() {
     const handleSearch = () => {
         dispatch(searchOrderItemAction(searchTerm)).then((res) => {
             if (res.success) {
-                setSearchResults(res.data);
-                console.log("Search Results: ", res.data)
+                setSearchResults(res?.data);
+                console.log("Search Results: ", res?.data)
             } else {
                 console.log("error from searchOrderItemAction: " + res.message)
             }

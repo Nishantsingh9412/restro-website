@@ -9,9 +9,14 @@ const SupplierSchema = mongoose.Schema({
         required: false
     },
     countryCode: { type: String, required: false },
-    phone:{type:String,required:false},
-    email:{type:String,required:false},
-    location:{type:String,required:false},
+    phone: { type: String, required: false },
+    email: { type: String, required: false },
+    location: { type: String, required: false },
+    created_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Auth',
+        required: true
+    }
 }, { timestamps: true });
 
 

@@ -77,7 +77,7 @@ export function SidebarLinks(props) {
                 </Heading>
               </NavLink>
             )}
-            {route.links.map((nestedRoute, j) => (
+            {route?.links?.map((nestedRoute, j) => (
               <NavItem
                 key={j}
                 route={nestedRoute}

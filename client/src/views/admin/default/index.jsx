@@ -38,7 +38,7 @@ import Usa from 'assets/img/dashboards/usa.png';
 import MiniCalendar from 'components/calendar/MiniCalendar';
 import MiniStatistics from 'components/card/MiniStatistics';
 import IconBox from 'components/icons/IconBox';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MdAddTask,
   MdAttachMoney,
@@ -59,11 +59,60 @@ import {
 import tableDataCheck from 'views/admin/default/variables/tableDataCheck.json';
 import tableDataComplex from 'views/admin/default/variables/tableDataComplex.json';
 import DashboardCard from './components/Cards';
+import { totalStocksAPI, lowStocksAPI, expiredItemsAPI } from '../../../api/index.js';
+import { useDispatch } from 'react-redux';
 
 export default function UserReports() {
   // Chakra Color Mode
+
+  // const dispatch = useDispatch();
   const brandColor = useColorModeValue('brand.500', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
+  const [totalStocksQuantity, setTotalStocksQuantity] = useState(0);
+  const [lowStocksQuantity, setLowStocksQuantity] = useState(0);
+  const [expiredItems, setExpiredItems] = useState(0);
+
+
+  const TotalStocksQuantity = () => {
+    totalStocksAPI().then((res) => {
+      setTotalStocksQuantity(res?.data?.result)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => {
+      console.log('API call completed')
+    })
+  }
+
+  const LowStocksQuantity = () => {
+    lowStocksAPI().then((res) => {
+      setLowStocksQuantity(res?.data?.result)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => {
+      console.log('API call completed for low stocks')
+    })
+  }
+
+  const expiredQuantity = () => {
+    expiredItemsAPI().then((res) => {
+      setExpiredItems(res?.data?.result?.total)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => {
+      console.log('API call completed for expired items')
+    })
+  }
+
+
+  useEffect(() => {
+    TotalStocksQuantity();
+    LowStocksQuantity();
+    expiredQuantity();
+  }, [])
+
+
+
+
   return (
     <Flex
       direction="column"
@@ -77,7 +126,7 @@ export default function UserReports() {
         fontWeight="500"
       >
         <Text>Overview</Text>
-        <Text>Today</Text>
+        {/* <Text>Today</Text> */}
       </Flex>
       <SimpleGrid columns={{ md: 3, base: 1 }} gap="20px" mb="20px">
         <DashboardCard
@@ -86,7 +135,7 @@ export default function UserReports() {
           icon=""
           border="#fee1f9"
           label="Total Stock Quantity"
-          value={7265}
+          value={totalStocksQuantity}
           growth="+11.02%"
         />
         <DashboardCard
@@ -95,7 +144,7 @@ export default function UserReports() {
           icon=""
           border="#ffebd8"
           label="Low Stock Alert"
-          value={3671}
+          value={lowStocksQuantity}
           growth="-0.03%"
         />
         <DashboardCard
@@ -104,7 +153,7 @@ export default function UserReports() {
           icon=""
           border="#d7f7f7"
           label="Expirty Alert"
-          value={156}
+          value={expiredItems}
           growth="+15.03%"
         />
       </SimpleGrid>

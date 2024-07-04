@@ -6,9 +6,9 @@ import {
 
 const router = express.Router();
 
-router.get('/get-low-stocks', getLowStockItems);
+router.get('/get-low-stocks/:id', getLowStockItems);
 
-router.get('/get-all-stocks', getallStockItems);
+router.get('/get-all-stocks/:id', getallStockItems);
 
 
 export default router;

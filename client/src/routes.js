@@ -10,6 +10,8 @@ import {
   MdVideoLibrary,
   MdLock,
   MdLocalShipping,
+  MdRestaurant,
+  MdHistory,
 } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { LuFolderClosed, LuShoppingBag } from 'react-icons/lu';
@@ -37,6 +39,7 @@ import { TbReorder, TbTruckDelivery } from 'react-icons/tb';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6';
 import { GiNuclearWaste } from 'react-icons/gi';
 import { AiFillPrinter } from 'react-icons/ai';
+import { IoMdLock } from 'react-icons/io';
 
 const routes2 = [
   // {
@@ -65,7 +68,7 @@ const routes2 = [
   //   ],
   // },
   {
-    name: 'Dashboard',
+    name: '',
     layout: '/admin',
     path: '/dashboards/default',
     type: 'list',
@@ -75,7 +78,7 @@ const routes2 = [
     component: MainDashboard,
     links: [
       {
-        name: 'Overview',
+        name: 'Dashboard',
         layout: '/admin',
         path: '/dashboards/default',
         icon: (
@@ -130,7 +133,7 @@ const routes2 = [
         // type: 'link',
         component: SupplierManagement,
       },
-     
+
       // {
       //   name: 'Barcode Generator',
       //   layout: '/admin',
@@ -145,105 +148,125 @@ const routes2 = [
   {
     name: 'Orders',
     layout: '/admin',
-    path:'/orders',
-    type: 'list',
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
-    links:[
-      {
-        name: 'Orders',
-        layout: '/admin',
-        path: '/orders',
-        icon: (
-          <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
-        ),
-        component: AllOrders,
-      },
-      {
-        name: 'Order Processing',
-        layout: '/admin',
-        path: '/process-order',
-        icon: (
-          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-        ),
-        component: OrderShipping,
-      },
-      {
-        name: 'Order History',
-        layout: '/admin',
-        path:'/order-history',
-        icon: (
-          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-        ),
-        component: OrderHistory,
-      },
-      {
-        name: 'Delivery partners',
-        layout: '/admin',
-        path:'/delivery-partners',
-        icon: (
-          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-        ),
-        component: () => <></>,
-      },
-
-    ]
-  },
-  {
-    name: 'Warehouse',
-    layout: '/admin',
-    path: '/tracking/batch-tracking',
+    path: '/orders',
     type: 'list',
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: 'Batch Tracking',
+        name: 'Foods and Drinks',
         layout: '/admin',
-        path: '/tracking/batch-tracking',
+        path: '/orders',
         icon: (
-          <Icon
-            as={MdBatchPrediction}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
+          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
         ),
-        type: 'link',
-        component: () => <></>,
+        component: AllOrders,
+      },
+      // {
+      //   name: 'Recent Orders',
+      //   layout: '/admin',
+      //   path: '/process-order',
+      //   icon: (
+      //     <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+      //   ),
+      //   component: OrderShipping,
+      // },
+      {
+        name: 'Order History',
+        layout: '/admin',
+        path: '/order-history',
+        icon: (
+          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+        ),
+        component: OrderHistory,
       },
       {
-        name: 'Cost Tracking',
+        name: 'Create Deliveries',
         layout: '/admin',
-        path: '/tracking/cost-tracking',
+        path: '/create-deliveries',
         icon: (
-          <Icon
-            as={FaMoneyBillTrendUp}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
         ),
-        type: 'link',
         component: () => <></>,
       },
+    ]
+  },
+  {
+    name: 'Delivery Partners',
+    layout: '/admin',
+    path: '/delivery-partners',
+    type: 'list',
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    links: [
       {
-        name: 'Waste Tracking',
+        name: 'Delivery partners',
         layout: '/admin',
-        path: '/tracking/waste-tracking',
+        path: '/delivery-partners',
+        icon: (
+          <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+        ),
+        component: OrderShipping,
+      },
+    ]
+  },
+  {
+    name: 'Warehouse',
+    layout: '/admin',
+    path: '/warehouse',
+    type: 'list',
+    icon: (<>
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    </>
+    ),
+    links: [
+      {
+        name: 'Contact Sales',
+        layout: '/admin',
+        path: '/warehouse/contact-sales',
         icon: (
           <Icon
-            as={GiNuclearWaste}
+            as={IoMdLock}
             color="inherit"
             width="20px"
             height="20px"
           />
         ),
         type: 'link',
-        component: () => <></>,
+        component: () => <>Contact Support</>,
       },
+      // {
+      //   name: 'Cost Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/cost-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={FaMoneyBillTrendUp}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
+      // {
+      //   name: 'Waste Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/waste-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={GiNuclearWaste}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
     ],
   },
   {
@@ -306,7 +329,7 @@ const routes2 = [
     icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
     component: SignUpCentered,
   },
- 
+
 ];
 
 const routes = [

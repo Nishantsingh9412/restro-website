@@ -10,26 +10,9 @@ import { getLowStocksAction, getAllStocksAction } from '../../../../redux/action
 const LowStockCard = () => {
 
     const dispatch = useDispatch();
-
-    const data = [
-        { name: 'Basmati Rice', lastUpdated: '12-02-2024', totalAmount: '36/45', percentage: '89%', isLowStock: true },
-        { name: 'Brown Rice', lastUpdated: '12-02-2024', totalAmount: '20/45', percentage: '44%', isLowStock: true },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: true }
-        // Add more items as needed
-    ];
-
-    const data2 = [
-        { name: 'Basmati Rice', lastUpdated: '12-02-2024', totalAmount: '36/45', percentage: '89%', isLowStock: false },
-        { name: 'Brown Rice', lastUpdated: '12-02-2024', totalAmount: '20/45', percentage: '44%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        { name: 'Jasmine Rice', lastUpdated: '15-03-2024', totalAmount: '28/45', percentage: '62%', isLowStock: false },
-        // Add more items as needed
-    ];
-
+    
+    const localData = JSON.parse(localStorage.getItem('ProfileData'));
+    const userId = localData?.result?._id;
 
 
     // const lowStockItems = useSelector(state => state)
@@ -42,8 +25,8 @@ const LowStockCard = () => {
 
 
     useEffect(() => {
-        dispatch(getAllStocksAction())
-        dispatch(getLowStocksAction())
+        dispatch(getAllStocksAction(userId))
+        dispatch(getLowStocksAction(userId))
     }, [])
 
 

@@ -33,8 +33,11 @@ import {
   Input,
   Select,
   Option,
-  Flex
+  Flex,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react"
+
 import { IoMdEye, IoMdTrash } from 'react-icons/io';
 import { IoPencil } from 'react-icons/io5';
 import { BiBarcodeReader } from 'react-icons/bi';
@@ -70,7 +73,7 @@ export default function ItemManagement() {
   const [itemDataArray, setItemDataArray] = useState([])
 
   const [EyeIconSelectedId, setEyeIconSelectedId] = useState(null);
-  const [AnalyticsSelectedId,setAnalyticsSelectedId] = useState(null);
+  const [AnalyticsSelectedId, setAnalyticsSelectedId] = useState(null);
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
   const [unit, setUnit] = useState('');
@@ -87,13 +90,9 @@ export default function ItemManagement() {
   const [expiryDate, setExpiryDate] = useState('')
 
 
-  // const [lastReplenished, setLastReplenished] = useState('');
-  // Remove this code
-  // const [input, setInput] = useState('')
-  // const handleInputChange = (e) => setInput(e.target.value)
-  // const isError = input === ''
-  // End of this code
-
+  const localData = JSON.parse(localStorage.getItem('ProfileData'));
+  const userId = localData?.result?._id;
+  console.log('This is userId: ', userId);
 
   const handleGenerateBarcode = (item) => {
     try {
@@ -112,8 +111,6 @@ export default function ItemManagement() {
       console.log('Error in generating barcode')
     }
   }
-
-
 
   const checkPin = (inputPin) => {
     if (inputPin === '1234') {
@@ -135,6 +132,7 @@ export default function ItemManagement() {
       existing_barcode_no: existingBarcodeNo,
       expiry_date: expiryDate,
       bar_code: nanoid(13),
+      created_by: userId
       // usage_rate_value: usageRateValue,
       // usage_rate_unit: usageRateUnit,
       // Last_Replenished: lastReplenished
@@ -162,7 +160,7 @@ export default function ItemManagement() {
   const handleConfirmDelete = (deleteId) => {
     const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId)).then((res) => {
       if (res.success) {
-        dispatch(GetAllItemsAction());
+        dispatch(GetAllItemsAction(userId));
         return res.message;
       } else {
         throw new Error('Error Deleting Item')
@@ -209,7 +207,7 @@ export default function ItemManagement() {
   }
 
   useEffect(() => {
-    dispatch(GetAllItemsAction());
+    dispatch(GetAllItemsAction(userId));
   }, [])
 
 
@@ -250,7 +248,160 @@ export default function ItemManagement() {
         </button>
       </div>
 
-      <div className={`d-none d-lg-block`} style={{ marginTop: '40px' }}>
+      <Box>
+        <Box display={{ base: 'none', lg: 'block' }} mt="40px">
+          <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableHeader}>
+            <GridItem>Item Name</GridItem>
+            <GridItem>Unit</GridItem>
+            <GridItem>Available</GridItem>
+            <GridItem>Minimum</GridItem>
+            <GridItem>Barcode No.</GridItem>
+            <GridItem>Last Replenished</GridItem>
+            <GridItem>Expiry Date</GridItem>
+            <GridItem>Action</GridItem>
+          </Grid>
+
+          {itemDataArray?.map((item, index) => (
+            <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableRow} key={index}>
+              <GridItem>{item.item_name}</GridItem>
+              <GridItem>{item.item_unit}</GridItem>
+              <GridItem>{item.available_quantity}</GridItem>
+              <GridItem>{item.minimum_quantity}</GridItem>
+              <GridItem>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</GridItem>
+              <GridItem>{item.updatedAt.split('T')[0]}</GridItem>
+              <GridItem>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</GridItem>
+              <GridItem>
+                <IconButton
+                  aria-label='Delete Item'
+                  colorScheme='red'
+                  size='sm'
+                  icon={<IoMdTrash />}
+                  onClick={() => handleDeleteItem(item._id)}
+                />
+                <IconButton
+                  aria-label='Edit Item'
+                  colorScheme='yellow'
+                  size='sm'
+                  icon={<IoPencil />}
+                  onClick={() => {
+                    const inputPin = prompt('Enter your pin');
+                    setPencilIconSelectedId(item._id);
+                    setOverlay(<OverlayOne />);
+                    onOpenThree();
+                  }}
+                />
+                <IconButton
+                  aria-label='View Item'
+                  colorScheme='green'
+                  size='sm'
+                  icon={<IoMdEye />}
+                  onClick={() => {
+                    setEyeIconSelectedId(item._id)
+                    setOverlay(<OverlayOne />)
+                    onOpenTwo()
+                  }}
+                />
+                <IconButton
+                  aria-label='Generate Barcode'
+                  colorScheme='blue'
+                  size='sm'
+                  icon={<BiBarcodeReader />}
+                  onClick={() => {
+                    handleGenerateBarcode(item)
+                    setbarCodeData(item)
+                    onOpenBarCode()
+                  }}
+                />
+                <IconButton
+                  aria-label='Analytics'
+                  colorScheme='teal'
+                  size='sm'
+                  icon={<IoMdAnalytics />}
+                  onClick={() => {
+                    setAnalyticsSelectedId(item._id)
+                    onOpenAnalytics()
+                  }}
+                />
+              </GridItem>
+            </Grid>
+          ))}
+        </Box>
+
+        {/* Mobile View */}
+        <Box display={{ base: 'block', lg: 'none' }} mt="40px">
+          {itemDataArray?.map((item, index) => (
+            <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="lg">
+              <Box><strong>Item Name:</strong> {item.item_name}</Box>
+              <Box><strong>Unit:</strong> {item.item_unit}</Box>
+              <Box><strong>Available:</strong> {item.available_quantity}</Box>
+              <Box><strong>Minimum:</strong> {item.minimum_quantity}</Box>
+              <Box><strong>Barcode No.:</strong> {item.existing_barcode_no ? item.existing_barcode_no : '--'}</Box>
+              <Box><strong>Last Replenished:</strong> {item.updatedAt.split('T')[0]}</Box>
+              <Box><strong>Expiry Date:</strong> {item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</Box>
+              <Box mt={2}>
+                <IconButton
+                  aria-label='Delete Item'
+                  colorScheme='red'
+                  size='sm'
+                  icon={<IoMdTrash />}
+                  onClick={() => handleDeleteItem(item._id)}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label='Edit Item'
+                  colorScheme='yellow'
+                  size='sm'
+                  icon={<IoPencil />}
+                  onClick={() => {
+                    const inputPin = prompt('Enter your pin');
+                    setPencilIconSelectedId(item._id);
+                    setOverlay(<OverlayOne />);
+                    onOpenThree();
+                  }}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label='View Item'
+                  colorScheme='green'
+                  size='sm'
+                  icon={<IoMdEye />}
+                  onClick={() => {
+                    setEyeIconSelectedId(item._id)
+                    setOverlay(<OverlayOne />)
+                    onOpenTwo()
+                  }}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label='Generate Barcode'
+                  colorScheme='blue'
+                  size='sm'
+                  icon={<BiBarcodeReader />}
+                  onClick={() => {
+                    handleGenerateBarcode(item)
+                    setbarCodeData(item)
+                    onOpenBarCode()
+                  }}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label='Analytics'
+                  colorScheme='teal'
+                  size='sm'
+                  icon={<IoMdAnalytics />}
+                  onClick={() => {
+                    setAnalyticsSelectedId(item._id)
+                    onOpenAnalytics()
+                  }}
+                />
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+
+      {/* <div className={`d-none d-lg-block`} style={{ marginTop: '40px' }}>
         <div
           className={styles.tableHeader}
         >
@@ -270,7 +421,6 @@ export default function ItemManagement() {
             <div>{item.item_unit}</div>
             <div>{item.available_quantity}</div>
             <div>{item.minimum_quantity}</div>
-            {/* <div>{item.usage_rate_value}{item.usage_rate_unit}</div> */}
             <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
             <div>{item.updatedAt.split('T')[0]}</div>
             <div>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'} </div>
@@ -289,11 +439,9 @@ export default function ItemManagement() {
                 icon={<IoPencil />}
                 onClick={() => {
                   const inputPin = prompt('Enter your pin');
-                  // if (checkPin(inputPin)) {
                   setPencilIconSelectedId(item._id);
                   setOverlay(<OverlayOne />);
                   onOpenThree();
-                  // }
                 }}
               />
               <IconButton
@@ -332,10 +480,10 @@ export default function ItemManagement() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
 
-      <div className="d-sm-block d-md-block d-lg-none">
+      {/* <div className="d-sm-block d-md-block d-lg-none">
         <div className="row">
           {itemDataArray?.map((item, index) => (
             <div className="col-12 col-sm-6 col-lg-4">
@@ -364,7 +512,6 @@ export default function ItemManagement() {
                       </tr>
                       <tr>
                         <th scope="row">Barcode No.</th>
-                        {/* <td>{item.usage_rate_value}{item.usage_rate_unit}</td> */}
                         <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
 
                       </tr>
@@ -424,7 +571,9 @@ export default function ItemManagement() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
+
+
       {/* Table Start */}
       {/* <Box style={{ marginTop: '2vw' }} overflowX="auto">
         <Table variant="striped" colorScheme="teal" >
@@ -517,7 +666,9 @@ export default function ItemManagement() {
           >
             <ModalHeader
               textAlign='center'
-            >Add Item</ModalHeader>
+            >
+              Add Item
+            </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
 

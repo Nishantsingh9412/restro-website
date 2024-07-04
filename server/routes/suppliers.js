@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/add-supplier', AddSupplier)
 
-router.get('/get-suppliers', getSupplier);
+router.get('/get-suppliers/:id', getSupplier);
 
 router.get('/get-supplier-single/:id', getSingleSupplier);
 

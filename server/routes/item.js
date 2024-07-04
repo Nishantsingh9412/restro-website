@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 //  get all items
-router.get('/get-all-items', getAllItems);
+router.get('/get-all-items/:id', getAllItems);
 
 // Get Item by id
 router.get('/get-item/:id', getItemById);

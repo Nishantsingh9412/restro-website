@@ -1,9 +1,9 @@
 .addbtn {
-    background: #9ef6f7;
+    background: #029CFF;
     width: 14rem;
     font-family: serif;
     height: auto;
-    color: #025c5d;
+    color: whitesmoke;
     font-size: 2rem;
     font-weight: 600;
     border: 5px solid #d7f7f7;
@@ -19,6 +19,7 @@
 .addbtn:active {
     transform: scale(0.9);
 }
+
 .tableHeader,
 .tableRow {
     display: flex;
@@ -55,11 +56,11 @@
 .tableHeader>div:nth-last-child(2),
 .tableRow>div:nth-last-child(2) {
     flex: 2;
-} 
+}
 
 
 @media screen and (max-width:576px) {
-    .addbtn{
+    .addbtn {
         margin-top: 4rem;
         margin-bottom: 1rem;
         width: 12rem;

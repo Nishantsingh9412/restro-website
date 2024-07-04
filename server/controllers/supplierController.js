@@ -3,8 +3,8 @@ import supplier from "../models/supplier.js"
 
 export const AddSupplier = async (req, res) => {
     try {
-        const { name, pic, Items, phone, email, countryCode , location} = req.body;
-        if (!name || !Items ) {
+        const { name, pic, Items, phone, email, countryCode, location, created_by } = req.body;
+        if (!name || !Items) {
             return res.status(400).json({ success: false, message: 'All fields are required' })
         } else {
             const newSupplier = await supplier.create({
@@ -14,7 +14,8 @@ export const AddSupplier = async (req, res) => {
                 countryCode,
                 phone,
                 email,
-                location
+                location,
+                created_by
             })
             if (!newSupplier) {
                 return res.status(400).json({ success: false, message: 'error in creating supplier' })
@@ -29,8 +30,12 @@ export const AddSupplier = async (req, res) => {
 }
 
 export const getSupplier = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).json({ success: false, message: 'Invalid User Id' })
+    }
     try {
-        const allSuppliers = await supplier.find({});
+        const allSuppliers = await supplier.find({ created_by: _id });
         if (allSuppliers) {
             return res.status(200).json({ success: true, message: 'All Suppliers', result: allSuppliers })
         } else {
@@ -67,7 +72,7 @@ export const getSingleSupplier = async (req, res) => {
 
 export const UpdateSupplier = async (req, res) => {
     const { id: _id } = req.params;
-    const { name, pic, Items, phone, email, countryCode , location } = req.body;
+    const { name, pic, Items, phone, email, countryCode, location } = req.body;
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
     }

@@ -10,6 +10,7 @@ const itemManageMentSchema = mongoose.Schema({
     bar_code: { type: String, required: true },
     existing_barcode_no : { type: String, required: false },
     expiry_date : { type: Date, required: false },
+    created_by : { type: Schema.Types.ObjectId, ref: 'Auth', required: true }
 }, { timestamps: true });
 
 

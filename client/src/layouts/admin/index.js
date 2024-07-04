@@ -107,7 +107,7 @@ export default function Dashboard(props) {
             key={key}
           />
         ) : (
-          prop.links.map((link, j) => (
+          prop?.links?.map((link, j) => (
             <Route
               path={link.layout + link.path}
               component={link.component}

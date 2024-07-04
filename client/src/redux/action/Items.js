@@ -11,9 +11,9 @@ export const AddItemAction = (ItemData) => async (dispatch) => {
     }
 } 
 
-export const GetAllItemsAction = () => async (dispatch) => {
+export const GetAllItemsAction = (localStorageId) => async (dispatch) => {
     try{
-        const {data} = await api.GetAllItems();
+        const {data} = await api.GetAllItems(localStorageId);
         dispatch({ type: 'GET_ALL_ITEMS', data:data.result});
         return { success: true, message: 'Items Fetched Successfully' };
     }catch(err){

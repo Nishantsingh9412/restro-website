@@ -12,10 +12,10 @@ const API = axios.create({ baseURL: process.env.REACT_APP_BASE_URL_FOR_APIS });
 
 // Auth API 
 // Signup 
-export const signUpAPI = (newUser) => API.post('/auth/signup', newUser); 
+export const signUpAPI = (newUser) => API.post('/auth/signup', newUser);
 
 // Login
-export const loginAPI = (userData) => API.post('/auth/login', userData); 
+export const loginAPI = (userData) => API.post('/auth/login', userData);
 
 export const loginDelivBoyAPI = (userData) => API.post('/auth/login-delivboy', userData);
 
@@ -26,7 +26,7 @@ export const loginDelivBoyAPI = (userData) => API.post('/auth/login-delivboy', u
 // Add Item
 export const AddItem = (newItem) => API.post('/item-management/additem', newItem);
 // Get All Items
-export const GetAllItems = () => API.get('/item-management/get-all-items');
+export const GetAllItems = (localStorageId) => API.get(`/item-management/get-all-items/${localStorageId}`);
 // Get Single Item
 export const GetSingleItem = (id) => API.get(`/item-management/get-item/${id}`);
 // Update Item 
@@ -38,16 +38,16 @@ export const deleteSingleItem = (id) => API.delete(`/item-management/deleteitem/
 
 
 // Stocks APi 
-export const getAllStocks = () => API.get('/stock-management/get-all-stocks');
+export const getAllStocks = (localstorageId) => API.get(`/stock-management/get-all-stocks/${localstorageId}`);
 
-export const getLowStocks = () => API.get('/stock-management/get-low-stocks');
+export const getLowStocks = (localstorageId) => API.get(`/stock-management/get-low-stocks/${localstorageId}`);
 
 
 // Supplier API
 // Add new Supplier
 export const addSupplier = (newSupplier) => API.post('/supplier/add-supplier', newSupplier);
 // Get All Suppliers
-export const getAllSuppliers = () => API.get('/supplier/get-suppliers');
+export const getAllSuppliers = (localstorageId) => API.get(`/supplier/get-suppliers/${localstorageId}`);
 // Get Single Supplier
 export const getSingleSupplier = (id) => API.get(`/supplier/get-supplier-single/${id}`)
 // Update Supplier
@@ -125,3 +125,18 @@ export const getSingleCompleteOrderAPI = (id) => API.get(`/complete-order/get-si
 export const updateSingleCompleteOrderAPI = (id, updatedData) => API.patch(`/complete-order/update/${id}`, updatedData);
 // Delete Complete Order
 export const deleteSingleCompleteOrderAPI = (id) => API.delete(`/complete-order/delete/${id}`);
+
+
+// Dashboard API's 
+// Total Stocks API
+export const totalStocksAPI = () => API.get('/dashboard/total-stocks-quantity');
+// Low Stocks API
+export const lowStocksAPI = () => API.get('/dashboard/low-stocks-quantity');
+// Expired Items API
+export const expiredItemsAPI = () => API.get('/dashboard/expired-items');
+// supplier location API
+export const supplierLocationAPI = () => API.get('/dashboard/supplier-location');
+// supplier contacts API
+export const supplierContactsAPI = () => API.get('/dashboard/contacts');
+// Search Contacts API
+export const searchContactsAPI = (contactData) => API.get(`dashboard/search-contacts?nameSearched=${contactData}`);

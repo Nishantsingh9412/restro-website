@@ -10,7 +10,8 @@ export const addItem = async (req, res) => {
             minimum_quantity,
             bar_code,
             existing_barcode_no,
-            expiry_date
+            expiry_date,
+            created_by,
             // usage_rate_unit,
             // usage_rate_value,
         } = req.body;
@@ -24,6 +25,10 @@ export const addItem = async (req, res) => {
             // !usage_rate_unit ||
         ) {
             return res.status(400).json({ success: false, message: "All fields are required" })
+        }
+        if (!created_by) {
+            return res.status(400).json({ success: false, message: "Session expired please login to continue" })
+
         } else {
             const newItem = await ItemManagement.create({
                 item_name,
@@ -33,6 +38,7 @@ export const addItem = async (req, res) => {
                 bar_code,
                 existing_barcode_no,
                 expiry_date,
+                created_by,
                 // usage_rate_unit,
                 // usage_rate_value,
             });
@@ -50,7 +56,8 @@ export const addItem = async (req, res) => {
 }
 
 export const getAllItems = async (req, res) => {
-    const allItemsData = await ItemManagement.find();
+    const { id: _id } = req.params;
+    const allItemsData = await ItemManagement.find({ created_by: _id })
     if (allItemsData) {
         return res.status(200).json({ success: true, message: "All Items", result: allItemsData })
     } else {
