@@ -11,6 +11,7 @@ const authSchema = mongoose.Schema({
         required: false
     },
     uniqueId: { type: String, required: true },
+    role: { type: String, enum: ['admin', 'employee', 'deliveryBoy'], default: 'admin' }
 }
 , { timestamps: true });
 

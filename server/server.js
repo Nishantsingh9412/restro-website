@@ -17,6 +17,7 @@ import deliveryRoutes from './routes/deliveryRoutes.js'
 import addressRoutes from './routes/address.js'
 import compOrderRoutes from './routes/compOrderRoutes.js'
 import dashboardRoutes from './routes/dashboardRoutes.js'
+import employeeRoutes from './routes/employeeRoutes.js'
 // import userRoutes from './routes/users.js'
 
 const app = express();
@@ -42,6 +43,8 @@ app.use('/delivery-person', deliveryRoutes)
 app.use('/address',addressRoutes)
 app.use('/complete-order',compOrderRoutes)
 app.use('/dashboard',dashboardRoutes)
+app.use('/employee',employeeRoutes)
+
 
 
 // ----------------------------deployment--------------------------------------

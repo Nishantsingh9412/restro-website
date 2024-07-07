@@ -12,6 +12,7 @@ import {
   MdLocalShipping,
   MdRestaurant,
   MdHistory,
+  MdEvent,
 } from 'react-icons/md';
 import { FaBookOpen } from 'react-icons/fa';
 import { LuFolderClosed, LuShoppingBag } from 'react-icons/lu';
@@ -30,14 +31,15 @@ import SupplierManagement from 'views/admin/supplierMgmt';
 import AllOrders from 'views/admin/allOrders';
 import OrderShipping from 'views/admin/orderShipping';
 import OrderHistory from 'views/admin/orderHistory'
+import EmployeeManagement from 'views/admin/employeeManagement';
 // import BarcodeGenerator from 'views/admin/barcodeGenerator';
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
 import SignUpCentered from "views/auth/signup";
 import { IoAlertCircleSharp } from 'react-icons/io5';
 import { TbReorder, TbTruckDelivery } from 'react-icons/tb';
-import { FaMoneyBillTrendUp } from 'react-icons/fa6';
-import { GiNuclearWaste } from 'react-icons/gi';
+// import { FaMoneyBillTrendUp } from 'react-icons/fa6';
+// import { GiNuclearWaste } from 'react-icons/gi';
 import { AiFillPrinter } from 'react-icons/ai';
 import { IoMdLock } from 'react-icons/io';
 
@@ -209,6 +211,26 @@ const routes2 = [
           <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
         ),
         component: OrderShipping,
+      },
+    ]
+  },
+  {
+    name: 'Employee',
+    layout: '/admin',
+    path: '/employee-management',
+    type: 'list',
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    links: [
+      {
+        name: 'Assign Schedule',
+        layout: '/admin',
+        path: '/employee-management',
+        icon: (
+          <Icon as={MdEvent} width="20px" height="20px" color="inherit" />
+        ),
+        component: EmployeeManagement,
       },
     ]
   },

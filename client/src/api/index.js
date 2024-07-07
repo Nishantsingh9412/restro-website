@@ -140,3 +140,19 @@ export const supplierLocationAPI = () => API.get('/dashboard/supplier-location')
 export const supplierContactsAPI = () => API.get('/dashboard/contacts');
 // Search Contacts API
 export const searchContactsAPI = (contactData) => API.get(`dashboard/search-contacts?nameSearched=${contactData}`);
+
+
+
+// Employee Management API
+// Assign Task
+export const assignTaskAPI = (newTask) => API.post('/employee/assign-task', newTask);
+// Get All Tasks
+export const getAllTasksAPI = () => API.get('/employee/tasks');
+// Get All Employees Assigned To
+export const getALLEmployeesAssignedToAPI = (id) => API.get(`/employee/tasks-assigned-to-employee/${id}`);
+// Get All Employees
+export const AllEmployeesAPI = () => API.get('/employee/all-employees');
+// Delete Single Task
+export const deleteTaskAPI = (taskId) => API.delete(`/employee/delete-single-task/${taskId}`);
+// Update Single Task
+export const updateTaskAPI = (taskId, updatedData) => API.patch(`/employee/update-task/${taskId}`, updatedData);
