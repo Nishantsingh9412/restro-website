@@ -1,6 +1,6 @@
 /* eslint-disable */
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React from "react";
+import { NavLink, useLocation } from "react-router-dom";
 // chakra imports
 import {
   Box,
@@ -11,7 +11,7 @@ import {
   Heading,
   Text,
   useColorModeValue,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 export function SidebarLinks(props) {
   //   Chakra color mode
@@ -21,7 +21,7 @@ export function SidebarLinks(props) {
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
-    return location.pathname === '/admin' + routeName;
+    return location.pathname === "/admin" + routeName;
   };
   const includeActiveRoute = (routeName) => {
     return location.pathname.includes(routeName);
@@ -34,13 +34,13 @@ export function SidebarLinks(props) {
         return (
           <>
             <Text
-              fontSize={'md'}
-              color={useColorModeValue('gray.700', 'white')}
+              fontSize={"md"}
+              color={useColorModeValue("gray.700", "white")}
               fontWeight="bold"
               mx="auto"
               ps={{
-                sm: '10px',
-                xl: '16px',
+                sm: "10px",
+                xl: "16px",
               }}
               pt="18px"
               pb="12px"
@@ -52,11 +52,12 @@ export function SidebarLinks(props) {
           </>
         );
       } else if (
-        route.layout === '/admin' ||
-        route.layout === '/auth' ||
-        route.layout === '/rtl'
+        route.layout === "/admin" ||
+        route.layout === "/auth" ||
+        route.layout === "/delivery" ||
+        route.layout === "/rtl"
       ) {
-        return route.type === 'list' ? (
+        return route.type === "list" ? (
           <Box mb="6">
             {route.name && (
               <NavLink key={index} to={route.layout + route.path}>
@@ -67,10 +68,10 @@ export function SidebarLinks(props) {
                   mb="10px"
                   py="10px"
                   className={
-                    'sidebar-link ' +
-                    (includeActiveRoute(route.path.split('/')[1].toLowerCase())
-                      ? 'active-sidebar-link'
-                      : '')
+                    "sidebar-link " +
+                    (includeActiveRoute(route.path.split("/")[1].toLowerCase())
+                      ? "active-sidebar-link"
+                      : "")
                   }
                 >
                   {route.name}
@@ -86,10 +87,10 @@ export function SidebarLinks(props) {
               />
             ))}
           </Box>
-        ) : route.type === 'link' ? (
+        ) : route.type === "link" ? (
           <NavItem key={index} route={route} activeRoute={activeRoute} />
         ) : (
-          ''
+          ""
         );
       }
     });
@@ -100,26 +101,34 @@ export function SidebarLinks(props) {
 
 export default SidebarLinks;
 
-const NavItem = ({ route, activeRoute, prefix = '' }) => {
-  let activeColor = useColorModeValue('gray.700', 'white');
+const NavItem = ({ route, activeRoute, prefix = "" }) => {
+  let activeColor = useColorModeValue("gray.700", "white");
   let inactiveColor = useColorModeValue(
-    'secondaryGray.600',
-    'secondaryGray.600'
+    "secondaryGray.600",
+    "secondaryGray.600"
   );
-  let activeIcon = useColorModeValue('brand.500', 'white');
-  let textColor = useColorModeValue('secondaryGray.500', 'white');
-  let brandColor = useColorModeValue('brand.500', 'brand.400');
+  let activeIcon = useColorModeValue("brand.500", "white");
+  let textColor = useColorModeValue("secondaryGray.500", "white");
+  let brandColor = useColorModeValue("brand.500", "brand.400");
+  const { pathname } = useLocation();
 
+  if (!route.name) return <></>;
   return (
     <NavLink to={route.layout + route.path}>
       <Box
         className={
-          'sidebar-link ' +
-          (activeRoute(route.path.toLowerCase()) ? 'active-sidebar-link' : '')
+          "sidebar-link " +
+          (pathname.includes(route.layout) && pathname.includes(route.path)
+            ? "active-sidebar-link"
+            : "")
         }
       >
         <HStack
-          spacing={activeRoute(route.path.toLowerCase()) ? '22px' : '26px'}
+          spacing={
+            pathname.includes(route.layout) && pathname.includes(route.path)
+              ? "22px"
+              : "26px"
+          }
           py="5px"
           ps="10px"
         >
@@ -127,9 +136,10 @@ const NavItem = ({ route, activeRoute, prefix = '' }) => {
             {prefix && (
               <Center
                 color={
-                  activeRoute(route.path.toLowerCase())
-                    ? 'var(--primary)'
-                    : '#fff'
+                  pathname.includes(route.layout) &&
+                  pathname.includes(route.path)
+                    ? "var(--primary)"
+                    : "#fff"
                 }
                 me="10px"
               >
@@ -151,7 +161,9 @@ const NavItem = ({ route, activeRoute, prefix = '' }) => {
             <Text
               me="auto"
               fontWeight={
-                activeRoute(route.path.toLowerCase()) ? 'bold' : 'normal'
+                pathname.includes(route.layout) && pathname.includes(route.path)
+                  ? "bold"
+                  : "normal"
               }
             >
               {route.name}

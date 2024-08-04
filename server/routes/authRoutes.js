@@ -8,7 +8,8 @@ import {
     authFailed,
     authSuccess,
     logoutUser,
-    delivBoyLoginController
+    delivBoyLoginController,
+    getAuth
 } from '../controllers/auth.js'
 import { upload } from '../middleware/fileupload.js';
 
@@ -23,6 +24,8 @@ router.get('/login/success', authSuccess);
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/logout', logoutUser);
+
+router.get('/get/:id', getAuth)
 
 
 

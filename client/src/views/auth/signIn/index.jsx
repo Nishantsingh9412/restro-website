@@ -165,7 +165,7 @@ function SignIn() {
       if (res.success) {
         // toast.success(res.message);
         setLoading(false)
-        history.push('/admin/dashboards/default');
+        history.push('/delivery');
       } else {
         setLoading(false)
         toast.error(res.message);

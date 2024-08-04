@@ -10,6 +10,9 @@ import delBoyReducer from "./delboyReducer";
 // import addressReducer from "./addressReducer";
 import stepperFormReducer from "./stepperReducer";
 import compOrderReducer from "./compOrderReducer";
+import deliveryReducer from "./deliveryReducer";
+import notificationReducer from "./notificationReducer";
+import deliveryDashboardReducer from "./deliveryDashboardReducer";
 
 export default combineReducers({
     authReducer,
@@ -23,4 +26,7 @@ export default combineReducers({
     // addressReducer,
     form:stepperFormReducer,
     compOrder:compOrderReducer,
+    deliveryReducer,
+    notificationReducer,
+    deliveryDashboardReducer
 })

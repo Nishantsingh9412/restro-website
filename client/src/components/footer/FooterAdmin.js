@@ -23,6 +23,7 @@ export default function Footer() {
       gap="10px"
       justifyContent="space-between"
       position="fixed"
+      zIndex="1000"
       bottom="0"
       left="0"
       w="100%"

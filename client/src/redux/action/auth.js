@@ -8,7 +8,7 @@ export const SignUpAction = (newUser) => async (dispatch) => {
         return { success: true, message: "Sign up successfull" };
     } catch (err) {
         console.log("Error from SignUp Action: " + err.message, err.stack);
-        return { success: false, message: err.response.data.message };
+        return { success: false, message: err.response?.data.message };
     }
 }
 
@@ -20,7 +20,7 @@ export const LoginAction = (user) => async (dispatch) => {
         return { success: true, message: "Login Successfull" };
     } catch (err) {
         console.log("Error from Login Action: " + err.message, err.stack);
-        return { success: false, message: err.response.data.message };
+        return { success: false, message: err.response?.data.message };
     }
 }
 
@@ -28,9 +28,21 @@ export const LoginDelivBoyAction = (user) => async (dispatch) => {
     try {
         const { data } = await api.loginDelivBoyAPI(user);
         dispatch({ type: 'AUTH', data });
+        console.log('This is Delivery Boy Action ', data)
         return { success: true, message: "Login Successfull" };
     } catch (err) {
         console.log("Error from LoginDelivBoy Action: " + err.message, err.stack);
-        return { success: false, message: err.response.data.message };
+        return { success: false, message: err.response?.data.message };
     }
 }
+
+// export const getAuth = (id) => async (dispatch) => {
+//     try {
+//         const { data } = await api.getAuth(id);
+//         dispatch({ type: 'AUTH', data });
+//         return { success: true, message: "Auth data fetched successfully" };
+//     } catch (err) {
+//         console.log("Error from getAuth Action: " + err.message, err.stack);
+//         return { success: false, message: "something went wrong" };
+//     }
+// }
