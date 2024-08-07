@@ -34,6 +34,20 @@ const completeOrderSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    pickupLocation: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      },
+    },
+    pickupLocationName: {
+      type: String,
+      required: true,
+    },
     lat: {
       type: Number,
       required: true,

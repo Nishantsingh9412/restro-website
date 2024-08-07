@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 
 import { setAddressAction } from "../../../../../redux/action/address";
 import { setFormData } from "../../../../../redux/action/stepperFormAction";
+import MapInput from "components/mapInput/MapInput";
 
 const Address = ({ goToNextStep }) => {
   const dispatch = useDispatch();
@@ -48,6 +49,10 @@ const Address = ({ goToNextStep }) => {
     }
     if (!formData.address) {
       toast.error("Please enter address");
+      return false;
+    }
+    if (!formData.pickupLocation?.lat || !formData.pickupLocationName) {
+      toast.error("Please select pickup location");
       return false;
     }
     return true;
@@ -93,10 +98,32 @@ const Address = ({ goToNextStep }) => {
     dispatch(setFormData({ [field]: value }));
   };
 
+  const handleNewfields = (newFields) => dispatch(setFormData(newFields));
+
   return (
     <Box p={4}>
       {/* <Heading size="lg" mb={4}> Address </Heading> */}
       <form onSubmit={handleAddressSubmit}>
+        <div className="flex flex-wrap gap-3 items-center">
+          <FormControl id="customer-name" isRequired>
+            <FormLabel>Pickup Location</FormLabel>
+            <Input
+              disabled
+              type="text"
+              placeholder="Pickup Location"
+              value={formData.pickupLocationName}
+              isRequired
+            />
+          </FormControl>
+          <MapInput
+            data={{
+              pickupLocation: formData.pickupLocation,
+              pickupLocationName: formData.pickupLocationName,
+            }}
+            onSubmit={(data) => handleNewfields(data)}
+          />
+        </div>
+
         <FormControl id="customer-name" isRequired>
           <FormLabel>Name</FormLabel>
           <Input

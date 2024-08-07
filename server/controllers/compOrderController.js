@@ -39,6 +39,8 @@ export const createCompleteOrder = async (req, res) => {
       phoneNumber,
       paymentMethod,
       deliveryMethod,
+      pickupLocation,
+      pickupLocationName,
       address,
       address2,
       city,
@@ -49,7 +51,8 @@ export const createCompleteOrder = async (req, res) => {
       TotalPrice,
       created_by,
     } = req.body;
-    if (!name || !phoneNumber || !address || !TotalPrice) {
+    console.log(req.body);
+    if (!name || !phoneNumber || !address || !TotalPrice || !pickupLocation) {
       return res
         .status(401)
         .json({ success: false, message: "All fields are required" });
@@ -82,6 +85,8 @@ export const createCompleteOrder = async (req, res) => {
         phoneNumber,
         paymentMethod,
         deliveryMethod,
+        pickupLocation,
+        pickupLocationName,
         lat: coords.lat,
         lng: coords.lon,
         address,
@@ -153,18 +158,23 @@ export const getCompleteOrders = async (req, res) => {
 };
 
 const getRouteData = async (start, end) => {
-  const apiKey = "5b3ce3597851110001cf6248d7895d1137d246f3aa433df21fa7ad3a";
-  const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
-
+  const apiKey = process.env.LOCATIONIQ_API_KEY;
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(
+      `https://us1.locationiq.com/v1/directions/driving/${start.lng},${start.lat};${end.lng},${end.lat}?key=${apiKey}&overview=simplified&annotations=false`
+    );
     const data = response.data;
-    const distance = data.features[0].properties.segments[0].distance; // Distance in meters
-    const duration = data.features[0].properties.segments[0].duration; // Duration in seconds
-
-    return { distance, duration };
+    if (data.code === "Ok") {
+      return {
+        distance: data.routes[0].distance,
+        duration: data.routes[0].duration,
+      };
+    } else {
+      return null;
+    }
   } catch (error) {
-    console.error("Error fetching route data:", error);
+    console.error("Error in getRouteData,", error);
+    return null;
   }
 };
 
@@ -191,10 +201,10 @@ export const allotOrderDelivery = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Supplier not found" });
 
-    const routeInfo = await getRouteData(
-      { lat: foundSupplier.lat || 28.4089, lng: foundSupplier.lng || 77.3178 },
-      { lat: order.lat, lng: order.lng }
-    );
+    const routeInfo = await getRouteData(order.pickupLocation, {
+      lat: order.lat,
+      lng: order.lng,
+    });
 
     console.log("routeInfo", routeInfo);
 
@@ -202,10 +212,7 @@ export const allotOrderDelivery = async (req, res) => {
       orderId: id,
       supplier,
       assignedTo: deliveryBoyId,
-      pickupLocation: {
-        lat: foundSupplier.lat || 28.4089,
-        lng: foundSupplier.lng || 77.3178,
-      },
+      pickupLocation: order.pickupLocation,
       deliveryLocation: { lat: order.lat, lng: order.lng },
       distance: routeInfo?.distance,
       estimatedTime: routeInfo?.duration,
