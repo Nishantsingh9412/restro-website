@@ -60,7 +60,6 @@ export const updateSingleDelBoyAction =
   (id, updateData) => async (dispatch) => {
     try {
       const { data } = await api.updateSingleDeliveryPersonnel(id, updateData);
-      console.log("data", data);
       dispatch({ type: "UPDATE_SINGLE_DELBOY", data: data?.result });
       return {
         success: true,

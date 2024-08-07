@@ -20,6 +20,7 @@ const delBoyReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedDelBoy: action.data,
+        delBoyUser: action.data
       };
     // case "GET_DELBOY_USER":
     //   return {

@@ -60,7 +60,9 @@ export default function HeaderLinks(props) {
   // console.log(User);
 
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const singleUserData = useSelector((state) => state.delBoyReducer.delBoyUser);
+  const singleUserData = useSelector(
+    (state) => state.delBoyReducer.delBoyUser
+  );
   const [isOnline, setIsOnline] = useState(true);
   // console.log("Single User Data \n")
   // console.log(singleUserData);
@@ -297,7 +299,7 @@ export default function HeaderLinks(props) {
               bg={"transparent"}
             >
               <Text fontSize={"sm"}>Receive Deliveries</Text>
-              <Switch value={isOnline} onChange={handleToggleStatus} />
+              <Switch isChecked={isOnline} onChange={handleToggleStatus} />
             </MenuItem>
             <MenuItem
               _hover={{ bg: "none" }}
