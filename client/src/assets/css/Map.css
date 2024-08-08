@@ -1,0 +1,14 @@
+.leaflet-control-geocoder-results {
+    position: absolute; /* Ensure it is positioned relative to its container */
+    top: 100%; /* Adjust based on your layout */
+    left: 0;
+    background: white; /* Adjust as needed */
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    max-height: 200px; /* Adjust as needed */
+    max-width: 280px; /* Adjust as needed */
+    overflow-y: auto;
+    z-index: 1000; /* Make sure it is above the map */
+    pointer-events: auto; /* Ensure it captures mouse events */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: for better visual separation */
+  }
