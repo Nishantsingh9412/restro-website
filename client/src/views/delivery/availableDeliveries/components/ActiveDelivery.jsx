@@ -1,41 +1,42 @@
 import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import { FaUserCircle } from "react-icons/fa";
-// import DeliveryMap from "./DeliveryMap";
+import DeliveryMap from "./DeliveryMap";
 import { HiExternalLink } from "react-icons/hi";
+import { useEffect, useState } from "react";
 
 export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
-  // const [origin, setOrigin] = useState(null);
+  const [origin, setOrigin] = useState(null);
 
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     const watcher = navigator.geolocation.watchPosition(
-  //       (position) => {
-  //         if (
-  //           origin?.lat === position.coords.latitude &&
-  //           origin?.lng === position.coords.longitude
-  //         )
-  //           return;
-  //         setOrigin({
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         });
-  //         console.log(
-  //           "My location: ",
-  //           position.coords.latitude,
-  //           position.coords.longitude
-  //         );
-  //       },
-  //       (error) => {
-  //         console.error("Error getting location", error);
-  //       }
-  //     );
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watcher = navigator.geolocation.watchPosition(
+        (position) => {
+          if (
+            origin?.lat === position.coords.latitude &&
+            origin?.lng === position.coords.longitude
+          )
+            return;
+          setOrigin({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          console.log(
+            "My location: ",
+            position.coords.latitude,
+            position.coords.longitude
+          );
+        },
+        (error) => {
+          console.error("Error getting location", error);
+        }
+      );
 
-  //     return () => navigator.geolocation.clearWatch(watcher);
-  //   } else {
-  //     console.error("Geolocation not supported by this browser");
-  //   }
-  // }, [origin]);
+      return () => navigator.geolocation.clearWatch(watcher);
+    } else {
+      console.error("Geolocation not supported by this browser");
+    }
+  }, [origin]);
 
   return (
     <>
@@ -45,7 +46,7 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
       <Text fontSize={12} my={5} color={"#aaa"}>
         * Complete this delivery to see more available deliveries
       </Text>
-      {/* {origin && activeDelivery.deliveryLocation ? (
+      {origin && activeDelivery.deliveryLocation ? (
         <DeliveryMap
           waypoints={
             activeDelivery.currentStatus === "Accepted"
@@ -60,7 +61,32 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
         <Text my={20} mx={"auto"} width={"fit-content"} p={3} bg={"#eee"}>
           Loading...
         </Text>
-      )} */}
+      )}
+      
+        <a
+          href={
+            activeDelivery.currentStatus === "Accepted"
+              ? `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}&waypoints=${activeDelivery?.pickupLocation?.lat},${activeDelivery?.pickupLocation?.lng}`
+              : `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            textDecoration: "none",
+            padding: "10px",
+            background: "#fff",
+            borderRadius: "4px",
+            display: "block",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            border: '1px solid #ddd'
+          }}
+        >
+          Open in Google Maps <HiExternalLink />
+        </a>
 
       <Flex
         gap={5}
@@ -111,32 +137,6 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
           </Text>
         </Flex>
 
-        <a
-          href={
-            activeDelivery.currentStatus === "Accepted"
-              ? `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}&waypoints=${activeDelivery?.pickupLocation?.lat},${activeDelivery?.pickupLocation?.lng}`
-              : `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            textDecoration: "none",
-            padding: "10px",
-            background: "blue",
-            color: "#fff",
-            borderRadius: "4px",
-            display: "block",
-            textAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-          }}
-        >
-          Directions to{" "}
-          {activeDelivery.currentStatus === "Accepted" ? "pickup" : "delivery"}{" "}
-          location <HiExternalLink />
-        </a>
         <Flex gap={3} alignItems={"center"} flexDirection={"column"}>
           <Text display={"flex"} flexDirection={"column"} alignItems={"center"}>
             Current Status:{" "}
