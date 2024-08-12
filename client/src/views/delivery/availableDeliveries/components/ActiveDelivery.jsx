@@ -2,13 +2,10 @@ import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import { FaUserCircle } from "react-icons/fa";
 import DeliveryMap from "./DeliveryMap";
+import { HiExternalLink } from "react-icons/hi";
 import { useEffect, useState } from "react";
 
-export default function ActiveDelivery({
-  activeDelivery,
-  handleCancel,
-  handleUpdateStatus,
-}) {
+export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
   const [origin, setOrigin] = useState(null);
 
   useEffect(() => {
@@ -65,6 +62,32 @@ export default function ActiveDelivery({
           Loading...
         </Text>
       )}
+      
+        <a
+          href={
+            activeDelivery.currentStatus === "Accepted"
+              ? `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}&waypoints=${activeDelivery?.pickupLocation?.lat},${activeDelivery?.pickupLocation?.lng}`
+              : `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            textDecoration: "none",
+            padding: "10px",
+            background: "#fff",
+            borderRadius: "4px",
+            display: "block",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            border: '1px solid #ddd'
+          }}
+        >
+          Open in Google Maps <HiExternalLink />
+        </a>
+
       <Flex
         gap={5}
         flexDirection={"column"}
@@ -88,7 +111,9 @@ export default function ActiveDelivery({
           </Box>
           <Text fontSize={18}>{activeDelivery.restaurantName}</Text>
         </Flex>
-        <Text mb={-3}>Customer info:</Text>
+        <Text mb={-4} opacity={0.6} fontSize={14}>
+          Customer info:
+        </Text>
         <Flex gap={3} alignItems={"center"} flexWrap={"wrap"}>
           <Text display={"flex"} gap={2} alignItems={"center"}>
             <FaUserCircle /> {activeDelivery.customerName}
@@ -99,18 +124,30 @@ export default function ActiveDelivery({
         </Flex>
         <Flex gap={3} alignItems={"center"} flexWrap={"wrap"}>
           <Text>
-            Estimated distance: {(activeDelivery.distance / 1000).toFixed(1)} km
+            <Text opacity={0.6} fontSize={14}>
+              Estimated distance:
+            </Text>{" "}
+            {(activeDelivery.distance / 1000).toFixed(1)} km
           </Text>
           <Text>
-            Estimated Time: {Math.ceil(activeDelivery.estimatedTime / 60)} min
+            <Text opacity={0.6} fontSize={14}>
+              Estimated Time:
+            </Text>{" "}
+            {Math.ceil(activeDelivery.estimatedTime / 60)} min
           </Text>
         </Flex>
+
         <Flex gap={3} alignItems={"center"} flexDirection={"column"}>
           <Text display={"flex"} flexDirection={"column"} alignItems={"center"}>
             Current Status:{" "}
             <Text color={"green.400"}>{activeDelivery.currentStatus}</Text>
           </Text>
-          <Text display={"flex"} flexDirection={"column"} w={"100%"}>
+          <Text
+            display={"flex"}
+            flexDirection={"column"}
+            w={"100%"}
+            alignItems={"center"}
+          >
             Next stage:
             <Button
               onClick={() =>
