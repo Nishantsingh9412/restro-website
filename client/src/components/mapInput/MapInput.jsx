@@ -1,15 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import L from "leaflet";
-import "leaflet-control-geocoder";
-import {
   Modal,
   ModalOverlay,
   ModalContent,
@@ -20,68 +10,143 @@ import {
   useDisclosure,
   Input,
   Flex,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
-// import "../../assets/css/Map.css";
+import "@tomtom-international/web-sdk-maps/dist/maps.css"; // Correct CSS import
+import tt from "@tomtom-international/web-sdk-maps"; // Import TomTom SDK
 
 export default function MapInput({ data, onSubmit }) {
   const [utils, setUtils] = useState({
     position: [
-      data.pickupLocation?.lat || 51.505,
-      data.pickupLocation?.lng || -0.09,
+      data.pickupLocation?.lat || 52.52, // Latitude for Berlin, Germany
+      data.pickupLocation?.lng || 13.405, // Longitude for Berlin, Germany
     ],
     locationName: data.pickupLocationName || "",
     search: '',
     zoom: 13,
+    suggestions: [],
+    loading: false,
+    error: null,
   });
-  const updateUtils = (newUtils) =>
-    setUtils((prev) => ({ ...prev, ...newUtils }));
 
-  useEffect(() => {
-    console.log(utils.position, utils.locationName);
-  }, [utils.position, utils.locationName]);
+  const updateUtils = (newUtils) => setUtils((prev) => ({ ...prev, ...newUtils }));
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  let map; // Declare map variable in the outer scope
+  let marker; // Declare marker variable in the outer scope
 
+  // Function to initialize the map
+  const initializeMap = () => {
+    map = tt.map({
+      key: process.env.REACT_APP_TOMTOM_API_KEY,
+      container: 'map',
+      center: utils.position,
+      zoom: utils.zoom,
+    });
+
+    marker = new tt.Marker()
+      .setLngLat(utils.position)
+      .addTo(map);
+
+    // Handle click events
+    map.on('click', (e) => {
+      const [lng, lat] = e.lngLat.toArray();
+      updateUtils({ position: [lat, lng] });
+      handleSearchByCoords(lat, lng);
+      if (marker) {
+        marker.setLngLat([lng, lat]);
+      }
+    });
+  };
+
+  // Update marker position when utils.position changes
   useEffect(() => {
-    if (
-      !data.pickupLocation?.lat &&
-      !data.pickupLocation?.lng &&
-      navigator.geolocation
-    )
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        updateUtils({
-          position: [latitude, longitude],
-        });
-        handleSearchByCoords(latitude, longitude);
-      });
+    if (marker) {
+      marker.setLngLat([utils.position[1], utils.position[0]]);
+    }
+  }, [utils.position]);
+  // Initialize the map when the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const timeoutId = setTimeout(() => {
+        initializeMap();
+      }, 100);
+
+      // Clean up on unmount
+      return () => {
+        clearTimeout(timeoutId);
+        if (map) {
+          map.remove();
+        }
+      };
+    }
+  }, [isOpen]);
+
+  // Get current position on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
+            setUtils((prev) => ({
+              ...prev,
+              position: [latitude, longitude],
+            }));
+            console.log("Current position: ", position.coords);
+            
+            if (marker) {
+              marker.setLngLat([longitude, latitude]).addTo(map);
+            }
+          } else {
+            console.error("Geolocation coordinates out of range");
+          }
+        },
+        (error) => {
+          console.error("Error getting current position:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   }, []);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+  // Function to handle search input
   const handleSearch = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!utils.search.trim()) return;
-    const url = `https://api.locationiq.com/v1/search.php?key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&q=${utils.search}&format=json`;
+    updateUtils({ loading: true, suggestions: [], error: null });
+
+    if (!utils.search.trim()) {
+      updateUtils({ loading: false });
+      return;
+    }
+
+    const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(utils.search)}.json?key=${process.env.REACT_APP_TOMTOM_API_KEY}`;
     fetch(url)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
       .then((data) => {
-        if (data.length > 0) {
-          updateUtils({
-            position: [parseFloat(data[0].lat), parseFloat(data[0].lon)],
-            locationName: data[0].display_name,
-          });
-        }
+        const newSuggestions = data.results || [];
+        updateUtils({ suggestions: newSuggestions.length > 0 ? newSuggestions : [], error: newSuggestions.length ? null : "No results found." });
+      })
+      .catch((error) => {
+        updateUtils({ suggestions: [], error: "Error fetching data." });
+      })
+      .finally(() => {
+        updateUtils({ loading: false });
       });
   };
 
   const handleSearchByCoords = (lat, lng) => {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-
+    const url = `https://api.tomtom.com/search/2/reverseGeocode/${lat},${lng}.json?key=${process.env.REACT_APP_TOMTOM_API_KEY}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        if (data && data.display_name) {
-          updateUtils({ locationName: data.display_name });
+        if (data.addresses && data.addresses.length > 0) {
+          updateUtils({ locationName: data.addresses[0].address.freeformAddress });
         }
       })
       .catch((error) => {
@@ -89,176 +154,32 @@ export default function MapInput({ data, onSubmit }) {
       });
   };
 
-  const MyMarker = () => {
-    useMapEvents({
-      click: (e) => {
-        updateUtils({ position: [e.latlng.lat, e.latlng.lng] });
-        handleSearchByCoords(e.latlng.lat, e.latlng.lng);
-      },
+  const handleSuggestionClick = (suggestion) => {
+    const newPosition = [suggestion.position.lat, suggestion.position.lon];
+    updateUtils({
+      position: newPosition,
+      locationName: suggestion.address?.freeformAddress || suggestion.poi.name,
+      suggestions: [],
+      search: '',
     });
-    return <Marker position={utils.position} />;
-  };
 
-  const SetMapView = () => {
-    const map = useMap();
-    useEffect(() => {
-      map.setView(utils.position);
-    }, [map, utils.position, utils.zoom]);
-    return null;
-  };
-
-  const handleLocationFound = (lat, lng) => {
-    updateUtils({ position: [lat, lng] });
-    handleSearchByCoords(lat, lng);
-  };
-
-  const CurrentLocationControl = ({ onLocationFound }) => {
-    const map = useMap();
-
-    useEffect(() => {
-      const control = L.control({ position: "bottomright" });
-
-      control.onAdd = () => {
-        const button = L.DomUtil.create(
-          "button",
-          "leaflet-bar leaflet-control"
-        );
-        button.innerHTML =
-          '<img src="https://static.thenounproject.com/png/2819186-200.png" alt="Recenter" class="react-icon" />';
-        button.title = "Go to current location";
-        button.style.backgroundColor = "#fff";
-        button.style.width = "35px";
-        button.style.height = "35px";
-        button.style.lineHeight = "30px";
-        button.style.textAlign = "center";
-        button.style.fontSize = "20px";
-        button.style.cursor = "pointer";
-
-        L.DomEvent.on(button, "click", () => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-              const { latitude, longitude } = position.coords;
-              map.setView([latitude, longitude], map.getZoom());
-              onLocationFound(latitude, longitude);
-            });
-          }
-        });
-
-        return button;
-      };
-
-      control.addTo(map);
-
-      return () => control.remove();
-    }, [map, onLocationFound]);
-
-    return null;
-  };
-
-  const MapSearch = ({ updateUtils }) => {
-    const map = useMap();
-
-    useEffect(() => {
-      // Create a geocoder instance
-      const geocoder = L.Control.geocoder({
-        geocoder: new L.Control.Geocoder.Nominatim({
-          serviceUrl: "https://nominatim.openstreetmap.org/search",
-          jsonp: false,
-        }),
-        defaultMarkGeocode: false,
-      }).addTo(map);
-
-      // Handle real-time input suggestions
-      const input = document.querySelector(".leaflet-control-geocoder input");
-      const resultsContainer = document.createElement("div");
-      resultsContainer.className = "leaflet-control-geocoder-results";
-      resultsContainer.style.position = "absolute";
-      resultsContainer.style.top = "43px";
-      resultsContainer.style.right = "10px";
-      resultsContainer.style.zIndex = "10000";
-      resultsContainer.style.background = "#fff";
-      resultsContainer.style.border = "1px solid #aaa";
-      resultsContainer.style.borderRadius = "4px";
-      resultsContainer.style.maxHeight = "200px";
-      resultsContainer.style.maxWidth = "80vw";
-      resultsContainer.style.overflowY = "auto";
-
-      if (input) {
-        input.focus();
-        input.value = "";
-        input.addEventListener("input", () => {
-          const query = input.value;
-          if (query.length > 2) {
-            resultsContainer.style.width = "280px";
-            // Fetch suggestions for queries with more than 2 characters
-            fetch(
-              `https://nominatim.openstreetmap.org/search?format=json&q=${query}`
-            )
-              .then((response) => response.json())
-              .then((results) => {
-                resultsContainer.innerHTML = ""; // Clear previous results
-                results.forEach((result) => {
-                  const item = document.createElement("div");
-                  item.textContent = result.display_name;
-                  item.className = "leaflet-control-geocoder-result";
-                  item.style.cursor = "pointer";
-                  item.style.padding = "5px";
-                  item.addEventListener("click", () => {
-                    const latlng = [result.lat, result.lon];
-                    map.setView(latlng, map.getZoom());
-                    updateUtils({
-                      position: latlng,
-                      locationName: result.display_name,
-                    });
-                    input.value = result.display_name;
-                    resultsContainer.innerHTML = ""; // Clear suggestions
-                  });
-                  item.addEventListener("mouseenter", () => {
-                    item.style.backgroundColor = "#f0f0f0";
-                  });
-                  item.addEventListener("mouseleave", () => {
-                    item.style.backgroundColor = "white";
-                  });
-                  resultsContainer.appendChild(item);
-                });
-                // Append results container to the map container
-                map.getContainer().appendChild(resultsContainer);
-              });
-          } else {
-            resultsContainer.style.width = "0px";
-            resultsContainer.innerHTML = ""; // Clear suggestions if query is too short
-          }
-        });
-
-        // Remove results container on blur
-        input.addEventListener("blur", () => {
-          setTimeout(() => {
-            resultsContainer.innerHTML = ""; // Clear suggestions on blur
-          }, 200); // Delay to allow click on suggestions
-        });
-      }
-
-      return () => {
-        map.removeControl(geocoder);
-        if (resultsContainer.parentNode) {
-          resultsContainer.parentNode.removeChild(resultsContainer);
-        }
-      };
-    }, [map, updateUtils]);
-
-    return null;
+    console.log("Selected location :---------------> ", suggestion);
+    // Update marker position immediately when suggestion is clicked
+    if (marker) {
+      marker.setLngLat([suggestion.position.lon, suggestion.position.lat]).addTo(map);
+    }
   };
 
   return (
     <>
       <Button
         borderRadius={"4px"}
-        bg={"green.500"}
+        bg={"#029CFF"}
         color={"#fff"}
-        _hover={{ background: "green" }}
+        _hover={{ background: "blue.500" }}
         onClick={onOpen}
       >
-        Open Map
+        Open Map Now
       </Button>
       <Modal isOpen={isOpen} onClose={onClose} size="medium">
         <ModalOverlay />
@@ -266,10 +187,7 @@ export default function MapInput({ data, onSubmit }) {
           <ModalHeader>Search Location</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {/* <form
-              onSubmit={handleSearch}
-              style={{ display: "flex", alignItems: "center", gap: "10px" }}
-            >
+            <form onSubmit={handleSearch} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Input
                 type="search"
                 placeholder="Search places..."
@@ -286,21 +204,27 @@ export default function MapInput({ data, onSubmit }) {
               >
                 Search
               </Button>
-            </form> */}
-            <MapContainer
-              center={utils.position}
-              zoom={utils.zoom}
-              style={{ height: "500px", width: "100%", marginTop: "10px" }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MyMarker />
-              <SetMapView />
-              <MapSearch updateUtils={updateUtils} />
-              <CurrentLocationControl onLocationFound={handleLocationFound} />
-            </MapContainer>
+            </form>
+            {utils.loading && <p>Loading...</p>}
+            {utils.error && <p style={{ color: 'red' }}>{utils.error}</p>}
+            {utils.suggestions.length > 0 && (
+              <List spacing={1} mt={2}>
+                {utils.suggestions.map((suggestion) => (
+                  <ListItem
+                    key={suggestion.id || suggestion.poi.name}
+                    p={2}
+                    bg="pink"
+                    cursor="pointer"
+                    _hover={{ bg: "pink" }}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.address?.freeformAddress || suggestion.poi.name}
+                    {suggestion.address?.country ? `, ${suggestion.address.country}` : ''} {/* Include country if available */}
+                  </ListItem>
+                ))}
+              </List>
+            )}
+            <div id="map" style={{ height: "500px", width: "100%", marginTop: "10px" }}></div>
             <Flex
               justifyContent={"space-between"}
               alignItems={"center"}
