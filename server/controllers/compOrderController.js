@@ -8,29 +8,29 @@ import Notification from "../models/notification.js";
 import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
 import axios from "axios";
 
-const getCoordinates = async (jsonData) => {
-  try {
-    const response = await axios.get(
-      "https://us1.locationiq.com/v1/search.php",
-      {
-        params: {
-          key: process.env.LOCATIONIQ_API_KEY,
-          q: jsonData,
-          format: "json",
-        },
-      }
-    );
-    console.log(response);
-    const coordinates = {
-      lat: response.data[0].lat,
-      lon: response.data[0].lon,
-    };
-    return coordinates;
-  } catch (error) {
-    console.error("Error fetching coordinates:", error);
-    return null;
-  }
-};
+// const getCoordinates = async (jsonData) => {
+//   try {
+//     const response = await axios.get(
+//       "https://us1.locationiq.com/v1/search.php",
+//       {
+//         params: {
+//           key: process.env.LOCATIONIQ_API_KEY,
+//           q: jsonData,
+//           format: "json",
+//         },
+//       }
+//     );
+//     console.log(response);
+//     const coordinates = {
+//       lat: response.data[0].lat,
+//       lon: response.data[0].lon,
+//     };
+//     return coordinates;
+//   } catch (error) {
+//     console.error("Error fetching coordinates:", error);
+//     return null;
+//   }
+// };
 
 export const createCompleteOrder = async (req, res) => {
   try {
@@ -41,6 +41,8 @@ export const createCompleteOrder = async (req, res) => {
       deliveryMethod,
       pickupLocation,
       pickupLocationName,
+      lat,
+      lng,
       address,
       address2,
       city,
@@ -71,11 +73,11 @@ export const createCompleteOrder = async (req, res) => {
       const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
         1000000 + Math.random() * 9000000
       )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
-      const coords = await getCoordinates(
-        [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
-      );
-      console.log("cooooords", coords);
-      if (!coords)
+      // const coords = await getCoordinates(
+      //   [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
+      // );
+      console.log(lat,lng);
+      if (!lat || !lng)
         return res
           .status(500)
           .json({ success: false, message: "Error fetching location" });
@@ -87,8 +89,8 @@ export const createCompleteOrder = async (req, res) => {
         deliveryMethod,
         pickupLocation,
         pickupLocationName,
-        lat: coords.lat,
-        lng: coords.lon,
+        lat:lat,
+        lng:lng,
         address,
         address2,
         city,

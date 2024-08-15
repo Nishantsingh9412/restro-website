@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  useRef
+} from "react";
+import {
+  useDispatch
+} from "react-redux";
 import {
   Modal,
   ModalOverlay,
@@ -9,18 +16,21 @@ import {
   Button,
   useDisclosure,
   Input,
-  Flex,
   List,
   ListItem,
 } from "@chakra-ui/react";
-import "@tomtom-international/web-sdk-maps/dist/maps.css"; // Correct CSS import
-import tt from "@tomtom-international/web-sdk-maps"; // Import TomTom SDK
+import "@tomtom-international/web-sdk-maps/dist/maps.css";
+import tt from "@tomtom-international/web-sdk-maps";
+import {
+  setFormData
+} from "../../redux/action/stepperFormAction";
 
 export default function MapInput({ data, onSubmit }) {
+  const dispatch = useDispatch();
   const [utils, setUtils] = useState({
     position: [
-      data.pickupLocation?.lat || 52.52, // Latitude for Berlin, Germany
-      data.pickupLocation?.lng || 13.405, // Longitude for Berlin, Germany
+      data.pickupLocation?.lat || 52.52,
+      data.pickupLocation?.lng || 13.405,
     ],
     locationName: data.pickupLocationName || "",
     search: '',
@@ -32,57 +42,58 @@ export default function MapInput({ data, onSubmit }) {
 
   const updateUtils = (newUtils) => setUtils((prev) => ({ ...prev, ...newUtils }));
   const { isOpen, onOpen, onClose } = useDisclosure();
-  let map; // Declare map variable in the outer scope
-  let marker; // Declare marker variable in the outer scope
+  const mapContainer = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
 
-  // Function to initialize the map
-  const initializeMap = () => {
-    map = tt.map({
-      key: process.env.REACT_APP_TOMTOM_API_KEY,
-      container: 'map',
-      center: utils.position,
-      zoom: utils.zoom,
-    });
+  useEffect(() => {
+    if (isOpen && mapContainer.current) {
+      if (!mapRef.current) {
+        console.log("Initializing map...");
+        mapRef.current = tt.map({
+          key: process.env.REACT_APP_TOMTOM_API_KEY,
+          container: mapContainer.current,
+          center: utils.position,
+          zoom: utils.zoom,
+        });
 
-    marker = new tt.Marker()
-      .setLngLat(utils.position)
-      .addTo(map);
+        markerRef.current = new tt.Marker()
+          .setLngLat([utils.position[1], utils.position[0]])
+          .addTo(mapRef.current);
 
-    // Handle click events
-    map.on('click', (e) => {
-      const [lng, lat] = e.lngLat.toArray();
-      updateUtils({ position: [lat, lng] });
-      handleSearchByCoords(lat, lng);
-      if (marker) {
-        marker.setLngLat([lng, lat]);
+        mapRef.current.on('click', (e) => {
+          const [lng, lat] = e.lngLat.toArray();
+          updateUtils({ position: [lat, lng] });
+          handleSearchByCoords(lat, lng);
+          if (markerRef.current) {
+            markerRef.current.setLngLat([lng, lat]);
+          }
+        });
+      } else {
+        console.log("Map already initialized, updating center and zoom...");
+        mapRef.current.setCenter(utils.position);
+        mapRef.current.setZoom(utils.zoom);
+        if (markerRef.current) {
+          markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
+        }
       }
-    });
-  };
 
-  // Update marker position when utils.position changes
-  useEffect(() => {
-    if (marker) {
-      marker.setLngLat([utils.position[1], utils.position[0]]);
-    }
-  }, [utils.position]);
-  // Initialize the map when the modal is open
-  useEffect(() => {
-    if (isOpen) {
-      const timeoutId = setTimeout(() => {
-        initializeMap();
-      }, 100);
-
-      // Clean up on unmount
       return () => {
-        clearTimeout(timeoutId);
-        if (map) {
-          map.remove();
+        if (mapRef.current) {
+          console.log("Cleaning up map...");
+          mapRef.current.remove();
+          mapRef.current = null;
         }
       };
     }
-  }, [isOpen]);
+  }, [isOpen, utils.position, utils.zoom]);
 
-  // Get current position on component mount
+  useEffect(() => {
+    if (markerRef.current) {
+      markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
+    }
+  }, [utils.position]);
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -94,9 +105,9 @@ export default function MapInput({ data, onSubmit }) {
               position: [latitude, longitude],
             }));
             console.log("Current position: ", position.coords);
-            
-            if (marker) {
-              marker.setLngLat([longitude, latitude]).addTo(map);
+
+            if (markerRef.current) {
+              markerRef.current.setLngLat([longitude, latitude]);
             }
           } else {
             console.error("Geolocation coordinates out of range");
@@ -111,7 +122,6 @@ export default function MapInput({ data, onSubmit }) {
     }
   }, []);
 
-  // Function to handle search input
   const handleSearch = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -122,7 +132,11 @@ export default function MapInput({ data, onSubmit }) {
       return;
     }
 
-    const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(utils.search)}.json?key=${process.env.REACT_APP_TOMTOM_API_KEY}`;
+    const countrySet = 'IN';
+    const radius = 50000;
+
+    const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(utils.search)}.json?key=${process.env.REACT_APP_TOMTOM_API_KEY}&countrySet=${countrySet}&radius=${radius}&typeahead=true`;
+
     fetch(url)
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
@@ -130,7 +144,10 @@ export default function MapInput({ data, onSubmit }) {
       })
       .then((data) => {
         const newSuggestions = data.results || [];
-        updateUtils({ suggestions: newSuggestions.length > 0 ? newSuggestions : [], error: newSuggestions.length ? null : "No results found." });
+        updateUtils({
+          suggestions: newSuggestions.length > 0 ? newSuggestions : [],
+          error: newSuggestions.length ? null : "No results found."
+        });
       })
       .catch((error) => {
         updateUtils({ suggestions: [], error: "Error fetching data." });
@@ -154,8 +171,25 @@ export default function MapInput({ data, onSubmit }) {
       });
   };
 
+  useEffect(() => {
+    if (mapRef.current && utils.position) {
+      mapRef.current.flyTo({
+        center: [utils.position[1], utils.position[0]],
+        zoom: utils.zoom,
+        essential: true
+      });
+
+      if (markerRef.current) {
+        markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
+      }
+    }
+  }, [utils.position, utils.zoom]);
+
   const handleSuggestionClick = (suggestion) => {
+    console.log('Selected Suggestion:', suggestion);
     const newPosition = [suggestion.position.lat, suggestion.position.lon];
+    console.log('New Position:', newPosition);
+
     updateUtils({
       position: newPosition,
       locationName: suggestion.address?.freeformAddress || suggestion.poi.name,
@@ -163,12 +197,41 @@ export default function MapInput({ data, onSubmit }) {
       search: '',
     });
 
-    console.log("Selected location :---------------> ", suggestion);
-    // Update marker position immediately when suggestion is clicked
-    if (marker) {
-      marker.setLngLat([suggestion.position.lon, suggestion.position.lat]).addTo(map);
+    if (mapRef.current) {
+      if (!markerRef.current) {
+        console.log('Marker is undefined, creating a new one.');
+        markerRef.current = new tt.Marker()
+          .setLngLat([newPosition[1], newPosition[0]])
+          .addTo(mapRef.current);
+      } else {
+        console.log('Updating marker position:', newPosition);
+        markerRef.current.setLngLat([newPosition[1], newPosition[0]]);
+      }
+
+      mapRef.current.flyTo({
+        center: [newPosition[1], newPosition[0]],
+        zoom: utils.zoom,
+        essential: true
+      });
+    } else {
+      console.error("Map is not initialized.");
     }
   };
+
+  const handleFinalSubmit = () => {
+    console.log("Submit:", utils.position, utils.locationName);
+    dispatch(setFormData({
+      pickupLocation: {
+        lat: utils.position[0],
+        lng: utils.position[1],
+      },
+      pickupLocationName: utils.locationName,
+      lat: utils.position[0],
+      lng: utils.position[1],
+    }));
+    onClose();
+    console.log("Submit:", utils.position, utils.locationName);
+  }
 
   return (
     <>
@@ -213,49 +276,21 @@ export default function MapInput({ data, onSubmit }) {
                   <ListItem
                     key={suggestion.id || suggestion.poi.name}
                     p={2}
-                    bg="pink"
+                    bg="white.100"
                     cursor="pointer"
-                    _hover={{ bg: "pink" }}
+                    _hover={{ bg: "gray.200" }}
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
                     {suggestion.address?.freeformAddress || suggestion.poi.name}
-                    {suggestion.address?.country ? `, ${suggestion.address.country}` : ''} {/* Include country if available */}
+                    {suggestion.address?.country ? `, ${suggestion.address.country}` : ''}
                   </ListItem>
                 ))}
               </List>
             )}
-            <div id="map" style={{ height: "500px", width: "100%", marginTop: "10px" }}></div>
-            <Flex
-              justifyContent={"space-between"}
-              alignItems={"center"}
-              gap={4}
-              my={3}
-            >
-              <p>
-                Selected Location:{" "}
-                <span style={{ fontWeight: 500 }}>{utils.locationName}</span>
-              </p>
-              <Button
-                type="button"
-                borderRadius={"4px"}
-                bg={"green.500"}
-                color={"#fff"}
-                _hover={{ background: "green" }}
-                disabled={!utils.locationName || !utils.position[0]}
-                onClick={() => {
-                  onSubmit({
-                    pickupLocation: {
-                      lat: utils.position[0],
-                      lng: utils.position[1],
-                    },
-                    pickupLocationName: utils.locationName,
-                  });
-                  onClose();
-                }}
-              >
-                Submit
-              </Button>
-            </Flex>
+            <div ref={mapContainer} style={{ height: "400px", width: "100%" }}></div>
+            <Button onClick={handleFinalSubmit} mt={4} bg={"blue.500"} color={"#fff"} _hover={{ background: "blue" }}>
+              Submit
+            </Button>
           </ModalBody>
         </ModalContent>
       </Modal>
