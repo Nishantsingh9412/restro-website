@@ -59,6 +59,10 @@ const deliverySchema = new mongoose.Schema(
         required: true,
       },
     },
+    deliveryAddress: {
+      type: String,
+      required: true,
+    },
     distance: {
       type: Number,
       required: true,

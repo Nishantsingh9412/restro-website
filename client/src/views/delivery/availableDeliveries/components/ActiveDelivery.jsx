@@ -21,11 +21,11 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
-          console.log(
-            "My location: ",
-            position.coords.latitude,
-            position.coords.longitude
-          );
+          // console.log(
+          //   "My location: ",
+          //   position.coords.latitude,
+          //   position.coords.longitude
+          // );
         },
         (error) => {
           console.error("Error getting location", error);
@@ -62,31 +62,37 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
           Loading...
         </Text>
       )}
-      
-        <a
-          href={
-            activeDelivery.currentStatus === "Accepted"
-              ? `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}&waypoints=${activeDelivery?.pickupLocation?.lat},${activeDelivery?.pickupLocation?.lng}`
-              : `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${activeDelivery?.deliveryLocation?.lat},${activeDelivery?.deliveryLocation?.lng}`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            textDecoration: "none",
-            padding: "10px",
-            background: "#fff",
-            borderRadius: "4px",
-            display: "block",
-            textAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            border: '1px solid #ddd'
-          }}
-        >
-          Open in Google Maps <HiExternalLink />
-        </a>
+
+      <a
+        href={
+          activeDelivery.currentStatus === "Accepted"
+            ? `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${encodeURIComponent(
+                `${activeDelivery?.deliveryAddress}`
+              )}&waypoints=${activeDelivery?.pickupLocation?.lat},${
+                activeDelivery?.pickupLocation?.lng
+              }&travelmode=driving`
+            : `https://www.google.com/maps/dir/?api=1&origin=current+location&destination=${encodeURIComponent(
+                `${activeDelivery?.deliveryAddress}`
+              )}&travelmode=driving`
+        }
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          textDecoration: "none",
+          padding: "10px",
+          background: "#fff",
+          borderRadius: "4px",
+          display: "block",
+          textAlign: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px",
+          border: "1px solid #ddd",
+        }}
+      >
+        Open in Google Maps <HiExternalLink />
+      </a>
 
       <Flex
         gap={5}

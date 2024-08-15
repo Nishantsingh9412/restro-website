@@ -226,8 +226,6 @@ export default function MapInput({ data, onSubmit }) {
         lng: utils.position[1],
       },
       pickupLocationName: utils.locationName,
-      lat: utils.position[0],
-      lng: utils.position[1],
     }));
     onClose();
     console.log("Submit:", utils.position, utils.locationName);

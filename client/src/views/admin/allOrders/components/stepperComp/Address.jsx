@@ -81,7 +81,7 @@ const Address = ({ goToNextStep }) => {
       ...formData,
       created_by: userId,
     };
-    console.log("AddressData", addressData);
+    // console.log("AddressData", addressData);
     // dispatch(setAddressAction(addressData)).then((res) => {
     //     if (res.success) {
     //         goToNextStep();

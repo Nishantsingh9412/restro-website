@@ -8,29 +8,35 @@ import Notification from "../models/notification.js";
 import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
 import axios from "axios";
 
-// const getCoordinates = async (jsonData) => {
-//   try {
-//     const response = await axios.get(
-//       "https://us1.locationiq.com/v1/search.php",
-//       {
-//         params: {
-//           key: process.env.LOCATIONIQ_API_KEY,
-//           q: jsonData,
-//           format: "json",
-//         },
-//       }
-//     );
-//     console.log(response);
-//     const coordinates = {
-//       lat: response.data[0].lat,
-//       lon: response.data[0].lon,
-//     };
-//     return coordinates;
-//   } catch (error) {
-//     console.error("Error fetching coordinates:", error);
-//     return null;
-//   }
-// };
+const getCoordinates = async (address) => {
+  const apiKey = process.env.TOMTOM_API_KEY;
+  try {
+    const response = await axios.get(
+      `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(
+        address
+      )}.json`,
+      {
+        params: {
+          key: apiKey,
+        },
+      }
+    );
+    // console.log(response);
+    const results = response.data.results;
+    if (results && results.length > 0) {
+      const coordinates = {
+        lat: results[0].position.lat,
+        lng: results[0].position.lon,
+      };
+      return coordinates;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching coordinates:", error);
+    return null;
+  }
+};
 
 export const createCompleteOrder = async (req, res) => {
   try {
@@ -41,8 +47,6 @@ export const createCompleteOrder = async (req, res) => {
       deliveryMethod,
       pickupLocation,
       pickupLocationName,
-      lat,
-      lng,
       address,
       address2,
       city,
@@ -53,7 +57,6 @@ export const createCompleteOrder = async (req, res) => {
       TotalPrice,
       created_by,
     } = req.body;
-    console.log(req.body);
     if (!name || !phoneNumber || !address || !TotalPrice || !pickupLocation) {
       return res
         .status(401)
@@ -73,11 +76,11 @@ export const createCompleteOrder = async (req, res) => {
       const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
         1000000 + Math.random() * 9000000
       )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
-      // const coords = await getCoordinates(
-      //   [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
-      // );
-      console.log(lat,lng);
-      if (!lat || !lng)
+      const coords = await getCoordinates(
+        [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
+      );
+      // console.log(coords?.lat, coords?.lng);
+      if (!coords?.lat || !coords?.lng)
         return res
           .status(500)
           .json({ success: false, message: "Error fetching location" });
@@ -89,8 +92,8 @@ export const createCompleteOrder = async (req, res) => {
         deliveryMethod,
         pickupLocation,
         pickupLocationName,
-        lat:lat,
-        lng:lng,
+        lat: coords.lat,
+        lng: coords.lng,
         address,
         address2,
         city,
@@ -134,16 +137,16 @@ export const getCompleteOrders = async (req, res) => {
       .sort({ createdAt: -1 });
     const finalOrders = await Promise.all(
       completeOrders.map(async (order) => {
-        console.log(order);
+        // console.log(order);
         const assigned = await delivery
           .findOne({ orderId: order?.orderId })
           .select("assignedTo");
         if (assigned) {
-          console.log("assigned", assigned);
+          // console.log("assigned", assigned);
           const assignedTo = await authDeliv
             .findById(assigned.assignedTo)
             .select("name");
-          console.log("assignedTo", assignedTo);
+          // console.log("assignedTo", assignedTo);
           return { ...(order._doc || order), assignedTo };
         } else return order._doc || order;
       })
@@ -160,16 +163,17 @@ export const getCompleteOrders = async (req, res) => {
 };
 
 const getRouteData = async (start, end) => {
-  const apiKey = process.env.LOCATIONIQ_API_KEY;
+  // console.log(start, end);
+  const apiKey = process.env.TOMTOM_API_KEY;
   try {
     const response = await axios.get(
-      `https://us1.locationiq.com/v1/directions/driving/${start.lng},${start.lat};${end.lng},${end.lat}?key=${apiKey}&overview=simplified&annotations=false`
+      `https://api.tomtom.com/routing/1/calculateRoute/${start.lat},${start.lng}:${end.lat},${end.lng}/json?key=${apiKey}`
     );
     const data = response.data;
-    if (data.code === "Ok") {
+    if (data.routes && data.routes[0]) {
       return {
-        distance: data.routes[0].distance,
-        duration: data.routes[0].duration,
+        distance: data.routes[0].summary.lengthInMeters,
+        duration: data.routes[0].summary.travelTimeInSeconds,
       };
     } else {
       return null;
@@ -208,7 +212,9 @@ export const allotOrderDelivery = async (req, res) => {
       lng: order.lng,
     });
 
-    console.log("routeInfo", routeInfo);
+    // console.log("routeInfo", routeInfo);
+
+    const defaultCountry = "India";
 
     const delivery = await Delivery.create({
       orderId: id,
@@ -216,6 +222,16 @@ export const allotOrderDelivery = async (req, res) => {
       assignedTo: deliveryBoyId,
       pickupLocation: order.pickupLocation,
       deliveryLocation: { lat: order.lat, lng: order.lng },
+      deliveryAddress: [
+        order.address,
+        order.address2,
+        order.city,
+        order.state,
+        defaultCountry,
+        order.zip,
+      ]
+        .filter(Boolean)
+        .join(", "),
       distance: routeInfo?.distance,
       estimatedTime: routeInfo?.duration,
       customerName: order.name,
