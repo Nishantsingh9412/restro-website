@@ -201,6 +201,32 @@ export const getDeliveryDashboardData = async (req, res) => {
       .sort({ distance: 1 })
       .select("distance");
 
+    console.log({
+      "Today Assigned": todayAssignedDeliveries,
+      "Today Completed": todayCompletedDeliveries,
+      "Today Available": todayAvailableDeliveries,
+      "Today Active": todayActiveDeliveries,
+      "Total Assigned": totalAssignedDeliveries,
+      "Total Completed": totalCompletedDeliveries,
+      "Total Available": totalAvailableDeliveries,
+      "Total Active": totalActiveDeliveries,
+      "Total Completed Today": totalDeliveriesCompletedToday,
+      "Total Completed Past Week": totalDeliveryCompletedPastweek,
+      "Total Completed Past Month": totalDeliveryCompletedPastMonth,
+      "Total Completed Past Year": totalDeliveryCompletedPastYear,
+      "Total Completed Past Week Per Day": totalDeliveryCompletedPastWeekPerDay,
+      "Total Completed Past Month Per Day":
+        totalDeliveryCompletedPastMonthPerDay,
+      "Total Completed Past Year Per Month":
+        totalDeliveryCompletedPastYearPerMonth,
+      "Average Time Taken": averageTimeTaken[0]?.timeTaken || 0,
+      "Longest Time Taken": longestTimeTaken?.timeTaken || 0,
+      "Shortest Time Taken": smallestTimeTaken?.timeTaken || 0,
+      "Average Delivery Distance": averageDeliveryDistance[0]?.distance || 0,
+      "Longest Delivery Distance": longestDeliveryDistance?.distance || 0,
+      "Shortest Delivery Distance": shortestDeliveryDistance?.distance || 0,
+    });
+
     res.status(200).json({
       success: true,
       result: {

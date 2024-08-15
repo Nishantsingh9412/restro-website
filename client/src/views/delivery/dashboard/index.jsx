@@ -132,6 +132,7 @@ export default function Dashboard() {
                 display={"flex"}
                 alignItems={"center"}
                 justifyContent={"flex-end"}
+                cursor={"pointer"}
                 gap={3}
                 onClick={() => history.push("/delivery/available-deliveries")}
               >
@@ -185,6 +186,7 @@ export default function Dashboard() {
                 alignItems={"center"}
                 justifyContent={"flex-end"}
                 gap={3}
+                cursor={"pointer"}
                 onClick={() => history.push("/delivery/history")}
               >
                 <Text>Know more</Text>
