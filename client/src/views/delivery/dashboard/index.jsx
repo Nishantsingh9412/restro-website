@@ -233,17 +233,21 @@ export default function Dashboard() {
                       fontSize={"xx-large"}
                       color={"green"}
                     >
-                      {data.averageTimeTaken} min.
+                      {(data.averageTimeTaken / 60).toFixed(1)} min.
                     </Text>
                   </Flex>
                   <Flex flexDirection={"row"} justifyContent={"space-between"}>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Smallest</Text>
-                      <Text>{data.smallestTimeTaken} min.</Text>
+                      <Text>
+                        {(data.smallestTimeTaken / 60).toFixed(1)} min.
+                      </Text>
                     </Flex>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Longest</Text>
-                      <Text>{data.longestTimeTaken} min.</Text>
+                      <Text>
+                        {(data.longestTimeTaken / 60).toFixed(1)} min.
+                      </Text>
                     </Flex>
                   </Flex>
                 </Flex>
