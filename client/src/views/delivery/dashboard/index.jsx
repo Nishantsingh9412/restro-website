@@ -56,7 +56,7 @@ export default function Dashboard() {
         gap={10}
         alignItems={"center"}
         justifyContent={"space-between"}
-        mt={{ md: 20, base: 24 }}
+        mt={{ lg: 20, base: 24 }}
         mb={5}
       >
         <Heading fontSize={20}>Dashboard</Heading>
