@@ -27,23 +27,13 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
       )}
 
       <a
-        href={
-          activeDelivery.currentStatus === "Accepted"
-            ? `https://www.google.com/maps/dir/?api=1&origin=${
-                activeDelivery?.pickupLocation?.lat
-              },${
-                activeDelivery?.pickupLocation?.lng
-              }&destination=${encodeURIComponent(
-                `${activeDelivery?.deliveryAddress}`
-              )}&travelmode=driving`
-            : `https://www.google.com/maps/dir/?api=1&origin=${
-                activeDelivery?.pickupLocation?.lat
-              },${
-                activeDelivery?.pickupLocation?.lng
-              }&destination=${encodeURIComponent(
-                `${activeDelivery?.deliveryAddress}`
-              )}&travelmode=driving`
-        }
+        href={`https://www.google.com/maps/dir/?api=1&origin=${
+          activeDelivery?.pickupLocation?.lat
+        },${
+          activeDelivery?.pickupLocation?.lng
+        }&destination=${encodeURIComponent(
+          `${activeDelivery?.deliveryAddress}`
+        )}&travelmode=driving`}
         target="_blank"
         rel="noopener noreferrer"
         style={{
