@@ -100,7 +100,8 @@ io.on("connection", (socket) => {
     if (onlineUsers.has(userId)) {
       onlineUsers.get(userId).lastActive = Date.now();
       console.log(
-        Array.from(onlineUsers.keys()).length + " Online at " + new Date()
+        Array.from(onlineUsers.keys()).length + " Online at " + new Date(),
+        Array.from(onlineUsers.keys())
       );
     }
   });
@@ -116,6 +117,47 @@ io.on("connection", (socket) => {
       }
     }
   }, 10000); // Check every 10 seconds
+
+  socket.on("requestLocation", async ({ deliveryBoyId }) => {
+    try {
+      const deliveryBoySocketId = onlineUsers.get(deliveryBoyId);
+
+      if (!deliveryBoySocketId) {
+        throw new Error(`Delivery boy is not online`);
+      }
+
+      // Request location from the delivery boy
+      io.to(deliveryBoySocketId).emit("requestLocationUpdate");
+
+      // Wait for the delivery boy to send their location
+      // Set up a one-time listener for the location response
+      socket.once("sendLocation", ({ lat, lng }) => {
+        if (!lat || !lng) {
+          socket.emit("error", {
+            message: "Invalid location data received from delivery boy",
+          });
+          return;
+        }
+
+        // Send the location back to the restaurant owner
+        socket.emit("locationUpdate", { lat, lng });
+      });
+
+      // Handle potential timeout if the delivery boy doesn't respond
+      const timeout = setTimeout(() => {
+        socket.emit("error", {
+          message: "Delivery boy did not respond in time",
+        });
+        socket.removeAllListeners("sendLocation"); // Clean up the listener to avoid memory leaks
+      }, 10000); // 10-second timeout
+
+      // Clear the timeout if location is received in time
+      socket.once("sendLocation", () => clearTimeout(timeout));
+    } catch (error) {
+      console.error("Error:", error.message);
+      socket.emit("error", { message: error.message });
+    }
+  });
 
   // Handle user disconnect
   socket.on("disconnect", () => {

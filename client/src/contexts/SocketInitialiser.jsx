@@ -56,6 +56,27 @@ export default function SocketInitializer() {
     dispatch({ type: "ADD_DELIVERY", data });
   });
 
+  socket.on("requestLocationUpdate", () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        // Send the location back to the server
+        socket.emit("sendLocation", location);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        socket.emit("error", { message: "Unable to retrieve location" });
+      },
+      {
+        timeout: 10000, // Adjust the timeout as needed
+      }
+    );
+  });
+
   socket.on("hideDeliveryOffer", (data) => {
     console.log(auth?._id, data);
     if (auth?._id === data?.userId)
