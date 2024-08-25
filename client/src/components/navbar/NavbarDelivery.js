@@ -80,7 +80,7 @@ export default function DeliveryNavbar(props) {
       right="5%"
       top={{ base: "12px", md: "16px", lg: "20px", xl: "20px" }}
       w="90%"
-      zIndex={999}
+      zIndex={2}
     >
       {/* <Flex
           alignItems="center"

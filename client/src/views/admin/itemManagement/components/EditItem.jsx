@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ScaleLoader } from 'react-spinners';
 

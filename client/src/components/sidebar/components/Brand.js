@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 // Chakra imports
 import { Box, Button, Flex, Img, useColorModeValue } from '@chakra-ui/react';
 import { FaPencil } from "react-icons/fa6";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Custom components
@@ -57,7 +57,6 @@ export function SidebarBrand() {
   return (
     <Flex align="center" direction="column" justifyContent="center" gap="20px">
       <Box >
-        <ToastContainer />
         <Img src={ImageUrl} w="100px" h="100px" borderRadius="full" />
         <Box
           display={'flex'}

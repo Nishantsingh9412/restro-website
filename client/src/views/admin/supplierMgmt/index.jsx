@@ -4,7 +4,7 @@ import { parsePhoneNumber } from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { FiPlusCircle } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { GoPlusCircle } from "react-icons/go";
 import {
@@ -149,7 +149,6 @@ export default function SupplierManagement() {
 
     return (
         <div>
-            <ToastContainer />
             <div>
                 <SupplierCards
                     data={allSuppliers}

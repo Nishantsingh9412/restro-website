@@ -24,7 +24,7 @@
 import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import PhoneInput from 'react-phone-number-input'
 import { parsePhoneNumber } from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
@@ -178,7 +178,6 @@ function SignIn() {
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
-      <ToastContainer />
       <Flex
         maxW={{ base: "100%", md: "max-content" }}
         w='100%'

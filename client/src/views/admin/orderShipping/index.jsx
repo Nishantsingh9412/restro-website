@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { IoMdTrash } from "react-icons/io";
 import { IoLocate, IoPencil } from "react-icons/io5";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CiSearch } from "react-icons/ci";
 import { useLocation, useHistory } from "react-router-dom";
@@ -114,7 +114,6 @@ const OrderShipping = () => {
 
   return (
     <div style={{ marginTop: "5vw", marginLeft: "4vw" }}>
-      <ToastContainer />
       <Button colorScheme="cyan" onClick={onOpen}>
         Allot Delivery Boy
       </Button>

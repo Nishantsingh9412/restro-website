@@ -35,7 +35,6 @@ const App = () => {
       <Provider store={store}>
         <React.StrictMode>
           <SocketInitializer />
-          <ToastContainer />
           <ThemeEditorProvider>
             <BrowserRouter>
               <Switch>
@@ -48,6 +47,7 @@ const App = () => {
             </BrowserRouter>
           </ThemeEditorProvider>
         </React.StrictMode>
+        <ToastContainer />
       </Provider>
     </ChakraProvider>
   );

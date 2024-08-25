@@ -5,7 +5,7 @@ import { FaCartShopping } from 'react-icons/fa6';
 // import { FaGlassCheers, FaHeart, FaRegHeart } from 'react-icons/fa';
 // import { IoMdCart } from "react-icons/io";
 // import { MdAddShoppingCart } from "react-icons/md";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
     Image,
@@ -288,7 +288,6 @@ export default function AllOrders() {
     return (
         <div style={{ marginTop: '4vw' }}>
             {/* Item name , Item Image , Item price  */}
-            <ToastContainer />
             {/* <h2>Hello From AllOrders</h2> */}
 
             <Button

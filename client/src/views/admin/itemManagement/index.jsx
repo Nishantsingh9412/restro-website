@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FiPlusCircle } from "react-icons/fi";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { nanoid } from 'nanoid';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2'
@@ -236,7 +236,6 @@ export default function ItemManagement() {
   return (
     <div style={{ marginTop: '5vw' }} >
       <div >
-        <ToastContainer />
         <button
           className={styles.addbtn}
           onClick={() => {

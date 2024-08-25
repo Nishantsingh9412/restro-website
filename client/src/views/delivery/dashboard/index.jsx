@@ -51,249 +51,257 @@ export default function Dashboard() {
 
   return (
     <>
-      <Flex
-        flexWrap={"wrap"}
-        gap={10}
-        alignItems={"center"}
-        justifyContent={"space-between"}
-        mt={{ lg: 20, base: 24 }}
-        mb={5}
-      >
-        <Heading fontSize={20}>Dashboard</Heading>
-        <Button
-          isLoading={utils.isLoading}
-          leftIcon={<BiRefresh />}
-          onClick={handleRefresh}
+      <div>
+        <Flex
+          flexWrap={"wrap"}
+          gap={10}
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          mt={{ lg: 20, base: 24 }}
+          mb={5}
         >
-          Refresh
-        </Button>
-      </Flex>
-
-      {utils.isLoading ? (
-        <Text my={20} w={"fit-content"} mx={"auto"}>
-          Loading...
-        </Text>
-      ) : utils.isError ? (
-        <Text my={20} textAlign={"center"} color={"gray"}>
-          Something went wrong
-        </Text>
-      ) : (
-        <>
-          <Grid
-            templateColumns={{
-              base: "repeat(1, 1fr)",
-              md: "repeat(2, 1fr)",
-            }}
-            gap={5}
+          <Heading fontSize={20}>Dashboard</Heading>
+          <Button
+            isLoading={utils.isLoading}
+            leftIcon={<BiRefresh />}
+            onClick={handleRefresh}
           >
-            <Card>
-              <CardBody px={5}>
-                <Flex justifyContent={"space-between"} mb={5}>
-                  <Heading fontSize={"24px"}>Deliveries Today</Heading>
-                  <MdDeliveryDining size={30} color="green" />
-                </Flex>
-                <Flex
-                  flexDirection={{ md: "row", base: "column" }}
-                  justifyContent={"space-between"}
-                >
-                  <Flex flexDirection={"column"}>
-                    <Text fontWeight={"500"} fontSize={"larger"}>
-                      Completed
-                    </Text>
-                    <Text
-                      fontWeight={"600"}
-                      fontSize={"xx-large"}
-                      color={"green"}
-                    >
-                      {data.todayCompletedDeliveries}
-                    </Text>
-                  </Flex>
-                  <Flex flexDirection={"column"}>
-                    <Flex gap={3}>
-                      <Text>Active :</Text>
-                      <Text>{data.todayActiveDeliveries}</Text>
-                    </Flex>
-                    <Flex gap={3}>
-                      <Text>Assigned :</Text>
-                      <Text>{data.todayAssignedDeliveries}</Text>
-                    </Flex>
-                    <Flex gap={3}>
-                      <Text>Available :</Text>
-                      <Text>{data.todayAvailableDeliveries}</Text>
-                    </Flex>
-                  </Flex>
-                </Flex>
-              </CardBody>
-              <CardFooter
-                bg={"green"}
-                color={"white"}
-                px={3}
-                py={2}
-                display={"flex"}
-                alignItems={"center"}
-                justifyContent={"flex-end"}
-                cursor={"pointer"}
-                gap={3}
-                onClick={() => history.push("/delivery/available-deliveries")}
-              >
-                <Text>Know more</Text>
-                <FaAngleRight />
-              </CardFooter>
-            </Card>
-            <Card>
-              <CardBody px={5}>
-                <Flex justifyContent={"space-between"} mb={5}>
-                  <Heading fontSize={"24px"}>Deliveries All Time</Heading>
-                  <MdDeliveryDining size={30} color="blue" />
-                </Flex>
-                <Flex
-                  flexDirection={{ md: "row", base: "column" }}
-                  justifyContent={"space-between"}
-                >
-                  <Flex flexDirection={"column"}>
-                    <Text fontWeight={"500"} fontSize={"larger"}>
-                      Completed
-                    </Text>
-                    <Text
-                      fontWeight={"600"}
-                      fontSize={"xx-large"}
-                      color={"blue"}
-                    >
-                      {data.totalCompletedDeliveries}
-                    </Text>
-                  </Flex>
-                  <Flex flexDirection={"column"}>
-                    <Flex gap={3}>
-                      <Text>Assigned :</Text>
-                      <Text>{data.totalAssignedDeliveries}</Text>
-                    </Flex>{" "}
-                    <Flex gap={3} color={"red"}>
-                      <Text>Not Completed :</Text>
-                      <Text>
-                        {data.totalAssignedDeliveries -
-                          data.totalCompletedDeliveries}
-                      </Text>
-                    </Flex>
-                  </Flex>
-                </Flex>
-              </CardBody>
-              <CardFooter
-                bg={"blue"}
-                color={"white"}
-                px={3}
-                py={2}
-                display={"flex"}
-                alignItems={"center"}
-                justifyContent={"flex-end"}
-                gap={3}
-                cursor={"pointer"}
-                onClick={() => history.push("/delivery/history")}
-              >
-                <Text>Know more</Text>
-                <FaAngleRight />
-              </CardFooter>
-            </Card>
-          </Grid>
+            Refresh
+          </Button>
+        </Flex>
 
-          <Box mt={5} bg={"#fff"}>
-            <Heading fontSize={20} mb={5} pl={5} pt={5}>
-              Deliveries Completed
-            </Heading>
-            <CompletedDeliveriesChart
-              weekly={data.totalDeliveryCompletedPastWeekPerDay}
-              monthly={data.totalDeliveryCompletedPastMonthPerDay}
-              yearly={data.totalDeliveryCompletedPastYearPerMonth}
-              totalInWeek={data.totalDeliveryCompletedPastWeek}
-              totalInMonth={data.totalDeliveryCompletedPastMonth}
-              totalInYear={data.totalDeliveryCompletedPastYear}
-            />
-          </Box>
+        {utils.isLoading ? (
+          <Text my={20} w={"fit-content"} mx={"auto"}>
+            Loading...
+          </Text>
+        ) : utils.isError ? (
+          <Text my={20} textAlign={"center"} color={"gray"}>
+            Something went wrong
+          </Text>
+        ) : (
+          <>
+            <Grid
+              templateColumns={{
+                base: "repeat(1, 1fr)",
+                md: "repeat(2, 1fr)",
+              }}
+              gap={5}
+            >
+              <Card>
+                <CardBody px={5}>
+                  <Flex justifyContent={"space-between"} mb={5}>
+                    <Heading fontSize={"24px"}>Deliveries Today</Heading>
+                    <MdDeliveryDining size={30} color="green" />
+                  </Flex>
+                  <Flex
+                    flexDirection={{ md: "row", base: "column" }}
+                    justifyContent={"space-between"}
+                  >
+                    <Flex flexDirection={"column"}>
+                      <Text fontWeight={"500"} fontSize={"larger"}>
+                        Completed
+                      </Text>
+                      <Text
+                        fontWeight={"600"}
+                        fontSize={"xx-large"}
+                        color={"green"}
+                      >
+                        {data.todayCompletedDeliveries}
+                      </Text>
+                    </Flex>
+                    <Flex flexDirection={"column"}>
+                      <Flex gap={3}>
+                        <Text>Active :</Text>
+                        <Text>{data.todayActiveDeliveries}</Text>
+                      </Flex>
+                      <Flex gap={3}>
+                        <Text>Assigned :</Text>
+                        <Text>{data.todayAssignedDeliveries}</Text>
+                      </Flex>
+                      <Flex gap={3}>
+                        <Text>Available :</Text>
+                        <Text>{data.todayAvailableDeliveries}</Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                </CardBody>
+                <CardFooter
+                  bg={"green"}
+                  color={"white"}
+                  px={3}
+                  py={2}
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"flex-end"}
+                  cursor={"pointer"}
+                  gap={3}
+                  onClick={() => history.push("/delivery/available-deliveries")}
+                >
+                  <Text>Know more</Text>
+                  <FaAngleRight />
+                </CardFooter>
+              </Card>
+              <Card>
+                <CardBody px={5}>
+                  <Flex justifyContent={"space-between"} mb={5}>
+                    <Heading fontSize={"24px"}>Deliveries All Time</Heading>
+                    <MdDeliveryDining size={30} color="blue" />
+                  </Flex>
+                  <Flex
+                    flexDirection={{ md: "row", base: "column" }}
+                    justifyContent={"space-between"}
+                  >
+                    <Flex flexDirection={"column"}>
+                      <Text fontWeight={"500"} fontSize={"larger"}>
+                        Completed
+                      </Text>
+                      <Text
+                        fontWeight={"600"}
+                        fontSize={"xx-large"}
+                        color={"blue"}
+                      >
+                        {data.totalCompletedDeliveries}
+                      </Text>
+                    </Flex>
+                    <Flex flexDirection={"column"}>
+                      <Flex gap={3}>
+                        <Text>Assigned :</Text>
+                        <Text>{data.totalAssignedDeliveries}</Text>
+                      </Flex>{" "}
+                      <Flex gap={3} color={"red"}>
+                        <Text>Not Completed :</Text>
+                        <Text>
+                          {data.totalAssignedDeliveries -
+                            data.totalCompletedDeliveries}
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                </CardBody>
+                <CardFooter
+                  bg={"blue"}
+                  color={"white"}
+                  px={3}
+                  py={2}
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"flex-end"}
+                  gap={3}
+                  cursor={"pointer"}
+                  onClick={() => history.push("/delivery/history")}
+                >
+                  <Text>Know more</Text>
+                  <FaAngleRight />
+                </CardFooter>
+              </Card>
+            </Grid>
 
-          <Grid
-            templateColumns={{
-              base: "repeat(1, 1fr)",
-              md: "repeat(2, 1fr)",
-            }}
-            mt={5}
-            gap={5}
-          >
-            <Card>
-              <CardBody px={5}>
-                <Flex justifyContent={"space-between"} mb={5}>
-                  <Heading fontSize={"24px"}>Delivery Time Taken</Heading>
-                  <MdOutlineTimer size={30} color="green" />
-                </Flex>
-                <Flex flexDirection={"column"} gap={5}>
-                  <Flex flexDirection={"column"} alignItems={"center"}>
-                    <Text fontWeight={"500"} fontSize={"larger"}>
-                      Average
-                    </Text>
-                    <Text
-                      fontWeight={"600"}
-                      fontSize={"xx-large"}
-                      color={"green"}
+            <Box mt={5} bg={"#fff"}>
+              <Heading fontSize={20} mb={5} pl={5} pt={5}>
+                Deliveries Completed
+              </Heading>
+              <CompletedDeliveriesChart
+                weekly={data.totalDeliveryCompletedPastWeekPerDay}
+                monthly={data.totalDeliveryCompletedPastMonthPerDay}
+                yearly={data.totalDeliveryCompletedPastYearPerMonth}
+                totalInWeek={data.totalDeliveryCompletedPastWeek}
+                totalInMonth={data.totalDeliveryCompletedPastMonth}
+                totalInYear={data.totalDeliveryCompletedPastYear}
+              />
+            </Box>
+
+            <Grid
+              templateColumns={{
+                base: "repeat(1, 1fr)",
+                md: "repeat(2, 1fr)",
+              }}
+              mt={5}
+              gap={5}
+            >
+              <Card>
+                <CardBody px={5}>
+                  <Flex justifyContent={"space-between"} mb={5}>
+                    <Heading fontSize={"24px"}>Delivery Time Taken</Heading>
+                    <MdOutlineTimer size={30} color="green" />
+                  </Flex>
+                  <Flex flexDirection={"column"} gap={5}>
+                    <Flex flexDirection={"column"} alignItems={"center"}>
+                      <Text fontWeight={"500"} fontSize={"larger"}>
+                        Average
+                      </Text>
+                      <Text
+                        fontWeight={"600"}
+                        fontSize={"xx-large"}
+                        color={"green"}
+                      >
+                        {(data.averageTimeTaken / 60).toFixed(1)} min.
+                      </Text>
+                    </Flex>
+                    <Flex
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
                     >
-                      {(data.averageTimeTaken / 60).toFixed(1)} min.
-                    </Text>
-                  </Flex>
-                  <Flex flexDirection={"row"} justifyContent={"space-between"}>
-                    <Flex flexDirection={"column"} alignItems={"center"}>
-                      <Text>Smallest</Text>
-                      <Text>
-                        {(data.smallestTimeTaken / 60).toFixed(1)} min.
-                      </Text>
-                    </Flex>
-                    <Flex flexDirection={"column"} alignItems={"center"}>
-                      <Text>Longest</Text>
-                      <Text>
-                        {(data.longestTimeTaken / 60).toFixed(1)} min.
-                      </Text>
+                      <Flex flexDirection={"column"} alignItems={"center"}>
+                        <Text>Smallest</Text>
+                        <Text>
+                          {(data.smallestTimeTaken / 60).toFixed(1)} min.
+                        </Text>
+                      </Flex>
+                      <Flex flexDirection={"column"} alignItems={"center"}>
+                        <Text>Longest</Text>
+                        <Text>
+                          {(data.longestTimeTaken / 60).toFixed(1)} min.
+                        </Text>
+                      </Flex>
                     </Flex>
                   </Flex>
-                </Flex>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody px={5}>
-                <Flex justifyContent={"space-between"} mb={5}>
-                  <Heading fontSize={"24px"}>
-                    Delivery Distance Travelled
-                  </Heading>
-                  <RiPinDistanceFill size={30} color="blue" />
-                </Flex>
-                <Flex flexDirection={"column"} gap={5}>
-                  <Flex flexDirection={"column"} alignItems={"center"}>
-                    <Text fontWeight={"500"} fontSize={"larger"}>
-                      Average
-                    </Text>
-                    <Text
-                      fontWeight={"600"}
-                      fontSize={"xx-large"}
-                      color={"blue"}
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody px={5}>
+                  <Flex justifyContent={"space-between"} mb={5}>
+                    <Heading fontSize={"24px"}>
+                      Delivery Distance Travelled
+                    </Heading>
+                    <RiPinDistanceFill size={30} color="blue" />
+                  </Flex>
+                  <Flex flexDirection={"column"} gap={5}>
+                    <Flex flexDirection={"column"} alignItems={"center"}>
+                      <Text fontWeight={"500"} fontSize={"larger"}>
+                        Average
+                      </Text>
+                      <Text
+                        fontWeight={"600"}
+                        fontSize={"xx-large"}
+                        color={"blue"}
+                      >
+                        {(data.averageDeliveryDistance / 1000).toFixed(1)} km
+                      </Text>
+                    </Flex>
+                    <Flex
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
                     >
-                      {(data.averageDeliveryDistance / 1000).toFixed(1)} km
-                    </Text>
-                  </Flex>
-                  <Flex flexDirection={"row"} justifyContent={"space-between"}>
-                    <Flex flexDirection={"column"} alignItems={"center"}>
-                      <Text>Smallest</Text>
-                      <Text>
-                        {(data.shortestDeliveryDistance / 1000).toFixed(1)} km
-                      </Text>
-                    </Flex>
-                    <Flex flexDirection={"column"} alignItems={"center"}>
-                      <Text>Longest</Text>
-                      <Text>
-                        {(data.longestDeliveryDistance / 1000).toFixed(1)} km
-                      </Text>
+                      <Flex flexDirection={"column"} alignItems={"center"}>
+                        <Text>Smallest</Text>
+                        <Text>
+                          {(data.shortestDeliveryDistance / 1000).toFixed(1)} km
+                        </Text>
+                      </Flex>
+                      <Flex flexDirection={"column"} alignItems={"center"}>
+                        <Text>Longest</Text>
+                        <Text>
+                          {(data.longestDeliveryDistance / 1000).toFixed(1)} km
+                        </Text>
+                      </Flex>
                     </Flex>
                   </Flex>
-                </Flex>
-              </CardBody>
-            </Card>
-          </Grid>
-        </>
-      )}
+                </CardBody>
+              </Card>
+            </Grid>
+          </>
+        )}
+      </div>
     </>
   );
 }
