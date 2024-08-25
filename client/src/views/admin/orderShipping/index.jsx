@@ -18,13 +18,15 @@ import {
   InputGroup,
   SimpleGrid,
   IconButton,
+  Tooltip,
+  Icon,
 } from "@chakra-ui/react";
 import { IoMdTrash } from "react-icons/io";
 import { IoLocate, IoPencil } from "react-icons/io5";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CiSearch } from "react-icons/ci";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 
 import AddDelperson from "./components/AddDelperson";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,8 +37,12 @@ import {
 
 const OrderShipping = () => {
   const location = useLocation();
+  const history = useHistory();
 
   // const dataOne = location?.state?.selectedItemTemp;
+
+  const localUserData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localUserId = localUserData?.result?._id;
 
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -227,13 +233,30 @@ const OrderShipping = () => {
                 <Text fontWeight="bold">{boy?.name}</Text>
               </Box>
               <Box>
-                <IconButton
-                  icon={<IoLocate />}
-                  aria-label="Live Location"
-                  colorScheme="blue"
-                  size="sm"
-                  onClick={() => history.push("live-location/" + boy?._id)}
-                />
+                <Tooltip
+                  label={
+                    boy?.liveLocationURL
+                      ? "Click to see Location"
+                      : "No Location Provided"
+                  }
+                >
+                  <Button
+                    aria-label="Live Location"
+                    colorScheme={boy?.liveLocationURL ? "blue" : "red"}
+                    variant={boy?.liveLocationURL ? "solid" : "outline"}
+                    size="sm"
+                    disabled={!boy?.liveLocationURL}
+                    _disabled={{ pointerEvents: "none" }}
+                    onClick={() =>
+                      boy?.liveLocationURL
+                        ? window.open(boy?.liveLocationURL)
+                        : null
+                    }
+                    p={2}
+                  >
+                    <IoLocate />
+                  </Button>
+                </Tooltip>
                 <IconButton
                   icon={<IoPencil />}
                   aria-label="Edit"

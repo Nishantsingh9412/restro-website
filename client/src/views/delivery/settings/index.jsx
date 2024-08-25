@@ -1,40 +1,46 @@
-import { useState } from "react";
-import { Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { Button, Flex, Heading, Input, Link, Text } from "@chakra-ui/react";
 import { IoMdLogOut } from "react-icons/io";
+import LiveLocationModal from "./components/LiveLocationModal";
+import { useSelector } from "react-redux";
+import { MdEdit } from "react-icons/md";
 
 export default function DeliverySettings() {
-  const [settings, setSettings] = useState({
-    online: true,
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const singleUserData = useSelector((state) => state.delBoyReducer.delBoyUser);
+
+  const [settings, setSettings] = useState(singleUserData);
+  const [utils, setUtils] = useState({
+    isEditing: false,
+    isLiveLocationModal: false,
   });
-  const [formData, setFormData] = useState(settings);
-  const [isEditing, setIsEditing] = useState(false);
+  const updateUtils = (newUtils) =>
+    setUtils((prev) => ({ ...prev, ...newUtils }));
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    setFormData(settings);
-  };
-
-  const handleSave = () => {
-    setSettings(formData);
-    setIsEditing(false);
-  };
-
-  const handleLogOut = () => {
-    console.log("log out");
-  };
+  useEffect(() => {
+    setSettings(singleUserData);
+  }, [singleUserData]);
 
   return (
     <>
+      <LiveLocationModal
+        isOpen={utils.isLiveLocationModal}
+        setIsOpen={(bool) => updateUtils({ isLiveLocationModal: bool })}
+        prevURL={settings.liveLocationURL}
+        deliveryBoyId={
+          singleUserData?._id || localData?._id || localData?.result?._id
+        }
+      />
       <Flex
         justifyContent={"space-between"}
         mt={{ base: "100px", md: "100px", lg: 20 }}
         mb={5}
-        alignItems={{md: "center", base: 'flex-start'}}
+        alignItems={{ md: "center", base: "flex-start" }}
         direction={{ base: "column", md: "row" }}
         gap={5}
       >
         <Heading fontSize={20}>Settings</Heading>
-        {isEditing ? (
+        {/* {isEditing ? (
           <Flex gap={5} alignSelf={"flex-end"}>
             <Button colorScheme="gray" onClick={handleCancel}>
               Cancel
@@ -47,7 +53,7 @@ export default function DeliverySettings() {
           <Button onClick={() => setIsEditing(true)} alignSelf={"flex-end"}>
             Edit
           </Button>
-        )}
+        )} */}
       </Flex>
       <Flex
         flexDirection={"column"}
@@ -57,43 +63,40 @@ export default function DeliverySettings() {
         px={5}
         gap={10}
       >
-        <Flex justifyContent={"space-between"} alignItems={"center"}>
-          <Text>Activity Status:</Text>
-          {isEditing ? (
-            <select
-              style={{
-                borderRadius: "5px",
-                padding: "10px",
-                border: "1px solid #eee",
-              }}
-              value={formData.online}
-              onChange={(e) =>
-                setFormData({ ...formData, online: e.target.value === "true" })
-              }
-            >
-              <option value={true}>Online</option>
-              <option value={false}>Offline</option>
-            </select>
+        <Flex flexDirection={"column"} gap={2}>
+          <Text fontWeight={600}>Live Location URL</Text>
+          {settings?.liveLocationURL ? (
+            <Flex alignItems={"center"} gap={5}>
+              <Link
+                color="blue"
+                target="_blank"
+                href={settings?.liveLocationURL}
+              >
+                Click here
+              </Link>
+              <Button
+                size="small"
+                w={"fit-content"}
+                p={2}
+                colorScheme="blue"
+                leftIcon={<MdEdit />}
+                onClick={() => updateUtils({ isLiveLocationModal: true })}
+              >
+                Edit
+              </Button>
+            </Flex>
           ) : (
-            <Text
-              color={settings.online ? "green.400" : "red.400"}
-              fontWeight={500}
+            <Button
+              size="small"
+              w={"fit-content"}
+              p={2}
+              colorScheme="blue"
+              onClick={() => updateUtils({ isLiveLocationModal: true })}
             >
-              {settings.online ? "Online" : "Offline"}
-            </Text>
+              Share Live Location
+            </Button>
           )}
         </Flex>
-        {!isEditing && (
-          <Flex
-            onClick={handleLogOut}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-            cursor={"pointer"}
-          >
-            <Text>Log out</Text>
-            <IoMdLogOut />
-          </Flex>
-        )}
       </Flex>
     </>
   );

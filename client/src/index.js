@@ -19,6 +19,7 @@ import { thunk } from "redux-thunk";
 import Reducers from "./redux/reducers/index";
 import { BrowserRouter } from "react-router-dom/cjs/react-router-dom.min.js";
 import SocketInitializer from "contexts/SocketInitialiser";
+import { ToastContainer } from "react-toastify";
 
 const store = createStore(
   Reducers,
@@ -34,6 +35,7 @@ const App = () => {
       <Provider store={store}>
         <React.StrictMode>
           <SocketInitializer />
+          <ToastContainer />
           <ThemeEditorProvider>
             <BrowserRouter>
               <Switch>

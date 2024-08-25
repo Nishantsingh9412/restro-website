@@ -10,7 +10,6 @@ io.on("connection", (socket) => {
   socket.on("userJoined", (userId) => {
     onlineUsers.set(userId, { socketId: socket.id, lastActive: Date.now() });
     console.log(`User ${userId} connected`);
-    io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
   });
 
   // Listen for heartbeat
@@ -27,7 +26,6 @@ io.on("connection", (socket) => {
       if (now - userData.lastActive > 30000) {
         // 30 seconds of inactivity
         onlineUsers.delete(userId);
-        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
       }
     }
   }, 10000); // Check every 10 seconds
@@ -38,7 +36,6 @@ io.on("connection", (socket) => {
       if (userData.socketId === socket.id) {
         onlineUsers.delete(userId);
         console.log(`User ${userId} disconnected`);
-        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
       }
     }
   });

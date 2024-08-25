@@ -92,7 +92,6 @@ io.on("connection", (socket) => {
   socket.on("userJoined", (userId) => {
     onlineUsers.set(userId, { socketId: socket.id, lastActive: Date.now() });
     console.log(`User ${userId} connected`);
-    io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
   });
 
   // Listen for heartbeat
@@ -106,66 +105,12 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Periodically check for inactive users
-  setInterval(() => {
-    const now = Date.now();
-    for (let [userId, userData] of onlineUsers.entries()) {
-      if (now - userData.lastActive > 30000) {
-        // 30 seconds of inactivity
-        onlineUsers.delete(userId);
-        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
-      }
-    }
-  }, 10000); // Check every 10 seconds
-
-  socket.on("requestLocation", async ({ deliveryBoyId }) => {
-    try {
-      const deliveryBoySocketId = onlineUsers.get(deliveryBoyId);
-
-      if (!deliveryBoySocketId) {
-        throw new Error(`Delivery boy is not online`);
-      }
-
-      // Request location from the delivery boy
-      io.to(deliveryBoySocketId).emit("requestLocationUpdate");
-
-      // Wait for the delivery boy to send their location
-      // Set up a one-time listener for the location response
-      socket.once("sendLocation", ({ lat, lng }) => {
-        if (!lat || !lng) {
-          socket.emit("error", {
-            message: "Invalid location data received from delivery boy",
-          });
-          return;
-        }
-
-        // Send the location back to the restaurant owner
-        socket.emit("locationUpdate", { lat, lng });
-      });
-
-      // Handle potential timeout if the delivery boy doesn't respond
-      const timeout = setTimeout(() => {
-        socket.emit("error", {
-          message: "Delivery boy did not respond in time",
-        });
-        socket.removeAllListeners("sendLocation"); // Clean up the listener to avoid memory leaks
-      }, 10000); // 10-second timeout
-
-      // Clear the timeout if location is received in time
-      socket.once("sendLocation", () => clearTimeout(timeout));
-    } catch (error) {
-      console.error("Error:", error.message);
-      socket.emit("error", { message: error.message });
-    }
-  });
-
   // Handle user disconnect
   socket.on("disconnect", () => {
     for (let [userId, userData] of onlineUsers.entries()) {
       if (userData.socketId === socket.id) {
         onlineUsers.delete(userId);
         console.log(`User ${userId} disconnected`);
-        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Notify all clients about the online users
       }
     }
   });

@@ -14,6 +14,7 @@ import {
   MdHistory,
   MdDashboard,
   MdOutlineDeliveryDining,
+  MdSettings,
 } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { LuFolderClosed, LuShoppingBag } from "react-icons/lu";
@@ -48,6 +49,7 @@ import DeliveryHistory from "views/delivery/history";
 import Dashboard from "views/delivery/dashboard";
 import AdminNotifications from "views/admin/notifications";
 import TestMap from "views/delivery/testMap";
+import DeliverySettings from "views/delivery/settings";
 
 const routes2 = [
   // {
@@ -76,19 +78,19 @@ const routes2 = [
   //   ],
   // },
   {
-    name: "",
-    layout: "/admin",
-    path: "/dashboards/default",
-    type: "list",
+    name: '',
+    layout: '/admin',
+    path: '/dashboards/default',
+    type: 'list',
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     component: MainDashboard,
     links: [
       {
-        name: "Dashboard",
-        layout: "/admin",
-        path: "/dashboards/default",
+        name: 'Dashboard',
+        layout: '/admin',
+        path: '/dashboards/default',
         icon: (
           <Icon
             as={HiDocumentChartBar}
@@ -97,13 +99,13 @@ const routes2 = [
             height="20px"
           />
         ),
-        type: "link",
+        type: 'link',
         component: MainDashboard,
       },
       {
-        name: "Item Management",
-        layout: "/admin",
-        path: "/dashboards/item-management",
+        name: 'Item Management',
+        layout: '/admin',
+        path: '/dashboards/item-management',
         icon: (
           <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
         ),
@@ -112,9 +114,9 @@ const routes2 = [
         component: ItemManagement,
       },
       {
-        name: "Low stock Alert",
-        layout: "/admin",
-        path: "/dashboards/low-stock-alert",
+        name: 'Low stock Alert',
+        layout: '/admin',
+        path: '/dashboards/low-stock-alert',
         icon: (
           <Icon
             as={IoAlertCircleSharp}
@@ -127,9 +129,9 @@ const routes2 = [
         component: LowStocks,
       },
       {
-        name: "Supplier Management",
-        layout: "/admin",
-        path: "/dashboards/supplier-management",
+        name: 'Supplier Management',
+        layout: '/admin',
+        path: '/dashboards/supplier-management',
         icon: (
           <Icon
             as={TbTruckDelivery}
@@ -142,9 +144,9 @@ const routes2 = [
         component: SupplierManagement,
       },
       {
-        name: "Notifications",
-        layout: "/admin",
-        path: "/dashboards/notifications",
+        name: 'Notifications',
+        layout: '/admin',
+        path: '/dashboards/notifications',
         icon: (
           <Icon
             as={IoMdNotificationsOutline}
@@ -169,18 +171,18 @@ const routes2 = [
     ],
   },
   {
-    name: "Orders",
-    layout: "/admin",
-    path: "/orders",
-    type: "list",
+    name: 'Orders',
+    layout: '/admin',
+    path: '/orders',
+    type: 'list',
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Foods and Drinks",
-        layout: "/admin",
-        path: "/orders",
+        name: 'Foods and Drinks',
+        layout: '/admin',
+        path: '/orders',
         icon: (
           <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
         ),
@@ -196,18 +198,18 @@ const routes2 = [
       //   component: OrderShipping,
       // },
       {
-        name: "Order History",
-        layout: "/admin",
-        path: "/order-history",
+        name: 'Order History',
+        layout: '/admin',
+        path: '/order-history',
         icon: (
           <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
         ),
         component: OrderHistory,
       },
       {
-        name: "Create Deliveries",
-        layout: "/admin",
-        path: "/create-deliveries",
+        name: 'Create Deliveries',
+        layout: '/admin',
+        path: '/create-deliveries',
         icon: (
           <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
         ),
@@ -216,18 +218,18 @@ const routes2 = [
     ],
   },
   {
-    name: "Delivery Partners",
-    layout: "/admin",
-    path: "/delivery-partners",
-    type: "list",
+    name: 'Delivery Partners',
+    layout: '/admin',
+    path: '/delivery-partners',
+    type: 'list',
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Delivery partners",
-        layout: "/admin",
-        path: "/delivery-partners",
+        name: 'Delivery partners',
+        layout: '/admin',
+        path: '/delivery-partners',
         icon: (
           <Icon
             as={MdLocalShipping}
@@ -241,10 +243,10 @@ const routes2 = [
     ],
   },
   {
-    name: "Warehouse",
-    layout: "/admin",
-    path: "/warehouse",
-    type: "list",
+    name: 'Warehouse',
+    layout: '/admin',
+    path: '/warehouse',
+    type: 'list',
     icon: (
       <>
         <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
@@ -252,11 +254,11 @@ const routes2 = [
     ),
     links: [
       {
-        name: "Contact Sales",
-        layout: "/admin",
-        path: "/warehouse/contact-sales",
+        name: 'Contact Sales',
+        layout: '/admin',
+        path: '/warehouse/contact-sales',
         icon: <Icon as={IoMdLock} color="inherit" width="20px" height="20px" />,
-        type: "link",
+        type: 'link',
         component: () => <>Contact Support</>,
       },
       // {
@@ -292,28 +294,28 @@ const routes2 = [
     ],
   },
   {
-    name: "Invoices",
-    layout: "/admin",
-    path: "/invoices/re-ordering",
-    type: "list",
+    name: 'Invoices',
+    layout: '/admin',
+    path: '/invoices/re-ordering',
+    type: 'list',
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Re-Ordering",
-        layout: "/admin",
-        path: "/invoices/re-ordering",
+        name: 'Re-Ordering',
+        layout: '/admin',
+        path: '/invoices/re-ordering',
         icon: (
           <Icon as={TbReorder} color="inherit" width="20px" height="20px" />
         ),
-        type: "link",
+        type: 'link',
         component: () => <></>,
       },
       {
-        name: "Tutorial Videos",
-        layout: "/admin",
-        path: "/invoices/tutorial-videos",
+        name: 'Tutorial Videos',
+        layout: '/admin',
+        path: '/invoices/tutorial-videos',
         icon: (
           <Icon
             as={MdVideoLibrary}
@@ -322,32 +324,32 @@ const routes2 = [
             height="20px"
           />
         ),
-        type: "link",
+        type: 'link',
         component: () => <></>,
       },
       {
-        name: "Printer Setting",
-        layout: "/admin",
-        path: "/invoices/printer-setting",
+        name: 'Printer Setting',
+        layout: '/admin',
+        path: '/invoices/printer-setting',
         icon: (
           <Icon as={AiFillPrinter} color="inherit" width="20px" height="20px" />
         ),
-        type: "link",
+        type: 'link',
         component: () => <></>,
       },
     ],
   },
   {
-    name: "Sign In",
-    layout: "/auth",
-    path: "/sign-in",
+    name: 'Sign In',
+    layout: '/auth',
+    path: '/sign-in',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: SignInCentered,
   },
   {
-    name: "Sign Up",
-    layout: "/auth",
-    path: "/sign-up",
+    name: 'Sign Up',
+    layout: '/auth',
+    path: '/sign-up',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: SignUpCentered,
   },
@@ -508,6 +510,16 @@ export const deliveryRoutes = [
           <Icon as={MdHistory} color="inherit" width="15px" height="15px" />
         ),
         component: DeliveryHistory,
+      },
+      {
+        name: "Settings",
+        layout: "/delivery",
+        path: "/settings",
+        type: "link",
+        icon: (
+          <Icon as={MdSettings} color="inherit" width="15px" height="15px" />
+        ),
+        component: DeliverySettings,
       },
       {
         name: "",

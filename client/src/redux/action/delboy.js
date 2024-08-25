@@ -57,15 +57,17 @@ export const getSingleDelBoyAction = (id) => async (dispatch) => {
 };
 
 export const updateSingleDelBoyAction =
-  (id, updateData) => async (dispatch) => {
+  (id, updateData, onSuccess, onError) => async (dispatch) => {
     try {
       const { data } = await api.updateSingleDeliveryPersonnel(id, updateData);
       dispatch({ type: "UPDATE_SINGLE_DELBOY", data: data?.result });
+      if (onSuccess) onSuccess(data?.result);
       return {
         success: true,
         message: "Delivery Personnel Updated Successfully",
       };
     } catch (err) {
+      if (onError) onError(err);
       console.error("Error from updateSingleItem Action: " + err);
       return { success: false, message: "something went wrong" };
     }

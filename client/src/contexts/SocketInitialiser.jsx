@@ -13,6 +13,7 @@ import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboar
 export default function SocketInitializer() {
   const auth = useSelector((state) => state.authReducer?.data);
   const dispatch = useDispatch();
+  const user = JSON.parse(localStorage.getItem("ProfileData"));
 
   useEffect(() => {
     // if (!auth) {
@@ -21,7 +22,6 @@ export default function SocketInitializer() {
     //   // if (user?.result?._id) dispatch(getAuth(user.result._id));
     //   return;
     // }
-    const user = JSON.parse(localStorage.getItem("ProfileData"));
     // Emit event when user joins
     if (user?.result?._id) socket.emit("userJoined", user.result._id);
 
@@ -56,26 +56,7 @@ export default function SocketInitializer() {
     dispatch({ type: "ADD_DELIVERY", data });
   });
 
-  socket.on("requestLocationUpdate", () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-
-        // Send the location back to the server
-        socket.emit("sendLocation", location);
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        socket.emit("error", { message: "Unable to retrieve location" });
-      },
-      {
-        timeout: 10000, // Adjust the timeout as needed
-      }
-    );
-  });
+  console.log('location temp id', user?.result?._id)
 
   socket.on("hideDeliveryOffer", (data) => {
     console.log(auth?._id, data);

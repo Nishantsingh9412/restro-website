@@ -9,6 +9,7 @@ const authDelivSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    liveLocationURL: { type: String },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
