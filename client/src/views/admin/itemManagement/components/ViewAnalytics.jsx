@@ -142,7 +142,7 @@ const ViewAnalytics = ({ isOpen, onClose, AnalyticsSelectedId }) => {
     }, [AnalyticsSelectedId, dispatch]);
 
     const SelectedItemData = useSelector((state) => state.itemsReducer.selectedItem);
-    console.log("SelectedItemData: \n", SelectedItemData);
+    // console.log("SelectedItemData: \n", SelectedItemData);
 
     const [data, setData] = useState([]);
 

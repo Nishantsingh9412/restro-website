@@ -50,6 +50,7 @@ import EdiItem from './components/EditItem';
 import ViewCode from './components/ViewCode';
 import ViewAnalytics from './components/ViewAnalytics';
 import styles from './ItemManagement.module.css'
+import BarCodeScan from './components/BarCodeScan';
 
 
 
@@ -69,6 +70,11 @@ export default function ItemManagement() {
   const { isOpen: isOpenThree, onOpen: onOpenThree, onClose: onCloseThree } = useDisclosure()
   const { isOpen: isOpenBarCode, onOpen: onOpenBarCode, onClose: onCloseBarCode } = useDisclosure()
   const { isOpen: isOpenAnalytics, onOpen: onOpenAnalytics, onClose: onCloseAnalytics } = useDisclosure();
+  const {
+    isOpen: isOpenBarCodeScan,
+    onOpen: onOpenBarCodeScan,
+    onClose: onCloseBarCodeScan
+  } = useDisclosure();
   const [overlay, setOverlay] = useState(<OverlayOne />)
   const [itemDataArray, setItemDataArray] = useState([])
 
@@ -88,11 +94,54 @@ export default function ItemManagement() {
   const [barcodeDataUrl, setBarcodeDataUrl] = useState(null)
   const [existingBarcodeNo, setExistingBarcodeNo] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
+  const [showOptions, setShowOptions] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
 
 
   const localData = JSON.parse(localStorage.getItem('ProfileData'));
   const userId = localData?.result?._id;
-  console.log('This is userId: ', userId);
+  // console.log('This is userId: ', userId);
+
+  const handleScan = () => {
+    console.log('Scan button clicked');
+    onOpenBarCodeScan();
+  }
+
+  // const handleScanResult = (err, result) => {
+  //   if (result) {
+  //     setScanResult(result.text);
+  //     console.log(" <--------------Scanned scanned scanned scanned ------------------> ")
+  //     console.log('Scan result:', result.text);
+  //   }
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  // };
+
+  const handleScanResult = (result) => {
+    if (result) {
+      setScanResult(result); // Update the scan result state
+    }
+    onCloseBarCodeScan(); // Close the modal after scanning
+  };
+
+
+  // const handleClose = () => {
+  // onCloseBarCodeScan();
+  // history.push('/'); // Navigate back to the home page or previous page
+  // };
+
+  // setShowBarCodeScan(true);
+
+  const handleOptionClick = (option) => {
+    if (option === 1) {
+      setOverlay(<OverlayOne />);
+      onOpen();
+    } else if (option === 2) {
+      handleScan();
+    }
+    setShowOptions(false); // Hide options after selection
+  };
 
   const handleGenerateBarcode = (item) => {
     try {
@@ -213,8 +262,8 @@ export default function ItemManagement() {
 
   const ItemDataReducer = useSelector((state) => state.itemsReducer);
   const ItemData = ItemDataReducer?.items
-  console.log("This is ItemDataReducer : \n", ItemDataReducer);
-  console.log("This is ItemData : \n", ItemData);
+  // console.log("This is ItemDataReducer : \n", ItemDataReducer);
+  // console.log("This is ItemData : \n", ItemData);
 
   const handleAutoAddVals = () => {
     setItemName('Rice');
@@ -236,7 +285,7 @@ export default function ItemManagement() {
   return (
     <div style={{ marginTop: '5vw' }} >
       <div >
-        <button
+        {/* <button
           className={styles.addbtn}
           onClick={() => {
             setOverlay(<OverlayOne />)
@@ -244,8 +293,35 @@ export default function ItemManagement() {
           }}
         >
           Add Item
+        </button> */}
+        <button
+          className={styles.addbtn}
+          onClick={() => setShowOptions(!showOptions)}
+        >
+          Add Item
         </button>
+
+        {showOptions && (
+          <Box className={styles.options} mt={4}>
+            <Button
+              onClick={() => handleOptionClick(1)}
+              colorScheme="teal"
+              variant="solid"
+              mr={2}
+            >
+              Manually
+            </Button>
+            <Button
+              onClick={() => handleOptionClick(2)}
+              colorScheme="orange"
+              variant="solid"
+            >
+              Scan
+            </Button>
+          </Box>
+        )}
       </div>
+
 
       <Box>
         <Box display={{ base: 'none', lg: 'block' }} mt="40px">
@@ -870,7 +946,13 @@ export default function ItemManagement() {
         AnalyticsSelectedId={AnalyticsSelectedId}
       />
 
-
-    </div >
+      <BarCodeScan
+        isOpen={isOpenBarCodeScan}
+        onOpen={onOpenBarCodeScan}
+        onClose={onCloseBarCodeScan}
+        // handleScanResult={handleScanResult}
+        // scanResult={scanResult}
+      />
+    </div>
   )
 }

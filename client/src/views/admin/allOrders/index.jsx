@@ -35,10 +35,12 @@ import { BiSolidTrash } from "react-icons/bi";
 import { IoMdSearch } from 'react-icons/io';
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
+import { keyframes } from '@emotion/react';
 
 import { AddOrderItemAction, getAllOrderItemsAction, searchOrderItemAction, searchDrinksOnlyAction, getDrinksOnlyAction } from '../../../redux/action/OrderItems';
 import CartDrawer from './components/CartDrawer';
 import DrinksModal from './components/DrinksModal';
+import AnimatedBadge from './components/AnimatedBadge';
 
 
 export default function AllOrders() {
@@ -77,12 +79,12 @@ export default function AllOrders() {
     const [searchResultsDrinks, setSearchResultsDrinks] = useState([]);
     const [drinksData, setDrinksData] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+
     const localUserData = JSON.parse(localStorage.getItem('ProfileData'));
     const userId = localUserData?.result?._id;
 
     const handleSearchDrinks = () => {
-        dispatch(searchDrinksOnlyAction(searchTermDrinks,userId)).then((res) => {
+        dispatch(searchDrinksOnlyAction(searchTermDrinks, userId)).then((res) => {
             if (res.success) {
                 setSearchResultsDrinks(res?.data);
                 console.log("Search Results: ", res?.data)
@@ -251,7 +253,7 @@ export default function AllOrders() {
     // const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = () => {
-        dispatch(searchOrderItemAction(searchTerm , userId)).then((res) => {
+        dispatch(searchOrderItemAction(searchTerm, userId)).then((res) => {
             if (res.success) {
                 setSearchResults(res?.data);
                 console.log("Search Results: ", res?.data)
@@ -289,7 +291,6 @@ export default function AllOrders() {
         <div style={{ marginTop: '4vw' }}>
             {/* Item name , Item Image , Item price  */}
             {/* <h2>Hello From AllOrders</h2> */}
-
             <Button
                 leftIcon={<FiPlusCircle />}
                 colorScheme='pink'
@@ -315,16 +316,19 @@ export default function AllOrders() {
                     Cart
                 </Button>
                 {/* {cartItemsLength.length > 0 && ( */}
-                <Badge
-                    colorScheme="cyan"
+                {/* <Badge
+                    colorScheme="red"
                     variant='solid'
                     position="absolute"
-                    top="-1"
+                    top="-3"
                     right="-1"
                     borderRadius="full"
                 >
                     {AllOrderItemsLength}
-                </Badge>
+                </Badge> */}
+                <AnimatedBadge
+                    AllOrderItemsLength={AllOrderItemsLength}
+                />
                 {/* )} */}
             </Box>
             <Box

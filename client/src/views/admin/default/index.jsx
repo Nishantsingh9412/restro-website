@@ -134,7 +134,7 @@ export default function UserReports() {
           bg="#ffbbee"
           icon=""
           border="#fee1f9"
-          label="Total Stock Quantity"
+          label="Stock being Used"
           value={totalStocksQuantity}
           growth="+11.02%"
         />
@@ -152,7 +152,7 @@ export default function UserReports() {
           bg="#9ef6f7"
           icon=""
           border="#d7f7f7"
-          label="Expirty Alert"
+          label="Expiry Alert"
           value={expiredItems}
           growth="+15.03%"
         />
