@@ -1,8 +1,8 @@
 const initialState = {
     name: '',
     phoneNumber: '',
-    paymentMethod: 'online',
-    deliveryMethod: 'pickup',
+    paymentMethod: '',
+    deliveryMethod: '',
     pickupLocation: '',
     pickupLocationName: '',
     lat:'',

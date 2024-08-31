@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Select from 'react-select';
 import {
   Box,
   FormControl,
@@ -15,6 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
+import axios from "axios";
 import { setAddressAction } from "../../../../../redux/action/address";
 import { setFormData } from "../../../../../redux/action/stepperFormAction";
 import MapInput from "components/mapInput/MapInput";
@@ -31,6 +33,20 @@ const Address = ({ goToNextStep }) => {
   // const [state, setState] = useState('');
   // const [zip, setZip] = useState('');
   // const [noteFromCustomer, setNoteFromCustomer] = useState('');
+  // For countries states and cities 
+  const [jobLocation, setJobLocation] = useState([]);
+
+  const [countriesAll, setCountriesAll] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState('');
+
+  const [statesAll, setStatesAll] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [selectedState, setSelectedState] = useState('');
+
+  const [citiesAll, setCitiesAll] = useState([]);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [citiesLoading, setCitiesLoading] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
@@ -57,6 +73,82 @@ const Address = ({ goToNextStep }) => {
     }
     return true;
   };
+
+
+
+  const loadCountries = async () => {
+    const response = await axios.get('https://api.countrystatecity.in/v1/countries', {
+      headers: {
+        'X-CSCAPI-KEY': process.env.REACT_APP_CSC_API_KEY
+      }
+    });
+    const countriesData = response?.data?.map((country) =>
+    ({
+      value: country.name,
+      label: country.name,
+      iso2: country.iso2
+    }));
+
+    setCountriesAll(countriesData);
+  }
+
+  const loadStates = async () => {
+    setStatesLoading(true);
+    const response = await axios.get(`https://api.countrystatecity.in/v1/countries/${selectedCountry}/states`, {
+      headers: {
+        'X-CSCAPI-KEY': process.env.REACT_APP_CSC_API_KEY
+      }
+    });
+    if (response) {
+      const statesData = response?.data?.map((state) =>
+      ({
+        value: state.name,
+        label: state.name,
+        iso2: state.iso2
+      }));
+      setStatesAll(statesData);
+      setStatesLoading(false);
+    }
+  }
+
+  const loadCities = async () => {
+    setCitiesLoading(true);
+    const response = await axios.get(`https://api.countrystatecity.in/v1/countries/${selectedCountry}/states/${selectedState}/cities`, {
+      headers: {
+        'X-CSCAPI-KEY': process.env.REACT_APP_CSC_API_KEY
+      }
+    });
+
+    if (response) {
+      const citiesData = response.data.map((city) =>
+      ({
+        value: city.name,
+        label: city.name
+      }));
+
+      setCitiesAll(citiesData);
+      setCitiesLoading(false);
+    }
+  }
+
+
+  useEffect(() => {
+    loadCountries();
+  }, [])
+
+
+  useEffect(() => {
+    if (selectedCountry) {
+      loadStates();
+    }
+  }, [selectedCountry])
+
+  useEffect(() => {
+    if (selectedState) {
+      loadCities();
+    }
+  }, [selectedState])
+
 
   const handleAddressSubmit = (e) => {
     e.preventDefault();
@@ -153,17 +245,18 @@ const Address = ({ goToNextStep }) => {
             onChange={(value) => handleChange("paymentMethod", value)}
           >
             <Stack direction="row">
-              <Radio value="online">Online</Radio>
-              <Radio value="offline">Offline</Radio>
+              {/* <Radio value="online">Online</Radio> */}
+              {/* <Radio value="offline">Offline</Radio> */}
               <Radio value="cash">Cash</Radio>
               <Radio value="card">Card</Radio>
               <Radio value="alreadyPaid">Already Paid</Radio>
-              <Radio value="masterCard">MasterCard</Radio>
+              <Radio value="online">Online</Radio>
+              <Radio value="paypal">Paypal</Radio>
             </Stack>
           </RadioGroup>
         </FormControl>
 
-        <FormControl id="delivery-method" mt={4}>
+        {/* <FormControl id="delivery-method" mt={4}>
           <FormLabel>Delivery Method</FormLabel>
           <RadioGroup
             value={formData.deliveryMethod}
@@ -174,9 +267,13 @@ const Address = ({ goToNextStep }) => {
               <Radio value="delivery">Delivery</Radio>
             </Stack>
           </RadioGroup>
-        </FormControl>
+        </FormControl> */}
 
-        <FormControl id="address" isRequired>
+        <FormControl
+          id="address"
+          isRequired
+          mt={4}
+        >
           <FormLabel>Address Line 1</FormLabel>
           <Input
             type="text"
@@ -197,22 +294,62 @@ const Address = ({ goToNextStep }) => {
 
         <SimpleGrid columns={3} spacing={4}>
           <FormControl id="city">
-            <FormLabel>City</FormLabel>
-            <Input
-              type="text"
-              placeholder="City"
-              value={formData.city}
-              onChange={(e) => handleChange("city", e.target.value)}
-            />
-          </FormControl>
 
-          <FormControl id="state">
-            <FormLabel>State</FormLabel>
-            <Input
+            <FormControl id="country" isRequired>
+              <FormLabel>Country</FormLabel>
+              {/* <Input
+                type="text"
+                placeholder="Country"
+                value={formData.country}
+                onChange={(e) => handleChange("country", e.target.value)}
+              /> */}
+              <Select
+                options={countriesAll?.map((country) => country)}
+                onChange={(e) => {
+                  setSelectedCountry(e.iso2);
+                }}
+              />
+            </FormControl>
+
+
+            <FormControl id="state">
+              <FormLabel>State</FormLabel>
+              {/* <Input
               placeholder="State"
               type="text"
               value={formData.state}
               onChange={(e) => handleChange("state", e.target.value)}
+            /> */}
+              <Select
+                options={statesAll?.map((state) => state)}
+                isDisabled={statesLoading}
+                isLoading={statesLoading}
+                onChange={(e) => {
+                  setSelectedState(e.iso2);
+                  handleChange("state", e.value)
+                  // console.log('Selected State : ', e.value);
+                }}
+              />
+            </FormControl>
+
+            <FormLabel>City</FormLabel>
+            {/* <Input
+              type="text"
+              placeholder="City"
+              value={formData.city}
+              onChange={(e) => 
+                handleChange("city", e.target.value)
+                }
+            /> */}
+            <Select
+              options={citiesAll?.map((city) => city)}
+              isDisabled={citiesLoading}
+              isLoading={citiesLoading}
+              // isMulti
+              onChange={(e) => {
+                handleChange("city", e.value);
+                console.log('Selected City : ', e.iso2);
+              }}
             />
           </FormControl>
 

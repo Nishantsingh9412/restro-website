@@ -82,7 +82,9 @@ const CartDrawer = (props) => {
                             <Flex justifyContent="space-between" alignItems="center">
                                 <Flex alignItems="center">
                                     <FaCartShopping />
-                                    <Text marginLeft="2">Your Cart</Text>
+                                    <Text marginLeft="2">
+                                        Your Cart
+                                    </Text>
                                 </Flex>
                                 <IconButton
                                     icon={<FaTimes />}
@@ -258,7 +260,7 @@ const CartDrawer = (props) => {
                                         {parseFloat(AllOrderItemsTotal).toFixed(2)} €
                                     </Text>
                                 </Box>
-                                    {/* Checkout drawer starts */}
+                                {/* Checkout drawer starts */}
                                 <CheckoutComp
                                     allOrderItems={allOrderItems}
                                     AllOrderItemsTotal={AllOrderItemsTotal}
@@ -267,7 +269,7 @@ const CartDrawer = (props) => {
                                     isOpen={isOpenCheckout}
                                 />
 
-                                    {/* Checkout drawer ends */}
+                                {/* Checkout drawer ends */}
                                 <Button
                                     background={'#029CFF'}
                                     color={'white'}

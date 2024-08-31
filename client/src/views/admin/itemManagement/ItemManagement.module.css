@@ -20,6 +20,7 @@
     transform: scale(0.9);
 }
 
+/* 
 .tableHeader,
 .tableRow {
     display: flex;
@@ -65,5 +66,80 @@
         margin-bottom: 1rem;
         width: 12rem;
         font-size: 1.4rem;
+    }
+} */
+
+.tableHeader,
+.tableRow {
+
+    /* display: flex; */
+    /* justify-content: space-between; */
+    display: grid;
+    align-items: center;
+    height: 3.2rem;
+    background: #fff;
+    padding: 0.4rem;
+    border: 3px solid #029CFF;
+    border-radius: 20px;
+
+    /* Use grid for consistent column alignment */
+    /* padding: 8px 0; */
+    /* Add padding for better spacing */
+    /* border-bottom: 1px solid #e0e0e0; */
+    /* Optional: Add a bottom border for row separation */
+}
+
+.tableHeader {
+    /* margin-top: 20px; */
+    font-weight: 600;
+}
+
+.tableRow {
+    margin-top: 1.5rem;
+    font-weight: 400;
+}
+
+.tableCell {
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    white-space: nowrap;
+    /* padding: 0 8px; */
+    /* Add padding inside each cell */
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    /* Ensure content fits within the available space */
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    /* Define the column layout */
+    gap: 16px;
+    /* Add a gap between columns */
+}
+
+@media (max-width: 992px) {
+    .gridContainer {
+        display: block;
+        /* Switch to block layout for mobile view */
+    }
+
+    .tableRow,
+    .tableCell {
+        padding: 8px 0;
+        /* Adjust padding for mobile */
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .tableCell {
+        flex: 1;
+        max-width: 45%;
+        /* Adjust the max width for mobile cells */
     }
 }

@@ -51,6 +51,7 @@ import ViewCode from './components/ViewCode';
 import ViewAnalytics from './components/ViewAnalytics';
 import styles from './ItemManagement.module.css'
 import BarCodeScan from './components/BarCodeScan';
+import MyTableComponent from './components/MyTableComponent';
 
 
 
@@ -298,32 +299,49 @@ export default function ItemManagement() {
           className={styles.addbtn}
           onClick={() => setShowOptions(!showOptions)}
         >
-          Add Item
+          Add Itemss
         </button>
 
-        {showOptions && (
-          <Box className={styles.options} mt={4}>
-            <Button
-              onClick={() => handleOptionClick(1)}
-              colorScheme="teal"
-              variant="solid"
-              mr={2}
-            >
-              Manually
-            </Button>
-            <Button
-              onClick={() => handleOptionClick(2)}
-              colorScheme="orange"
-              variant="solid"
-            >
-              Scan
-            </Button>
-          </Box>
-        )}
+
+        {
+          showOptions && (
+            <Box className={styles.options} mt={4}>
+              <Button
+                onClick={() => handleOptionClick(1)}
+                colorScheme="teal"
+                variant="solid"
+                mr={2}
+              >
+                Manually
+              </Button>
+              <Button
+                onClick={() => handleOptionClick(2)}
+                colorScheme="orange"
+                variant="solid"
+              >
+                Scan
+              </Button>
+            </Box>
+          )}
       </div>
 
+      {/* <MyTableComponent
+        handleDeleteItem={handleDeleteItem}
+        handleGenerateBarcode={handleGenerateBarcode}
+        setbarCodeData={setbarCodeData}
+        setOverlay={setOverlay}
+        onOpenTwo={onOpenTwo}
+        onOpenThree={onOpenThree}
+        onOpenBarCode={onOpenBarCode}
+        onOpenAnalytics={onOpenAnalytics}
+        setEyeIconSelectedId={setEyeIconSelectedId}
+        setPencilIconSelectedId={setPencilIconSelectedId}
+        setAnalyticsSelectedId={setAnalyticsSelectedId}
+        itemDataArray={itemDataArray} 
+      /> */}
 
       <Box>
+        {/* Desktop View */}
         <Box display={{ base: 'none', lg: 'block' }} mt="40px">
           <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableHeader}>
             <GridItem>Item Name</GridItem>
@@ -331,32 +349,32 @@ export default function ItemManagement() {
             <GridItem>Available</GridItem>
             <GridItem>Minimum</GridItem>
             <GridItem>Barcode No.</GridItem>
-            <GridItem>Last Replenished</GridItem>
+            <GridItem>Replenished</GridItem>
             <GridItem>Expiry Date</GridItem>
             <GridItem>Action</GridItem>
           </Grid>
 
           {itemDataArray?.map((item, index) => (
             <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableRow} key={index}>
-              <GridItem>{item.item_name}</GridItem>
-              <GridItem>{item.item_unit}</GridItem>
-              <GridItem>{item.available_quantity}</GridItem>
-              <GridItem>{item.minimum_quantity}</GridItem>
-              <GridItem>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</GridItem>
-              <GridItem>{item.updatedAt.split('T')[0]}</GridItem>
-              <GridItem>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</GridItem>
-              <GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.item_name}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.item_unit}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.available_quantity}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.minimum_quantity}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.updatedAt.split('T')[0]}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</GridItem>
+              <GridItem className={styles.tableCell}>
                 <IconButton
-                  aria-label='Delete Item'
-                  colorScheme='red'
-                  size='sm'
+                  aria-label="Delete Item"
+                  colorScheme="red"
+                  size="xs"
                   icon={<IoMdTrash />}
                   onClick={() => handleDeleteItem(item._id)}
                 />
                 <IconButton
-                  aria-label='Edit Item'
-                  colorScheme='yellow'
-                  size='sm'
+                  aria-label="Edit Item"
+                  colorScheme="yellow"
+                  size="xs"
                   icon={<IoPencil />}
                   onClick={() => {
                     const inputPin = prompt('Enter your pin');
@@ -366,35 +384,35 @@ export default function ItemManagement() {
                   }}
                 />
                 <IconButton
-                  aria-label='View Item'
-                  colorScheme='green'
-                  size='sm'
+                  aria-label="View Item"
+                  colorScheme="green"
+                  size="xs"
                   icon={<IoMdEye />}
                   onClick={() => {
-                    setEyeIconSelectedId(item._id)
-                    setOverlay(<OverlayOne />)
-                    onOpenTwo()
+                    setEyeIconSelectedId(item._id);
+                    setOverlay(<OverlayOne />);
+                    onOpenTwo();
                   }}
                 />
                 <IconButton
-                  aria-label='Generate Barcode'
-                  colorScheme='blue'
-                  size='sm'
+                  aria-label="Generate Barcode"
+                  colorScheme="blue"
+                  size="xs"
                   icon={<BiBarcodeReader />}
                   onClick={() => {
-                    handleGenerateBarcode(item)
-                    setbarCodeData(item)
-                    onOpenBarCode()
+                    handleGenerateBarcode(item);
+                    setbarCodeData(item);
+                    onOpenBarCode();
                   }}
                 />
                 <IconButton
-                  aria-label='Analytics'
-                  colorScheme='teal'
-                  size='sm'
+                  aria-label="Analytics"
+                  colorScheme="teal"
+                  size="xs"
                   icon={<IoMdAnalytics />}
                   onClick={() => {
-                    setAnalyticsSelectedId(item._id)
-                    onOpenAnalytics()
+                    setAnalyticsSelectedId(item._id);
+                    onOpenAnalytics();
                   }}
                 />
               </GridItem>
@@ -403,77 +421,120 @@ export default function ItemManagement() {
         </Box>
 
         {/* Mobile View */}
-        <Box display={{ base: 'block', lg: 'none' }} mt="40px">
-          {itemDataArray?.map((item, index) => (
-            <Box key={index} mb={4} p={4} borderWidth="1px" borderRadius="lg">
-              <Box><strong>Item Name:</strong> {item.item_name}</Box>
-              <Box><strong>Unit:</strong> {item.item_unit}</Box>
-              <Box><strong>Available:</strong> {item.available_quantity}</Box>
-              <Box><strong>Minimum:</strong> {item.minimum_quantity}</Box>
-              <Box><strong>Barcode No.:</strong> {item.existing_barcode_no ? item.existing_barcode_no : '--'}</Box>
-              <Box><strong>Last Replenished:</strong> {item.updatedAt.split('T')[0]}</Box>
-              <Box><strong>Expiry Date:</strong> {item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</Box>
-              <Box mt={2}>
-                <IconButton
-                  aria-label='Delete Item'
-                  colorScheme='red'
-                  size='sm'
-                  icon={<IoMdTrash />}
-                  onClick={() => handleDeleteItem(item._id)}
-                  mr={2}
-                />
-                <IconButton
-                  aria-label='Edit Item'
-                  colorScheme='yellow'
-                  size='sm'
-                  icon={<IoPencil />}
-                  onClick={() => {
-                    const inputPin = prompt('Enter your pin');
-                    setPencilIconSelectedId(item._id);
-                    setOverlay(<OverlayOne />);
-                    onOpenThree();
-                  }}
-                  mr={2}
-                />
-                <IconButton
-                  aria-label='View Item'
-                  colorScheme='green'
-                  size='sm'
-                  icon={<IoMdEye />}
-                  onClick={() => {
-                    setEyeIconSelectedId(item._id)
-                    setOverlay(<OverlayOne />)
-                    onOpenTwo()
-                  }}
-                  mr={2}
-                />
-                <IconButton
-                  aria-label='Generate Barcode'
-                  colorScheme='blue'
-                  size='sm'
-                  icon={<BiBarcodeReader />}
-                  onClick={() => {
-                    handleGenerateBarcode(item)
-                    setbarCodeData(item)
-                    onOpenBarCode()
-                  }}
-                  mr={2}
-                />
-                <IconButton
-                  aria-label='Analytics'
-                  colorScheme='teal'
-                  size='sm'
-                  icon={<IoMdAnalytics />}
-                  onClick={() => {
-                    setAnalyticsSelectedId(item._id)
-                    onOpenAnalytics()
-                  }}
-                />
+        <Box display={{ base: 'block', lg: 'none' }} mt="20px">
+          <Grid
+            templateColumns={{
+              base: '1fr',
+              sm: 'repeat(1, 1fr)',
+              md: 'repeat(2, 1fr)',
+              lg: 'repeat(2, 1fr)',
+              xl: 'repeat(2, 1fr)',
+            }}
+            gap={4}
+          // Adjust for width below 700px
+          // sx={{
+          //   '@media (max-width: 700px)': {
+          //     templateColumns: '1fr'
+          //   }
+          // }}
+          >
+            {itemDataArray?.map((item, index) => (
+              <Box
+                key={index}
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+                boxShadow="md"
+                bg="white"
+                _hover={{ boxShadow: 'lg' }}
+              >
+                <Grid
+                  templateColumns="auto 1fr"
+                  columnGap={2}
+                  rowGap={1}
+                  alignItems="center"
+                >
+                  <Box fontWeight="bold">Item Name:</Box>
+                  <Box className={styles.truncate}>{item.item_name}</Box>
+
+                  <Box fontWeight="bold">Unit:</Box>
+                  <Box className={styles.truncate}>{item.item_unit}</Box>
+
+                  <Box fontWeight="bold">Available:</Box>
+                  <Box className={styles.truncate}>{item.available_quantity}</Box>
+
+                  <Box fontWeight="bold">Minimum:</Box>
+                  <Box className={styles.truncate}>{item.minimum_quantity}</Box>
+
+                  <Box fontWeight="bold">Barcode No.:</Box>
+                  <Box className={styles.truncate}>{item.existing_barcode_no || '--'}</Box>
+
+                  <Box fontWeight="bold">Replenished:</Box>
+                  <Box className={styles.truncate}>{item.updatedAt.split('T')[0]}</Box>
+
+                  <Box fontWeight="bold">Expiry Date:</Box>
+                  <Box className={styles.truncate}>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</Box>
+                </Grid>
+
+                <Box mt={4} display="flex" justifyContent="space-between" alignItems="center">
+                  <IconButton
+                    aria-label="Delete Item"
+                    colorScheme="red"
+                    size="xs"
+                    icon={<IoMdTrash />}
+                    onClick={() => handleDeleteItem(item._id)}
+                  />
+                  <IconButton
+                    aria-label="Edit Item"
+                    colorScheme="yellow"
+                    size="xs"
+                    icon={<IoPencil />}
+                    onClick={() => {
+                      const inputPin = prompt('Enter your pin');
+                      setPencilIconSelectedId(item._id);
+                      setOverlay(<OverlayOne />);
+                      onOpenThree();
+                    }}
+                  />
+                  <IconButton
+                    aria-label="View Item"
+                    colorScheme="green"
+                    size="xs"
+                    icon={<IoMdEye />}
+                    onClick={() => {
+                      setEyeIconSelectedId(item._id);
+                      setOverlay(<OverlayOne />);
+                      onOpenTwo();
+                    }}
+                  />
+                  <IconButton
+                    aria-label="Generate Barcode"
+                    colorScheme="blue"
+                    size="xs"
+                    icon={<BiBarcodeReader />}
+                    onClick={() => {
+                      handleGenerateBarcode(item);
+                      setbarCodeData(item);
+                      onOpenBarCode();
+                    }}
+                  />
+                  <IconButton
+                    aria-label="Analytics"
+                    colorScheme="teal"
+                    size="xs"
+                    icon={<IoMdAnalytics />}
+                    onClick={() => {
+                      setAnalyticsSelectedId(item._id);
+                      onOpenAnalytics();
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))}
+          </Grid>
         </Box>
       </Box>
+
 
 
       {/* <div className={`d-none d-lg-block`} style={{ marginTop: '40px' }}>
@@ -485,7 +546,7 @@ export default function ItemManagement() {
           <div>Available</div>
           <div>Minimum</div>
           <div>Barcode No.</div>
-          <div>Last Replenished</div>
+          <div>Replenished:</div>
           <div>Expiry Date</div>
           <div>Action</div>
         </div>
@@ -591,7 +652,7 @@ export default function ItemManagement() {
 
                       </tr>
                       <tr>
-                        <th scope="row">Last Replenished</th>
+                        <th scope="row">Replenished:</th>
                         <td>{item.updatedAt.split('T')[0]}</td>
                       </tr>
 
@@ -659,7 +720,7 @@ export default function ItemManagement() {
                 <Th isNumeric>Available</Th>
                 <Th isNumeric>Minimum</Th>
                 <Th isNumeric>Usage Rate</Th>
-                <Th isNumeric>Last Replenished</Th>
+                <Th isNumeric>Replenished:</Th>
                 <Th>Action</Th>
             </Tr>
           </Thead>
@@ -723,7 +784,7 @@ export default function ItemManagement() {
               <Th isNumeric>Available</Th>
               <Th isNumeric>Minimum</Th>
               <Th isNumeric>Usage Rate</Th>
-              <Th isNumeric>Last Replenished</Th>
+              <Th isNumeric>Replenished:</Th>
               <Th>Action</Th>
             </Tr>
           </Tfoot>
@@ -852,7 +913,7 @@ export default function ItemManagement() {
                   </FormControl> */}
 
                   {/* <FormControl id="lastReplenished" isRequired>
-                    <FormLabel>Last Replenished</FormLabel>
+                    <FormLabel>Replenished:</FormLabel>
                     <Input
                       type="date"
                       value={lastReplenished}
@@ -950,9 +1011,9 @@ export default function ItemManagement() {
         isOpen={isOpenBarCodeScan}
         onOpen={onOpenBarCodeScan}
         onClose={onCloseBarCodeScan}
-        // handleScanResult={handleScanResult}
-        // scanResult={scanResult}
+      // handleScanResult={handleScanResult}
+      // scanResult={scanResult}
       />
-    </div>
+    </div >
   )
 }

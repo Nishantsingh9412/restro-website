@@ -5,7 +5,10 @@ import authDeliv from "../models/authDeliv.js";
 import Delivery from "../models/delivery.js";
 import Auth from "../models/auth.js";
 import Notification from "../models/notification.js";
-import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
+import {
+  notifyUser,
+  sendDeliveryOffer
+} from "../utils/socket.js";
 import axios from "axios";
 
 const getCoordinates = async (address) => {
