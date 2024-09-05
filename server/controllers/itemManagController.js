@@ -5,19 +5,21 @@ export const addItem = async (req, res) => {
     try {
         const {
             item_name,
-            item_unit,
+            item_unit_per_piece_value,
+            item_unit_per_piece_unit,
             available_quantity,
             minimum_quantity,
             bar_code,
-            existing_barcode_no,
             expiry_date,
             created_by,
+            // existing_barcode_no,
             // usage_rate_unit,
             // usage_rate_value,
         } = req.body;
 
         if (!item_name ||
-            !item_unit ||
+            !item_unit_per_piece_unit ||
+            !item_unit_per_piece_value ||
             !available_quantity ||
             !minimum_quantity ||
             !bar_code
@@ -32,11 +34,12 @@ export const addItem = async (req, res) => {
         } else {
             const newItem = await ItemManagement.create({
                 item_name,
-                item_unit,
+                item_unit_per_piece_value,
+                item_unit_per_piece_unit,
                 available_quantity,
                 minimum_quantity,
                 bar_code,
-                existing_barcode_no,
+                // existing_barcode_no,
                 expiry_date,
                 created_by,
                 // usage_rate_unit,
@@ -88,11 +91,12 @@ export const updateItem = async (req, res) => {
     const { id: _id } = req.params;
     const {
         item_name,
-        item_unit,
+        item_unit_per_piece_unit,
+        item_unit_per_piece_value,
         available_quantity,
         minimum_quantity,
         bar_code,
-        existing_barcode_no,
+        // existing_barcode_no,
         expiry_date,
         // usage_rate_value,
         // usage_rate_unit,
@@ -105,24 +109,35 @@ export const updateItem = async (req, res) => {
         const updateSingleItem = await ItemManagement.findByIdAndUpdate((_id), {
             $set: {
                 'item_name': item_name,
-                'item_unit': item_unit,
+                'item_unit_per_piece_unit': item_unit_per_piece_unit,
+                'item_unit_per_piece_value': item_unit_per_piece_value,
                 'available_quantity': available_quantity,
                 'minimum_quantity': minimum_quantity,
                 'bar_code': bar_code,
-                'existing_barcode_no': existing_barcode_no,
+                // 'existing_barcode_no': existing_barcode_no,
                 'expiry_date': expiry_date,
                 // 'usage_rate_value': usage_rate_value,
                 // 'usage_rate_unit': usage_rate_unit,
             }
         }, {
             new: true,
-            timestamps: { createdAt: false, updatedAt: true }
+            timestamps: {
+                createdAt: false,
+                updatedAt: true
+            }
         });
 
         if (updateSingleItem) {
-            return res.status(200).json({ success: true, message: "Item Updated", result: updateSingleItem })
+            return res.status(200).json({
+                success: true,
+                message: "Item Updated",
+                result: updateSingleItem
+            })
         } else {
-            return res.status(500).json({ success: false, message: "Error Updating Item" })
+            return res.status(500).json({
+                success: false,
+                message: "Error Updating Item"
+            })
         }
 
     } catch (error) {

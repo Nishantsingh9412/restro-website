@@ -35,6 +35,7 @@ const Address = ({ goToNextStep }) => {
   // const [noteFromCustomer, setNoteFromCustomer] = useState('');
   // For countries states and cities 
   const [jobLocation, setJobLocation] = useState([]);
+  const [addressType, setAddressType] = useState("existing");
 
   const [countriesAll, setCountriesAll] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState('');
@@ -199,33 +200,90 @@ const Address = ({ goToNextStep }) => {
         <div className="flex flex-wrap gap-3 items-center">
           <FormControl id="customer-name" isRequired>
             <FormLabel>Pickup Location</FormLabel>
-            <Input
-              disabled
-              type="text"
-              placeholder="Pickup Location"
-              value={formData.pickupLocationName}
-              isRequired
-            />
+            {/* <Input
+        disabled
+        type="text"
+        placeholder="Pickup Location"
+        value={formData.pickupLocationName}
+        isRequired
+      /> */}
+
+            <RadioGroup onChange={setAddressType} value={addressType} mt={4}>
+              <Radio value="existing">Use Existing Address</Radio>
+              <Radio value="new">Enter New Address</Radio>
+            </RadioGroup>
+
+            {addressType === "new" && (
+              <>
+                <FormControl id="address" isRequired mt={4}>
+                  <FormLabel>Address Line 1</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="1234 Main St"
+                    value={formData.address}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                  />
+                </FormControl>
+
+                <FormControl id="address2">
+                  <FormLabel>Address Line 2</FormLabel>
+                  <Input
+                    placeholder="Apartment, studio, or floor"
+                    value={formData.address2}
+                    onChange={(e) => handleChange("address2", e.target.value)}
+                  />
+                </FormControl>
+
+                <SimpleGrid columns={3} spacing={4} mt={4}>
+                  <FormControl id="country" isRequired>
+                    <FormLabel>Country</FormLabel>
+                    <Select
+                      options={countriesAll?.map((country) => country)}
+                      onChange={(e) => {
+                        setSelectedCountry(e.iso2);
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl id="state">
+                    <FormLabel>State</FormLabel>
+                    <Select
+                      options={statesAll?.map((state) => state)}
+                      isDisabled={statesLoading}
+                      isLoading={statesLoading}
+                      onChange={(e) => {
+                        setSelectedState(e.iso2);
+                        handleChange("state", e.value);
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl id="city">
+                    <FormLabel>City</FormLabel>
+                    <Select
+                      options={citiesAll?.map((city) => city)}
+                      isDisabled={citiesLoading}
+                      isLoading={citiesLoading}
+                      onChange={(e) => {
+                        handleChange("city", e.value);
+                      }}
+                    />
+                  </FormControl>
+                </SimpleGrid>
+
+                <FormControl id="zip" mt={4}>
+                  <FormLabel>Zip</FormLabel>
+                  <Input
+                    placeholder="Zip"
+                    type="number"
+                    value={formData.zip}
+                    onChange={(e) => handleChange("zip", e.target.value)}
+                  />
+                </FormControl>
+              </>
+            )}
           </FormControl>
-          <MapInput
-            data={{
-              pickupLocation: formData.pickupLocation,
-              pickupLocationName: formData.pickupLocationName,
-            }}
-            onSubmit={(data) => handleNewfields(data)}
-          />
         </div>
-
-        <FormControl id="customer-name" isRequired>
-          <FormLabel>Name</FormLabel>
-          <Input
-            type="text"
-            placeholder="Customer Name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-        </FormControl>
-
         <FormControl id="phone-number" mt={4} isRequired>
           <FormLabel>Phone Number</FormLabel>
           <Input
@@ -270,99 +328,19 @@ const Address = ({ goToNextStep }) => {
         </FormControl> */}
 
         <FormControl
-          id="address"
+          id="droplocation"
           isRequired
           mt={4}
         >
-          <FormLabel>Address Line 1</FormLabel>
-          <Input
-            type="text"
-            placeholder="1234 Main St"
-            value={formData.address}
-            onChange={(e) => handleChange("address", e.target.value)}
+          <FormLabel>Drop Location</FormLabel>
+          <MapInput
+            data={{
+              pickupLocation: formData.pickupLocation,
+              pickupLocationName: formData.pickupLocationName,
+            }}
+            onSubmit={(data) => handleNewfields(data)}
           />
         </FormControl>
-
-        <FormControl id="address2">
-          <FormLabel>Address Line 2</FormLabel>
-          <Input
-            placeholder="Apartment, studio, or floor"
-            value={formData.address2}
-            onChange={(e) => handleChange("address2", e.target.value)}
-          />
-        </FormControl>
-
-        <SimpleGrid columns={3} spacing={4}>
-          <FormControl id="city">
-
-            <FormControl id="country" isRequired>
-              <FormLabel>Country</FormLabel>
-              {/* <Input
-                type="text"
-                placeholder="Country"
-                value={formData.country}
-                onChange={(e) => handleChange("country", e.target.value)}
-              /> */}
-              <Select
-                options={countriesAll?.map((country) => country)}
-                onChange={(e) => {
-                  setSelectedCountry(e.iso2);
-                }}
-              />
-            </FormControl>
-
-
-            <FormControl id="state">
-              <FormLabel>State</FormLabel>
-              {/* <Input
-              placeholder="State"
-              type="text"
-              value={formData.state}
-              onChange={(e) => handleChange("state", e.target.value)}
-            /> */}
-              <Select
-                options={statesAll?.map((state) => state)}
-                isDisabled={statesLoading}
-                isLoading={statesLoading}
-                onChange={(e) => {
-                  setSelectedState(e.iso2);
-                  handleChange("state", e.value)
-                  // console.log('Selected State : ', e.value);
-                }}
-              />
-            </FormControl>
-
-            <FormLabel>City</FormLabel>
-            {/* <Input
-              type="text"
-              placeholder="City"
-              value={formData.city}
-              onChange={(e) => 
-                handleChange("city", e.target.value)
-                }
-            /> */}
-            <Select
-              options={citiesAll?.map((city) => city)}
-              isDisabled={citiesLoading}
-              isLoading={citiesLoading}
-              // isMulti
-              onChange={(e) => {
-                handleChange("city", e.value);
-                console.log('Selected City : ', e.iso2);
-              }}
-            />
-          </FormControl>
-
-          <FormControl id="zip">
-            <FormLabel>Zip</FormLabel>
-            <Input
-              placeholder="Zip"
-              type="number"
-              value={formData.zip}
-              onChange={(e) => handleChange("zip", e.target.value)}
-            />
-          </FormControl>
-        </SimpleGrid>
 
         <FormControl id="note-from-customer" mt={4}>
           <FormLabel>Note from Customer</FormLabel>

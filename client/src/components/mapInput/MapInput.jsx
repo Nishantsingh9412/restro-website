@@ -1,11 +1,5 @@
-import {
-  useEffect,
-  useState,
-  useRef
-} from "react";
-import {
-  useDispatch
-} from "react-redux";
+import { useEffect, useState, useRef } from "react";
+import { useDispatch } from "react-redux";
 import {
   Modal,
   ModalOverlay,
@@ -21,9 +15,7 @@ import {
 } from "@chakra-ui/react";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import tt from "@tomtom-international/web-sdk-maps";
-import {
-  setFormData
-} from "../../redux/action/stepperFormAction";
+import { setFormData } from "../../redux/action/stepperFormAction";
 
 export default function MapInput({ data, onSubmit }) {
   const dispatch = useDispatch();
@@ -61,18 +53,38 @@ export default function MapInput({ data, onSubmit }) {
           .setLngLat([utils.position[1], utils.position[0]])
           .addTo(mapRef.current);
 
+        // Update marker position on map click
+        // mapRef.current.on('click', (e) => {
+        //   const [lng, lat] = e.lngLat.toArray();
+        //   updateUtils({ position: [lat, lng] });
+        //   handleSearchByCoords(lat, lng);
+
+        //   if (markerRef.current) {
+        //     markerRef.current.setLngLat([lng, lat]);
+        //     mapRef.current.setCenter([lng, lat]); // Pan map to new center without reload
+        //   }
+        // });
         mapRef.current.on('click', (e) => {
           const [lng, lat] = e.lngLat.toArray();
-          updateUtils({ position: [lat, lng] });
-          handleSearchByCoords(lat, lng);
+          
+          // Pan map to the new center first
+          mapRef.current.panTo([lng, lat], { duration: 200 });
+        
+          // Update marker position
           if (markerRef.current) {
             markerRef.current.setLngLat([lng, lat]);
           }
+    
+          // Update the position in state and perform reverse geocoding
+          updateUtils({ position: [lat, lng] });
+          handleSearchByCoords(lat, lng);
         });
+
       } else {
         console.log("Map already initialized, updating center and zoom...");
         mapRef.current.setCenter(utils.position);
         mapRef.current.setZoom(utils.zoom);
+
         if (markerRef.current) {
           markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
         }
@@ -108,6 +120,7 @@ export default function MapInput({ data, onSubmit }) {
 
             if (markerRef.current) {
               markerRef.current.setLngLat([longitude, latitude]);
+              mapRef.current.setCenter([longitude, latitude]); // Update center without reload
             }
           } else {
             console.error("Geolocation coordinates out of range");
@@ -132,7 +145,7 @@ export default function MapInput({ data, onSubmit }) {
       return;
     }
 
-    const countrySet = 'IN';
+    const countrySet = process.env.REACT_APP_COUNTRY_CODE || "DE";
     const radius = 50000;
 
     const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(utils.search)}.json?key=${process.env.REACT_APP_TOMTOM_API_KEY}&countrySet=${countrySet}&radius=${radius}&typeahead=true`;
@@ -173,11 +186,7 @@ export default function MapInput({ data, onSubmit }) {
 
   useEffect(() => {
     if (mapRef.current && utils.position) {
-      mapRef.current.flyTo({
-        center: [utils.position[1], utils.position[0]],
-        zoom: utils.zoom,
-        essential: true
-      });
+      mapRef.current.setCenter([utils.position[1], utils.position[0]]); // Pan map to new position
 
       if (markerRef.current) {
         markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
@@ -208,11 +217,7 @@ export default function MapInput({ data, onSubmit }) {
         markerRef.current.setLngLat([newPosition[1], newPosition[0]]);
       }
 
-      mapRef.current.flyTo({
-        center: [newPosition[1], newPosition[0]],
-        zoom: utils.zoom,
-        essential: true
-      });
+      mapRef.current.setCenter([newPosition[1], newPosition[0]]); // Pan map to new position without animation reload
     } else {
       console.error("Map is not initialized.");
     }
@@ -261,32 +266,36 @@ export default function MapInput({ data, onSubmit }) {
                 borderRadius={"4px"}
                 bg={"blue.500"}
                 color={"#fff"}
-                _hover={{ background: "blue" }}
+                _hover={{ background: "blue.700" }}
+                style={{ flexShrink: "0" }}
               >
                 Search
               </Button>
             </form>
-            {utils.loading && <p>Loading...</p>}
-            {utils.error && <p style={{ color: 'red' }}>{utils.error}</p>}
-            {utils.suggestions.length > 0 && (
-              <List spacing={1} mt={2}>
-                {utils.suggestions.map((suggestion) => (
-                  <ListItem
-                    key={suggestion.id || suggestion.poi.name}
-                    p={2}
-                    bg="white.100"
-                    cursor="pointer"
-                    _hover={{ bg: "gray.200" }}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion.address?.freeformAddress || suggestion.poi.name}
-                    {suggestion.address?.country ? `, ${suggestion.address.country}` : ''}
-                  </ListItem>
-                ))}
-              </List>
-            )}
-            <div ref={mapContainer} style={{ height: "400px", width: "100%" }}></div>
-            <Button onClick={handleFinalSubmit} mt={4} bg={"blue.500"} color={"#fff"} _hover={{ background: "blue" }}>
+            {utils.error && <p>{utils.error}</p>}
+            <List>
+              {utils.suggestions.map((suggestion) => (
+                <ListItem
+                  key={suggestion.id}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  style={{ padding: "10px", borderBottom: "1px solid #ddd", cursor: "pointer" }}
+                >
+                  {suggestion.address?.freeformAddress || suggestion.poi?.name}
+                </ListItem>
+              ))}
+            </List>
+            <div
+              ref={mapContainer}
+              style={{ width: "100%", height: "400px", marginTop: "10px", cursor: "crosshair" }}
+            />
+            <Button
+              borderRadius={"4px"}
+              bg={"#029CFF"}
+              color={"#fff"}
+              _hover={{ background: "blue.500" }}
+              style={{ marginTop: "10px" }}
+              onClick={handleFinalSubmit}
+            >
               Submit
             </Button>
           </ModalBody>

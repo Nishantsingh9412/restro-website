@@ -52,6 +52,7 @@ import ViewAnalytics from './components/ViewAnalytics';
 import styles from './ItemManagement.module.css'
 import BarCodeScan from './components/BarCodeScan';
 import MyTableComponent from './components/MyTableComponent';
+import AddItemModal from './components/AddItemModal';
 
 
 
@@ -65,6 +66,9 @@ export default function ItemManagement() {
   )
 
   const dispatch = useDispatch();
+  
+  const [barcode_no_val, setBarcode_no_val] = useState('');
+  const [handlerFunction, setHandlerFunction] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isOpenTwo, onOpen: onOpenTwo, onClose: onCloseTwo } = useDisclosure()
@@ -83,7 +87,9 @@ export default function ItemManagement() {
   const [AnalyticsSelectedId, setAnalyticsSelectedId] = useState(null);
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
-  const [unit, setUnit] = useState('');
+  const [unit, setUnit] = useState('');             // This is the real unit  (KG, L, M, etc) 
+  const [unitValue,setUnitValue] = useState(0);    // This is unit per piece value (1, 2, 3, etc)
+  
 
   const [available, setAvailable] = useState(0);
   const [minimum, setMinimum] = useState(0);
@@ -96,6 +102,8 @@ export default function ItemManagement() {
   const [existingBarcodeNo, setExistingBarcodeNo] = useState('')
   const [expiryDate, setExpiryDate] = useState('')
   const [showOptions, setShowOptions] = useState(false);
+  const [showUsedOptions, setUsedOptions] = useState(false);
+  
   const [scanResult, setScanResult] = useState(null);
 
 
@@ -103,10 +111,10 @@ export default function ItemManagement() {
   const userId = localData?.result?._id;
   // console.log('This is userId: ', userId);
 
-  const handleScan = () => {
-    console.log('Scan button clicked');
-    onOpenBarCodeScan();
-  }
+  // const handleScan = () => {
+  //   console.log('Scan button clicked');
+  //   onOpenBarCodeScan();
+  // }
 
   // const handleScanResult = (err, result) => {
   //   if (result) {
@@ -139,20 +147,33 @@ export default function ItemManagement() {
       setOverlay(<OverlayOne />);
       onOpen();
     } else if (option === 2) {
-      handleScan();
+      setHandlerFunction(() => handleAfterScannedAdd);
+      onOpenBarCodeScan();
     }
-    setShowOptions(false); // Hide options after selection
+    setShowOptions(false);                                // Hide options after selection
   };
+
+  const handleUsedOptionClick = (option) => {
+    if (option === 1) {
+      setOverlay(<OverlayOne />);
+      onOpen();
+    } else if (option === 2) {
+      setHandlerFunction(() => handleAfterScannedUsed);
+      onOpenBarCodeScan();
+    }
+    setUsedOptions(false);                                // Hide options after selection
+  };
+
 
   const handleGenerateBarcode = (item) => {
     try {
       let canvas = bwipjs.toCanvas('mycanvas', {
-        bcid: 'code128',       // Barcode type
-        text: item.bar_code,    // Text to encode
-        scale: 3,               // 3x scaling factor
-        height: 10,              // Bar height, in millimeters
-        includetext: true,            // Show human-readable text
-        textxalign: 'center',        // Always good to set this
+        bcid: 'code128',                                    // Barcode type
+        text: item.bar_code,                                // Text to encode
+        scale: 3,                                           // 3x scaling factor
+        height: 10,                                         // Bar height, in millimeters
+        includetext: true,                                  // Show human-readable text
+        textxalign: 'center',                               // Always good to set this
       });
       // Convert the canvas to a data URL and save it in the state
       let dataUrl = canvas.toDataURL();
@@ -173,21 +194,30 @@ export default function ItemManagement() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // let barcodeValue;
     // Handle form submission
+    // if(!existingBarcodeNo){
+      // barcodeValue = nanoid(13);
+      // setBarcode_no_val(nanoid(13));
+    // }else{
+      // barcodeValue = existingBarcodeNo;
+      // setBarcode_no_val(existingBarcodeNo);
+    // }
+
     const newItemData = {
       item_name: itemName,
-      item_unit: unit,
+      item_unit_per_piece_unit: unit,
+      item_unit_per_piece_value:unitValue,
       available_quantity: available,
       minimum_quantity: minimum,
-      existing_barcode_no: existingBarcodeNo,
       expiry_date: expiryDate,
-      bar_code: nanoid(13),
+      bar_code: !existingBarcodeNo ? nanoid(13) : existingBarcodeNo,
       created_by: userId
+      // existing_barcode_no: existingBarcodeNo,
       // usage_rate_value: usageRateValue,
       // usage_rate_unit: usageRateUnit,
       // Last_Replenished: lastReplenished
     }
-
     const AddItemPromise = dispatch(AddItemAction(newItemData)).then((res) => {
       if (res.success) {
         onClose();
@@ -208,14 +238,15 @@ export default function ItemManagement() {
 
 
   const handleConfirmDelete = (deleteId) => {
-    const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId)).then((res) => {
-      if (res.success) {
-        dispatch(GetAllItemsAction(userId));
-        return res.message;
-      } else {
-        throw new Error('Error Deleting Item')
-      }
-    })
+    const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId))
+      .then((res) => {
+        if (res.success) {
+          dispatch(GetAllItemsAction(userId));
+          return res.message;
+        } else {
+          throw new Error('Error Deleting Item')
+        }
+      })
     toast.promise(
       deleteItemPromise,
       {
@@ -225,7 +256,6 @@ export default function ItemManagement() {
       }
     );
   }
-
 
   const handleDeleteItem = (id) => {
     const style = document.createElement('style');
@@ -275,7 +305,6 @@ export default function ItemManagement() {
     setUsageRateUnit('KG');
     setExistingBarcodeNo('1FRE6ZE124R78');
     setExpiryDate('2021-07-01');
-
     // setLastReplenished('2021-07-01');
   }
 
@@ -283,62 +312,92 @@ export default function ItemManagement() {
     setItemDataArray(ItemData)
   }, [ItemData])
 
+  const handleAfterScannedAdd = () => {
+    console.log(' Scan kro add kro : ');
+    // setScanResult(result);
+    // onCloseBarCodeScan();
+  }
+
+  const handleAfterScannedUsed = () => {
+    console.log(' Scan kro Use karo : ');
+    // setScanResult(result);
+    // onCloseBarCodeScan();
+  }
+
+
+
   return (
     <div style={{ marginTop: '5vw' }} >
-      <div >
-        {/* <button
-          className={styles.addbtn}
-          onClick={() => {
-            setOverlay(<OverlayOne />)
-            onOpen()
-          }}
-        >
-          Add Item
-        </button> */}
-        <button
-          className={styles.addbtn}
-          onClick={() => setShowOptions(!showOptions)}
-        >
-          Add Itemss
-        </button>
-
-
-        {
-          showOptions && (
-            <Box className={styles.options} mt={4}>
-              <Button
-                onClick={() => handleOptionClick(1)}
-                colorScheme="teal"
-                variant="solid"
-                mr={2}
-              >
-                Manually
-              </Button>
-              <Button
-                onClick={() => handleOptionClick(2)}
-                colorScheme="orange"
-                variant="solid"
-              >
-                Scan
-              </Button>
-            </Box>
-          )}
-      </div>
-
-      {/* <MyTableComponent
-        handleDeleteItem={handleDeleteItem}
-        handleGenerateBarcode={handleGenerateBarcode}
-        setbarCodeData={setbarCodeData}
-        setOverlay={setOverlay}
-        onOpenTwo={onOpenTwo}
-        onOpenThree={onOpenThree}
-        onOpenBarCode={onOpenBarCode}
-        onOpenAnalytics={onOpenAnalytics}
-        setEyeIconSelectedId={setEyeIconSelectedId}
-        setPencilIconSelectedId={setPencilIconSelectedId}
-        setAnalyticsSelectedId={setAnalyticsSelectedId}
-        itemDataArray={itemDataArray} 
-      /> */}
+      <Box
+        display="flex"
+        flexDirection={'row'}
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+        <div >
+          <button
+            className={styles.addbtn}
+            onClick={() => setShowOptions(!showOptions)}
+          >
+            Add Itemss
+          </button>
+          {
+            showOptions && (
+              <Box className={styles.options} mt={4}>
+                <Button
+                  onClick={() => handleOptionClick(1)}
+                  colorScheme="teal"
+                  variant="solid"
+                  mr={2}
+                >
+                  Manually
+                </Button>
+                <Button
+                  onClick={() => handleOptionClick(2)}
+                  colorScheme="orange"
+                  variant="solid"
+                >
+                  Scan
+                </Button>
+              </Box>
+            )}
+        </div>
+        <div>
+          <button
+            className={styles.addbtn}
+            onClick={() => setUsedOptions(!showUsedOptions)}
+          >
+            Used Itemss
+          </button>
+          {
+            showUsedOptions && (
+              <Box className={styles.options} mt={4}>
+                <Button
+                  onClick={
+                    () =>
+                      handleUsedOptionClick(1)
+                  }
+                  colorScheme="teal"
+                  variant="solid"
+                  mr={2}
+                >
+                  Manually
+                </Button>
+                <Button
+                  onClick={
+                    () =>
+                      handleUsedOptionClick(2)
+                  }
+                  colorScheme="orange"
+                  variant="solid"
+                >
+                  Scan
+                </Button>
+              </Box>
+            )}
+        </div>
+      </Box>
 
       <Box>
         {/* Desktop View */}
@@ -347,7 +406,7 @@ export default function ItemManagement() {
             <GridItem>Item Name</GridItem>
             <GridItem>Unit</GridItem>
             <GridItem>Available</GridItem>
-            <GridItem>Minimum</GridItem>
+            <GridItem>Low Stock</GridItem>
             <GridItem>Barcode No.</GridItem>
             <GridItem>Replenished</GridItem>
             <GridItem>Expiry Date</GridItem>
@@ -360,7 +419,7 @@ export default function ItemManagement() {
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.item_unit}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.available_quantity}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.minimum_quantity}</GridItem>
-              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.barcode_no ? item.barcode_no : '--'}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.updatedAt.split('T')[0]}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</GridItem>
               <GridItem className={styles.tableCell}>
@@ -463,11 +522,11 @@ export default function ItemManagement() {
                   <Box fontWeight="bold">Available:</Box>
                   <Box className={styles.truncate}>{item.available_quantity}</Box>
 
-                  <Box fontWeight="bold">Minimum:</Box>
+                  <Box fontWeight="bold">Low Stock:</Box>
                   <Box className={styles.truncate}>{item.minimum_quantity}</Box>
 
                   <Box fontWeight="bold">Barcode No.:</Box>
-                  <Box className={styles.truncate}>{item.existing_barcode_no || '--'}</Box>
+                  <Box className={styles.truncate}>{item.barcode_no || '--'}</Box>
 
                   <Box fontWeight="bold">Replenished:</Box>
                   <Box className={styles.truncate}>{item.updatedAt.split('T')[0]}</Box>
@@ -535,431 +594,36 @@ export default function ItemManagement() {
         </Box>
       </Box>
 
-
-
-      {/* <div className={`d-none d-lg-block`} style={{ marginTop: '40px' }}>
-        <div
-          className={styles.tableHeader}
-        >
-          <div>Item Name</div>
-          <div>Unit</div>
-          <div>Available</div>
-          <div>Minimum</div>
-          <div>Barcode No.</div>
-          <div>Replenished:</div>
-          <div>Expiry Date</div>
-          <div>Action</div>
-        </div>
-
-        {itemDataArray?.map((item, index) => (
-          <div className={styles.tableRow} key={index}>
-            <div>{item.item_name}</div>
-            <div>{item.item_unit}</div>
-            <div>{item.available_quantity}</div>
-            <div>{item.minimum_quantity}</div>
-            <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
-            <div>{item.updatedAt.split('T')[0]}</div>
-            <div>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'} </div>
-            <div>
-              <IconButton
-                aria-label='Delete Item'
-                colorScheme='red'
-                size='sm'
-                icon={<IoMdTrash />}
-                onClick={() => handleDeleteItem(item._id)}
-              />
-              <IconButton
-                aria-label='Edit Item'
-                colorScheme='yellow'
-                size='sm'
-                icon={<IoPencil />}
-                onClick={() => {
-                  const inputPin = prompt('Enter your pin');
-                  setPencilIconSelectedId(item._id);
-                  setOverlay(<OverlayOne />);
-                  onOpenThree();
-                }}
-              />
-              <IconButton
-                aria-label='Edit Item'
-                colorScheme='green'
-                size='sm'
-                icon={<IoMdEye />}
-                onClick={() => {
-                  setEyeIconSelectedId(item._id)
-                  setOverlay(<OverlayOne />)
-                  onOpenTwo()
-                }}
-              />
-              <IconButton
-                aria-label='Generate Barcode'
-                colorScheme='blue'
-                size='sm'
-                icon={<BiBarcodeReader />}
-                onClick={() => {
-                  handleGenerateBarcode(item)
-                  setbarCodeData(item)
-                  onOpenBarCode()
-                }}
-              />
-
-              <IconButton
-                aria-label='Generate Barcode'
-                colorScheme='teal'
-                size='sm'
-                icon={<IoMdAnalytics />}
-                onClick={() => {
-                  setAnalyticsSelectedId(item._id)
-                  onOpenAnalytics()
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div> */}
-
-
-      {/* <div className="d-sm-block d-md-block d-lg-none">
-        <div className="row">
-          {itemDataArray?.map((item, index) => (
-            <div className="col-12 col-sm-6 col-lg-4">
-              <div className="card mt-2"
-                style={{
-                  border: '3px solid #029CFF',
-                  borderRadius: '2rem'
-                }}
-                key={index}
-              >
-                <div className="card-body">
-                  <h5 className="card-title d-flex justify-content-center font-weight-bold">{item.item_name}</h5>
-                  <table className="table">
-                    <tbody>
-                      <tr>
-                        <th scope="row">Unit</th>
-                        <td>{item.item_unit}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Available</th>
-                        <td>{item.available_quantity}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Minimum</th>
-                        <td>{item.minimum_quantity}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Barcode No.</th>
-                        <div>{item.existing_barcode_no ? item.existing_barcode_no : '--'}</div>
-
-                      </tr>
-                      <tr>
-                        <th scope="row">Replenished:</th>
-                        <td>{item.updatedAt.split('T')[0]}</td>
-                      </tr>
-
-                      <tr>
-                        <th scope="row">Expiry Date</th>
-                        <td>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div className='d-flex justify-content-evenly' >
-                    <IconButton
-                      aria-label='Delete Item'
-                      colorScheme='red'
-                      size='sm'
-                      icon={<IoMdTrash />}
-                      onClick={() => handleDeleteItem(item._id)}
-                    />
-                    <IconButton
-                      aria-label='Edit Item'
-                      colorScheme='yellow'
-                      size='sm'
-                      icon={<IoPencil />}
-                      onClick={() => {
-                        setPencilIconSelectedId(item._id)
-                        setOverlay(<OverlayOne />)
-                        onOpenThree()
-                      }}
-                    />
-                    <IconButton
-                      aria-label='Edit Item'
-                      colorScheme='green'
-                      size='sm'
-                      icon={<IoMdEye />}
-                      onClick={() => {
-                        setEyeIconSelectedId(item._id)
-                        setOverlay(<OverlayOne />)
-                        onOpenTwo()
-                      }}
-                    />
-                    <IconButton
-                      aria-label='Generate Barcode'
-                      colorScheme='blue'
-                      size='sm'
-                      icon={<BiBarcodeReader />}
-                      onClick={() => {
-                        // handleGenerateBarcode(item)
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
-
-
-      {/* Table Start */}
-      {/* <Box style={{ marginTop: '2vw' }} overflowX="auto">
-        <Table variant="striped" colorScheme="teal" >
-          <Thead>
-            <Tr>
-                <Th>Item Name</Th>
-                <Th>Unit</Th>
-                <Th isNumeric>Available</Th>
-                <Th isNumeric>Minimum</Th>
-                <Th isNumeric>Usage Rate</Th>
-                <Th isNumeric>Replenished:</Th>
-                <Th>Action</Th>
-            </Tr>
-          </Thead>
-          <Tbody
-          >
-            {itemDataArray?.map((item, index) => {
-              return (
-                <Tr  key={index}>
-                  <Td>{item.item_name}</Td>
-                  <Td>{item.item_unit}</Td>
-                  <Td isNumeric>{item.available_quantity}</Td>
-                  <Td isNumeric>{item.minimum_quantity}</Td>
-                  <Td isNumeric>{item.usage_rate_value}{item.usage_rate_unit}</Td>
-                  <Td isNumeric>{item.updatedAt.split('T')[0]}</Td>
-                  <Td
-                    display={'flex'}
-                  >
-
-                    <IconButton
-                      aria-label='Delete Item'
-                      colorScheme='red'
-                      size='sm'
-                      icon={<IoMdTrash
-                        onClick={() => handleDeleteItem(item._id)}
-                      />} />
-
-                    <IconButton
-                      // ml={2}
-                      aria-label='Edit Item'
-                      colorScheme='yellow'
-                      size='sm'
-                      icon={<IoPencil />}
-                      onClick={() => {
-                        setPencilIconSelectedId(item._id)
-                        setOverlay(<OverlayOne />)
-                        onOpenThree()
-                      }}
-                    />
-
-                    <IconButton
-                      // ml={2}
-                      aria-label='Edit Item'
-                      colorScheme='green'
-                      size='sm'
-                      icon={<IoMdEye />}
-                      onClick={() => {
-                        setEyeIconSelectedId(item._id)
-                        setOverlay(<OverlayOne />)
-                        onOpenTwo()
-                      }}
-                    />
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>Item Name</Th>
-              <Th>Unit</Th>
-              <Th isNumeric>Available</Th>
-              <Th isNumeric>Minimum</Th>
-              <Th isNumeric>Usage Rate</Th>
-              <Th isNumeric>Replenished:</Th>
-              <Th>Action</Th>
-            </Tr>
-          </Tfoot>
-        </Table>
-      </Box> */}
-      {/* Table End */}
-
       {/* Add Modal Start */}
-      <>
-        <Modal isCentered isOpen={isOpen} onClose={onClose}>
-          {overlay}
-          <ModalContent
-            background={'#D8EFFE'}
-            border='5px solid #fff'
-          >
-            <ModalHeader
-              textAlign='center'
-            >
-              Add Item
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
+      <AddItemModal
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+        itemName={itemName}
+        setItemName={setItemName}
+        unit={unit}
+        setUnit={setUnit}
+        unitValue={unitValue}
+        setUnitValue={setUnitValue}
+        available={available}
+        setAvailable={setAvailable}
+        minimum={minimum}
+        setMinimum={setMinimum}
+        usageRateValue={usageRateValue}
+        setUsageRateValue={setUsageRateValue}
+        usageRateUnit={usageRateUnit}
+        setUsageRateUnit={setUsageRateUnit}
+        pin={pin}
+        setPin={setPin}
+        existingBarcodeNo={existingBarcodeNo}
+        setExistingBarcodeNo={setExistingBarcodeNo}
+        expiryDate={expiryDate}
+        setExpiryDate={setExpiryDate}
+        handleSubmit={handleSubmit}
+        handleAutoAddVals={handleAutoAddVals}
+      />
 
-              <Button onClick={handleAutoAddVals} >
-                +
-              </Button>
 
-
-              {/* Check for FormError */}
-              {/* <FormControl isInvalid={isError}>
-                <FormLabel>Email</FormLabel>
-                <Input type='email' value={input} onChange={handleInputChange} />
-                {!isError ? (
-                  <FormHelperText>
-                    Enter the email you'd like to receive the newsletter on.
-                  </FormHelperText>
-                ) : (
-                  <FormErrorMessage>Email is required.</FormErrorMessage>
-                )}
-              </FormControl> */}
-
-              {/* Form Start */}
-              <Box
-                maxW="sm"
-                m="auto"
-                p="4"
-                // borderWidth="1px"
-                borderRadius="lg"
-              // border='4px solid #fff'
-              // background={'whiteAlpha.100'}
-              >
-                <form onSubmit={handleSubmit}>
-                  <FormControl id="itemName" isRequired>
-                    <FormLabel>Item Name</FormLabel>
-                    <Input
-                      type="text"
-                      value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <FormControl id="unit" isRequired>
-                    <FormLabel>Unit</FormLabel>
-                    {/* <Input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} /> */}
-                    <Select
-                      placeholder="Select Unit"
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                    >
-                      <option value="Grams">Grams</option>
-                      <option value="KG">KG</option>
-                      <option value="Litre">Litre</option>
-                      <option value="Piece">Piece</option>
-                      <option value="Gallon">Gallon</option>
-                      <option value="Dozen">Dozen</option>
-                    </Select>
-                  </FormControl>
-
-                  <FormControl id="available" isRequired>
-                    <FormLabel>Available</FormLabel>
-                    <Input
-                      type="number"
-                      step={'any'}
-                      value={available}
-                      onChange={(e) => setAvailable(Number(e.target.value))}
-                    />
-                  </FormControl>
-
-                  <FormControl id="minimum" isRequired>
-                    <FormLabel>Minimum</FormLabel>
-                    <Input
-                      type="number"
-                      step={'any'}
-                      value={minimum}
-                      onChange={(e) => setMinimum(Number(e.target.value))}
-                    />
-                  </FormControl>
-
-                  {/* <FormControl id="usageRate" isRequired>
-                    <FormLabel>Usage Rate</FormLabel>
-                    <Flex>
-                      <Input
-                        flex="1"
-                        mr="2"
-                        type="number"
-                        step={'any'}
-                        value={usageRateValue}
-                        onChange={(e) => setUsageRateValue(Number(e.target.value))}
-                        placeholder="Value"
-                      />
-                      <Select
-                        flex="1"
-                        ml="2"
-                        placeholder="Select Unit"
-                        value={usageRateUnit}
-                        onChange={(e) => setUsageRateUnit(e.target.value)}
-                      >
-                        <option value="Grams">Grams</option>
-                        <option value="KG">KG</option>
-                        <option value="Litre">Litre</option>
-                        <option value="Piece">Piece</option>
-                        <option value="Gallon">Gallon</option>
-                        <option value="Dozen">Dozen</option>
-                      </Select>
-                    </Flex>
-                  </FormControl> */}
-
-                  {/* <FormControl id="lastReplenished" isRequired>
-                    <FormLabel>Replenished:</FormLabel>
-                    <Input
-                      type="date"
-                      value={lastReplenished}
-                      onChange={(e) => setLastReplenished(e.target.value)}
-                    />
-                  </FormControl> */}
-                  <FormControl id="expiryDate">
-                    <FormLabel>
-                      Expiry Date
-                    </FormLabel>
-                    <Input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                    />
-                  </FormControl>
-                  <FormControl id="existingBarcodeNo" >
-                    <FormLabel>Barcode No</FormLabel>
-                    <Input
-                      type="text"
-                      value={existingBarcodeNo}
-                      onChange={(e) => setExistingBarcodeNo(e.target.value)}
-                    />
-                  </FormControl>
-                  <Button
-                    mt="4"
-                    colorScheme='cyan'
-                    color='#fff'
-                    type="submit"
-                  >
-                    Add Item
-                  </Button>
-                </form>
-              </Box>
-              {/* Form End */}
-
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                colorScheme='gray'
-
-                onClick={onClose}>Close</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </>
       {/* Add Modal End */}
 
       {/* View Modal Start */}
@@ -1011,9 +675,13 @@ export default function ItemManagement() {
         isOpen={isOpenBarCodeScan}
         onOpen={onOpenBarCodeScan}
         onClose={onCloseBarCodeScan}
+        handleAfterScanned={handlerFunction}
+      />
+        {/* // handleAfterScanned={handleAfterScannedAdd}
+        // handleAfterScannedUsed={handleAfterScannedUsed}
       // handleScanResult={handleScanResult}
       // scanResult={scanResult}
-      />
+      // /> */}
     </div >
   )
 }

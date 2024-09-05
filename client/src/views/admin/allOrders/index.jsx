@@ -41,6 +41,7 @@ import { AddOrderItemAction, getAllOrderItemsAction, searchOrderItemAction, sear
 import CartDrawer from './components/CartDrawer';
 import DrinksModal from './components/DrinksModal';
 import AnimatedBadge from './components/AnimatedBadge';
+import AnimatedBox from './components/AnimatedBox';
 
 
 export default function AllOrders() {
@@ -51,6 +52,7 @@ export default function AllOrders() {
     )
 
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const [clickedIndex, setClickedIndex] = useState(null);
     const { isOpen: isOpenCart, onOpen: onOpenCart, onClose: onCloseCart } = useDisclosure()
     const { isOpen: isOpenDrinks, onOpen: onOpenDrinks, onClose: onCloseDrinks } = useDisclosure()
     const [overlay, setOverlay] = React.useState(<OverlayOne />)
@@ -454,9 +456,7 @@ export default function AllOrders() {
 
             {/* Drinks modal Ends */}
 
-
             <Box display={{ base: "block", md: "flex" }}>
-
                 {/* Box1 */}
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
                     <InputGroup>
@@ -553,30 +553,36 @@ export default function AllOrders() {
                         <>
                             <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
                                 {allItemsData?.map((result, index) => (
-                                    <Box key={result._id} display="flex" flexDirection="column" alignItems="center">
+                                    <AnimatedBox
+                                        key={result._id}
+                                        display="flex"
+                                        flexDirection="column"
+                                        alignItems="center"
+                                        isClicked={clickedIndex === index}  // Pass the clicked state
+                                        onClick={() => {
+                                            setClickedIndex(index);
+                                            handleAddItemOrder(result);
+                                        }}
+                                    >
                                         <Box>
                                             <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
                                         </Box>
                                         <Box marginLeft="1rem">
                                             <Text mt="1" fontWeight="semibold" as="h6" lineHeight="tight" isTruncated>
                                                 {result?.orderName}
-                                                {/* {result?.isFavorite ? 'Yes' : 'No'} */}
                                             </Text>
                                             <Text
                                                 style={{ cursor: 'pointer', userSelect: 'none' }}
-                                                onClick={() => {
-                                                    handleAddItemOrder(result);
-                                                }}
-                                            >  Add To Cart </Text>
+                                            >
+                                                Add To Cart
+                                            </Text>
                                         </Box>
-                                    </Box>
+                                    </AnimatedBox>
                                 ))}
                             </Box>
                         </>
                     }
                 </Box>
-
-
                 {/* <Button
                     onClick={() => generateBill(selectedItemTemp, allOrderTotal)}
                 >
@@ -586,14 +592,8 @@ export default function AllOrders() {
                 {/* Box 2 */}
                 <Box flexBasis={{ base: "100%", md: "50%" }} p={5} borderWidth={1} margin={3}>
                     <InputGroup>
-                        {/* Box2 */}
-                        <InputLeftElement
-                            pointerEvents={'none'}
-                        >
-                            <IoMdSearch
-                                size={'20'}
-                                aria-label="Search database"
-                            />
+                        <InputLeftElement pointerEvents={'none'}>
+                            <IoMdSearch size={'20'} aria-label="Search database" />
                         </InputLeftElement>
                         <InputRightElement>
                             <MdCancel
@@ -605,7 +605,6 @@ export default function AllOrders() {
                                 }}
                             />
                         </InputRightElement>
-
                         <Input
                             paddingLeft={'2.5rem'}
                             borderRadius={'50px'}
@@ -622,88 +621,56 @@ export default function AllOrders() {
                             }}
                         />
                     </InputGroup>
-                    {drinksSearchPerformed ?
-                        <>
-                            <List mt={2}>
-                                {searchResultsDrinks?.map((result, index) => (
-                                    <Box
-                                        key={index}
-                                        borderWidth="1px"
-                                        borderRadius="lg"
-                                        overflow="hidden"
-                                        mb={3}
-                                    >
-                                        <Box p="6">
-                                            <Box display="flex" alignItems="center">
-                                                <Box>
-                                                    <Image
-                                                        borderRadius='full'
-                                                        boxSize='50px'
-                                                        src={result?.pic}
-                                                        alt='Food-Image'
-                                                    />
-                                                </Box>
-                                                <Box marginLeft={'1rem'}>
-                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                                        {result?.orderName}
-                                                    </Text>
-                                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                                        {result?.priceVal} {result?.priceUnit}
-                                                    </Text>
-                                                </Box>
-                                            </Box>
-
-                                            <Box display={'flex'} justifyContent={'end'}>
-                                                <Box
-                                                    display={'flex'}
-                                                    background={'#fa4a0c'}
-                                                    color={'white'}
-                                                    gap={'1rem'}
-                                                    borderRadius={'50px'}
-                                                    paddingRight={'10px'}
-                                                    paddingLeft={'10px'}
-                                                >
-                                                    <Text
-                                                        style={{ cursor: 'pointer', userSelect: 'none', padding: '10px' }}
-                                                        onClick={() => {
-                                                            handleAddItemOrder(result);
-                                                        }}
-                                                    >Add To Cart</Text>
-                                                </Box>
+                    {drinksSearchPerformed ? (
+                        <List mt={2}>
+                            {searchResultsDrinks?.map((result, index) => (
+                                <AnimatedBox
+                                    key={index}
+                                    onClick={() => handleAddItemOrder(result)}
+                                >
+                                    <Box p="6">
+                                        <Box display="flex" alignItems="center">
+                                            <Image
+                                                borderRadius='full'
+                                                boxSize='50px'
+                                                src={result?.pic}
+                                                alt='Food-Image'
+                                            />
+                                            <Box marginLeft={'1rem'}>
+                                                <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                    {result?.orderName}
+                                                </Text>
+                                                <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
+                                                    {result?.priceVal} {result?.priceUnit}
+                                                </Text>
                                             </Box>
                                         </Box>
                                     </Box>
-                                ))}
-                            </List>
-                        </> :
-                        <>
-                            <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
-                                {drinksData?.map((result, index) => (
-                                    <Box key={result._id} display="flex" flexDirection="column" alignItems="center">
-                                        <Box>
-                                            <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
-                                        </Box>
+                                </AnimatedBox>
+                            ))}
+                        </List>
+                    ) : (
+                        <Box marginTop={'1rem'} display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={6}>
+                            {drinksData?.map((result) => (
+                                <AnimatedBox
+                                    key={result._id}
+                                    onClick={() => handleAddItemOrder(result)}
+                                >
+                                    <Box display="flex" flexDirection="column" alignItems="center">
+                                        <Image borderRadius="full" boxSize="50px" src={result?.pic} alt="Food-Image" />
                                         <Box marginLeft="1rem">
                                             <Text mt="1" fontWeight="semibold" as="h6" lineHeight="tight" isTruncated>
                                                 {result?.orderName}
-                                                {/* {result?.isFavorite ? 'Yes' : 'No'} */}
                                             </Text>
-                                            <Text
-                                                style={{ cursor: 'pointer', userSelect: 'none' }}
-                                                onClick={() => {
-                                                    handleAddItemOrder(result);
-                                                }}
-                                            >  Add To Cart </Text>
+                                            <Text> Add To Cart </Text>
                                         </Box>
                                     </Box>
-                                ))}
-                            </Box>
-                        </>
-                    }
+                                </AnimatedBox>
+                            ))}
+                        </Box>
+                    )}
                 </Box>
             </Box>
-
-
             {/* Cart Drawer Start */}
             <CartDrawer
                 isOpen={isOpenCart}

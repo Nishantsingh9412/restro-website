@@ -106,7 +106,7 @@ export default function HeaderLinks(props) {
 			p="10px"
 			borderRadius="30px"
 			boxShadow={shadow}>
-			<SearchBar mb={secondary ? { base: '10px', md: 'unset' } : 'unset'} me="10px" borderRadius="30px" />
+			{/* <SearchBar mb={secondary ? { base: '10px', md: 'unset' } : 'unset'} me="10px" borderRadius="30px" /> */}
 			<Flex
 				bg={ethBg}
 				display={secondary ? 'flex' : 'none'}
@@ -220,7 +220,6 @@ export default function HeaderLinks(props) {
 			</Menu> */}
 
 			{/* <ThemeEditor navbarIcon={navbarIcon} /> */}
-
 			<Menu>
 				<MenuButton p="0px">
 					<Avatar

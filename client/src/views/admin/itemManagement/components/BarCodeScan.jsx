@@ -82,7 +82,11 @@ import {
 } from '@chakra-ui/react';
 import BarcodeScannerComponent from 'react-qr-barcode-scanner';
 
-const BarcodeScanner = ({ isOpen, onClose }) => {
+const BarcodeScanner = ({
+    isOpen,
+    onClose,
+    handleAfterScanned,
+}) => {
     const [scanResult, setScanResult] = useState("Not Found");
     const [isScanning, setIsScanning] = useState(true);
 
@@ -95,7 +99,17 @@ const BarcodeScanner = ({ isOpen, onClose }) => {
     const handleScanAgain = () => {
         setScanResult("Not Found");
         setIsScanning(true);
+        
     };
+
+    const handleResultScanned = (result) => {
+        if (result) {
+            console.log("Barcode scan result:", result);
+            setScanResult(result.text);
+            setIsScanning(false);                      // Stop scanning once a barcode is detected
+            handleAfterScanned();
+        }
+    }
 
     return (
         <Modal isOpen={isOpen} onClose={handleClose}>
@@ -113,9 +127,7 @@ const BarcodeScanner = ({ isOpen, onClose }) => {
                                     console.error("Barcode scan error:", err);
                                 }
                                 if (result) {
-                                    console.log("Barcode scan result:", result);
-                                    setScanResult(result.text);
-                                    setIsScanning(false); // Stop scanning once a barcode is detected
+                                    handleResultScanned(result);
                                 }
                             }}
                         />

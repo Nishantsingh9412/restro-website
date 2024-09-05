@@ -22,8 +22,7 @@ const MyTableComponent = ({
   OverlayOne,
 }) => {
   // Debugging: Log the raw item data
-  console.log("Raw Item Data Array:", itemDataArray);
-
+  // console.log("Raw Item Data Array:", itemDataArray);
   const columns = useMemo(() => [
     {
       id: 'item_name',

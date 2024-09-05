@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import {
+    nanoid
+} from 'nanoid'
+import {
     Modal,
     ModalOverlay,
     ModalContent,
@@ -33,7 +36,7 @@ const EdiItem = (props) => {
 
     const [EditItemName, setEditItemName] = useState('')
     const [EditUnit, setEditUnit] = useState('')
-
+    const [unitValue, setUnitValue] = useState(0)
     const [EditAvailable, setEditAvailable] = useState(0)
     const [EditMinimum, setEditMinimum] = useState(0)
     const [EditUsageRateValue, setEditUsageRateValue] = useState(0)
@@ -51,8 +54,9 @@ const EdiItem = (props) => {
             item_unit: EditUnit,
             available_quantity: EditAvailable,
             minimum_quantity: EditMinimum,
-            existing_barcode_no: EditExistingBarcodeNo,
+            bar_code: !EditExistingBarcodeNo ? nanoid(13) : EditExistingBarcodeNo,
             expiry_date: EditExpirationDate
+            // existing_barcode_no: EditExistingBarcodeNo,
             // usage_rate_value: EditUsageRateValue,
             // usage_rate_unit: EditUsageRateUnit,
             // // Last_Replenished: EditLastReplenished
@@ -93,12 +97,13 @@ const EdiItem = (props) => {
     useEffect(() => {
         if (SelectedItemData) {
             setEditItemName(SelectedItemData?.item_name)
-            setEditUnit(SelectedItemData?.item_unit)
+            setEditUnit(SelectedItemData?.item_unit_per_piece_unit)
             setEditAvailable(SelectedItemData?.available_quantity)
             setEditMinimum(SelectedItemData?.minimum_quantity)
+            setUnitValue(SelectedItemData?.item_unit_per_piece_value)
             setEditUsageRateValue(SelectedItemData?.usage_rate_value)
             setEditUsageRateUnit(SelectedItemData?.usage_rate_unit)
-            setEditExistingBarcodeNo(SelectedItemData?.existing_barcode_no)
+            setEditExistingBarcodeNo(SelectedItemData?.bar_code)
             setEditExpirationDate(SelectedItemData?.expiry_date?.split('T')[0])
             // setEditLastReplenished(SelectedItemData?.Last_Replenished.split('T')[0])
         }
@@ -137,41 +142,59 @@ const EdiItem = (props) => {
                                                     onChange={(e) => setEditItemName(e.target.value)}
                                                 />
                                             </FormControl>
+                                            <FormLabel
+                                                mb={'0'}
+                                            >
+                                                Unit Per Piece
+                                            </FormLabel>
+                                            <Box
+                                                display="flex"
+                                                justifyContent="space-between"
+                                                alignItems="center"
+                                            >
 
-                                            <FormControl id="unit" isRequired>
-                                                <FormLabel>Unit</FormLabel>
-                                                {/* <Input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} /> */}
-                                                <Select
-                                                    placeholder="Select Unit"
-                                                    value={EditUnit}
-                                                    onChange={(e) => setEditUnit(e.target.value)}
+                                                <FormControl id="unitValue" isRequired >
+                                                    <FormLabel>Value</FormLabel>
+                                                    <Input
+                                                        type="number"
+                                                        step={'any'}
+                                                        value={unitValue}
+                                                        onChange={
+                                                            (e) =>
+                                                                setUnitValue(parseInt(e.target.value))
+                                                        }
+                                                    />
+                                                </FormControl>
+
+                                                <FormControl
+                                                    id="unit"
+                                                    isRequired
                                                 >
-                                                    <option value="Grams">Grams</option>
-                                                    <option value="KG">KG</option>
-                                                    <option value="Litre">Litre</option>
-                                                    <option value="Piece">Piece</option>
-                                                    <option value="Gallon">Gallon</option>
-                                                    <option value="Dozen">Dozen</option>
-                                                </Select>
-                                            </FormControl>
+                                                    <FormLabel>Unit</FormLabel>
+                                                    {/* <Input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} /> */}
+                                                    <Select
+                                                        placeholder="Select Unit"
+                                                        value={EditUnit}
+                                                        onChange={(e) => setEditUnit(e.target.value)}
+                                                    >
+                                                        <option value="Grams">Grams</option>
+                                                        <option value="KG">KG</option>
+                                                        <option value="Litre">Litre</option>
+                                                        {/* <option value="Piece">Piece</option> */}
+                                                        <option value="Gallon">Gallon</option>
+                                                        <option value="Dozen">Dozen</option>
+                                                    </Select>
+                                                </FormControl>
+                                            </Box>
 
-                                            <FormControl id="available" isRequired>
-                                                <FormLabel>Available</FormLabel>
-                                                <Input
-                                                    type="number"
-                                                    step={'any'}
-                                                    value={EditAvailable}
-                                                    onChange={(e) => setEditAvailable(Number(e.target.value))}
-                                                />
-                                            </FormControl>
 
-                                            <FormControl id="minimum" isRequired>
-                                                <FormLabel>Minimum</FormLabel>
+                                            <FormControl id="lowStock" isRequired>
+                                                <FormLabel>low Stock</FormLabel>
                                                 <Input
                                                     type="number"
                                                     step={'any'}
                                                     value={EditMinimum}
-                                                    onChange={(e) => setEditMinimum(Number(e.target.value))}
+                                                    onChange={(e) => setEditMinimum(parseInt(e.target.value))}
                                                 />
                                             </FormControl>
 
@@ -185,7 +208,7 @@ const EdiItem = (props) => {
                                             </FormControl>
 
                                             <FormControl id='expirationDate' >
-                                                <FormLabel>Expiration Date</FormLabel>  
+                                                <FormLabel>Expiration Date</FormLabel>
                                                 <Input
                                                     type="date"
                                                     value={EditExpirationDate}

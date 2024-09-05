@@ -72,7 +72,7 @@ const ViewItem = (props) => {
                                     <Td>{SelectedItemData?.available_quantity}</Td>
                                 </Tr>
                                 <Tr>
-                                    <Td fontWeight={'bold'}>Minimum Quantity:</Td>
+                                    <Td fontWeight={'bold'}>Low Stock:</Td>
                                     <Td>{SelectedItemData?.minimum_quantity}</Td>
                                 </Tr>
                                 {/* <Tr>
