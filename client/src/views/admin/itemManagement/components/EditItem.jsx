@@ -4,29 +4,31 @@ import {
 } from 'nanoid'
 import {
     Modal,
-    ModalOverlay,
+    // ModalOverlay,
     ModalContent,
     ModalHeader,
     ModalFooter,
     ModalBody,
     ModalCloseButton,
-    useDisclosure,
+    // useDisclosure,
     Button,
-    Text,
+    // Text,
     Box,
     FormControl,
     FormLabel,
     Input,
     Select,
-    Flex
+    // Flex
 } from '@chakra-ui/react';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ScaleLoader } from 'react-spinners';
 
-import { GetSingleItemAction, updateSingleItemAction } from '../../../../redux/action/Items';
+import {
+    GetSingleItemAction,
+    updateSingleItemAction
+} from '../../../../redux/action/Items';
 
 // import { GetSingleItemAction } from '../../../../redux/action/Items.js';
 
@@ -81,14 +83,11 @@ const EdiItem = (props) => {
 
     // const { isOpen, onOpen, onClose } = useDisclosure()
     // const [overlay, setOverlay] = useState(<OverlayOne />)
-
-
     useEffect(() => {
         dispatch(GetSingleItemAction(ItemId))
             .finally(() => {
                 setLoadingEditModal(false);
             });
-
     }, [ItemId])
 
     const SelectedItemData = useSelector((state) => state.itemsReducer.selectedItem);

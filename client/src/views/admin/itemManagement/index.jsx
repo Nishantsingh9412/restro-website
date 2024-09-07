@@ -37,22 +37,29 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react"
-
 import { IoMdEye, IoMdTrash } from 'react-icons/io';
 import { IoPencil } from 'react-icons/io5';
+import { MdLocalPrintshop } from 'react-icons/md';
 import { BiBarcodeReader } from 'react-icons/bi';
 import { IoMdAnalytics } from "react-icons/io";
+import printJS from 'print-js';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AddItemAction, GetAllItemsAction, deleteSingleItemAction } from '../../../redux/action/Items';
+import {
+  AddItemAction,
+  GetAllItemsAction,
+  deleteSingleItemAction
+} from '../../../redux/action/Items';
 import ViewItem from './components/ViewItem'
 import EdiItem from './components/EditItem';
 import ViewCode from './components/ViewCode';
 import ViewAnalytics from './components/ViewAnalytics';
 import styles from './ItemManagement.module.css'
 import BarCodeScan from './components/BarCodeScan';
-import MyTableComponent from './components/MyTableComponent';
+// import MyTableComponent from './components/MyTableComponent';
 import AddItemModal from './components/AddItemModal';
+import BarCodePrinter from './components/BarCodePrinter';
+// import BarCodePrinter from './components/BarCodePrinter';
 
 
 
@@ -66,7 +73,7 @@ export default function ItemManagement() {
   )
 
   const dispatch = useDispatch();
-  
+
   const [barcode_no_val, setBarcode_no_val] = useState('');
   const [handlerFunction, setHandlerFunction] = useState(null);
 
@@ -88,8 +95,8 @@ export default function ItemManagement() {
   const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState('');
   const [unit, setUnit] = useState('');             // This is the real unit  (KG, L, M, etc) 
-  const [unitValue,setUnitValue] = useState(0);    // This is unit per piece value (1, 2, 3, etc)
-  
+  const [unitValue, setUnitValue] = useState(0);    // This is unit per piece value (1, 2, 3, etc)
+
 
   const [available, setAvailable] = useState(0);
   const [minimum, setMinimum] = useState(0);
@@ -103,7 +110,12 @@ export default function ItemManagement() {
   const [expiryDate, setExpiryDate] = useState('')
   const [showOptions, setShowOptions] = useState(false);
   const [showUsedOptions, setUsedOptions] = useState(false);
-  
+  const [barCodePrint, setBarCodePrint] = useState(false);
+  console.log(
+    112,
+    'This is barCodePrint: ',
+    barCodePrint
+  );
   const [scanResult, setScanResult] = useState(null);
 
 
@@ -183,6 +195,33 @@ export default function ItemManagement() {
     }
   }
 
+  // const handlePrint = async (item) => {
+  //   try {
+  //     // Ensure the correct barcode is being generated
+  //     await handleGenerateBarcode(item); // Await the generation of the barcode
+
+  //     // Use printJS to print the barcode directly after it's generated
+  //     printJS({
+  //       printable: barcodeDataUrl,       // Use the barcode image URL
+  //       type: 'image',                   // Print as an image
+  //       header: `Barcode Number: ${item?.bar_code}`, // Optional header for the print
+  //       showModal: true,                 // Show a modal for printing (optional)
+  //       targetStyles: ['*']              // Ensure all styles are applied
+  //     });
+  //   } catch (error) {
+  //     console.error("Error generating barcode:", error); // Handle any errors
+  //   }
+  // };
+
+
+
+  // const handlePrintBarCodeNo = (bar_code) => {
+  //   console.log(188,bar_code)
+  //   let printWindow = window.open('', '', 'width=600,height=600');
+  //   printWindow.document.write('<img src="' + bar_code + '" />');
+  //   printWindow.print();
+  // }
+
   const checkPin = (inputPin) => {
     if (inputPin === '1234') {
       return true;
@@ -197,17 +236,17 @@ export default function ItemManagement() {
     // let barcodeValue;
     // Handle form submission
     // if(!existingBarcodeNo){
-      // barcodeValue = nanoid(13);
-      // setBarcode_no_val(nanoid(13));
+    // barcodeValue = nanoid(13);
+    // setBarcode_no_val(nanoid(13));
     // }else{
-      // barcodeValue = existingBarcodeNo;
-      // setBarcode_no_val(existingBarcodeNo);
+    // barcodeValue = existingBarcodeNo;
+    // setBarcode_no_val(existingBarcodeNo);
     // }
 
     const newItemData = {
       item_name: itemName,
       item_unit_per_piece_unit: unit,
-      item_unit_per_piece_value:unitValue,
+      item_unit_per_piece_value: unitValue,
       available_quantity: available,
       minimum_quantity: minimum,
       expiry_date: expiryDate,
@@ -273,8 +312,8 @@ export default function ItemManagement() {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
       customClass: {
         popup: 'swal-bg swal-border'
@@ -404,7 +443,7 @@ export default function ItemManagement() {
         <Box display={{ base: 'none', lg: 'block' }} mt="40px">
           <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableHeader}>
             <GridItem>Item Name</GridItem>
-            <GridItem>Unit</GridItem>
+            <GridItem>Unit/Pc</GridItem>
             <GridItem>Available</GridItem>
             <GridItem>Low Stock</GridItem>
             <GridItem>Barcode No.</GridItem>
@@ -416,10 +455,23 @@ export default function ItemManagement() {
           {itemDataArray?.map((item, index) => (
             <Grid templateColumns="repeat(8, 1fr)" gap={4} className={styles.tableRow} key={index}>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.item_name}</GridItem>
-              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.item_unit}</GridItem>
+              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>
+                {`${item.item_unit_per_piece_value}
+                    ${item.item_unit_per_piece_unit} / Pc`}
+              </GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.available_quantity}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.minimum_quantity}</GridItem>
-              <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.barcode_no ? item.barcode_no : '--'}</GridItem>
+              <Box
+                width={'140px'}
+              >
+                <GridItem className={`${styles.truncate} ${styles.tableCell}`}>
+                  <BarCodePrinter
+                    barCodeValue={item?.bar_code}
+                  />
+                  {item?.bar_code ? item?.bar_code : '--'}
+                </GridItem>
+              </Box>
+
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.updatedAt.split('T')[0]}</GridItem>
               <GridItem className={`${styles.truncate} ${styles.tableCell}`}>{item.expiry_date ? item.expiry_date.split('T')[0] : '--'}</GridItem>
               <GridItem className={styles.tableCell}>
@@ -474,6 +526,7 @@ export default function ItemManagement() {
                     onOpenAnalytics();
                   }}
                 />
+
               </GridItem>
             </Grid>
           ))}
@@ -516,8 +569,11 @@ export default function ItemManagement() {
                   <Box fontWeight="bold">Item Name:</Box>
                   <Box className={styles.truncate}>{item.item_name}</Box>
 
-                  <Box fontWeight="bold">Unit:</Box>
-                  <Box className={styles.truncate}>{item.item_unit}</Box>
+                  <Box fontWeight="bold">Unit/Pc:</Box>
+                  <Box className={styles.truncate}>
+                    {`${item.item_unit_per_piece_value}
+                    ${item.item_unit_per_piece_unit} / Pc`}
+                  </Box>
 
                   <Box fontWeight="bold">Available:</Box>
                   <Box className={styles.truncate}>{item.available_quantity}</Box>
@@ -526,7 +582,11 @@ export default function ItemManagement() {
                   <Box className={styles.truncate}>{item.minimum_quantity}</Box>
 
                   <Box fontWeight="bold">Barcode No.:</Box>
-                  <Box className={styles.truncate}>{item.barcode_no || '--'}</Box>
+                  <Box className={styles.truncate}>
+                    {
+                      item.bar_code || '--'
+                    }
+                  </Box>
 
                   <Box fontWeight="bold">Replenished:</Box>
                   <Box className={styles.truncate}>{item.updatedAt.split('T')[0]}</Box>
@@ -586,6 +646,9 @@ export default function ItemManagement() {
                       setAnalyticsSelectedId(item._id);
                       onOpenAnalytics();
                     }}
+                  />
+                  <BarCodePrinter
+                    barCodeValue={item?.bar_code}
                   />
                 </Box>
               </Box>
@@ -677,7 +740,8 @@ export default function ItemManagement() {
         onClose={onCloseBarCodeScan}
         handleAfterScanned={handlerFunction}
       />
-        {/* // handleAfterScanned={handleAfterScannedAdd}
+
+      {/* // handleAfterScanned={handleAfterScannedAdd}
         // handleAfterScannedUsed={handleAfterScannedUsed}
       // handleScanResult={handleScanResult}
       // scanResult={scanResult}

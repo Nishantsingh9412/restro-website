@@ -17,18 +17,16 @@ import {
 } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GetSingleItemAction } from '../../../../redux/action/Items.js';
+import {
+    GetSingleItemAction
+} from '../../../../redux/action/Items.js';
 
 
 const ViewItem = (props) => {
 
     const ItemId = props.EyeIconSelectedId;
     const isOpen = props.isOpen;
-    const onClose = props.onClose;
-
-    // const { isOpen, onOpen, onClose } = useDisclosure()
-    // const [overlay, setOverlay] = useState(<OverlayOne />)
-
+    // const onClose = props.onClose;
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -51,7 +49,9 @@ const ViewItem = (props) => {
                             flexDirection="row-reverse"
                             alignItems={'center'}
                         >
-                            <Text>View Item</Text>
+                            <Text>
+                                View Item
+                            </Text>
                             <FaEye />
                         </Box>
                     </ModalHeader>
@@ -65,7 +65,12 @@ const ViewItem = (props) => {
                                 </Tr>
                                 <Tr>
                                     <Td fontWeight={'bold'}>Item Unit:</Td>
-                                    <Td>{SelectedItemData?.item_unit}</Td>
+                                    <Td>
+                                        {`
+                                        ${SelectedItemData?.item_unit_per_piece_value}
+                                            ${SelectedItemData?.item_unit_per_piece_unit} / Pc`
+                                        }
+                                    </Td>
                                 </Tr>
                                 <Tr>
                                     <Td fontWeight={'bold'}>Available Quantity:</Td>
@@ -108,7 +113,9 @@ const ViewItem = (props) => {
                                 color: "white"
                             }}
                             onClick={props.onClose}
-                        >Close</Button>
+                        >
+                            Close
+                        </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

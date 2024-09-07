@@ -86,8 +86,8 @@ const SupplierCards = (props) => {
             text: "You won't be able to revert this!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",       
             confirmButtonText: "Yes, delete it!",
             customClass: {
                 popup: 'swal-bg swal-border'
