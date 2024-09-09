@@ -43,15 +43,9 @@ export const getSingleDelBoyAction = (id) => async (dispatch) => {
   try {
     const { data } = await api.getSingleDeliveryPersonnel(id);
     dispatch({ type: "GET_SINGLE_DELBOY", data: data?.result });
-    return {
-      success: true,
-      message: "Delivery Personnel Fetched Successfully",
-    };
+    return { success: true, message: "Delivery Personnel Fetched Successfully", };
   } catch (err) {
-    console.log(
-      "Error from getSingleDelBoy Action: " + err?.message,
-      err?.stack
-    );
+    console.log("Error from getSingleDelBoy Action: " + err?.message, err?.stack);
     return { success: false, message: "something went wrong" };
   }
 };
@@ -64,7 +58,7 @@ export const updateSingleDelBoyAction =
       if (onSuccess) onSuccess(data?.result);
       return {
         success: true,
-        message: "Delivery Personnel Updated Successfully",
+        message: "Updation Successful",
       };
     } catch (err) {
       if (onError) onError(err);

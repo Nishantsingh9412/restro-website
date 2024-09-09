@@ -53,7 +53,8 @@ const EdiItem = (props) => {
         e.preventDefault();
         const updatedItemsData = {
             item_name: EditItemName,
-            item_unit: EditUnit,
+            item_unit_per_piece_value: unitValue,
+            item_unit_per_piece_unit: EditUnit,
             available_quantity: EditAvailable,
             minimum_quantity: EditMinimum,
             bar_code: !EditExistingBarcodeNo ? nanoid(13) : EditExistingBarcodeNo,
@@ -63,14 +64,18 @@ const EdiItem = (props) => {
             // usage_rate_unit: EditUsageRateUnit,
             // // Last_Replenished: EditLastReplenished
         }
-        const EditItemPromise = dispatch(updateSingleItemAction(ItemId, updatedItemsData)).then((res) => {
-            if (res.success) {
-                props.onClose();
-                return res.message;
-            } else {
-                throw new Error('Error Adding Item')
-            }
-        })
+        const EditItemPromise = dispatch(updateSingleItemAction(ItemId, updatedItemsData))
+            .then((res) => {
+                if (res.success) {
+                    props.onClose();
+                    return res.message;
+                } else {
+                    throw new Error('Error Adding Item')
+                }
+            }).catch((err) => {
+                throw new Error(err.message)
+            })
+            
         toast.promise(
             EditItemPromise,
             {
@@ -100,7 +105,7 @@ const EdiItem = (props) => {
             setEditAvailable(SelectedItemData?.available_quantity)
             setEditMinimum(SelectedItemData?.minimum_quantity)
             setUnitValue(SelectedItemData?.item_unit_per_piece_value)
-            setEditUsageRateValue(SelectedItemData?.usage_rate_value)
+            setEditUsageRateValue(SelectedItemData?.item_unit_usage_rate_value)
             setEditUsageRateUnit(SelectedItemData?.usage_rate_unit)
             setEditExistingBarcodeNo(SelectedItemData?.bar_code)
             setEditExpirationDate(SelectedItemData?.expiry_date?.split('T')[0])

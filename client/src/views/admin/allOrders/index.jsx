@@ -42,6 +42,7 @@ import CartDrawer from './components/CartDrawer';
 import DrinksModal from './components/DrinksModal';
 import AnimatedBadge from './components/AnimatedBadge';
 import AnimatedBox from './components/AnimatedBox';
+import DineInDrawer from './components/DineInDrawer';
 
 
 export default function AllOrders() {
@@ -53,14 +54,28 @@ export default function AllOrders() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [clickedIndex, setClickedIndex] = useState(null);
-    const { isOpen: isOpenCart, onOpen: onOpenCart, onClose: onCloseCart } = useDisclosure()
-    const { isOpen: isOpenDrinks, onOpen: onOpenDrinks, onClose: onCloseDrinks } = useDisclosure()
-    const [overlay, setOverlay] = React.useState(<OverlayOne />)
+    const {
+        isOpen: isOpenCart,
+        onOpen: onOpenCart,
+        onClose: onCloseCart } = useDisclosure()
+    const {
+        isOpen: isOpenDrinks,
+        onOpen: onOpenDrinks,
+        onClose: onCloseDrinks
+    } = useDisclosure()
 
+    const {
+        isOpen: isOpenDineIn,
+        onOpen: onOpenDineIn,
+        onClose: onCloseDineIn
+    } = useDisclosure()
+
+    const [overlay, setOverlay] = React.useState(<OverlayOne />)
     const dispatch = useDispatch();
     const history = useHistory();
 
     const [selectedItemLength, setSelectedItemLength] = useState(0);
+    const [IsCartClicked, setIsCartClicked] = useState(false);
     // const [Tax, setTax] = useState(0);
     // const [discountPerc, setDiscountPerc] = useState(0);
     const [selectedItemTemp, setSelectedItemTemp] = useState([]);
@@ -94,6 +109,14 @@ export default function AllOrders() {
                 console.log("error from searchDrinksOnlyAction: " + res.message)
             }
         })
+    }
+
+    const handleCartClick = (type) => {
+        if (type === 1) {
+            onOpenDineIn();
+        } else {
+            onOpenCart();
+        }
     }
 
     const handleProcessOrder = () => {
@@ -313,26 +336,38 @@ export default function AllOrders() {
                     marginLeft="12px"
                     colorScheme="cyan"
                     variant="solid"
-                    onClick={onOpenCart}
+                    onClick={() => setIsCartClicked(!IsCartClicked)}
                 >
-                    Cart
+                    Carttttt
                 </Button>
-                {/* {cartItemsLength.length > 0 && ( */}
-                {/* <Badge
-                    colorScheme="red"
-                    variant='solid'
-                    position="absolute"
-                    top="-3"
-                    right="-1"
-                    borderRadius="full"
-                >
-                    {AllOrderItemsLength}
-                </Badge> */}
                 <AnimatedBadge
                     AllOrderItemsLength={AllOrderItemsLength}
                 />
-                {/* )} */}
             </Box>
+            {/* Buttons appears when cart is clicked */}
+            {
+                IsCartClicked && (
+                    <Box mt={4} ml={8}>
+                        <Button
+                            onClick={() => handleCartClick(1)}
+                            colorScheme="teal"
+                            variant="solid"
+                            mr={2}
+                        >
+                            Dine-In
+                        </Button>
+                        <Button
+                            onClick={() => handleCartClick(2)}
+                            colorScheme="orange"
+                            variant="solid"
+                        >
+                            Normal
+                        </Button>
+                    </Box>
+                )
+            }
+            {/* Button Ends when cart is clicked  */}
+
             <Box
                 display={'flex'}
                 justifyContent={'center'}
@@ -678,6 +713,13 @@ export default function AllOrders() {
                 onClose={onCloseCart}
             />
             {/* Cart Drawer End */}
+            <DineInDrawer
+                isOpen={isOpenDineIn}
+                onOpen={onOpenDineIn}
+                onClose={onCloseDineIn}
+            />
+
+
         </div>
 
     )

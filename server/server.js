@@ -117,7 +117,10 @@ io.on("connection", (socket) => {
 });
 
 mongoose
-  .connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() =>
     httpServer.listen(PORT, () =>
       console.log(`Server running on port: ${PORT}`)

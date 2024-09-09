@@ -18,44 +18,47 @@ import {
     Box
 } from '@chakra-ui/react'
 
-import { useDispatch, useSelector } from 'react-redux';
-import { AddDelboyAction } from '../../../../redux/action/delboy.js'
+import {
+    useDispatch,
+    useSelector
+} from 'react-redux';
+import {
+    // AddDelboyAction,
+    getSingleDelBoyAction,
+    updateSingleDelBoyAction
+} from '../../../../redux/action/delboy.js'
 
-const AddDelperson = (props) => {
+const EditDelPerson = (props) => {
 
     const dispatch = useDispatch();
     const isOpen = props.isOpen;
     const onOpen = props.onOpen;
     const onClose = props.onClose;
+    const EditDelBoyId = props.EditDelBoyId;
+
     const [supplierName, setSupplierName] = useState('');
     const [phone_no, setPhone_no] = useState('');
     const [countryCode, setCountryCode] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const localData = JSON.parse(localStorage.getItem('ProfileData'));
-    const AdminUserId = localData?.result?._id;
+    // Getting local storage data
+    // const localData = JSON.parse(localStorage.getItem('ProfileData'));
+    // const AdminUserId = localData?.result?._id;
+
+    // Getting single delivery boy data for edit 
+    const delBoyData = useSelector((state) => state?.delBoyReducer?.selectedDelBoy);
 
 
-    // const handleAutoAddValues = () => {
-    //     setSupplierName('Tester')
-    //     setPhone_no('8744444444')
-    //     // setCountryCode(91)
-    // }
-
-    const handleAddDelivBoy = async (e) => {
+    const handleUpdateDelivBoy = async (e) => {
         e.preventDefault();
-        console.log(supplierName, phone_no, countryCode);
         setLoading(true);
-
-        const delboyData = {
+        const UpdatedDelboyData = {
             name: supplierName,
             country_code: countryCode,
             phone: phone_no,
-            created_by: AdminUserId
         };
 
-
-        dispatch(AddDelboyAction(delboyData))
+        dispatch(updateSingleDelBoyAction(EditDelBoyId, UpdatedDelboyData))
             .then((res) => {
                 if (res.success) {
                     onClose();
@@ -72,12 +75,32 @@ const AddDelperson = (props) => {
             });
     };
 
+    useEffect(() => {
+        dispatch(getSingleDelBoyAction(EditDelBoyId))
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (delBoyData) {
+            setSupplierName(delBoyData.name);
+            setPhone_no(delBoyData.phone);
+            setCountryCode(`${delBoyData.country_code}`);
+        }
+    }, [delBoyData]);
+
+    useEffect(() => {
+        if (delBoyData) {
+            setSupplierName('');
+            setPhone_no('');
+            setCountryCode('');
+        }
+    }, [onClose])
+
     return (
         <div>
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Add Delivery Boy</ModalHeader>
+                    <ModalHeader>Update Delivery Boy</ModalHeader>
                     {/* 
                     <Button
                         onClick={handleAutoAddValues}
@@ -85,13 +108,19 @@ const AddDelperson = (props) => {
                      */}
                     <ModalCloseButton />
                     <ModalBody>
-                        <form onSubmit={handleAddDelivBoy}>
+                        <form onSubmit={handleUpdateDelivBoy}>
                             <FormControl id="suppliername" isRequired>
                                 <FormLabel>Supplier Name</FormLabel>
                                 <Input
                                     type="text"
-                                    onChange={(e) => setSupplierName(e.target.value)}
-                                    _focus={{ borderColor: '#ee7213', boxShadow: '0 0 0 1px #ee7213' }}
+                                    value={supplierName}
+                                    onChange={(e) =>
+                                        setSupplierName(e.target.value)
+                                    }
+                                    _focus={{
+                                        borderColor: '#ee7213',
+                                        boxShadow: '0 0 0 1px #ee7213'
+                                    }}
                                 />
                             </FormControl>
 
@@ -101,6 +130,7 @@ const AddDelperson = (props) => {
                                     <PhoneInput
                                         international
                                         defaultCountry="DE"
+                                        value={`+${countryCode}${phone_no}`} // Concatenate country code and phone number  
                                         style={{ width: '100%' }}
                                         onChange={
                                             (phoneNumber) => {
@@ -138,20 +168,14 @@ const AddDelperson = (props) => {
                                 _hover={{ bg: '#ff8c42' }}
                                 marginBottom={'1rem'}
                             >
-                                Add Delivery Boy
+                                Save
                             </Button>
                         </form>
                     </ModalBody>
-
-                    {/* <ModalFooter>
-                        <Button colorScheme='blue' mr={3} onClick={onClose}>
-                            Close
-                        </Button>
-                    </ModalFooter> */}
                 </ModalContent>
             </Modal>
         </div >
     )
 }
 
-export default AddDelperson
+export default EditDelPerson

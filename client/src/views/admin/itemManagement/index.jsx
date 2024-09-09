@@ -383,7 +383,7 @@ export default function ItemManagement() {
           </button>
           {
             showOptions && (
-              <Box className={styles.options} mt={4}>
+              <Box mt={4}>
                 <Button
                   onClick={() => handleOptionClick(1)}
                   colorScheme="teal"

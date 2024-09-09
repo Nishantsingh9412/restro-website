@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import axios from "axios";
-import { setAddressAction } from "../../../../../redux/action/address";
+// import { setAddressAction } from "../../../../../redux/action/address";
 import { setFormData } from "../../../../../redux/action/stepperFormAction";
 import MapInput from "components/mapInput/MapInput";
 
@@ -200,16 +200,10 @@ const Address = ({ goToNextStep }) => {
         <div className="flex flex-wrap gap-3 items-center">
           <FormControl id="customer-name" isRequired>
             <FormLabel>Pickup Location</FormLabel>
-            {/* <Input
-        disabled
-        type="text"
-        placeholder="Pickup Location"
-        value={formData.pickupLocationName}
-        isRequired
-      /> */}
-
             <RadioGroup onChange={setAddressType} value={addressType} mt={4}>
-              <Radio value="existing">Use Existing Address</Radio>
+              <Radio value="existing" mr={4}>
+                Use Existing Address
+              </Radio>
               <Radio value="new">Enter New Address</Radio>
             </RadioGroup>
 

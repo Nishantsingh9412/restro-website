@@ -19,22 +19,24 @@ import { BiSolidTrash } from 'react-icons/bi';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 
-import CheckoutComp from './CheckoutComp';
+// import CheckoutComp from './CheckoutComp';
 import EmptyCart from './EmptyCart';
+import CheckOutDinein from './CheckOutDineIn';
 
 
-const CartDrawer = (props) => {
+const DineInDrawer = (props) => {
 
     const isOpen = props.isOpen
     const onOpen = props.onOpen
     const onClose = props.onClose
 
     const {
-        isOpen: isOpenCheckout,
-        onOpen: onOpenCheckout,
-        onClose: onCloseCheckout
+        isOpen: isOpenCheckoutRight,
+        onOpen: onOpenCheckoutRight,
+        onClose: onCloseCheckoutRight
     } = useDisclosure()
-    const [placement, setPlacement] = useState('right')
+
+    const [placement, setPlacement] = useState('left')
     const dispatch = useDispatch();
 
     const allOrderItems = useSelector(state => state?.OrderItemReducer)
@@ -83,7 +85,7 @@ const CartDrawer = (props) => {
                         <DrawerHeader borderBottomWidth='1px'>
                             <Flex justifyContent="space-between" alignItems="center">
                                 <Flex alignItems="center">
-                                    <FaCartShopping />
+                                    <FaCartShopping />  
                                     <Text marginLeft="2">
                                         Your Cart
                                     </Text>
@@ -112,10 +114,7 @@ const CartDrawer = (props) => {
                                                     src={item?.pic}
                                                     alt='Food-Image'
                                                 />
-                                                <Box marginLeft={'1rem'}>
-                                                    {/* <Text mt="1" display={'flex'} alignItems={'center'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                                        {item?.orderName}
-                                                    </Text> */}
+                                                <Box marginLeft={'1rem'}>   
                                                     <Text mt="1" display={'flex'} alignItems={'center'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
                                                         {item?.orderName}
                                                         <BiSolidTrash
@@ -191,12 +190,12 @@ const CartDrawer = (props) => {
                                                 </Text>
                                             </Box>
                                             {/* Checkout drawer starts */}
-                                            <CheckoutComp
+                                            <CheckOutDinein
                                                 allOrderItems={allOrderItems}
                                                 AllOrderItemsTotal={AllOrderItemsTotal}
-                                                onOpen={onOpenCheckout}
-                                                onClose={onCloseCheckout}
-                                                isOpen={isOpenCheckout}
+                                                onOpen={onOpenCheckoutRight}
+                                                onClose={onCloseCheckoutRight}  
+                                                isOpen={isOpenCheckoutRight}
                                             />
 
                                             {/* Checkout drawer ends */}
@@ -204,7 +203,7 @@ const CartDrawer = (props) => {
                                                 background={'#029CFF'}
                                                 color={'white'}
                                                 _hover={{ color: '#029CFF', bg: 'whitesmoke' }}
-                                                onClick={onOpenCheckout}
+                                                onClick={onOpenCheckoutRight}
                                             >
                                                 Checkout
                                             </Button>
@@ -212,7 +211,7 @@ const CartDrawer = (props) => {
                                     ) :
                                     // No items in cart show your cart is empty 
                                     (
-                                      <EmptyCart />
+                                        <EmptyCart />
                                     )
                             }
 
@@ -224,4 +223,4 @@ const CartDrawer = (props) => {
     )
 }
 
-export default CartDrawer
+export default DineInDrawer

@@ -113,28 +113,27 @@ export const getDeliveryPersonnels = async (req, res) => {
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
   const { name, country_code, phone } = req.body;
-  console.log(_id, req.body);
 
   if (!mongoose.Types.ObjectId.isValid(_id))
-    return res.status(404).send("No Delivery Personnel with that id");
-  if (!req.body)
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+    return res.status(404).json({
+      success: false,
+      message: "No Delivery Personnel with that id",
+    });
 
+  if (!name || !country_code || !phone) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required"
+    });
+  }
   try {
-    const updatedDelBoy = await authDeliv.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          ...req.body,
-        },
+    const updatedDelBoy = await authDeliv.findByIdAndUpdate(_id, {
+      $set: {
+        name,
+        country_code,
+        phone,
       },
-      {
-        new: true,
-        timestamps: { createdAt: false, updatedAt: true },
-      }
-    );
+    },{new: true})
     if (updatedDelBoy) {
       return res.status(200).json({
         success: true,
@@ -142,15 +141,17 @@ export const updateDeliveryPersonnel = async (req, res) => {
         result: updatedDelBoy,
       });
     } else {
-      return res
-        .status(500)
-        .json({ success: false, message: "Delivery Personnel not updated" });
+      return res.status(500).json({
+        success: false,
+        message: "Delivery Personnel not updated"
+      });
     }
   } catch (err) {
     console.log("Error from DeliveryPersonnel Controller : ", err.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
   }
 };
 
@@ -159,13 +160,13 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(_id))
     return res.status(404).send("No Delivery Personnel with that id");
   try {
-    const singleDelBoy = await authDeliv.findById(_id);
-    const populatedDelboy = await singleDelBoy.populate("created_by");
+    const singleDelBoy = await authDeliv.findById(_id).populate("created_by");
+    // const populatedDelboy = await singleDelBoy.populate("created_by");
     if (singleDelBoy) {
       return res.status(200).json({
         success: true,
         message: "Delivery Personnel",
-        result: populatedDelboy,
+        result: singleDelBoy,
       });
     } else {
       return res
@@ -173,10 +174,17 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
         .json({ success: false, message: "No Delivery Personnel Found" });
     }
   } catch (err) {
-    console.log("Error from DeliveryPersonnel Controller : ", err.message);
+    console.log(
+      "Error from DeliveryPersonnel Controller : ",
+      err.message
+    );
     return res
       .status(500)
-      .json({ success: false, message: "Internal Server Error" });
+      .json({
+        success: false,
+        message: "Internal Server Error",
+        err: err,
+      });
   }
 };
 

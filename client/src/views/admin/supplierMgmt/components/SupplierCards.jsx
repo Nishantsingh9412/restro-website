@@ -87,7 +87,7 @@ const SupplierCards = (props) => {
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",       
+            cancelButtonColor: "#3085d6",
             confirmButtonText: "Yes, delete it!",
             customClass: {
                 popup: 'swal-bg swal-border'
@@ -106,115 +106,112 @@ const SupplierCards = (props) => {
                     marginLeft: '10px',
                     fontWeight: '900',
                     marginTop: '80px',
-                    color: '#049CFD'
+                    color: '#049CFD',
+                    fontSize: '1.5rem', // Scaled font size for responsiveness
+                    textAlign: 'left', // Default alignment
                 }}
             >
                 List Of All Suppliers
             </h3>
+
             <div
                 style={{
                     display: 'flex',
-                    flexDirection: 'row',
                     flexWrap: 'wrap',
+                    justifyContent: 'space-between', // Ensure spacing between items
                     padding: '10px',
                     marginLeft: '10px',
-
                 }}
             >
                 {allSuppliers.map((supplier, index) => (
                     <Box
                         key={index}
-                        minWidth={'340px'}
-                        marginLeft={'25px'}
-                        marginTop={'25px'}
+                        minWidth={'320px'}
+                        margin={'15px'}
                         maxW={'300px'}
                         bg={'#f3f2ee'}
-                        boxShadow={'2px 2px 2px #b39b9b'}
+                        boxShadow={'2px 2px 5px #b39b9b'}
                         border={'5px solid #fff'}
                         borderRadius={'3xl'}
                         fontWeight={'bold'}
                         padding={'20px'}
                         color={index & 1 ? '#ee2d4f' : '#ee7213'}
+                        display="flex"
+                        flexDirection="column" // Make the box a flex container with column direction
                     >
-                        <>
-                            <Flex justifyContent="space-between">
-                                <Box>
-                                    <h4 style={{ fontWeight: '600' }}>{supplier.name}</h4>
-                                    <Text >Last Updated {supplier.updatedAt.split('T')[0]} </Text>
-                                </Box>
-                                <Box
-                                    justifyContent={'end'}
-                                >
-                                    <Image
-                                        borderRadius='full'
-                                        boxSize='60px'
-                                        src={supplier.pic}
-                                        alt='Dan Abramov'
-                                    />
-                                </Box>
-                            </Flex>
+                        <Flex justifyContent="space-between">
                             <Box>
-                                <ol style={{
+                                <h4 style={{ fontWeight: '600', fontSize: '1rem' }}>{supplier.name}</h4>
+                                <Text fontSize={'0.9rem'}>
+                                    Last Updated {supplier.updatedAt.split('T')[0]}
+                                </Text>
+                            </Box>
+                            <Box justifyContent={'end'}>
+                                <Image
+                                    borderRadius="full"
+                                    boxSize="60px"
+                                    src={supplier.pic}
+                                    alt={supplier.name}
+                                />
+                            </Box>
+                        </Flex>
+
+                        <Box flex="1"> {/* Take up remaining space */}
+                            <ol
+                                style={{
                                     marginLeft: '15px',
                                     marginTop: '5px',
-                                    fontWeight: '900'
-                                }}>
-                                    {supplier.Items.slice(0, 3).map((singleItem, index) => (
-                                        <li key={index}> {singleItem} </li>
-                                    ))}
-                                    <button
-                                        style={{
-                                            marginLeft: '0',
-                                            marginTop: '10px',
-                                            fontWeight: 'bold'
-                                        }}
-                                        onClick={
-                                            () => {
-                                                onOpen()
-                                                setSelectedId(supplier._id)
-                                            }
-                                        }
-                                    >
-                                        More Details...
-                                    </button>
-                                    <>
-                                        <Menu
+                                    fontWeight: '900',
+                                }}
+                            >
+                                {supplier.Items.slice(0, 3).map((singleItem, index) => (
+                                    <li key={index}>{singleItem}</li>
+                                ))}
+                            </ol>
+                        </Box>
 
-
+                        <Box marginTop="auto"> {/* Push this box to the bottom */}
+                            <div className='flex'>
+                                <button
+                                    style={{
+                                        marginLeft: '0',
+                                        marginTop: '10px',
+                                        fontWeight: 'bold',
+                                        color: index & 1 ? '#ee2d4f' : '#ee7213',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                    }}
+                                    onClick={() => {
+                                        onOpen();
+                                        setSelectedId(supplier._id);
+                                    }}
+                                >
+                                    More Details...
+                                </button>
+                                <Menu>
+                                    <MenuButton style={{ marginLeft: '1rem' }}>
+                                        <RxDotsVertical />
+                                    </MenuButton>
+                                    <Portal>
+                                        <MenuList
+                                            style={{ minWidth: '7rem' }}
+                                            background={'rgb(243, 242, 238)'}
+                                            color={index & 1 ? '#ee2d4f' : '#ee7213'}
                                         >
-                                            <MenuButton
-                                                style={{ marginLeft: '7rem' }}
-                                            >
-                                                <RxDotsVertical />
-                                            </MenuButton>
-                                            <Portal>
-                                                <MenuList
-                                                    style={{ minWidth: '7rem' }}
-                                                    background={'rgb(243, 242, 238)'}
-                                                    color={index & 1 ? '#ee2d4f' : '#ee7213'}
-                                                >
-                                                    <MenuItem
-                                                        onClick={(e) =>
-                                                            handleEditSupplier(e, supplier._id)
-                                                        }
-                                                    > Edit </MenuItem>
-                                                    <MenuItem
-                                                        onClick={(e) =>
-                                                            handleDeleteSupplier(e, supplier._id)
-                                                        }
-                                                    > Delete </MenuItem>
-                                                </MenuList>
-                                            </Portal>
-                                        </Menu>
-                                    </>
-                                </ol>
-                            </Box>
-
-                        </>
+                                            <MenuItem onClick={(e) => handleEditSupplier(e, supplier._id)}>
+                                                Edit
+                                            </MenuItem>
+                                            <MenuItem onClick={(e) => handleDeleteSupplier(e, supplier._id)}>
+                                                Delete
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Portal>
+                                </Menu>
+                            </div>
+                        </Box>
                     </Box>
                 ))}
             </div>
-
 
             {/* View Modal Starts */}
             <ViewSupplier
@@ -225,7 +222,6 @@ const SupplierCards = (props) => {
             />
             {/* View Modal Ends */}
 
-
             {/* Edit Modal Starts */}
             <EditSupplier
                 isOpen={isOpenEdit}
@@ -233,7 +229,6 @@ const SupplierCards = (props) => {
                 onClose={onCloseEdit}
                 selectedId={selectedId}
             />
-
             {/* Edit Modal Ends */}
         </div>
     )

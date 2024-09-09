@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 import {
   Box,
@@ -34,6 +34,7 @@ import {
   deleteSingleDelBoyAction,
   getAllDelboyzAction,
 } from "../../../redux/action/delboy.js";
+import EditDelPerson from "./components/EditDelPerson";
 
 const OrderShipping = () => {
   const location = useLocation();
@@ -45,19 +46,22 @@ const OrderShipping = () => {
   const localUserId = localUserData?.result?._id;
 
   const dispatch = useDispatch();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpenAdd,
     onOpen: onOpenAdd,
     onClose: onCloseAdd,
   } = useDisclosure();
-  const initialRef = useRef(null);
-  const finalRef = useRef(null);
+  const {
+    isOpen: isOpenEdit,
+    onOpen: onOpenEdit,
+    onClose: onCloseEdit,
+  } = useDisclosure();
+    
+  const [EditDelBoy, setEditDelBoy] = useState(false);
+  const [EditDelBoyId, setEditDelBoyId] = useState(null);
 
   const allDelBoyz = useSelector((state) => state?.delBoyReducer?.delboyz);
   console.log(allDelBoyz);
-  // console.log("ALLDAta")
-  // console.log(aLLData);
 
   useEffect(() => {
     dispatch(getAllDelboyzAction());
@@ -108,114 +112,40 @@ const OrderShipping = () => {
     });
   };
 
-  // const handleEditDelBoy = (id) => {
-  //     console.log('Edit Delboy', id);
-  // }
+  const handleEditDelBoy = (e,id) => {
+    e.preventDefault();
+    setEditDelBoyId(id);
+    setEditDelBoy(true);
+    onOpenEdit();
+  }
 
   return (
     <div style={{ marginTop: "5vw", marginLeft: "4vw" }}>
-      <Button colorScheme="cyan" onClick={onOpen}>
+      {/* <Button colorScheme="cyan" onClick={onOpen}>
         Allot Delivery Boy
+      </Button> */}
+      <Button colorScheme="cyan" onClick={handleAddDeliveryBoy} margin={"1rem"}>
+        Add Delivery Boy
       </Button>
-
-      <Button colorScheme="teal" onClick={handleAddDeliveryBoy} margin={"1rem"}>
-        Add Delivery Personnel
-      </Button>
-
-      {/* Search Delivery Modal Start  */}
-      <Modal
-        initialFocusRef={initialRef}
-        finalFocusRef={finalRef}
-        isOpen={isOpen}
-        onClose={onClose}
-      >
-        <ModalOverlay />
-        <ModalContent padding={"1rem"}>
-          <ModalHeader display={"flex"} justifyContent={"center"}>
-            {" "}
-            Allot Delievery Boy{" "}
-          </ModalHeader>
-          <ModalCloseButton />
-          <FormControl>
-            <FormLabel>Search</FormLabel>
-            <InputGroup>
-              <InputLeftElement
-                pointerEvents="none" // Makes the element non-interactive
-              >
-                <CiSearch /> {/* Ensure CiSearch is correctly imported */}
-              </InputLeftElement>
-              <Input ref={initialRef} placeholder="Search" />
-            </InputGroup>
-          </FormControl>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3}>
-              Save
-            </Button>
-            <Button onClick={onClose}>Cancel</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      {/* Search Delivery Modal End */}
 
       {/* Component for Add Delivery Person Start */}
       <AddDelperson
         isOpen={isOpenAdd}
         onOpen={onOpenAdd}
         onClose={onCloseAdd}
-        // initialRef={initialRef}
-        // finalRef={finalRef}
+      // initialRef={initialRef}
+      // finalRef={finalRef}
       />
       {/* Component for Add Delivery Person End */}
+      {/* {EditDelBoy && */}
+        <EditDelPerson
+          isOpen={isOpenEdit}
+          onOpen={onOpenEdit}
+          onClose={onCloseEdit}
+          EditDelBoyId={EditDelBoyId}
+        />
+      {/* }./ */}
 
-      {/* {
-                dataOne?.map((item, index) => (
-                    <Box key={index}
-                        borderWidth="1px"
-                        borderRadius="lg"
-                        overflow="hidden"
-                        mb={3}
-                    >
-                        <Box p="6">
-                            <Box display="flex" alignItems="center">
-                                <Box>
-                                    <Image
-                                        borderRadius='full'
-                                        boxSize='50px'
-                                        src={item?.pic}
-                                        // src='https://bit.ly/dan-abramov'
-                                        alt='Food-Image'
-                                    />
-                                </Box>
-                                <Box marginLeft={'1rem'}>
-                                    <Text mt="1" display={'flex'} fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                        {item?.orderName}
-                                    </Text>
-                                    <Text mt="1" fontWeight="semibold" as="h4" lineHeight="tight" isTruncated>
-                                        {item?.quantity} X  {item?.priceVal}
-                                        {item?.priceUnit === 'Euro' ? ' €' : item?.priceUnit}
-                                    </Text>
-                                </Box>
-                            </Box>
-                            <Box display={'flex'} justifyContent={'end'}>
-                                {item?.quantity * item?.priceVal} {item?.priceUnit === 'Euro' ? ' €' : item?.priceUnit}
-                            </Box>
-                        </Box>
-
-                    </Box>
-                ))
-            }
-             */}
-      {/* {allOrderTotal > 0 && (
-                <Text
-                    marginTop={'5px'}
-                    display={'flex'}
-                    justifyContent={'end'}
-                    marginRight={'1rem'}
-                >
-                    Total : {parseFloat(allOrderTotal).toFixed(2)} €
-                </Text>
-            )} */}
 
       <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing="20px">
         {allDelBoyz.map((boy) => (
@@ -261,7 +191,7 @@ const OrderShipping = () => {
                   aria-label="Edit"
                   colorScheme="yellow"
                   size="sm"
-                  // onClick={() => handleEditDelBoy(e,boy._id)}
+                  onClick={(e) => handleEditDelBoy(e,boy._id)}
                 />
                 <IconButton
                   icon={<IoMdTrash />}
