@@ -1,10 +1,10 @@
-  import React from "react";
+// import React from "react";
 import {
   Box,
   Stack,
   Heading,
   Flex,
-  Text,
+  // Text,
   Button,
   useDisclosure
 } from "@chakra-ui/react";

@@ -1,3 +1,4 @@
+// Removed unused imports and variables
 import React, { useEffect, useState } from 'react'
 import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from 'react-toastify';
@@ -6,14 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2'
 import bwipjs from 'bwip-js';
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
   Box,
   Button,
   Modal,
@@ -23,20 +16,15 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Text,
   useDisclosure,
   IconButton,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
   Input,
   Select,
-  Option,
-  Flex,
   Grid,
   GridItem,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react";
 
 import { IoMdEye, IoMdTrash } from 'react-icons/io';
 import { IoPencil } from 'react-icons/io5';

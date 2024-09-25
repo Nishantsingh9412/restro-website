@@ -22,22 +22,22 @@
 
 // Chakra imports
 import {
-  Avatar,
-  Box,
+  // Avatar,
+  // Box,
   Flex,
-  FormLabel,
-  Icon,
-  Select,
+  // FormLabel,
+  // Icon,
+  // Select,
   SimpleGrid,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
 // Assets
-import Usa from 'assets/img/dashboards/usa.png';
+// import Usa from 'assets/img/dashboards/usa.png';
 // Custom components
-import MiniCalendar from 'components/calendar/MiniCalendar';
-import MiniStatistics from 'components/card/MiniStatistics';
-import IconBox from 'components/icons/IconBox';
+// import MiniCalendar from 'components/calendar/MiniCalendar';
+// import MiniStatistics from 'components/card/MiniStatistics';
+// import IconBox from 'components/icons/IconBox';
 import React, { useEffect, useState } from 'react';
 import {
   MdAddTask,
@@ -45,19 +45,19 @@ import {
   MdBarChart,
   MdFileCopy,
 } from 'react-icons/md';
-import CheckTable from 'views/admin/default/components/CheckTable';
-import ComplexTable from 'views/admin/default/components/ComplexTable';
-import DailyTraffic from 'views/admin/default/components/DailyTraffic';
-import PieCard from 'views/admin/default/components/PieCard';
-import Tasks from 'views/admin/default/components/Tasks';
-import TotalSpent from 'views/admin/default/components/TotalSpent';
-import WeeklyRevenue from 'views/admin/default/components/WeeklyRevenue';
+// import CheckTable from './components/CheckTable.jsx';
+// import ComplexTable from './components/ComplexTable.jsx';
+import DailyTraffic from './components/DailyTraffic.jsx';
+import PieCard from './components/PieCard.jsx';
+// import Tasks from './components/Task.jsx';
+import TotalSpent from './components/TotalSpent.jsx';
+import WeeklyRevenue from './components/WeeklyRevenue.jsx';
 import {
   columnsDataCheck,
   columnsDataComplex,
-} from 'views/admin/default/variables/columnsData';
-import tableDataCheck from 'views/admin/default/variables/tableDataCheck.json';
-import tableDataComplex from 'views/admin/default/variables/tableDataComplex.json';
+} from './variables/columnsData';
+import tableDataCheck from './variables/tableDataCheck.json';
+import tableDataComplex from './variables/tableDataComplex.json';
 import DashboardCard from './components/Cards';
 import { totalStocksAPI, lowStocksAPI, expiredItemsAPI } from '../../../api/index.js';
 import { useDispatch } from 'react-redux';
