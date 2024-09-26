@@ -12,18 +12,21 @@ function SidebarContent(props) {
   const { routes } = props;
   // SIDEBAR
   return (
-    <Flex direction='column' height='100%' pt='25px' borderRadius='30px' color="#fff">
+    <Flex
+      direction="column"
+      height="100%"
+      pt="25px"
+      borderRadius="30px"
+      color="#fff"
+    >
       <Brand />
-      <Stack direction='column' mb='auto' mt='8px'>
-        <Box ps='20px'>
+      <Stack direction="column" mb="auto" mt="8px">
+        <Box ps="20px">
           <Links routes={routes} />
         </Box>
       </Stack>
 
-      <Box
-        mt='60px'
-        mb='40px'
-        borderRadius='30px'>
+      <Box mt="60px" mb="40px" borderRadius="30px">
         <SidebarCard />
       </Box>
     </Flex>

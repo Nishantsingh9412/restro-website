@@ -31,93 +31,98 @@ import {
   SimpleGrid,
   Text,
   useColorModeValue,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 // Assets
 // import Usa from 'assets/img/dashboards/usa.png';
 // Custom components
 // import MiniCalendar from 'components/calendar/MiniCalendar';
 // import MiniStatistics from 'components/card/MiniStatistics';
 // import IconBox from 'components/icons/IconBox';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   MdAddTask,
   MdAttachMoney,
   MdBarChart,
   MdFileCopy,
-} from 'react-icons/md';
+} from "react-icons/md";
 // import CheckTable from './components/CheckTable.jsx';
 // import ComplexTable from './components/ComplexTable.jsx';
-import DailyTraffic from './components/DailyTraffic.jsx';
-import PieCard from './components/PieCard.jsx';
+import DailyTraffic from "./components/DailyTraffic.jsx";
+import PieCard from "./components/PieCard.jsx";
 // import Tasks from './components/Task.jsx';
-import TotalSpent from './components/TotalSpent.jsx';
-import WeeklyRevenue from './components/WeeklyRevenue.jsx';
+import TotalSpent from "./components/TotalSpent.jsx";
+import WeeklyRevenue from "./components/WeeklyRevenue.jsx";
+import { columnsDataCheck, columnsDataComplex } from "./variables/columnsData";
+import tableDataCheck from "./variables/tableDataCheck.json";
+import tableDataComplex from "./variables/tableDataComplex.json";
+import DashboardCard from "./components/Cards";
 import {
-  columnsDataCheck,
-  columnsDataComplex,
-} from './variables/columnsData';
-import tableDataCheck from './variables/tableDataCheck.json';
-import tableDataComplex from './variables/tableDataComplex.json';
-import DashboardCard from './components/Cards';
-import { totalStocksAPI, lowStocksAPI, expiredItemsAPI } from '../../../api/index.js';
-import { useDispatch } from 'react-redux';
+  totalStocksAPI,
+  lowStocksAPI,
+  expiredItemsAPI,
+} from "../../../api/index.js";
+import { useDispatch } from "react-redux";
 
 export default function UserReports() {
   // Chakra Color Mode
 
   // const dispatch = useDispatch();
-  const brandColor = useColorModeValue('brand.500', 'white');
-  const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
+  const brandColor = useColorModeValue("brand.500", "white");
+  const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const [totalStocksQuantity, setTotalStocksQuantity] = useState(0);
   const [lowStocksQuantity, setLowStocksQuantity] = useState(0);
   const [expiredItems, setExpiredItems] = useState(0);
 
-
   const TotalStocksQuantity = () => {
-    totalStocksAPI().then((res) => {
-      setTotalStocksQuantity(res?.data?.result)
-    }).catch((err) => {
-      console.log(err)
-    }).finally(() => {
-      console.log('API call completed')
-    })
-  }
+    totalStocksAPI()
+      .then((res) => {
+        setTotalStocksQuantity(res?.data?.result);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        console.log("API call completed");
+      });
+  };
 
   const LowStocksQuantity = () => {
-    lowStocksAPI().then((res) => {
-      setLowStocksQuantity(res?.data?.result)
-    }).catch((err) => {
-      console.log(err)
-    }).finally(() => {
-      console.log('API call completed for low stocks')
-    })
-  }
+    lowStocksAPI()
+      .then((res) => {
+        setLowStocksQuantity(res?.data?.result);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        console.log("API call completed for low stocks");
+      });
+  };
 
   const expiredQuantity = () => {
-    expiredItemsAPI().then((res) => {
-      setExpiredItems(res?.data?.result?.total)
-    }).catch((err) => {
-      console.log(err)
-    }).finally(() => {
-      console.log('API call completed for expired items')
-    })
-  }
-
+    expiredItemsAPI()
+      .then((res) => {
+        setExpiredItems(res?.data?.result?.total);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        console.log("API call completed for expired items");
+      });
+  };
 
   useEffect(() => {
     TotalStocksQuantity();
     LowStocksQuantity();
     expiredQuantity();
-  }, [])
-
-
-
+  }, []);
 
   return (
     <Flex
       direction="column"
       gap="20px"
-      pt={{ base: '130px', md: '80px', xl: '80px' }}
+      pt={{ base: "130px", md: "80px", xl: "80px" }}
     >
       <Flex
         justifyContent="space-between"

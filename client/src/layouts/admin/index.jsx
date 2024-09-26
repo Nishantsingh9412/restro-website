@@ -15,7 +15,7 @@ import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { SidebarContext } from "../../contexts/SidebarContext.jsx";
 import React, { useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import routes from "../../routes.jsx";
 // Custom Chakra theme
 export default function Dashboard(props) {
@@ -23,10 +23,12 @@ export default function Dashboard(props) {
   // states and functions
   const [fixed] = useState(false);
   const [toggleSidebar, setToggleSidebar] = useState(false);
+
   // functions for changing the states from components
   const getRoute = () => {
     return window.location.pathname !== "/admin/full-screen-maps";
   };
+
   const getActiveRoute = (routes) => {
     let activeRoute = "Default Brand Text";
     for (let i = 0; i < routes.length; i++) {
@@ -50,6 +52,7 @@ export default function Dashboard(props) {
     }
     return activeRoute;
   };
+
   const getActiveNavbar = (routes) => {
     let activeNavbar = false;
     for (let i = 0; i < routes.length; i++) {
@@ -73,6 +76,7 @@ export default function Dashboard(props) {
     }
     return activeNavbar;
   };
+
   const getActiveNavbarText = (routes) => {
     let activeNavbar = false;
     for (let i = 0; i < routes.length; i++) {
@@ -96,20 +100,24 @@ export default function Dashboard(props) {
     }
     return activeNavbar;
   };
+
+  // Updated getRoutes function to use react-router-dom v6 syntax
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
+      console.log(prop);
+
       if (prop.layout === "/admin") {
         return prop.type === "link" ? (
           <Route
             path={prop.layout + prop.path}
-            component={prop.component}
+            element={prop.component}
             key={key}
           />
         ) : (
           prop?.links?.map((link, j) => (
             <Route
               path={link.layout + link.path}
-              component={link.component}
+              element={link.component}
               key={j}
             />
           ))
@@ -125,9 +133,11 @@ export default function Dashboard(props) {
       }
     });
   };
+
   document.documentElement.dir = "ltr";
   const { onOpen } = useDisclosure();
   document.documentElement.dir = "ltr";
+
   return (
     <SidebarContext.Provider
       value={{
@@ -161,21 +171,7 @@ export default function Dashboard(props) {
           />
 
           <Box mt="30px" p="20px">
-            {getRoute() ? (
-              <Box
-                mx="auto"
-                p={{ base: "20px", md: "30px" }}
-                pe="20px"
-                minH="100vh"
-                pt="50px"
-              >
-                <Routes>
-                  {getRoutes(routes)}
-                  {/* <Route path="*" element={<NotFound />} */}
-                  <Route from="/" to="/admin/default" />
-                </Routes>
-              </Box>
-            ) : null}
+            <Outlet />
           </Box>
           <Footer />
         </Box>
