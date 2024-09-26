@@ -9,15 +9,11 @@ import {
   MdChevronRight,
   MdLocalShipping,
   MdVideoLibrary,
-  MdHome,
-  MdShoppingCart,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
 import { TbTruckDelivery, TbReorder } from "react-icons/tb";
 import { AiFillPrinter } from "react-icons/ai";
-import { LuFolderClosed, LuShoppingBag } from "react-icons/lu";
-import { FaBookOpen } from "react-icons/fa";
 
 // Admin Imports
 import MainDashboard from "./views/admin/default";
@@ -28,6 +24,10 @@ import AllOrders from "./views/admin/allOrders";
 import OrderHistory from "./views/admin/orderHistory";
 import EmployeeManagement from "./views/admin/employeeManagement";
 import OrderShipping from "./views/admin/orderShipping";
+import Dashboard from "./views/admin/dashboard";
+import ShiftSchedule from "./views/admin/shiftSchedule";
+import Absence from "./views/admin/absense";
+import Employee from "./views/admin/employees";
 
 // Auth Imports
 import SignInCentered from "./views/auth/signIn";
@@ -185,6 +185,67 @@ const routes2 = [
     ],
   },
   {
+    name: "Personnel planning",
+    layout: "/admin",
+    path: "/personalplan-dashboard",
+    type: "list",
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    links: [
+      {
+        name: "Dashboard",
+        layout: "/admin",
+        path: "/personalplan-dashboard",
+        icon: (
+          <Icon
+            as={HiDocumentChartBar}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        component: <Dashboard />,
+      },
+      // {
+      //   name: 'Recent Orders',
+      //   layout: '/admin',
+      //   path: '/process-order',
+      //   icon: (
+      //     <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+      //   ),
+      //   component: OrderShipping,
+      // },
+      {
+        name: "Shift Schedule",
+        layout: "/admin",
+        path: "/shift-schedule",
+        icon: (
+          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+        ),
+        component: <ShiftSchedule />,
+      },
+      {
+        name: "Absences",
+        layout: "/admin",
+        path: "/absences",
+        icon: (
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+        ),
+        component: <Absence />,
+      },
+      {
+        name: "Employees",
+        layout: "/admin",
+        path: "/employees",
+        icon: (
+          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+        ),
+        component: <Employee />,
+      },
+    ],
+  },
+  {
     name: "Delivery Partners",
     layout: "/admin",
     path: "/delivery-partners",
@@ -326,117 +387,117 @@ const routes2 = [
       },
     ],
   },
-  {
-    name: "Sign In",
-    layout: "/auth",
-    path: "/sign-in",
-    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-    component: SignInCentered,
-  },
-  {
-    name: "Sign Up",
-    layout: "/auth",
-    path: "/sign-up",
-    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-    component: SignUpCentered,
-  },
-];
-
-const routes = [
-  {
-    name: "Main Dashboard",
-    layout: "/admin",
-    path: "/default",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: MainDashboard,
-  },
-  {
-    name: "Item Management",
-    layout: "/admin",
-    path: "/item-management",
-    icon: (
-      <Icon as={LuShoppingBag} width="20px" height="20px" color="inherit" />
-    ),
-    component: ItemManagement,
-  },
-  {
-    name: "Low Stocks Alert",
-    layout: "/admin",
-    path: "/low-stock",
-    icon: (
-      <Icon as={LuFolderClosed} width="20px" height="20px" color="inherit" />
-    ),
-    component: LowStocks,
-  },
-  {
-    name: "Supplier Management",
-    layout: "/admin",
-    path: "/supplier-management",
-    icon: <Icon as={FaBookOpen} width="20px" height="20px" color="inherit" />,
-    component: SupplierManagement,
-  },
-  {
-    name: "Orders",
-    layout: "/admin",
-    path: "/orders",
-    icon: (
-      <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
-    ),
-    component: AllOrders,
-  },
-
-  // {
-  //   name: 'Barcode Generator',
-  //   layout: '/admin',
-  //   path: '/barcode',
-  //   icon: (
-  //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
-  //   ),
-  //   component: BarcodeGenerator,
-  // },
-  // {
-  //   name: "NFT Marketplace",
-  //   layout: "/admin",
-  //   path: "/nft-marketplace",
-  //   icon: (
-  //     <Icon
-  //       as={MdOutlineShoppingCart}
-  //       width='20px'
-  //       height='20px'
-  //       color='inherit'
-  //     />
-  //   ),
-  //   component: NFTMarketplace,
-  //   secondary: true,
-  // },
-  // {
-  //   name: "Data Tables",
-  //   layout: "/admin",
-  //   icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
-  //   path: "/data-tables",
-  //   component: DataTables,
-  // },
-  // {
-  //   name: "Profile",
-  //   layout: "/admin",
-  //   path: "/profile",
-  //   icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
-  //   component: Profile,
-  // },
   // {
   //   name: "Sign In",
   //   layout: "/auth",
   //   path: "/sign-in",
-  //   icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+  //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
   //   component: SignInCentered,
   // },
   // {
-  //   name: "RTL Admin",
-  //   layout: "/rtl",
-  //   path: "/rtl-default",
-  //   icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-  //   component: RTL,
+  //   name: "Sign Up",
+  //   layout: "/auth",
+  //   path: "/sign-up",
+  //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
+  //   component: SignUpCentered,
   // },
 ];
+
+// const routes = [
+//   {
+//     name: "Main Dashboard",
+//     layout: "/admin",
+//     path: "/default",
+//     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+//     component: MainDashboard,
+//   },
+//   {
+//     name: "Item Management",
+//     layout: "/admin",
+//     path: "/item-management",
+//     icon: (
+//       <Icon as={LuShoppingBag} width="20px" height="20px" color="inherit" />
+//     ),
+//     component: ItemManagement,
+//   },
+//   {
+//     name: "Low Stocks Alert",
+//     layout: "/admin",
+//     path: "/low-stock",
+//     icon: (
+//       <Icon as={LuFolderClosed} width="20px" height="20px" color="inherit" />
+//     ),
+//     component: LowStocks,
+//   },
+//   {
+//     name: "Supplier Management",
+//     layout: "/admin",
+//     path: "/supplier-management",
+//     icon: <Icon as={FaBookOpen} width="20px" height="20px" color="inherit" />,
+//     component: SupplierManagement,
+//   },
+//   {
+//     name: "Orders",
+//     layout: "/admin",
+//     path: "/orders",
+//     icon: (
+//       <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
+//     ),
+//     component: AllOrders,
+//   },
+
+//   // {
+//   //   name: 'Barcode Generator',
+//   //   layout: '/admin',
+//   //   path: '/barcode',
+//   //   icon: (
+//   //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
+//   //   ),
+//   //   component: BarcodeGenerator,
+//   // },
+//   // {
+//   //   name: "NFT Marketplace",
+//   //   layout: "/admin",
+//   //   path: "/nft-marketplace",
+//   //   icon: (
+//   //     <Icon
+//   //       as={MdOutlineShoppingCart}
+//   //       width='20px'
+//   //       height='20px'
+//   //       color='inherit'
+//   //     />
+//   //   ),
+//   //   component: NFTMarketplace,
+//   //   secondary: true,
+//   // },
+//   // {
+//   //   name: "Data Tables",
+//   //   layout: "/admin",
+//   //   icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
+//   //   path: "/data-tables",
+//   //   component: DataTables,
+//   // },
+//   // {
+//   //   name: "Profile",
+//   //   layout: "/admin",
+//   //   path: "/profile",
+//   //   icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
+//   //   component: Profile,
+//   // },
+//   // {
+//   //   name: "Sign In",
+//   //   layout: "/auth",
+//   //   path: "/sign-in",
+//   //   icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+//   //   component: SignInCentered,
+//   // },
+//   // {
+//   //   name: "RTL Admin",
+//   //   layout: "/rtl",
+//   //   path: "/rtl-default",
+//   //   icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+//   //   component: RTL,
+//   // },
+// ];
 
 export default routes2;

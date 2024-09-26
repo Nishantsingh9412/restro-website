@@ -1,33 +1,24 @@
-import React, { Component } from "react";
+import { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 
-class ColumnChart extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      chartData: [],
-      chartOptions: {},
-    };
-  }
+const ColumnChart = ({ chartData, chartOptions }) => {
+  const [data, setData] = useState([]);
+  const [options, setOptions] = useState({});
 
-  componentDidMount() {
-    this.setState({
-      chartData: this.props.chartData,
-      chartOptions: this.props.chartOptions,
-    });
-  }
+  useEffect(() => {
+    setData(chartData);
+    setOptions(chartOptions);
+  }, [chartData, chartOptions]);
 
-  render() {
-    return (
-      <Chart
-        options={this.state.chartOptions}
-        series={this.state.chartData}
-        type='bar'
-        width='100%'
-        height='100%'
-      />
-    );
-  }
-}
+  return (
+    <Chart
+      options={options}
+      series={data}
+      type="bar"
+      width="100%"
+      height="100%"
+    />
+  );
+};
 
 export default ColumnChart;

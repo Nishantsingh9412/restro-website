@@ -1,5 +1,4 @@
 // Chakra imports
-// Chakra imports
 import {
   Flex,
   Stat,
@@ -7,33 +6,32 @@ import {
   StatNumber,
   useColorModeValue,
   Text,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 // Custom components
-import Card from './Card.jsx';
-// Custom icons
-import React from 'react';
+import Card from "./Card.jsx";
 
+// Custom icons
 export default function Default(props) {
   const { startContent, endContent, name, growth, value, bg, color } = props;
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const textColorSecondary = 'secondaryGray.600';
+  const textColor = useColorModeValue("secondaryGray.900", "white");
+  const textColorSecondary = "secondaryGray.600";
 
   return (
     <Card py="15px" bg={bg}>
       <Flex
         my="auto"
         h="100%"
-        align={{ base: 'center', xl: 'start' }}
-        justify={{ base: 'center', xl: 'center' }}
+        align={{ base: "center", xl: "start" }}
+        justify={{ base: "center", xl: "center" }}
       >
         {startContent}
 
-        <Stat my="auto" ms={startContent ? '18px' : '0px'}>
+        <Stat my="auto" ms={startContent ? "18px" : "0px"}>
           <StatLabel
             lineHeight="100%"
             color={textColorSecondary}
             fontSize={{
-              base: 'sm',
+              base: "sm",
             }}
           >
             {name}
@@ -41,7 +39,7 @@ export default function Default(props) {
           <StatNumber
             color={textColor}
             fontSize={{
-              base: '2xl',
+              base: "2xl",
             }}
           >
             {value}

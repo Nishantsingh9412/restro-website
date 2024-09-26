@@ -10,7 +10,6 @@ import {
   Menu,
   MenuItem,
   MenuList,
-  MenuButton,
   Stack,
   Text,
   useColorModeValue,
@@ -21,7 +20,6 @@ import {
 import IconBox from "../icons/IconBox";
 import { SidebarResponsive } from "../sidebar/Sidebar";
 import PropTypes from "prop-types";
-import React from "react";
 import { AiFillStar } from "react-icons/ai";
 import { GoChevronDown, GoChevronRight } from "react-icons/go";
 import { NavLink } from "react-router-dom";

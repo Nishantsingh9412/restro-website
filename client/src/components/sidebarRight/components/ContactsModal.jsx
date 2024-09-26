@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import {
     Modal,
     ModalOverlay,
@@ -7,14 +7,12 @@ import {
     ModalFooter,
     ModalBody,
     ModalCloseButton,
-    Button,
     Image,
     Box,
     Text,
     Flex,
     Center,
     Input,
-    useFocusEffect,
 } from '@chakra-ui/react'
 import { searchContactsAPI } from '../../../api/index.js'
 

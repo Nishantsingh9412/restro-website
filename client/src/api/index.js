@@ -12,6 +12,7 @@ const API = axios.create({ baseURL: baseURL });
 // });
 
 // Auth API
+
 // Signup
 export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
 
@@ -189,3 +190,10 @@ export const deleteTaskAPI = (taskId) =>
 // Update Single Task
 export const updateTaskAPI = (taskId, updatedData) =>
   API.patch(`/employee/update-task/${taskId}`, updatedData);
+
+// Absent employee API
+export const fetchabsencedetailsdata = (employeedataId) => API.get(`/absence/get-employee-leave/${employeedataId}`);
+export const addAbsencedata = (data) => API.post("/absence/add-employee-leave", data);
+export const editAbsenceData = (data) => API.post("/absence/edit-employee-leave", data);
+export const getabsencebyempldata = (userId) => API.get(`/absence/getEmployeesWithAbsencesByUser/${userId}`);
+export const deleteAbsenceData = (data) => API.post("/absence/delete-employee-leave", data)

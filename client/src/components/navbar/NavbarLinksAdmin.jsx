@@ -1,11 +1,8 @@
 // Chakra Imports
 import {
   Avatar,
-  // Button,
   Flex,
   Icon,
-  // Image,
-  // Link,
   Menu,
   MenuButton,
   MenuItem,

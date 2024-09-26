@@ -6,7 +6,7 @@ import Navbar from "../../components/navbar/NavbarRTL.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import { RtlProvider } from "../../components/rtlProvider/RtlProvider.jsx";
 import { SidebarContext } from "../../contexts/SidebarContext";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import routes from "../../routes.jsx";
 import { useState } from "react";
 

@@ -1,21 +1,13 @@
 // Chakra imports
-import {
-  Portal,
-  Box,
-  useDisclosure,
-  Text,
-  Button,
-  Link,
-  Flex,
-} from "@chakra-ui/react";
+import { Box, useDisclosure, Flex } from "@chakra-ui/react";
 import Footer from "../../components/footer/FooterAdmin.jsx";
 // Layout components
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { SidebarContext } from "../../contexts/SidebarContext.jsx";
-import React, { useState } from "react";
-import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import routes from "../../routes.jsx";
 // Custom Chakra theme
 export default function Dashboard(props) {
@@ -102,37 +94,37 @@ export default function Dashboard(props) {
   };
 
   // Updated getRoutes function to use react-router-dom v6 syntax
-  const getRoutes = (routes) => {
-    return routes.map((prop, key) => {
-      console.log(prop);
+  // const getRoutes = (routes) => {
+  //   return routes.map((prop, key) => {
+  //     console.log(prop);
 
-      if (prop.layout === "/admin") {
-        return prop.type === "link" ? (
-          <Route
-            path={prop.layout + prop.path}
-            element={prop.component}
-            key={key}
-          />
-        ) : (
-          prop?.links?.map((link, j) => (
-            <Route
-              path={link.layout + link.path}
-              element={link.component}
-              key={j}
-            />
-          ))
-        );
-      }
-      if (prop.collapse) {
-        return getRoutes(prop.items);
-      }
-      if (prop.category) {
-        return getRoutes(prop.items);
-      } else {
-        return null;
-      }
-    });
-  };
+  //     if (prop.layout === "/admin") {
+  //       return prop.type === "link" ? (
+  //         <Route
+  //           path={prop.layout + prop.path}
+  //           element={prop.component}
+  //           key={key}
+  //         />
+  //       ) : (
+  //         prop?.links?.map((link, j) => (
+  //           <Route
+  //             path={link.layout + link.path}
+  //             element={link.component}
+  //             key={j}
+  //           />
+  //         ))
+  //       );
+  //     }
+  //     if (prop.collapse) {
+  //       return getRoutes(prop.items);
+  //     }
+  //     if (prop.category) {
+  //       return getRoutes(prop.items);
+  //     } else {
+  //       return null;
+  //     }
+  //   });
+  // };
 
   document.documentElement.dir = "ltr";
   const { onOpen } = useDisclosure();
@@ -170,7 +162,7 @@ export default function Dashboard(props) {
             {...rest}
           />
 
-          <Box mt="30px" p="20px">
+          <Box mt="160px" p="20px">
             <Outlet />
           </Box>
           <Footer />
