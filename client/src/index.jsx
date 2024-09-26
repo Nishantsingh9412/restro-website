@@ -14,6 +14,7 @@ import { thunk } from "redux-thunk";
 import { compose, applyMiddleware, createStore } from "redux";
 import Reducers from "./redux/reducers/index";
 import routes2 from "./routes";
+import SignUp from "./views/auth/signup";
 
 const store = createStore(
   Reducers,
@@ -35,6 +36,7 @@ root.render(
               <Route path="/auth/*" element={<AuthLayout />} />
               <Route path="/rtl/*" element={<RtlLayout />} />
               <Route path="/" element={<SignIn />} />
+              <Route path="/auth/sign-up" element={<SignUp />} />
 
               {/* Admin Layout Routes */}
               <Route path="/admin/*" element={<AdminLayout />}>
@@ -49,7 +51,6 @@ root.render(
                       />
                     );
                   }
-
                   // If the route has nested links, render them
                   if (route.links) {
                     return route.links.map((nestedRoute, nestedIndex) => (
@@ -60,11 +61,9 @@ root.render(
                       />
                     ));
                   }
-
                   return null; // If no valid route exists
                 })}
               </Route>
-
               {/* Uncomment to redirect from root to /admin */}
               {/* <Route path="/" element={<Navigate to="/admin" replace />} /> */}
             </Routes>
