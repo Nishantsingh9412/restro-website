@@ -190,10 +190,26 @@ export const deleteTaskAPI = (taskId) =>
 // Update Single Task
 export const updateTaskAPI = (taskId, updatedData) =>
   API.patch(`/employee/update-task/${taskId}`, updatedData);
-
+// Dashboard API
+export const getAbsentdata = (employeeId) => API.get(`/absence/get-todays-leave/${employeeId}`);
+export const getemployeshiftdata = () => API.get("/shift/get-todays-shift");
+export const getbirthdayapidata = () => API.get("/employee/get-todays-employee-birthday");
+export const getupcomingbirthdayapidata = () => API.get("/employee/get-upcoming-employee-birthday");
+// Employee API
+export const getemployeedata = (employeeId) => API.get(`/employee/get-employee/userId_${employeeId}`)
+export const postemployeedata = (data) => API.post("/employee/add-employee", data);
+export const updateemployeedata = (employeedataId, data) => API.put(`/employee/update-employee/${employeedataId}`, data);
+export const deleteemployeedata = (employeedataId) => API.delete(`/employee/delete-employee/${employeedataId}`);
+export const employeedetaildata = (employeedataId) => API.get(`/employee/get-employee/id_${employeedataId}`);
 // Absent employee API
 export const fetchabsencedetailsdata = (employeedataId) => API.get(`/absence/get-employee-leave/${employeedataId}`);
 export const addAbsencedata = (data) => API.post("/absence/add-employee-leave", data);
 export const editAbsenceData = (data) => API.post("/absence/edit-employee-leave", data);
 export const getabsencebyempldata = (userId) => API.get(`/absence/getEmployeesWithAbsencesByUser/${userId}`);
 export const deleteAbsenceData = (data) => API.post("/absence/delete-employee-leave", data)
+// Shift employee API
+export const addshiftdata = (data) => API.post("/shift/add-employee-shift", data);
+export const editshiftdata = (data) => API.post("/shift/edit-employee-shift", data);
+export const deleteShiftData = (data) => API.post("/shift/delete-employee-shift", data);
+export const fetchshiftdetailsdata = (employeedataId) => API.get(`/shift/get-employee-shift/${employeedataId}`);
+export const getshiftbyempldata = (userId) => API.get(`/shift/get-shift-with-employee/${userId}`);
