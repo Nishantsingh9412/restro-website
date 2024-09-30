@@ -39,8 +39,7 @@ export default function EmployeeComponent() {
 
   // Fetch employees on component mount
   useEffect(() => {
-    getEmployees();
-    setIsLoading(false);
+    getEmployees().finally(() => setIsLoading(false));
   }, []);
 
   const getEmployees = async () => {
@@ -126,7 +125,7 @@ export default function EmployeeComponent() {
 
   if (isLoading) {
     return (
-      <Center height="100vh">
+      <Center height="50vh">
         <Spinner size="xl" />
       </Center>
     );

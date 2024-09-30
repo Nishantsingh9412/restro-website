@@ -10,8 +10,8 @@ const AbsenceSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
+      trim: true,
     },
-
     startDate: {
       type: Date,
       required: true,
@@ -23,14 +23,16 @@ const AbsenceSchema = new mongoose.Schema(
     leaveType: {
       type: String,
       required: true,
+      trim: true,
     },
     notes: {
       type: String,
-      required: false,
+      trim: true,
     },
     declineAssignedShifts: {
       type: Boolean,
       required: true,
+      default: false,
     },
   },
   { timestamps: true }

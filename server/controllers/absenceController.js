@@ -1,169 +1,165 @@
 import moment from "moment-timezone";
 import mongoose from "mongoose";
+import Joi from "joi";
 
 import Absence from "../models/absence.js";
 import Employee from "../models/employee.js";
 
-export const deleteEmployeeAbsence = async (req, res) => {
-  try {
-    const { _id } = req.body;
-    if (!_id) return res.status(400).json({ message: "ID is required." });
-    await Absence.findByIdAndDelete(_id);
-    return res
-      .status(200)
-      .json({ message: "Success", success: true, result: "" });
-  } catch (err) {
-    return res.status(500).json({ error: err.message, status: 500 });
-  }
-};
+// Validation schemas
+const absenceSchema = Joi.object({
+  employeeId: Joi.string().required(),
+  type: Joi.string().required(),
+  startDate: Joi.date().required(),
+  endDate: Joi.date().required(),
+  leaveType: Joi.string().required(),
+  notes: Joi.string().allow(""),
+  declineAssignedShifts: Joi.boolean().required(),
+  _id: Joi.string().optional(),
+});
 
-export const editEmployeeAbsence = async (req, res) => {
-  try {
-    const {
-      employeeId,
-      type,
-      startDate,
-      endDate,
-      leaveType,
-      notes,
-      declineAssignedShifts,
-      _id,
-    } = req.body;
-    if (
-      !_id ||
-      !employeeId ||
-      !type ||
-      !startDate ||
-      !endDate ||
-      !leaveType ||
-      declineAssignedShifts == null
-    )
-      return res.status(400).json({ message: "All fields are required." });
+const idSchema = Joi.object({
+  _id: Joi.string().required(),
+});
 
-    const absence = await Absence.findByIdAndUpdate(
-      _id,
-      {
-        employeeId,
-        type,
-        startDate,
-        endDate,
-        leaveType,
-        notes,
-        declineAssignedShifts,
-      },
-      { new: true }
-    );
-    return res
-      .status(200)
-      .json({ result: absence, message: "Success", success: true });
-  } catch (error) {
-    return res.status(500).json({ error: error.message, status: 500 });
-  }
+const userIdSchema = Joi.object({
+  userId: Joi.string().required(),
+});
+
+// Centralized error handler
+const handleError = (res, error) => {
+  return res.status(500).json({ error: error.message, status: 500 });
 };
 
 export const addEmployeeAbsence = async (req, res) => {
-  try {
-    const {
-      employeeId,
-      type,
-      startDate,
-      endDate,
-      leaveType,
-      notes,
-      declineAssignedShifts,
-    } = req.body;
-    if (
-      !employeeId ||
-      !type ||
-      !startDate ||
-      !endDate ||
-      !leaveType ||
-      declineAssignedShifts == null
-    )
-      return res.status(400).json({ message: "All fields are required." });
+  const { error, value } = absenceSchema.validate(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
 
-    const newAbsence = new Absence({
-      employeeId,
-      type,
-      startDate,
-      endDate,
-      leaveType,
-      notes,
-      declineAssignedShifts,
-    });
+  try {
+    const newAbsence = new Absence(value);
     await newAbsence.save();
 
     return res
       .status(201)
       .json({ result: newAbsence, message: "Success", success: true });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    return handleError(res, err);
+  }
+};
+
+export const deleteEmployeeAbsence = async (req, res) => {
+  const { error, value } = idSchema.validate(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
+  try {
+    const { _id } = value;
+    const result = await Absence.findByIdAndDelete(_id);
+    if (!result) return res.status(404).json({ message: "Absence not found." });
+
+    return res
+      .status(200)
+      .json({ message: "Success", success: true, result: "" });
+  } catch (err) {
+    return handleError(res, err);
+  }
+};
+
+export const editEmployeeAbsence = async (req, res) => {
+  const { error, value } = absenceSchema.validate(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
+  try {
+    const { _id, ...updateData } = value;
+    const absence = await Absence.findByIdAndUpdate(_id, updateData, {
+      new: true,
+    });
+    if (!absence)
+      return res.status(404).json({ message: "Absence not found." });
+
+    return res
+      .status(200)
+      .json({ result: absence, message: "Success", success: true });
+  } catch (err) {
+    return handleError(res, err);
   }
 };
 
 export const getEmployeeAbsence = async (req, res) => {
+  const { employeeId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+    return res.status(400).json({ message: "Invalid employee ID." });
+  }
+
   try {
-    const { employeeId } = req.params;
     const absences = await Absence.find({ employeeId })
       .sort({ startDate: 1 })
       .populate("employeeId", "name");
-    if (absences.length === 0)
+
+    if (absences.length === 0) {
       return res
         .status(404)
         .json({ message: "No absences found for this employee." });
+    }
 
     return res
       .status(200)
       .json({ result: absences, message: "Success", success: true });
-  } catch (error) {
-    return res.status(500).json({ error: error.message, status: 500 });
+  } catch (err) {
+    return handleError(res, err);
   }
 };
 
 export const getTodaysLeaveByUserId = async (req, res) => {
+  const { error, value } = userIdSchema.validate(req.params);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+
   try {
-    const { userId } = req.params;
+    const { userId } = value;
     const todayStart = moment().tz("Asia/Kolkata").startOf("day").toDate();
     const todayEnd = moment().tz("Asia/Kolkata").endOf("day").toDate();
     const employees = await Employee.find({ created_by: userId }).select("_id");
 
-    if (employees.length === 0)
+    if (employees.length === 0) {
       return res
         .status(404)
         .json({ message: "No employees found for this user.", success: false });
-    const employeeIds = employees.map((emp) => emp._id);
+    }
 
+    const employeeIds = employees.map((emp) => emp._id);
     const absences = await Absence.find({
       employeeId: { $in: employeeIds },
       startDate: { $lte: todayEnd },
       endDate: { $gte: todayStart },
     }).populate("employeeId", "name");
 
-    if (absences.length === 0)
+    if (absences.length === 0) {
       return res.status(404).json({
         message: "No leaves found for today for these employees.",
         success: false,
       });
+    }
+
     return res
       .status(200)
       .json({ result: absences, message: "", success: true });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    return handleError(res, err);
   }
 };
 
 export const getEmployeesWithAbsencesByUser = async (req, res) => {
-  const { userId } = req.params;
-
-  if (!userId) return res.status(400).json({ error: "userId is required" });
+  const { error, value } = userIdSchema.validate(req.params);
+  if (error) return res.status(400).json({ message: error.details[0].message });
 
   try {
+    const { userId } = value;
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const employees = await Employee.find({ created_by: userObjectId });
-    if (!employees.length)
+
+    if (!employees.length) {
       return res
         .status(404)
         .json({ message: "No employees found", success: false });
+    }
 
     const employeeIds = employees.map((emp) => emp._id);
     const absences = await Absence.find({ employeeId: { $in: employeeIds } });
@@ -178,7 +174,7 @@ export const getEmployeesWithAbsencesByUser = async (req, res) => {
     return res
       .status(200)
       .json({ result: employeesWithAbsences, success: true, message: "" });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    return handleError(res, err);
   }
 };

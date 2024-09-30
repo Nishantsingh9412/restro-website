@@ -1,32 +1,31 @@
 import mongoose from 'mongoose';
 
-const EmployeeSchema = mongoose.Schema({
+const EmployeeSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
-    phone: { type: String, required: false },
+    phone: String,
     address: {
-        street: { type: String, required: false },
-        city: { type: String, required: false },
-        zipCode: { type: String, required: false }
+        street: String,
+        city: String,
+        zipCode: String
     },
-    birthday: { type: Date, required: false },
-    nationality: { type: String, required: false },
-    maritalStatus: { type: String, required: false },
-    children: { type: Number, required: false },
-    healthInsurance: { type: String, required: false },
-    socialSecurityNumber: { type: String, required: false },
-    taxID: { type: String, required: false },
+    birthday: Date,
+    nationality: String,
+    maritalStatus: String,
+    children: Number,
+    healthInsurance: String,
+    socialSecurityNumber: String,
+    taxID: String,
     status: { type: String, required: true, enum: ['Active', 'Inactive'] },
-    dateOfJoining: { type: Date, required: false },
-    endOfEmployment: { type: Date, required: false },
+    dateOfJoining: Date,
+    endOfEmployment: Date,
     employeeID: { type: String, required: true },
-    position: { type: String, required: false },
+    position: String,
     type: { type: String, required: true, enum: ['Full-time', 'Part-time', 'Intern', 'Contractor'] },
-    workingHoursPerWeek: { type: Number, required: false },
-    variableWorkingHours: { type: Boolean, required: false },
-    annualHolidayEntitlement: { type: Number, required: false },
-    notes: { type: String, required: false },
-   
+    workingHoursPerWeek: Number,
+    variableWorkingHours: Boolean,
+    annualHolidayEntitlement: Number,
+    notes: String,
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Auth',
