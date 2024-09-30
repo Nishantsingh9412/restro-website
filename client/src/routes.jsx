@@ -2,7 +2,6 @@
 import { Icon } from "@chakra-ui/react";
 import {
   MdShoppingBag,
-  MdLock,
   MdRestaurant,
   MdHistory,
   MdEvent,
@@ -29,9 +28,9 @@ import ShiftSchedule from "./views/admin/shiftSchedule";
 import Absence from "./views/admin/absense";
 import Employee from "./views/admin/employees";
 
-// Auth Imports
-import SignInCentered from "./views/auth/signIn";
-import SignUpCentered from "./views/auth/signup";
+// // Auth Imports
+// import SignInCentered from "./views/auth/signIn";
+// import SignUpCentered from "./views/auth/signup";
 
 const routes2 = [
   // {

@@ -231,8 +231,7 @@ export default function AbsenseComponent() {
 
   const handleCustomDate = (event) => {
     const date = event.target.value;
-    if (new Date(date) !== "Invalid Date" && !isNaN(new Date(date)))
-      setCurrentDate(date);
+    if (!isNaN(new Date(date).getTime())) setCurrentDate(date);
   };
 
   const handleViewPrev = () =>
