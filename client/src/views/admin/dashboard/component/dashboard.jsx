@@ -1,124 +1,111 @@
-import { ArrowForwardIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import {
-	Grid,
-	GridItem,
-	useDisclosure,
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	TableContainer,
-	Card,
-	Button,
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalFooter,
-	ModalBody,
-	ModalCloseButton,
-	Input,
-	Select,
-	Box,
-	ChakraProvider,
-	FormLabel,
-	InputLeftElement,
-	InputGroup,
+  Grid,
+  GridItem,
+  useDisclosure,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Heading,
+  Text,
+  TableContainer,
+  Card,
+  Box,
+  ChakraProvider,
 } from "@chakra-ui/react";
 
 // import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
-import { Checkbox, FormControl } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Textarea } from "@chakra-ui/react";
 // import { getApihandler } from "Apihandler";
 import { useDispatch } from "react-redux";
 import {
-	getAbsentApi,
-	getBirthdayApi,
-	getEmployeShiftApi,
-	getUpcomingBirthdayApi,
+  getAbsentApi,
+  getBirthdayApi,
+  getEmployeShiftApi,
+  getUpcomingBirthdayApi,
 } from "../../../../redux/action/dashboard";
 
 export default function DashboardComponent() {
-	const {
-		isOpen: isOpen1,
-		// onOpen: onOpen1,
-		onClose: onClose1,
-	} = useDisclosure();
-	const {
-		isOpen: isOpen2,
-		onOpen: onOpen2,
-		onClose: onClose2,
-	} = useDisclosure();
-	const {
-		isOpen: isOpen3,
-		onOpen: onOpen3,
-		onClose: onClose3,
-	} = useDisclosure();
-	// ***** for modal box back *****
-	const handleBackToFirstModal = () => {
-		onClose3();
-		onOpen2();
-	};
-	// ****** for modal box close ******
-	const handleCloseAll = () => {
-		onClose1();
-		onClose2();
-		onClose3();
-	};
+  //   const {
+  //     isOpen: isOpen1,
+  //     // onOpen: onOpen1,
+  //     onClose: onClose1,
+  //   } = useDisclosure();
+  //   const {
+  //     isOpen: isOpen2,
+  //     onOpen: onOpen2,
+  //     onClose: onClose2,
+  //   } = useDisclosure();
+  //   const {
+  //     isOpen: isOpen3,
+  //     onOpen: onOpen3,
+  //     onClose: onClose3,
+  //   } = useDisclosure();
+  //   // ***** for modal box back *****
+  //   const handleBackToFirstModal = () => {
+  //     onClose3();
+  //     onOpen2();
+  //   };
+  //   // ****** for modal box close ******
+  //   const handleCloseAll = () => {
+  //     onClose1();
+  //     onClose2();
+  //     onClose3();
+  //   };
 
-	const [name, setName] = React.useState("");
-	const [employeeshift, setEmployeeShift] = useState([]);
-	const [employeeabsense, setEmployeeAbsense] = useState([]);
-	const [birthdays, setBirthdays] = useState([]);
-	const [upcomingbirthdays, setUpcomingBirthdays] = useState([]);
-	const [loading, setLoading] = useState(true);
+  //   const [name, setName] = React.useState("");
 
-	const dispatch = useDispatch();
-	useEffect(() => {
-		fetchBirthdays();
-		getUpcomingBirthday();
-		getEmployeShift();
-		getAbsent();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+  const [employeeshift, setEmployeeShift] = useState([]);
+  const [employeeabsense, setEmployeeAbsense] = useState([]);
+  const [birthdays, setBirthdays] = useState([]);
+  const [upcomingbirthdays, setUpcomingBirthdays] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-	const getAbsent = async () => {
-		const userData = JSON.parse(localStorage.getItem("ProfileData"));
-		const userId = userData.result._id;
+  const dispatch = useDispatch();
+  useEffect(() => {
+    fetchBirthdays();
+    getUpcomingBirthday();
+    getEmployeShift();
+    getAbsent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-		const res = await dispatch(getAbsentApi(userId));
-		if (res.success) setEmployeeAbsense(res.data);
-	};
+  const getAbsent = async () => {
+    const userData = JSON.parse(localStorage.getItem("ProfileData"));
+    const userId = userData.result._id;
 
-	const getEmployeShift = async () => {
-		const res = await dispatch(getEmployeShiftApi());
-		if (res.success) setEmployeeShift(res.data);
-	};
+    const res = await dispatch(getAbsentApi(userId));
+    if (res.success) setEmployeeAbsense(res.data);
+  };
 
-	const fetchBirthdays = async () => {
-		try {
-			const res = await dispatch(getBirthdayApi());
-			if (res.success) setBirthdays(res.data);
-		} catch (error) {
-			console.error("Error fetching birthdays", error);
-		} finally {
-			setLoading(false);
-		}
-	};
+  const getEmployeShift = async () => {
+    const res = await dispatch(getEmployeShiftApi());
+    if (res.success) setEmployeeShift(res.data);
+  };
 
-	const getUpcomingBirthday = async () => {
-		const res = await dispatch(getUpcomingBirthdayApi());
-		if (res.success) setUpcomingBirthdays(res.data);
-	};
+  const fetchBirthdays = async () => {
+    try {
+      const res = await dispatch(getBirthdayApi());
+      if (res.success) setBirthdays(res.data);
+    } catch (error) {
+      console.error("Error fetching birthdays", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	return (
-		<ChakraProvider>
-			{/* ******* modal box for new Booking ********* */}
-			<Modal isOpen={isOpen2} onClose={onClose2}>
+  const getUpcomingBirthday = async () => {
+    const res = await dispatch(getUpcomingBirthdayApi());
+    if (res.success) setUpcomingBirthdays(res.data);
+  };
+
+  return (
+    <ChakraProvider>
+      {/* ******* modal box for new Booking ********* */}
+      {/* <Modal isOpen={isOpen2} onClose={onClose2}>
 				<ModalOverlay />
 				<ModalContent maxWidth="70%">
 					<Grid templateColumns="repeat(12, 1fr)">
@@ -262,10 +249,10 @@ export default function DashboardComponent() {
 						</ModalFooter>
 					</Grid>
 				</ModalContent>
-			</Modal>
+			</Modal> */}
 
-			{/* ****** modal box for add restaurant ****** */}
-			<Modal isOpen={isOpen1} onClose={onClose1} size="xl">
+      {/* ****** modal box for add restaurant ****** */}
+      {/* <Modal isOpen={isOpen1} onClose={onClose1} size="xl">
 				<ModalOverlay />
 				<ModalContent maxWidth="70%">
 					<ModalHeader sx={{ color: "rgb(63, 73, 98)" }}>
@@ -670,10 +657,10 @@ export default function DashboardComponent() {
 						</Button>
 					</ModalFooter>
 				</ModalContent>
-			</Modal>
+			</Modal> */}
 
-			{/* ******* modal box for more detail ******** */}
-			<Modal isOpen={isOpen3} onClose={onClose3}>
+      {/* ******* modal box for more detail ******** */}
+      {/* <Modal isOpen={isOpen3} onClose={onClose3}>
 				<ModalOverlay />
 				<ModalContent maxWidth="70%">
 					<Grid templateColumns="repeat(12, 1fr)">
@@ -807,136 +794,143 @@ export default function DashboardComponent() {
 						</ModalFooter>
 					</Grid>
 				</ModalContent>
-			</Modal>
+			</Modal> */}
 
-			<Grid
-				gap={4}
-				sx={{ marginTop: "60px" }}
-				templateColumns="repeat(12, 1fr)"
-			>
-				<GridItem colSpan={9}>
-					<Box
-						sx={{
-							padding: "20px",
-							boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 6px;",
-						}}
-					>
-						<h2 style={{ fontSize: "22px" }}>Working</h2>
-					</Box>
-					<Box sx={{ boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 6px;" }}>
-						<TableContainer>
-							<Table variant="simple">
-								<Thead>
-									<Tr>
-										<Th>Employee</Th>
-										<Th>From</Th>
-										<Th>To</Th>
-										<Th>Duration</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{employeeshift && employeeshift.length > 0
-										? employeeshift.map((val) => (
-												<Tr key={val._id}>
-													<Td>
-														{val.employeeId === null ? "" : val.employeeId.name}
-													</Td>
-													<Td>{new Date(val.from).toLocaleDateString()}</Td>
-													<Td>{new Date(val.to).toLocaleDateString()}</Td>
-													<Td>{val.duration}</Td>
-												</Tr>
-											))
-										: null}
-								</Tbody>
-							</Table>
-						</TableContainer>
-					</Box>
-					<Box
-						sx={{
-							boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 6px;",
-							padding: "20px",
-							marginTop: "30px",
-						}}
-					>
-						<h2 style={{ fontSize: "22px" }}>Absent</h2>
-					</Box>
-					<Box sx={{ boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 6px;" }}>
-						<TableContainer>
-							<Table variant="simple">
-								<Thead>
-									<Tr>
-										<Th>Employee</Th>
-										<Th>Absence</Th>
-										<Th>Note</Th>
-									</Tr>
-								</Thead>
-								<Tbody>
-									{employeeabsense && employeeabsense.length > 0
-										? employeeabsense.map((val) => (
-												<Tr key={val._id}>
-													<Td>
-														{val.employeeId === null ? "" : val.employeeId.name}
-													</Td>
-													<Td>{val.leaveType}</Td>
-													<Td>{val.notes}</Td>
-												</Tr>
-											))
-										: null}
-								</Tbody>
-							</Table>
-						</TableContainer>
-					</Box>
-				</GridItem>
-				<GridItem colSpan={3}>
-					<Box>
-						<Card
-							sx={{
-								boxShadow: "rgba(0, 0, 0, 0.1) 0px 0px 6px;",
-								backgroundColor: "white",
-								padding: "30px",
-							}}
-						>
-							<h1 style={{ fontSize: "25px", color: "rgb(63, 73, 98)" }}>
-								Birthdays
-							</h1>
-							<h2 style={{ fontSize: "22px", color: "rgb(63, 73, 98)" }}>
-								Today
-							</h2>
-							{loading ? (
-								<p style={{ fontSize: "14px" }}>Loading...</p>
-							) : birthdays.length > 0 ? (
-								<ul>
-									{birthdays.map((employee, index) => (
-										<li key={index} style={{ fontSize: "14px" }}>
-											{employee.name}
-										</li>
-									))}
-								</ul>
-							) : (
-								<p style={{ fontSize: "14px" }}>There is no birthday today.</p>
-							)}
-							<h1 style={{ fontSize: "25px", color: "rgb(63, 73, 98)" }}>
-								Upcoming birthday
-							</h1>
-							{loading ? (
-								<p style={{ fontSize: "14px" }}>Loading...</p>
-							) : upcomingbirthdays.length > 0 ? (
-								<ul>
-									{upcomingbirthdays.map((employee, index) => (
-										<li key={index} style={{ fontSize: "14px" }}>
-											{employee.name}
-										</li>
-									))}
-								</ul>
-							) : (
-								<p style={{ fontSize: "14px" }}>
-									There is no upcoming birthday.
-								</p>
-							)}
-						</Card>
-					</Box>
-				</GridItem>
-			</Grid>
-		</ChakraProvider>
-	);
+      <Grid gap={6} mt={12} templateColumns="repeat(12, 1fr)">
+        {/* Main Section */}
+        <GridItem colSpan={9}>
+          {/* Working Section */}
+          <Box p={6} boxShadow="md" bg="white" borderRadius="md">
+            <Heading fontSize="lg" color="gray.700">
+              Working
+            </Heading>
+          </Box>
+          <Box boxShadow="md" bg="white" mt={4} borderRadius="md" p={4}>
+            <TableContainer>
+              <Table variant="simple">
+                <Thead bg="gray.50">
+                  <Tr>
+                    <Th>Employee</Th>
+                    <Th>From</Th>
+                    <Th>To</Th>
+                    <Th>Duration</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {employeeshift && employeeshift.length > 0 ? (
+                    employeeshift.map((val) => (
+                      <Tr key={val._id}>
+                        <Td>{val.employeeId ? val.employeeId.name : "N/A"}</Td>
+                        <Td>{new Date(val.from).toLocaleDateString()}</Td>
+                        <Td>{new Date(val.to).toLocaleDateString()}</Td>
+                        <Td>{val.duration}</Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td colSpan={4} textAlign="center">
+                        No Data Available
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          {/* Absent Section */}
+          <Box mt={8} p={6} boxShadow="md" bg="white" borderRadius="md">
+            <Heading fontSize="lg" color="gray.700">
+              Absent
+            </Heading>
+          </Box>
+          <Box boxShadow="md" bg="white" mt={4} borderRadius="md" p={4}>
+            <TableContainer>
+              <Table variant="simple">
+                <Thead bg="gray.50">
+                  <Tr>
+                    <Th>Employee</Th>
+                    <Th>Absence</Th>
+                    <Th>Note</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {employeeabsense && employeeabsense.length > 0 ? (
+                    employeeabsense.map((val) => (
+                      <Tr key={val._id}>
+                        <Td>{val.employeeId ? val.employeeId.name : "N/A"}</Td>
+                        <Td>{val.leaveType}</Td>
+                        <Td>{val.notes}</Td>
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td colSpan={3} textAlign="center">
+                        No Absences Recorded
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </GridItem>
+
+        {/* Sidebar - Birthdays */}
+        <GridItem colSpan={3}>
+          <Box>
+            <Card boxShadow="md" bg="white" p={8} borderRadius="md">
+              <Heading fontSize="xl" color="rgb(63, 73, 98)">
+                Birthdays
+              </Heading>
+
+              {/* Today's Birthday */}
+              <Heading fontSize="lg" mt={6} color="gray.600">
+                Today
+              </Heading>
+              {loading ? (
+                <Text fontSize="sm" color="gray.500">
+                  Loading...
+                </Text>
+              ) : birthdays.length > 0 ? (
+                <ul>
+                  {birthdays.map((employee, index) => (
+                    <Text key={index} fontSize="sm" color="gray.700">
+                      {employee.name}
+                    </Text>
+                  ))}
+                </ul>
+              ) : (
+                <Text fontSize="sm" color="gray.500">
+                  There is no birthday today.
+                </Text>
+              )}
+
+              {/* Upcoming Birthdays */}
+              <Heading fontSize="lg" mt={6} color="gray.600">
+                Upcoming Birthdays
+              </Heading>
+              {loading ? (
+                <Text fontSize="sm" color="gray.500">
+                  Loading...
+                </Text>
+              ) : upcomingbirthdays.length > 0 ? (
+                <ul>
+                  {upcomingbirthdays.map((employee, index) => (
+                    <Text key={index} fontSize="sm" color="gray.700">
+                      {employee.name}
+                    </Text>
+                  ))}
+                </ul>
+              ) : (
+                <Text fontSize="sm" color="gray.500">
+                  There are no upcoming birthdays.
+                </Text>
+              )}
+            </Card>
+          </Box>
+        </GridItem>
+      </Grid>
+    </ChakraProvider>
+  );
 }

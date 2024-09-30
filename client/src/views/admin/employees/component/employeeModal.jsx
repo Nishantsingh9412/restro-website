@@ -149,10 +149,12 @@ export default function EmployeeModal({
     name,
     type = "text",
     isSelect = false,
-    options = []
+    options = [],
+    isRequired = false
   ) => (
     <>
-      <label>{label}</label>
+      {label} {isRequired && <span style={{ color: "red" }}>*</span>}
+      <label></label>
       {isSelect ? (
         <Select
           name={name}
@@ -190,9 +192,9 @@ export default function EmployeeModal({
         <ModalBody>
           <Grid templateColumns="repeat(12, 1fr)" gap={4}>
             <GridItem colSpan={{ base: 12, md: 6 }}>
-              {renderInput("Employee name", "name")}
-              {renderInput("Email", "email", "email")}
-              {renderInput("Phone", "phone")}
+              {renderInput("Employee name", "name", "text", false, [], true)}
+              {renderInput("Email", "email", "email", false, [], true)}
+              {renderInput("Phone", "phone", "text", false, [], true)}
               {renderInput("Street", "address.street")}
               {renderInput("City", "address.city")}
               {renderInput("Zip code", "address.zipCode", "number")}
@@ -213,24 +215,37 @@ export default function EmployeeModal({
               {renderInput("Tax ID", "taxID", "number")}
             </GridItem>
             <GridItem colSpan={{ base: 12, md: 6 }}>
-              {renderInput("Status", "status", "text", true, [
-                "Active",
-                "Inactive",
-                "Suspended",
-              ])}
+              {renderInput(
+                "Status",
+                "status",
+                "text",
+                true,
+                ["Active", "Inactive", "Suspended"],
+                true
+              )}
               {renderInput("Date of joining", "dateOfJoining", "date")}
               {renderInput("End of employment", "endOfEmployment", "date")}
-              {renderInput("Employee ID", "employeeID", "number")}
+              {renderInput(
+                "Employee ID",
+                "employeeID",
+                "number",
+                false,
+                [],
+                true
+              )}
               {renderInput("Position", "position", "text", true, [
                 "Waiter",
                 "Manager",
                 "Chef",
               ])}
-              {renderInput("Type", "type", "text", true, [
-                "Full-time",
-                "Part-time",
-                "Contract",
-              ])}
+              {renderInput(
+                "Type",
+                "type",
+                "text",
+                true,
+                ["Full-time", "Part-time", "Contract"],
+                true
+              )}
               <RadioGroup
                 onChange={handleRadioChange}
                 value={formData.variableWorkingHours ? "variable" : "fixed"}

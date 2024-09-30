@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   Table,
   Thead,
@@ -16,8 +16,6 @@ import {
   Select,
   Textarea,
   HStack,
-} from "@chakra-ui/react";
-import {
   Modal,
   ModalOverlay,
   ModalContent,
@@ -28,6 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
+import { Spinner } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { getEmployeeApi } from "../../../../redux/action/employee";
 import {
@@ -36,109 +35,45 @@ import {
   postShiftApi,
 } from "../../../../redux/action/shift";
 
-const getEndDateInCalender = (viewIndex, currentDate) => {
-  if (views[viewIndex] === "daily") return currentDate;
-  else if (views[viewIndex] === "weekly") {
-    const cDate = new Date(currentDate);
-    const startOfWeek = cDate.getDate() - cDate.getDay();
-    return new Date(cDate.setDate(startOfWeek + 6)).toISOString().split("T")[0];
-  } else {
-    const cDate = new Date(currentDate);
-    const endOfMonth = new Date(cDate.getFullYear(), cDate.getMonth() + 1, 0);
-    return endOfMonth.toISOString().split("T")[0];
-  }
-};
-
-const getDay = (date) => [
-  {
-    day: date.toLocaleDateString("en-US", { weekday: "short" }),
-    date: date.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-  },
-];
-
-const times = Array.from({ length: 24 }, (_, i) => {
-  const time = i.toString().padStart(2, "0");
-  return `${time}:00`;
-});
-
 const views = ["daily", "weekly", "monthly"];
+const times = Array.from(
+  { length: 24 },
+  (_, i) => `${i.toString().padStart(2, "0")}:00`
+);
 
-/*
-function getWeekInfo(date) {
-		const givenDate = new Date(date);
-		const dayOfWeek = givenDate.getDay();
-		const startOfWeek = new Date(givenDate);
-		startOfWeek.setDate(givenDate.getDate() - dayOfWeek);
-		const endOfWeek = new Date(startOfWeek);
-		endOfWeek.setDate(startOfWeek.getDate() + 6);
-		const daysOfWeek = [];
-		for (let i = 0; i < 7; i++) {
-				const day = new Date(startOfWeek);
-				day.setDate(startOfWeek.getDate() + i);
-				daysOfWeek.push(day.toISOString().split('T')[0]);
-		}
-
-		return {
-				startOfWeek: startOfWeek.toISOString().split('T')[0],
-				endOfWeek: endOfWeek.toISOString().split('T')[0],
-				daysOfWeek: daysOfWeek
-		};
-}
-*/
-
-const getWeekDays = (date) => {
-  const dayOfWeek = date.getDay();
-  const startOfWeek = new Date(date);
-  startOfWeek.setDate(date.getDate() - dayOfWeek);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(startOfWeek);
-    day.setDate(startOfWeek.getDate() + i);
-    return {
-      day: day.toLocaleDateString("en-US", { weekday: "short" }),
-      date: day.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-    };
-  });
-};
-
-const getMonthDays = (date) => {
-  const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  const days = [];
-  for (
-    let day = startOfMonth;
-    day <= endOfMonth;
-    day.setDate(day.getDate() + 1)
-  ) {
-    days.push({
-      day: new Date(day).toLocaleDateString("en-US", { weekday: "short" }),
-      date: new Date(day).toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-    });
+const getDaysToDisplay = (view, date) => {
+  const currentDate = new Date(date);
+  switch (view) {
+    case "weekly":
+      return Array.from(
+        { length: 7 },
+        (_, i) =>
+          new Date(
+            currentDate.setDate(
+              currentDate.getDate() - currentDate.getDay() + i
+            )
+          )
+      );
+    case "monthly": {
+      const startOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+      return Array.from(
+        {
+          length: new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + 1,
+            0
+          ).getDate(),
+        },
+        (_, i) => new Date(startOfMonth.setDate(i + 1))
+      );
+    }
+    default:
+      return [currentDate];
   }
-  return days;
-};
-
-const convertDateToTime = (dateString) => {
-  const date = new Date(dateString);
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}`;
 };
 
 const ShiftScheduleComponent = () => {
@@ -147,265 +82,234 @@ const ShiftScheduleComponent = () => {
     onOpen: onAddModalOpen,
     onClose: onAddModalClose,
   } = useDisclosure();
-
   const dispatch = useDispatch();
-  const [startDate, setStartDate] = useState("");
-  const [employee, setEmployee] = useState([]);
 
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
-  const [note, setNote] = useState("");
-  const [shiftEditId, setShiftEditId] = useState("");
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [employee, setEmployee] = useState([]);
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [viewIndex, setViewIndex] = useState(1); // Default to weekly view
+  const [viewIndex, setViewIndex] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [shiftEditData, setShiftEditData] = useState({
+    shiftEditId: "",
+    fromTime: "",
+    toTime: "",
+    note: "",
+    selectedEmployeeId: null,
+    startDate: "",
+  });
 
-  const handleAddEditCloseModal = () => {
-    setShiftEditId("");
-    setFromTime("");
-    setToTime("");
-    setNote("");
-    setSelectedEmployeeId(null);
-    getShiftbyDate();
+  useEffect(() => {
+    const fetchData = async () => {
+      const userData = JSON.parse(localStorage.getItem("ProfileData"));
+      const empRes = await dispatch(getEmployeeApi(userData.result._id));
+      const shiftRes = await dispatch(getShiftByEmpl(userData.result._id));
+      if (empRes.success) setEmployee(empRes.data);
+      if (shiftRes.success) setEmployee(shiftRes.data);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [dispatch]);
+
+  const handleModalClose = () => {
+    setShiftEditData({
+      shiftEditId: "",
+      fromTime: "",
+      toTime: "",
+      note: "",
+      selectedEmployeeId: null,
+      startDate: "",
+    });
     onAddModalClose();
   };
 
-  useEffect(() => {
-    getEmployee();
-    getShiftbyDate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const getEmployee = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const res = await dispatch(getEmployeeApi(userData.result._id));
-    if (res.success) setEmployee(res.data);
-  };
-
-  const deleteShift = async () => {
-    if (!shiftEditId) {
-      toast.error("Shift not found");
-      return;
-    }
-
-    const res = await dispatch(deleteShiftApi({ _id: shiftEditId }));
-    handleAddEditCloseModal();
-    if (res.success) {
-      toast.success("Shift deleted successfully");
-    } else {
-      console.error("Failed to delete employee shift:", res.message);
-    }
-  };
-
-  const postShift = async () => {
-    if (!startDate || !selectedEmployeeId || !fromTime || !toTime) {
-      toast.error("All fields are required");
-      return;
-    }
+  const handleShiftAction = async () => {
+    const {
+      startDate,
+      selectedEmployeeId,
+      fromTime,
+      toTime,
+      note,
+      shiftEditId,
+    } = shiftEditData;
+    if (!startDate || !selectedEmployeeId || !fromTime || !toTime)
+      return toast.error("All fields are required");
 
     const shiftData = {
       date: new Date(startDate).toISOString(),
       employeeId: selectedEmployeeId,
       from: fromTime,
       to: toTime,
-      note: note,
+      note,
     };
     const res = await dispatch(postShiftApi(shiftData, shiftEditId));
-    handleAddEditCloseModal();
-
-    if (res.success) {
-      toast.success("Shift added successfully");
-    }
+    handleModalClose();
+    res.success
+      ? toast.success("Shift added successfully")
+      : toast.error("Shift action failed");
   };
 
-  const handleStartDateChange = (e) => setStartDate(e.target.value);
-
-  const handlePrev = () => {
-    const date = new Date(currentDate);
-    const prevs = {
-      daily: new Date(date.setDate(date.getDate() - 1)),
-      weekly: new Date(date.setDate(date.getDate() - 7)),
-      monthly: new Date(date.setMonth(date.getMonth() - 1)),
-    };
-    setCurrentDate(prevs[views[viewIndex]]);
+  const handleDeleteShift = async () => {
+    if (!shiftEditData.shiftEditId) return toast.error("Shift not found");
+    const res = await dispatch(
+      deleteShiftApi({ _id: shiftEditData.shiftEditId })
+    );
+    handleModalClose();
+    res.success && toast.success("Shift deleted successfully");
   };
 
-  const calenderToDate = () => {
-    const date = new Date(currentDate);
-    const nexts = {
-      daily: new Date(date.setDate(date.getDate() + 1)),
-      weekly: new Date(date.setDate(date.getDate() + 7)),
-      monthly: new Date(date.setMonth(date.getMonth() + 1)),
-    };
-    return nexts[views[viewIndex]].toISOString().split("T")[0];
-  };
-
-  const handleNext = () => setCurrentDate(calenderToDate());
-
-  const handleViewPrev = () =>
-    setViewIndex((viewIndex + views.length - 1) % views.length);
-  const handleViewNext = () => setViewIndex((viewIndex + 1) % views.length);
-
-  const daysToDisplay =
-    views[viewIndex] === "daily"
-      ? getDay(new Date(currentDate))
-      : views[viewIndex] === "weekly"
-      ? getWeekDays(new Date(currentDate))
-      : getMonthDays(new Date(currentDate));
-
-  const getShiftbyDate = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const res = await dispatch(getShiftByEmpl(userData.result._id));
-    if (res.success) setEmployee(res.data);
-  };
-
-  const handleClickEditShift = (shift) => {
-    if (!shift) {
-      toast.error("Shift not found");
-      return;
-    }
-
-    setShiftEditId(shift._id);
-    setFromTime(convertDateToTime(shift.from));
-    setToTime(convertDateToTime(shift.to));
-    setNote(shift.note);
-    setSelectedEmployeeId(shift.employeeId);
-    onAddModalOpen();
-  };
-
-  const handleCustomDate = (event) => {
-    const date = event.target.value;
-    if (new Date(date) !== "Invalid Date" && !isNaN(new Date(date)))
-      setCurrentDate(date);
-  };
-
+  const daysToDisplay = getDaysToDisplay(views[viewIndex], currentDate);
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="50vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
   return (
     <Fragment>
-      <Box overflow="auto" whiteSpace="nowrap">
-        <HStack justifyContent="center" marginTop={16} marginBottom={8}>
+      <Box overflow="auto" whiteSpace="nowrap" mt={16} mb={8}>
+        <HStack justifyContent="center" mb={4}>
           <Input
             type="date"
             value={currentDate}
-            onChange={handleCustomDate}
-            style={{
-              padding: 5,
-              borderRadius: 5,
-              border: "1px solid gray",
-              cursor: "pointer",
-              width: "200px",
-            }}
+            onChange={(e) => setCurrentDate(e.target.value)}
+            padding={2}
+            borderRadius={5}
+            border="1px solid gray"
+            cursor="pointer"
           />
           <span>to</span>
           <Input
             disabled
             type="date"
-            value={getEndDateInCalender(viewIndex, currentDate)}
-            style={{
-              padding: 5,
-              borderRadius: 5,
-              cursor: "not-allowed",
-              background: "lightgray",
-              border: "1px solid gray",
-              width: "200px",
-            }}
+            value={daysToDisplay.slice(-1)[0].toISOString().split("T")[0]}
+            padding={2}
+            borderRadius={5}
+            cursor="not-allowed"
+            bg="lightgray"
+            border="1px solid gray"
           />
         </HStack>
 
         <HStack justifyContent="center" mb={4}>
-          <Button onClick={handlePrev}>Previous</Button>
-          <Button onClick={handleViewPrev}>View: {views[viewIndex]}</Button>
-          <Button onClick={handleViewNext}>Next View</Button>
-          <Button onClick={handleNext}>Next</Button>
+          <Button
+            onClick={() =>
+              setCurrentDate(
+                new Date(currentDate).setDate(
+                  new Date(currentDate).getDate() -
+                    (views[viewIndex] === "daily"
+                      ? 1
+                      : views[viewIndex] === "weekly"
+                      ? 7
+                      : 30)
+                )
+              )
+            }
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={() =>
+              setViewIndex((viewIndex + views.length - 1) % views.length)
+            }
+          >
+            View Mode: {views[viewIndex]}
+          </Button>
+          {/* <Button onClick={() => setViewIndex((viewIndex + 1) % views.length)}>
+            Next View
+          </Button> */}
+          <Button
+            onClick={() =>
+              setCurrentDate(
+                new Date(currentDate).setDate(
+                  new Date(currentDate).getDate() +
+                    (views[viewIndex] === "daily"
+                      ? 1
+                      : views[viewIndex] === "weekly"
+                      ? 7
+                      : 30)
+                )
+              )
+            }
+          >
+            Next
+          </Button>
         </HStack>
-
-        <TableContainer style={{ backgroundColor: "white", padding: "10px" }}>
+        <TableContainer bg="white" p={4} borderRadius="8px" boxShadow="md">
           <Table variant="simple" size="md">
             <Thead>
               <Tr>
-                <Th
-                  style={{
-                    border: "solid 1px #c5bcbc",
-                    fontWeight: "800",
-                    fontSize: "14px",
-                  }}
-                >
+                <Th border="1px solid #000000" fontWeight="800" fontSize="14px">
                   Employee Name
                 </Th>
-                {daysToDisplay.map((day, index) => (
+                {daysToDisplay.map((day, idx) => (
                   <Th
-                    key={index}
-                    style={{
-                      border: "solid 1px #c5bcbc",
-                      fontWeight: "800",
-                      fontSize: "14px",
-                    }}
-                  >{`${day.day}, ${day.date}`}</Th>
+                    key={idx}
+                    border="1px solid #000000"
+                    fontWeight="800"
+                    fontSize="14px"
+                  >
+                    {day.toLocaleDateString("en-US", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </Th>
                 ))}
               </Tr>
             </Thead>
-
-            <Tbody style={{ border: "solid 1px #c5bcbc" }}>
-              {employee.length > 0 ? (
+            <Tbody>
+              {employee.length ? (
                 employee.map((emp) => (
                   <Tr key={emp._id}>
-                    <Td style={{ border: "solid 1px #c5bcbc" }}>{emp.name}</Td>
-
-                    {daysToDisplay.map((day, index) => {
-                      // const shift = emp.shifts?.find(
-                      // 	(shift) =>
-                      // 		convertDateToNewFormat(shift.date) ===
-                      // 		addCurrentYearToDate(day.date),
-                      // );
+                    <Td
+                      border="1px solid #ababab"
+                      fontWeight="800"
+                      fontSize="14px"
+                    >
+                      {emp.name}
+                    </Td>
+                    {daysToDisplay.map((day, idx) => {
                       const shift = emp.shifts?.find(
                         (sh) =>
-                          new Date(sh.date).toLocaleDateString("en-Us", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }) === day.date
+                          new Date(sh.date).toLocaleDateString() ===
+                          day.toLocaleDateString()
                       );
-
                       return (
                         <Td
-                          key={index}
-                          className="add_hover"
+                          key={idx}
+                          textAlign="center"
+                          border="1px solid #ababab"
+                          fontWeight="800"
+                          fontSize="14px"
                           onClick={() =>
-                            shift ? handleClickEditShift(shift) : {}
+                            shift
+                              ? setShiftEditData({
+                                  ...shiftEditData,
+                                  ...shift,
+                                  selectedEmployeeId: emp._id,
+                                  startDate: day.toISOString().split("T")[0],
+                                })
+                              : onAddModalOpen()
                           }
-                          style={{
-                            border: "solid 1px #c5bcbc",
-                            textAlign: "center",
-                          }}
                         >
                           {shift ? (
-                            `${convertDateToTime(
-                              shift.from
-                            )} - ${convertDateToTime(shift.to)}`
+                            `${new Date(shift.from).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })} - ${new Date(shift.to).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+`
                           ) : (
-                            <AddIcon
-                              className="add_icon_hover"
-                              sx={{ marginRight: "10px", color: "black" }}
-                              onClick={() => {
-                                setSelectedEmployeeId(emp._id);
-                                const date = new Date(day.date);
-                                date.setFullYear(
-                                  new Date(currentDate).getFullYear()
-                                );
-                                const [_month, _day, _year] = date
-                                  .toLocaleDateString()
-                                  .split("/");
-                                setStartDate(
-                                  `${_year}-${_month.padStart(
-                                    2,
-                                    "0"
-                                  )}-${_day.padStart(2, "0")}`
-                                );
-                                // setStartDate(addCurrentYearToDate(day.date));
-                                onAddModalOpen();
-                              }}
-                            />
+                            <AddIcon />
                           )}
                         </Td>
                       );
@@ -422,25 +326,27 @@ const ShiftScheduleComponent = () => {
         </TableContainer>
       </Box>
 
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={onAddModalClose}
-        onCloseComplete={handleAddEditCloseModal}
-      >
+      <Modal isOpen={isAddModalOpen} onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Add Shift</ModalHeader>
+          <ModalHeader>
+            {shiftEditData.shiftEditId ? "Edit" : "Add"} Shift
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl isRequired isDisabled>
+          <ModalBody>
+            <FormControl isRequired>
               <FormLabel>Employee</FormLabel>
               <Select
-                value={selectedEmployeeId || ""}
-                onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                defaultValue={selectedEmployeeId || ""}
+                value={shiftEditData.selectedEmployeeId || ""}
+                onChange={(e) =>
+                  setShiftEditData({
+                    ...shiftEditData,
+                    selectedEmployeeId: e.target.value,
+                  })
+                }
               >
                 <option value="">Select Employee</option>
-                {employee?.map((emp) => (
+                {employee.map((emp) => (
                   <option key={emp._id} value={emp._id}>
                     {emp.name}
                   </option>
@@ -452,18 +358,26 @@ const ShiftScheduleComponent = () => {
               <FormLabel>Date</FormLabel>
               <Input
                 type="date"
-                value={startDate || ""}
-                onChange={handleStartDateChange}
+                value={shiftEditData.startDate || ""}
+                onChange={(e) =>
+                  setShiftEditData({
+                    ...shiftEditData,
+                    startDate: e.target.value,
+                  })
+                }
               />
             </FormControl>
 
             <FormControl mt={4} isRequired>
               <FormLabel>From Time</FormLabel>
               <Select
-                placeholder="Select from time"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-                defaultValue={fromTime}
+                value={shiftEditData.fromTime || ""}
+                onChange={(e) =>
+                  setShiftEditData({
+                    ...shiftEditData,
+                    fromTime: e.target.value,
+                  })
+                }
               >
                 {times.map((time) => (
                   <option key={time} value={time}>
@@ -476,10 +390,10 @@ const ShiftScheduleComponent = () => {
             <FormControl mt={4} isRequired>
               <FormLabel>To Time</FormLabel>
               <Select
-                placeholder="Select to time"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-                defaultValue={toTime}
+                value={shiftEditData.toTime || ""}
+                onChange={(e) =>
+                  setShiftEditData({ ...shiftEditData, toTime: e.target.value })
+                }
               >
                 {times.map((time) => (
                   <option key={time} value={time}>
@@ -492,24 +406,21 @@ const ShiftScheduleComponent = () => {
             <FormControl mt={4}>
               <FormLabel>Note</FormLabel>
               <Textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Add note"
+                value={shiftEditData.note}
+                onChange={(e) =>
+                  setShiftEditData({ ...shiftEditData, note: e.target.value })
+                }
               />
             </FormControl>
           </ModalBody>
 
           <ModalFooter>
-            {shiftEditId ? (
-              <Button onClick={deleteShift} colorScheme="red" mr={3}>
-                Delete
-              </Button>
-            ) : null}
-
-            <Button onClick={postShift} colorScheme="blue" mr={3}>
-              Save
+            <Button colorScheme="blue" mr={3} onClick={handleShiftAction}>
+              {shiftEditData.shiftEditId ? "Update" : "Add"}
             </Button>
-            <Button onClick={onAddModalClose}>Cancel</Button>
+            <Button colorScheme="red" onClick={handleDeleteShift}>
+              Delete
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

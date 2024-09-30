@@ -1,69 +1,86 @@
 import * as api from "../../api/index.js";
 
-export const getEmployeeApi = (employeeId) => {
-	return async (dispatch) => {
-		try {
-			const { data } = await api.getemployeedata(employeeId);
-			dispatch({ type: 'GET_EMPLOYEE_ONLY', data: data.result });
-			return { success: true, message: 'Employee get Successfully', data: data.result };
-		} catch (err) {
-
-			// console.log("Error from Employee Action: " + err.message, err.stack);
-			return { success: false, message: err.message };
-		}
-	};
+const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
+  try {
+    const { data } = await apiCall();
+    dispatch({ type: actionType, data: data.result || data });
+    return {
+      success: true,
+      message: successMessage,
+      data: data.result || data,
+    };
+  } catch (err) {
+    console.error("Error from Employee Action: ", err.message, err.stack);
+    return { success: false, message: err.message };
+  }
 };
+
+export const getEmployeeApi = (employeeId) => {
+  return async (dispatch) => {
+    if (!employeeId) {
+      return { success: false, message: "Employee ID is required" };
+    }
+    return handleApiCall(
+      () => api.getemployeedata(employeeId),
+      dispatch,
+      "GET_EMPLOYEE_ONLY",
+      "Employee fetched successfully"
+    );
+  };
+};
+
 export const postEmployeeApi = (dataemployee) => {
-	return async (dispatch) => {
-		try {
-
-			const { data } = await api.postemployeedata(dataemployee);
-
-			dispatch({ type: 'POST_EMPLOYEE_ONLY', data: data });
-			return { success: true, message: 'Employee post Successfully', data: data };
-		} catch (err) {
-
-			// console.log("Error from Employee Action: " + err.message, err.stack);
-			return { success: false, message: err.message };
-		}
-	};
-}
+  return async (dispatch) => {
+    if (!dataemployee) {
+      return { success: false, message: "Employee data is required" };
+    }
+    return handleApiCall(
+      () => api.postemployeedata(dataemployee),
+      dispatch,
+      "POST_EMPLOYEE_ONLY",
+      "Employee posted successfully"
+    );
+  };
+};
 
 export const updateEmployeeApi = (employeedataId, dataemployee) => {
-	return async (dispatch) => {
-		try {
-			const { data } = await api.updateemployeedata(employeedataId, dataemployee);
-			dispatch({ type: 'UPDATE_EMPLOYEE_ONLY', data: data });
-			return { success: true, message: 'Employee post Successfully', data: data };
-		} catch (err) {
-			return { success: false, message: err.message };
-		}
-	};
-}
+  return async (dispatch) => {
+    if (!employeedataId || !dataemployee) {
+      return { success: false, message: "Employee ID and data are required" };
+    }
+    return handleApiCall(
+      () => api.updateemployeedata(employeedataId, dataemployee),
+      dispatch,
+      "UPDATE_EMPLOYEE_ONLY",
+      "Employee updated successfully"
+    );
+  };
+};
 
 export const deleteEmployeeApi = (employeeId) => {
-	return async (dispatch) => {
-		try {
-
-			const { data } = await api.deleteemployeedata(employeeId);
-
-			dispatch({ type: 'DELETE_EMPLOYEE_ONLY', data: data.result });
-			return { success: true, message: 'Employee get Successfully', data: data.result };
-		} catch (err) {
-
-			// console.log("Error from Employee Action: " + err.message, err.stack);
-			return { success: false, message: err.message };
-		}
-	};
+  return async (dispatch) => {
+    if (!employeeId) {
+      return { success: false, message: "Employee ID is required" };
+    }
+    return handleApiCall(
+      () => api.deleteemployeedata(employeeId),
+      dispatch,
+      "DELETE_EMPLOYEE_ONLY",
+      "Employee deleted successfully"
+    );
+  };
 };
+
 export const getEmployeeDetailApi = (employeeId) => {
-	return async (dispatch) => {
-		try {
-			const { data } = await api.employeedetaildata(employeeId);
-			dispatch({ type: 'GET_EMPLOYEE_ONLY', data: data.result });
-			return { success: true, message: 'Employee get Successfully', data: data.result };
-		} catch (err) {
-			return { success: false, message: err.message };
-		}
-	};
-}
+  return async (dispatch) => {
+    if (!employeeId) {
+      return { success: false, message: "Employee ID is required" };
+    }
+    return handleApiCall(
+      () => api.employeedetaildata(employeeId),
+      dispatch,
+      "GET_EMPLOYEE_ONLY",
+      "Employee details fetched successfully"
+    );
+  };
+};
