@@ -25,7 +25,7 @@ const EmployeeSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["Full-time", "Part-time", "Intern", "Contractor"],
+      enum: ["Full-time", "Part-time", "Contract"],
     },
     workingHoursPerWeek: Number,
     variableWorkingHours: Boolean,
@@ -39,5 +39,20 @@ const EmployeeSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// EmployeeSchema.js
+
+EmployeeSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    const Shift = mongoose.model("Shift");
+    const Absence = mongoose.model("Absence");
+
+    // Delete related Shifts
+    await Shift.deleteMany({ employeeId: doc._id });
+
+    // Delete related Absences
+    await Absence.deleteMany({ employeeId: doc._id });
+  }
+});
 
 export default mongoose.model("Employee", EmployeeSchema);

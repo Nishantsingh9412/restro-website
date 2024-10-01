@@ -35,7 +35,7 @@ import {
   postShiftApi,
 } from "../../../../redux/action/shift";
 
-const views = ["daily", "weekly", "monthly"];
+const views = ["Daily", "Weekly", "Monthly"];
 const times = Array.from(
   { length: 24 },
   (_, i) => `${i.toString().padStart(2, "0")}:00`
@@ -45,14 +45,14 @@ const getDaysToDisplay = (view, date) => {
   const currentDate = new Date(date);
 
   switch (view) {
-    case "weekly":
+    case "Weekly":
       return Array.from({ length: 7 }, (_, i) => {
         const day = new Date(currentDate); // Create a new date object for each iteration
         return new Date(
           day.setDate(currentDate.getDate() - currentDate.getDay() + i)
         );
       });
-    case "monthly": {
+    case "Monthly": {
       const startOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
@@ -191,9 +191,9 @@ const ShiftScheduleComponent = () => {
               setCurrentDate(
                 new Date(currentDate).setDate(
                   new Date(currentDate).getDate() -
-                    (views[viewIndex] === "daily"
+                    (views[viewIndex] === "Daily"
                       ? 1
-                      : views[viewIndex] === "weekly"
+                      : views[viewIndex] === "Weekly"
                       ? 7
                       : 30)
                 )
@@ -217,9 +217,9 @@ const ShiftScheduleComponent = () => {
               setCurrentDate(
                 new Date(currentDate).setDate(
                   new Date(currentDate).getDate() +
-                    (views[viewIndex] === "daily"
+                    (views[viewIndex] === "Daily"
                       ? 1
-                      : views[viewIndex] === "weekly"
+                      : views[viewIndex] === "Weekly"
                       ? 7
                       : 30)
                 )

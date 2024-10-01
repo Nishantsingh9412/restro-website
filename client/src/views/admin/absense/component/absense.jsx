@@ -25,7 +25,7 @@ import { useDispatch } from "react-redux";
 import AbsenceModal from "./absenceModal";
 import { Spinner } from "@chakra-ui/react";
 
-const views = ["daily", "weekly", "monthly"];
+const views = ["Daily", "Weekly", "Monthly"];
 
 const getDay = (date) => [
   {
@@ -84,8 +84,8 @@ const getMonthDays = (date) => {
 
 const getEndDateInCalender = (viewIndex, currentDate) => {
   const cDate = new Date(currentDate);
-  if (views[viewIndex] === "daily") return currentDate;
-  if (views[viewIndex] === "weekly") {
+  if (views[viewIndex] === "Daily") return currentDate;
+  if (views[viewIndex] === "Weekly") {
     const startOfWeek = cDate.getDate() - cDate.getDay();
     return new Date(cDate.setDate(startOfWeek + 6)).toISOString().split("T")[0];
   }
@@ -112,9 +112,9 @@ export default function AbsenseComponent() {
   const handlePrev = () => {
     const date = new Date(currentDate);
     const prevs = {
-      daily: new Date(date.setDate(date.getDate() - 1)),
-      weekly: new Date(date.setDate(date.getDate() - 7)),
-      monthly: new Date(date.setMonth(date.getMonth() - 1)),
+      Daily: new Date(date.setDate(date.getDate() - 1)),
+      Weekly: new Date(date.setDate(date.getDate() - 7)),
+      Monthly: new Date(date.setMonth(date.getMonth() - 1)),
     };
     setCurrentDate(prevs[views[viewIndex]]);
   };
@@ -124,9 +124,9 @@ export default function AbsenseComponent() {
   const calenderToDate = () => {
     const date = new Date(currentDate);
     const nexts = {
-      daily: new Date(date.setDate(date.getDate() + 1)),
-      weekly: new Date(date.setDate(date.getDate() + 7)),
-      monthly: new Date(date.setMonth(date.getMonth() + 1)),
+      Daily: new Date(date.setDate(date.getDate() + 1)),
+      Weekly: new Date(date.setDate(date.getDate() + 7)),
+      Monthly: new Date(date.setMonth(date.getMonth() + 1)),
     };
     return nexts[views[viewIndex]].toISOString().split("T")[0];
   };
@@ -141,9 +141,9 @@ export default function AbsenseComponent() {
   // const handleViewNext = () => setViewIndex((viewIndex + 1) % views.length);
 
   const daysToDisplay =
-    views[viewIndex] === "daily"
+    views[viewIndex] === "Daily"
       ? getDay(new Date(currentDate))
-      : views[viewIndex] === "weekly"
+      : views[viewIndex] === "Weekly"
       ? getWeekDays(new Date(currentDate))
       : getMonthDays(new Date(currentDate));
 
@@ -160,7 +160,6 @@ export default function AbsenseComponent() {
 
   const handleSaveAbsence = async (formData) => {
     formData.employeeId = selectedEmployeeId;
-    console.log(formData);
     try {
       const res = await dispatch(postAbsenceApi(formData, editAbsenceId));
       if (res.success) {

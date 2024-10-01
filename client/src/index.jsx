@@ -68,12 +68,8 @@ root.render(
               </Route>
               {/* Uncomment to redirect from root to /admin */}
               {/* <Route path="/" element={<Navigate to="/admin" replace />} /> */}
-            </Routes> 
-            <ToastContainer
-              style={{ zIndex: 99999 }}
-              newestOnTop={true}
-              autoClose={2000}
-            />
+            </Routes>
+            <ToastContainer style={{ zIndex: 99999 }} newestOnTop={true} />
           </Router>
         </ThemeEditorProvider>
       </React.StrictMode>
