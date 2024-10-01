@@ -15,6 +15,8 @@ import { compose, applyMiddleware, createStore } from "redux";
 import Reducers from "./redux/reducers/index";
 import routes2 from "./routes";
 import SignUp from "./views/auth/signup";
+import { ToastContainer } from "react-toastify";
+import { Curve } from "recharts";
 
 const store = createStore(
   Reducers,
@@ -66,7 +68,12 @@ root.render(
               </Route>
               {/* Uncomment to redirect from root to /admin */}
               {/* <Route path="/" element={<Navigate to="/admin" replace />} /> */}
-            </Routes>
+            </Routes> 
+            <ToastContainer
+              style={{ zIndex: 99999 }}
+              newestOnTop={true}
+              autoClose={2000}
+            />
           </Router>
         </ThemeEditorProvider>
       </React.StrictMode>

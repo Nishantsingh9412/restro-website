@@ -15,10 +15,8 @@ import {
   ChakraProvider,
 } from "@chakra-ui/react";
 
-// import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import { useEffect, useState } from "react";
-// import { getApihandler } from "Apihandler";
 import { useDispatch } from "react-redux";
 import {
   getAbsentApi,

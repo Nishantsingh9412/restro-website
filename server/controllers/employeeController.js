@@ -143,6 +143,7 @@ export const getTodaysBirthday = async (req, res) => {
     return handleError(res, error, "Error in getTodaysBirthday");
   }
 };
+
 export const getUpcomingEmployeeBirthday = async (req, res) => {
   try {
     const todayIST = moment().tz("Asia/Kolkata").startOf("day");
