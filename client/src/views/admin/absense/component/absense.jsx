@@ -313,6 +313,7 @@ export default function AbsenseComponent() {
                           textAlign="center"
                           border="1px solid #c5bcbc"
                           className="add_hover"
+                          _hover={{ bg: "gray.200" }}
                         >
                           {absence ? (
                             <Box

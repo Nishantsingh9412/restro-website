@@ -1,30 +1,30 @@
-import express from 'express';
+import express from "express";
 import {
-	addShiftOfEmployee,
-	getEmployeeShift,
-	getTodaysShift,
-	getCurrentMonthShifts,
-	getShiftByIdAndDate,
-	getEmployeesWithShiftsByUser,
-	editEmployeeShift,
-	deleteEmployeeShift
-} from '../controllers/shiftController.js';
+  addShiftOfEmployee,
+  getEmployeeShift,
+  getTodaysShift,
+  getCurrentMonthShifts,
+  getShiftByIdAndDate,
+  getEmployeesWithShiftsByUser,
+  editEmployeeShift,
+  deleteEmployeeShift,
+} from "../controllers/shiftController.js";
 
 const router = express.Router();
 
-router.post('/add-employee-shift', addShiftOfEmployee);
+router.post("/add-employee-shift", addShiftOfEmployee);
 
 router.post("/delete-employee-shift", deleteEmployeeShift);
 
-router.post("edit-employee-shift", editEmployeeShift);
+router.post("/edit-employee-shift", editEmployeeShift);
 
-router.get('/get-employee-shift/:employeeId', getEmployeeShift)
+router.get("/get-employee-shift/:employeeId", getEmployeeShift);
 
-router.get('/get-todays-shift', getTodaysShift)
+router.get("/get-todays-shift", getTodaysShift);
 
-router.get('/current-month/:employeeId', getCurrentMonthShifts)
+router.get("/current-month/:employeeId", getCurrentMonthShifts);
 
-router.get('/get-shift-by-IdAndDate/:employeeId/:date', getShiftByIdAndDate)
+router.get("/get-shift-by-IdAndDate/:employeeId/:date", getShiftByIdAndDate);
 
-router.get('/get-shift-with-employee/:userId', getEmployeesWithShiftsByUser)
+router.get("/get-shift-with-employee/:userId", getEmployeesWithShiftsByUser);
 export default router;

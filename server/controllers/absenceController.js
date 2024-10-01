@@ -114,8 +114,8 @@ export const getTodaysLeaveByUserId = async (req, res) => {
 
   try {
     const { userId } = value;
-    const todayStart = moment().tz("Asia/Kolkata").startOf("day").toDate();
-    const todayEnd = moment().tz("Asia/Kolkata").endOf("day").toDate();
+    const todayStart = moment().startOf("day").toDate();
+    const todayEnd = moment().endOf("day").toDate();
     const employees = await Employee.find({ created_by: userId }).select("_id");
 
     if (employees.length === 0) {
@@ -125,6 +125,7 @@ export const getTodaysLeaveByUserId = async (req, res) => {
     }
 
     const employeeIds = employees.map((emp) => emp._id);
+
     const absences = await Absence.find({
       employeeId: { $in: employeeIds },
       startDate: { $lte: todayEnd },

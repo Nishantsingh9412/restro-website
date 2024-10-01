@@ -162,7 +162,7 @@ export default function Dashboard(props) {
             {...rest}
           />
 
-          <Box mt="160px" p="20px">
+          <Box mt="130px" p="20px">
             <Outlet />
           </Box>
           <Footer />

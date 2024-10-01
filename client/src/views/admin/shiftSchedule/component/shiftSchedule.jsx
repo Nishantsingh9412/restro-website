@@ -24,7 +24,7 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { Spinner } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
@@ -43,17 +43,15 @@ const times = Array.from(
 
 const getDaysToDisplay = (view, date) => {
   const currentDate = new Date(date);
+
   switch (view) {
     case "weekly":
-      return Array.from(
-        { length: 7 },
-        (_, i) =>
-          new Date(
-            currentDate.setDate(
-              currentDate.getDate() - currentDate.getDay() + i
-            )
-          )
-      );
+      return Array.from({ length: 7 }, (_, i) => {
+        const day = new Date(currentDate); // Create a new date object for each iteration
+        return new Date(
+          day.setDate(currentDate.getDate() - currentDate.getDay() + i)
+        );
+      });
     case "monthly": {
       const startOfMonth = new Date(
         currentDate.getFullYear(),
@@ -68,94 +66,84 @@ const getDaysToDisplay = (view, date) => {
             0
           ).getDate(),
         },
-        (_, i) => new Date(startOfMonth.setDate(i + 1))
+        (_, i) =>
+          new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), i + 1)
       );
     }
     default:
-      return [currentDate];
+      return [new Date(currentDate)]; // Return a copy of the currentDate
   }
 };
 
 const ShiftScheduleComponent = () => {
   const {
-    isOpen: isAddModalOpen,
-    onOpen: onAddModalOpen,
-    onClose: onAddModalClose,
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
   } = useDisclosure();
   const dispatch = useDispatch();
-
+  const initialFormState = {
+    _id: "",
+    from: "",
+    to: "",
+    note: "",
+    employeeId: null,
+    date: "",
+  };
   const [employee, setEmployee] = useState([]);
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
   const [viewIndex, setViewIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [shiftEditData, setShiftEditData] = useState({
-    shiftEditId: "",
-    fromTime: "",
-    toTime: "",
-    note: "",
-    selectedEmployeeId: null,
-    startDate: "",
-  });
+  const [shiftData, setShiftData] = useState(initialFormState);
 
+  const fetchData = async () => {
+    const userData = JSON.parse(localStorage.getItem("ProfileData"));
+    const empRes = await dispatch(getEmployeeApi(userData.result._id));
+    const shiftRes = await dispatch(getShiftByEmpl(userData.result._id));
+    if (empRes.success) setEmployee(empRes.data);
+    if (shiftRes.success) setEmployee(shiftRes.data);
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      const userData = JSON.parse(localStorage.getItem("ProfileData"));
-      const empRes = await dispatch(getEmployeeApi(userData.result._id));
-      const shiftRes = await dispatch(getShiftByEmpl(userData.result._id));
-      if (empRes.success) setEmployee(empRes.data);
-      if (shiftRes.success) setEmployee(shiftRes.data);
-      setIsLoading(false);
-    };
     fetchData();
   }, [dispatch]);
 
   const handleModalClose = () => {
-    setShiftEditData({
-      shiftEditId: "",
-      fromTime: "",
-      toTime: "",
-      note: "",
-      selectedEmployeeId: null,
-      startDate: "",
-    });
-    onAddModalClose();
+    setShiftData(initialFormState);
+    onModalClose();
   };
 
   const handleShiftAction = async () => {
-    const {
-      startDate,
-      selectedEmployeeId,
-      fromTime,
-      toTime,
-      note,
-      shiftEditId,
-    } = shiftEditData;
-    if (!startDate || !selectedEmployeeId || !fromTime || !toTime)
+    const fromTime = new Date(`1970-01-01T${shiftData.from}:00`);
+    const toTime = new Date(`1970-01-01T${shiftData.to}:00`);
+    const timeDifference = (toTime - fromTime) / (1000 * 60 * 60); // Difference in hours
+
+    if (timeDifference < 1) {
+      return toast.error("The shift duration must be at least 1 hour.");
+    }
+    const { date, employeeId, from, to, _id } = shiftData;
+    if (!date || !employeeId || !from || !to)
       return toast.error("All fields are required");
 
-    const shiftData = {
-      date: new Date(startDate).toISOString(),
-      employeeId: selectedEmployeeId,
-      from: fromTime,
-      to: toTime,
-      note,
-    };
-    const res = await dispatch(postShiftApi(shiftData, shiftEditId));
+    const res = await dispatch(postShiftApi(shiftData, _id));
+
     handleModalClose();
-    res.success
-      ? toast.success("Shift added successfully")
-      : toast.error("Shift action failed");
+    if (res.success) {
+      fetchData();
+      toast.success("Shift added successfully");
+    } else {
+      toast.error("Failed to add shift");
+    }
   };
 
   const handleDeleteShift = async () => {
-    if (!shiftEditData.shiftEditId) return toast.error("Shift not found");
-    const res = await dispatch(
-      deleteShiftApi({ _id: shiftEditData.shiftEditId })
-    );
+    if (!shiftData._id) return toast.error("Shift not found");
+    const res = await dispatch(deleteShiftApi({ _id: shiftData._id }));
     handleModalClose();
-    res.success && toast.success("Shift deleted successfully");
+    res.success && toast.success("Shift deleted successfully") && fetchData();
   };
 
   const daysToDisplay = getDaysToDisplay(views[viewIndex], currentDate);
@@ -259,6 +247,7 @@ const ShiftScheduleComponent = () => {
                       weekday: "short",
                       day: "numeric",
                       month: "short",
+                      year: "numeric",
                     })}
                   </Th>
                 ))}
@@ -288,28 +277,56 @@ const ShiftScheduleComponent = () => {
                           border="1px solid #ababab"
                           fontWeight="800"
                           fontSize="14px"
-                          onClick={() =>
-                            shift
-                              ? setShiftEditData({
-                                  ...shiftEditData,
-                                  ...shift,
-                                  selectedEmployeeId: emp._id,
-                                  startDate: day.toISOString().split("T")[0],
-                                })
-                              : onAddModalOpen()
-                          }
+                          _hover={{ bg: "gray.200" }}
                         >
                           {shift ? (
-                            `${new Date(shift.from).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })} - ${new Date(shift.to).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-`
+                            <>
+                              {`${new Date(shift.from).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                timeZone: "UTC",
+                              })} - ${new Date(shift.to).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  timeZone: "UTC",
+                                }
+                              )}`}
+                              &nbsp; &nbsp;
+                              <EditIcon
+                                mb={"4px"}
+                                cursor={"pointer"}
+                                onClick={() => {
+                                  const fromTime = new Date(shift.from)
+                                    .toISOString()
+                                    .slice(11, 16); // Extract time in "HH:MM" format
+                                  const toTime = new Date(shift.to)
+                                    .toISOString()
+                                    .slice(11, 16); // Extract time in "HH:MM" format
+                                  setShiftData({
+                                    _id: shift._id,
+                                    from: fromTime,
+                                    to: toTime,
+                                    note: shift.note,
+                                    employeeId: emp._id,
+                                    date: day.toISOString().split("T")[0],
+                                  });
+                                  onModalOpen();
+                                }}
+                              />
+                            </>
                           ) : (
-                            <AddIcon />
+                            <AddIcon
+                              cursor={"pointer"}
+                              onClick={() => {
+                                setShiftData({
+                                  employeeId: emp._id,
+                                  date: day.toISOString().split("T")[0],
+                                });
+                                onModalOpen();
+                              }}
+                            />
                           )}
                         </Td>
                       );
@@ -326,22 +343,21 @@ const ShiftScheduleComponent = () => {
         </TableContainer>
       </Box>
 
-      <Modal isOpen={isAddModalOpen} onClose={handleModalClose}>
+      <Modal isOpen={isModalOpen} onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            {shiftEditData.shiftEditId ? "Edit" : "Add"} Shift
-          </ModalHeader>
+          <ModalHeader>{shiftData._id ? "Edit" : "Add"} Shift</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl isRequired>
               <FormLabel>Employee</FormLabel>
               <Select
-                value={shiftEditData.selectedEmployeeId || ""}
+                disabled={true}
+                value={shiftData.employeeId || ""}
                 onChange={(e) =>
-                  setShiftEditData({
-                    ...shiftEditData,
-                    selectedEmployeeId: e.target.value,
+                  setShiftData({
+                    ...shiftData,
+                    employeeId: e.target.value,
                   })
                 }
               >
@@ -358,11 +374,11 @@ const ShiftScheduleComponent = () => {
               <FormLabel>Date</FormLabel>
               <Input
                 type="date"
-                value={shiftEditData.startDate || ""}
+                value={shiftData.date || ""}
                 onChange={(e) =>
-                  setShiftEditData({
-                    ...shiftEditData,
-                    startDate: e.target.value,
+                  setShiftData({
+                    ...shiftData,
+                    date: e.target.value,
                   })
                 }
               />
@@ -371,11 +387,11 @@ const ShiftScheduleComponent = () => {
             <FormControl mt={4} isRequired>
               <FormLabel>From Time</FormLabel>
               <Select
-                value={shiftEditData.fromTime || ""}
+                value={shiftData.from || ""}
                 onChange={(e) =>
-                  setShiftEditData({
-                    ...shiftEditData,
-                    fromTime: e.target.value,
+                  setShiftData({
+                    ...shiftData,
+                    from: e.target.value,
                   })
                 }
               >
@@ -390,9 +406,9 @@ const ShiftScheduleComponent = () => {
             <FormControl mt={4} isRequired>
               <FormLabel>To Time</FormLabel>
               <Select
-                value={shiftEditData.toTime || ""}
+                value={shiftData.to || ""}
                 onChange={(e) =>
-                  setShiftEditData({ ...shiftEditData, toTime: e.target.value })
+                  setShiftData({ ...shiftData, to: e.target.value })
                 }
               >
                 {times.map((time) => (
@@ -406,9 +422,9 @@ const ShiftScheduleComponent = () => {
             <FormControl mt={4}>
               <FormLabel>Note</FormLabel>
               <Textarea
-                value={shiftEditData.note}
+                value={shiftData.note}
                 onChange={(e) =>
-                  setShiftEditData({ ...shiftEditData, note: e.target.value })
+                  setShiftData({ ...shiftData, note: e.target.value })
                 }
               />
             </FormControl>
@@ -416,11 +432,16 @@ const ShiftScheduleComponent = () => {
 
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={handleShiftAction}>
-              {shiftEditData.shiftEditId ? "Update" : "Add"}
+              {shiftData._id ? "Update" : "Add"}
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteShift}>
-              Delete
+            <Button colorScheme="gray" mr={3} onClick={handleModalClose}>
+              Cancel
             </Button>
+            {shiftData._id && (
+              <Button colorScheme="red" onClick={handleDeleteShift}>
+                Delete
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>

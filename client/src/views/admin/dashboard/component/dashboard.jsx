@@ -1,7 +1,6 @@
 import {
   Grid,
   GridItem,
-  useDisclosure,
   Table,
   Thead,
   Tbody,
@@ -18,7 +17,7 @@ import {
 
 // import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 // import { getApihandler } from "Apihandler";
 import { useDispatch } from "react-redux";
 import {
@@ -27,6 +26,7 @@ import {
   getEmployeShiftApi,
   getUpcomingBirthdayApi,
 } from "../../../../redux/action/dashboard";
+import { Spinner } from "@chakra-ui/react";
 
 export default function DashboardComponent() {
   //   const {
@@ -74,22 +74,45 @@ export default function DashboardComponent() {
   }, []);
 
   const getAbsent = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const userId = userData.result._id;
+    try {
+      const userData = JSON.parse(localStorage.getItem("ProfileData"));
+      if (!userData || !userData.result || !userData.result._id) {
+        throw new Error("User data is not available");
+      }
+      const userId = userData.result._id;
 
-    const res = await dispatch(getAbsentApi(userId));
-    if (res.success) setEmployeeAbsense(res.data);
+      const res = await dispatch(getAbsentApi(userId));
+      if (res.success) {
+        setEmployeeAbsense(res.data);
+      } else {
+        console.error("Failed to fetch absences", res.message);
+      }
+    } catch (error) {
+      console.error("Error fetching absences", error);
+    }
   };
 
   const getEmployeShift = async () => {
-    const res = await dispatch(getEmployeShiftApi());
-    if (res.success) setEmployeeShift(res.data);
+    try {
+      const res = await dispatch(getEmployeShiftApi());
+      if (res.success) {
+        setEmployeeShift(res.data);
+      } else {
+        console.error("Failed to fetch employee shifts", res.message);
+      }
+    } catch (error) {
+      console.error("Error fetching employee shifts", error);
+    }
   };
 
   const fetchBirthdays = async () => {
     try {
       const res = await dispatch(getBirthdayApi());
-      if (res.success) setBirthdays(res.data);
+      if (res.success) {
+        setBirthdays(res.data);
+      } else {
+        console.error("Failed to fetch birthdays", res.message);
+      }
     } catch (error) {
       console.error("Error fetching birthdays", error);
     } finally {
@@ -98,9 +121,32 @@ export default function DashboardComponent() {
   };
 
   const getUpcomingBirthday = async () => {
-    const res = await dispatch(getUpcomingBirthdayApi());
-    if (res.success) setUpcomingBirthdays(res.data);
+    try {
+      const res = await dispatch(getUpcomingBirthdayApi());
+      if (res.success) {
+        setUpcomingBirthdays(res.data);
+      } else {
+        console.error("Failed to fetch upcoming birthdays", res.message);
+      }
+    } catch (error) {
+      console.error("Error fetching upcoming birthdays", error);
+    }
   };
+
+  if (loading) {
+    return (
+      <ChakraProvider>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="50vh"
+        >
+          <Spinner size="xl" />
+        </Box>
+      </ChakraProvider>
+    );
+  }
 
   return (
     <ChakraProvider>
@@ -805,7 +851,7 @@ export default function DashboardComponent() {
               Working
             </Heading>
           </Box>
-          <Box boxShadow="md" bg="white" mt={4} borderRadius="md" p={4}>
+          <Box boxShadow="md" bg="white" mt={2} borderRadius="md" p={4}>
             <TableContainer>
               <Table variant="simple">
                 <Thead bg="gray.50">
@@ -823,7 +869,7 @@ export default function DashboardComponent() {
                         <Td>{val.employeeId ? val.employeeId.name : "N/A"}</Td>
                         <Td>{new Date(val.from).toLocaleDateString()}</Td>
                         <Td>{new Date(val.to).toLocaleDateString()}</Td>
-                        <Td>{val.duration}</Td>
+                        <Td>{val.duration} Hours</Td>
                       </Tr>
                     ))
                   ) : (
@@ -839,12 +885,12 @@ export default function DashboardComponent() {
           </Box>
 
           {/* Absent Section */}
-          <Box mt={8} p={6} boxShadow="md" bg="white" borderRadius="md">
+          <Box mt={6} p={6} boxShadow="md" bg="white" borderRadius="md">
             <Heading fontSize="lg" color="gray.700">
               Absent
             </Heading>
           </Box>
-          <Box boxShadow="md" bg="white" mt={4} borderRadius="md" p={4}>
+          <Box boxShadow="md" bg="white" mt={2} borderRadius="md" p={4}>
             <TableContainer>
               <Table variant="simple">
                 <Thead bg="gray.50">
