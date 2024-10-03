@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import {
   Modal,
@@ -24,14 +25,16 @@ const formatDateForInput = (isoDate) => {
   return date.toISOString().split("T")[0]; // Extract 'yyyy-MM-dd'
 };
 
+// Main component for Leave Request Modal
 export default function LeaveRequestModal({
-  isOpen,
-  onClose,
-  actionType,
-  leaveData,
-  handleSubmit,
-  deleteLeaveRequest,
+  isOpen, // Boolean to control modal visibility
+  onClose, // Function to close the modal
+  actionType, // Type of action: 'edit' or 'create'
+  leaveData, // Data for the leave request
+  handleSubmit, // Function to handle form submission
+  deleteLeaveRequest, // Function to handle leave request deletion
 }) {
+  // Initial state for the form
   const initialFormState = {
     employeeId: "",
     type: "",
@@ -42,11 +45,13 @@ export default function LeaveRequestModal({
     declineAssignedShifts: true,
   };
 
+  // State to manage form data
   const [formData, setFormData] = useState(initialFormState);
 
+  // Effect to populate form data when editing
   useEffect(() => {
     if (actionType === "edit" && leaveData) {
-      // eslint-disable-next-line no-unused-vars
+      // Destructure to exclude unnecessary fields
       const { createdAt, emp_name, updatedAt, __v, ...requiredData } =
         leaveData;
       setFormData({
@@ -61,11 +66,13 @@ export default function LeaveRequestModal({
       }));
   }, [actionType, leaveData]);
 
+  // Handle input change for form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Validate form data before submission
   const validate = () => {
     const { leaveType, startDate, endDate, type } = formData;
     if (!leaveType || !startDate || !endDate || !type) {
@@ -75,6 +82,7 @@ export default function LeaveRequestModal({
     return true;
   };
 
+  // Handle form save action
   const handleSave = () => {
     if (!validate()) return;
 
@@ -82,18 +90,20 @@ export default function LeaveRequestModal({
     handleClose();
   };
 
+  // Handle modal close action
   const handleClose = () => {
     setFormData(initialFormState);
     onClose();
   };
 
+  // Render input fields with labels
   const renderInput = (
-    label,
-    name,
-    type = "text",
-    isSelect = false,
-    options = [],
-    isRequired = true
+    label, // Label for the input
+    name, // Name attribute for the input
+    type = "text", // Type of the input
+    isSelect = false, // Boolean to determine if input is a select dropdown
+    options = [], // Options for select dropdown
+    isRequired = true // Boolean to determine if input is required
   ) => (
     <>
       <FormLabel>
@@ -125,6 +135,7 @@ export default function LeaveRequestModal({
     </>
   );
 
+  // Render the modal component
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />

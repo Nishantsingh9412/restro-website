@@ -2,9 +2,11 @@
 
 import axios from "axios";
 
+// Base URL for the server API, fetched from environment variables
 export const serverUrl = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 // export const awsUrl = "https://maalikdesigners3.s3.eu-north-1.amazonaws.com/";
 
+// Function to handle GET requests
 export const getApihandler = async (endPoint) => {
   try {
     const getres = await axios.get(serverUrl + endPoint);
@@ -14,6 +16,7 @@ export const getApihandler = async (endPoint) => {
   }
 };
 
+// Function to handle GET requests by ID
 export const getbyidApihandler = async (endPoint) => {
   try {
     const getres = await axios.get(serverUrl + endPoint);
@@ -24,6 +27,7 @@ export const getbyidApihandler = async (endPoint) => {
   }
 };
 
+// Function to handle POST requests for login
 export const postLoginApihandler = async (endPoint, value) => {
   try {
     const postRes = await axios.post(serverUrl + endPoint, value);
@@ -34,6 +38,7 @@ export const postLoginApihandler = async (endPoint, value) => {
   }
 };
 
+// Function to handle generic POST requests
 export const postApihandler = async (endPoint, value) => {
   // console.log("postvalue=>", endPoint);
   // console.log("postvalue=>", value);
@@ -46,6 +51,7 @@ export const postApihandler = async (endPoint, value) => {
   }
 };
 
+// Function to handle DELETE requests
 export const deleteApihandler = async (endPoint) => {
   try {
     const deleteRes = await axios.delete(serverUrl + endPoint);
@@ -55,6 +61,7 @@ export const deleteApihandler = async (endPoint) => {
   }
 };
 
+// Function to handle PUT requests
 export const putApihandler = async (endPoint, value) => {
   try {
     // Axios Method ----

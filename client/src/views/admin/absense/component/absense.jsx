@@ -25,8 +25,10 @@ import { useDispatch } from "react-redux";
 import AbsenceModal from "./absenceModal";
 import { Spinner } from "@chakra-ui/react";
 
+// Define the different views for the calendar
 const views = ["Daily", "Weekly", "Monthly"];
 
+// Function to get a single day
 const getDay = (date) => [
   {
     day: date.toLocaleDateString("en-US", { weekday: "short" }),
@@ -38,6 +40,7 @@ const getDay = (date) => [
   },
 ];
 
+// Function to get all days in a week
 const getWeekDays = (date) => {
   const dayOfWeek = date.getDay();
   const startOfWeek = new Date(date);
@@ -59,6 +62,7 @@ const getWeekDays = (date) => {
   });
 };
 
+// Function to get all days in a month
 const getMonthDays = (date) => {
   const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -82,6 +86,7 @@ const getMonthDays = (date) => {
   return days;
 };
 
+// Function to get the end date in the calendar based on the view
 const getEndDateInCalender = (viewIndex, currentDate) => {
   const cDate = new Date(currentDate);
   if (views[viewIndex] === "Daily") return currentDate;
@@ -94,6 +99,7 @@ const getEndDateInCalender = (viewIndex, currentDate) => {
 };
 
 export default function AbsenseComponent() {
+  // State variables
   const [employees, setEmployees] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedAbsence, setSelectedAbsence] = useState(null);
@@ -109,6 +115,7 @@ export default function AbsenseComponent() {
   );
   const [viewIndex, setViewIndex] = useState(1);
 
+  // Handle previous button click
   const handlePrev = () => {
     const date = new Date(currentDate);
     const prevs = {
@@ -119,8 +126,10 @@ export default function AbsenseComponent() {
     setCurrentDate(prevs[views[viewIndex]]);
   };
 
+  // Handle next button click
   const handleNext = () => setCurrentDate(calenderToDate());
 
+  // Convert calendar to date
   const calenderToDate = () => {
     const date = new Date(currentDate);
     const nexts = {
@@ -131,15 +140,17 @@ export default function AbsenseComponent() {
     return nexts[views[viewIndex]].toISOString().split("T")[0];
   };
 
+  // Handle custom date input
   const handleCustomDate = (event) => {
     const date = event.target.value;
     if (!isNaN(new Date(date).getTime())) setCurrentDate(date);
   };
 
+  // Handle view previous button click
   const handleViewPrev = () =>
     setViewIndex((viewIndex + views.length - 1) % views.length);
-  // const handleViewNext = () => setViewIndex((viewIndex + 1) % views.length);
 
+  // Determine the days to display based on the view
   const daysToDisplay =
     views[viewIndex] === "Daily"
       ? getDay(new Date(currentDate))
@@ -147,17 +158,19 @@ export default function AbsenseComponent() {
       ? getWeekDays(new Date(currentDate))
       : getMonthDays(new Date(currentDate));
 
+  // Convert date to new format
   const convertDateToNewFormat = (dateString) => {
     return new Date(dateString).toISOString().split("T")[0];
   };
 
-  // API Call
+  // API Call to get absence by date
   const getAbsencebyDate = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const res = await dispatch(getAbsenceByEmpl(userData.result._id));
     if (res.success) setEmployees(res.data);
   };
 
+  // Handle save absence
   const handleSaveAbsence = async (formData) => {
     formData.employeeId = selectedEmployeeId;
     try {
@@ -178,6 +191,7 @@ export default function AbsenseComponent() {
     }
   };
 
+  // Handle delete absence
   const deleteAbsence = async () => {
     try {
       if (!editAbsenceId) {
@@ -193,11 +207,13 @@ export default function AbsenseComponent() {
     }
   };
 
+  // Fetch absence data on component mount
   useEffect(() => {
     setLoading(true);
     getAbsencebyDate().finally(() => setLoading(false)); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle modal close
   const handleClose = () => {
     // Reset modal state when closing
     setSelectedAbsence(null);
@@ -207,6 +223,7 @@ export default function AbsenseComponent() {
     onClose(); // This is the Chakra UI's method to close the modal
   };
 
+  // Show loading spinner if data is being fetched
   if (loading) {
     return (
       <Box
@@ -219,8 +236,11 @@ export default function AbsenseComponent() {
       </Box>
     );
   }
+
+  // Render the component
   return (
     <Fragment>
+      {/* Legend for absence types */}
       <Box display="flex" justifyContent="center" mb={4}>
         <HStack spacing={4}>
           <Box bg="#00A7C4" height="20px" width="20px" borderRadius="4px"></Box>
@@ -233,6 +253,7 @@ export default function AbsenseComponent() {
           <span>Unpaid vacation</span>
         </HStack>
       </Box>
+
       {/* Calendar */}
       <Box overflow="auto" whiteSpace="nowrap" mt={8}>
         <HStack justifyContent="center" mb={4}>
@@ -408,6 +429,7 @@ export default function AbsenseComponent() {
         </TableContainer>
       </Box>
 
+      {/* Absence Modal */}
       <AbsenceModal
         onClose={handleClose}
         isOpen={isOpen}

@@ -16,7 +16,6 @@ import Reducers from "./redux/reducers/index";
 import routes2 from "./routes";
 import SignUp from "./views/auth/signup";
 import { ToastContainer } from "react-toastify";
-import { Curve } from "recharts";
 
 const store = createStore(
   Reducers,

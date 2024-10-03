@@ -7,6 +7,7 @@ const handleError = (res, error, message = "Internal Server Error") => {
   return res.status(500).json({ success: false, message });
 };
 
+// Add a new employee to the database
 export const addEmployee = async (req, res) => {
   try {
     const requiredFields = [
@@ -26,18 +27,17 @@ export const addEmployee = async (req, res) => {
     }
 
     const newEmployee = await Employee.create(req.body);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Employee created successfully",
-        result: newEmployee,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Employee created successfully",
+      result: newEmployee,
+    });
   } catch (error) {
     return handleError(res, error, "Error in addEmployee");
   }
 };
 
+// Get employees by restaurant based on userId or id
 export const getEmployeesByRestaurant = async (req, res) => {
   try {
     const [key, value] = req.params.allActive.split("_");
@@ -50,25 +50,22 @@ export const getEmployeesByRestaurant = async (req, res) => {
 
     const employees = await Employee.find(query);
     if (!employees.length) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No employees found for this restaurant",
-        });
-    }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Employees retrieved successfully",
-        result: employees,
+      return res.status(404).json({
+        success: false,
+        message: "No employees found for this restaurant",
       });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Employees retrieved successfully",
+      result: employees,
+    });
   } catch (error) {
     return handleError(res, error, "Error in getEmployeesByRestaurant");
   }
 };
 
+// Update an existing employee's details
 export const updateEmployee = async (req, res) => {
   try {
     const { employeeId } = req.params;
@@ -86,18 +83,17 @@ export const updateEmployee = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Employee not found" });
     }
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Employee updated successfully",
-        result: employee,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Employee updated successfully",
+      result: employee,
+    });
   } catch (error) {
     return handleError(res, error, "Error in updateEmployee");
   }
 };
 
+// Delete an employee from the database
 export const deleteEmployee = async (req, res) => {
   try {
     const { employeeId } = req.params;
@@ -121,6 +117,7 @@ export const deleteEmployee = async (req, res) => {
   }
 };
 
+// Get employees who have birthdays today
 export const getTodaysBirthday = async (req, res) => {
   try {
     const todayIST = moment().tz("Asia/Kolkata");
@@ -144,6 +141,7 @@ export const getTodaysBirthday = async (req, res) => {
   }
 };
 
+// Get employees who have birthdays in the next 30 days
 export const getUpcomingEmployeeBirthday = async (req, res) => {
   try {
     const todayIST = moment().tz("Asia/Kolkata").startOf("day");
@@ -168,22 +166,18 @@ export const getUpcomingEmployeeBirthday = async (req, res) => {
       });
 
     if (upcomingBirthdays.length === 0) {
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "No employees have birthdays in the next 30 days.",
-          result: [],
-        });
+      return res.status(200).json({
+        success: true,
+        message: "No employees have birthdays in the next 30 days.",
+        result: [],
+      });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Upcoming birthdays",
-        result: upcomingBirthdays,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Upcoming birthdays",
+      result: upcomingBirthdays,
+    });
   } catch (error) {
     return handleError(res, error, "Error in getUpcomingEmployeeBirthday");
   }

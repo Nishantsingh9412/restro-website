@@ -35,12 +35,14 @@ import {
   postShiftApi,
 } from "../../../../redux/action/shift";
 
+// Define view modes and time slots
 const views = ["Daily", "Weekly", "Monthly"];
 const times = Array.from(
   { length: 24 },
   (_, i) => `${i.toString().padStart(2, "0")}:00`
 );
 
+// Function to get days to display based on the selected view mode
 const getDaysToDisplay = (view, date) => {
   const currentDate = new Date(date);
 
@@ -76,12 +78,15 @@ const getDaysToDisplay = (view, date) => {
 };
 
 const ShiftScheduleComponent = () => {
+  // Modal state management
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
   const dispatch = useDispatch();
+
+  // Initial form state
   const initialFormState = {
     _id: "",
     from: "",
@@ -90,15 +95,17 @@ const ShiftScheduleComponent = () => {
     employeeId: null,
     date: "",
   };
+
+  // Component state management
   const [employee, setEmployee] = useState([]);
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-
   const [viewIndex, setViewIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [shiftData, setShiftData] = useState(initialFormState);
 
+  // Fetch data from APIs
   const fetchData = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const empRes = await dispatch(getEmployeeApi(userData.result._id));
@@ -107,15 +114,19 @@ const ShiftScheduleComponent = () => {
     if (shiftRes.success) setEmployee(shiftRes.data);
     setIsLoading(false);
   };
+
+  // Fetch data on component mount
   useEffect(() => {
     fetchData();
   }, [dispatch]);
 
+  // Handle modal close
   const handleModalClose = () => {
     setShiftData(initialFormState);
     onModalClose();
   };
 
+  // Handle shift add/edit action
   const handleShiftAction = async () => {
     const fromTime = new Date(`1970-01-01T${shiftData.from}:00`);
     const toTime = new Date(`1970-01-01T${shiftData.to}:00`);
@@ -139,6 +150,7 @@ const ShiftScheduleComponent = () => {
     }
   };
 
+  // Handle shift delete action
   const handleDeleteShift = async () => {
     if (!shiftData._id) return toast.error("Shift not found");
     const res = await dispatch(deleteShiftApi({ _id: shiftData._id }));
@@ -146,7 +158,10 @@ const ShiftScheduleComponent = () => {
     res.success && toast.success("Shift deleted successfully") && fetchData();
   };
 
+  // Get days to display based on the current view mode and date
   const daysToDisplay = getDaysToDisplay(views[viewIndex], currentDate);
+
+  // Show loading spinner while data is being fetched
   if (isLoading) {
     return (
       <Box
@@ -159,8 +174,10 @@ const ShiftScheduleComponent = () => {
       </Box>
     );
   }
+
   return (
     <Fragment>
+      {/* Date selection and view mode controls */}
       <Box overflow="auto" whiteSpace="nowrap" mt={16} mb={8}>
         <HStack justifyContent="center" mb={4}>
           <Input
@@ -209,9 +226,6 @@ const ShiftScheduleComponent = () => {
           >
             View Mode: {views[viewIndex]}
           </Button>
-          {/* <Button onClick={() => setViewIndex((viewIndex + 1) % views.length)}>
-            Next View
-          </Button> */}
           <Button
             onClick={() =>
               setCurrentDate(
@@ -229,6 +243,8 @@ const ShiftScheduleComponent = () => {
             Next
           </Button>
         </HStack>
+
+        {/* Shift schedule table */}
         <TableContainer bg="white" p={4} borderRadius="8px" boxShadow="md">
           <Table variant="simple" size="md">
             <Thead>
@@ -343,6 +359,7 @@ const ShiftScheduleComponent = () => {
         </TableContainer>
       </Box>
 
+      {/* Modal for adding/editing shifts */}
       <Modal isOpen={isModalOpen} onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent>

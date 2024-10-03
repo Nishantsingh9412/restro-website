@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // Chakra imports
 import { Box, Flex } from "@chakra-ui/react";
 import PropTypes from "prop-types";
@@ -27,6 +28,7 @@ function AuthIllustration(props) {
         justifyContent="start"
         direction="column"
       >
+        {/* Placeholder for navigation link to admin page */}
         {/* <NavLink
           to='/admin'
           style={() => ({
@@ -50,7 +52,11 @@ function AuthIllustration(props) {
             </Text>
           </Flex>
         </NavLink> */}
+
+        {/* Render children components */}
         {children}
+
+        {/* Background illustration box */}
         <Box
           display={{ base: "none", md: "block" }}
           h="100%"
@@ -71,12 +77,17 @@ function AuthIllustration(props) {
             borderBottomLeftRadius={{ lg: "120px", xl: "200px" }}
           ></Flex>
         </Box>
+
+        {/* Footer component */}
         <Footer />
       </Flex>
+
+      {/* Fixed plugin component */}
       <FixedPlugin />
     </Flex>
   );
 }
+
 // PROPS
 
 AuthIllustration.propTypes = {

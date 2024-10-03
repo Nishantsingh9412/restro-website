@@ -30,6 +30,7 @@ const handleError = (res, error) => {
   return res.status(500).json({ error: error.message, status: 500 });
 };
 
+// Add a new employee absence
 export const addEmployeeAbsence = async (req, res) => {
   const { error, value } = absenceSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -46,6 +47,7 @@ export const addEmployeeAbsence = async (req, res) => {
   }
 };
 
+// Delete an employee absence
 export const deleteEmployeeAbsence = async (req, res) => {
   const { error, value } = idSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -63,6 +65,7 @@ export const deleteEmployeeAbsence = async (req, res) => {
   }
 };
 
+// Edit an employee absence
 export const editEmployeeAbsence = async (req, res) => {
   const { error, value } = absenceSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -83,6 +86,7 @@ export const editEmployeeAbsence = async (req, res) => {
   }
 };
 
+// Get absences for a specific employee
 export const getEmployeeAbsence = async (req, res) => {
   const { employeeId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(employeeId)) {
@@ -108,6 +112,7 @@ export const getEmployeeAbsence = async (req, res) => {
   }
 };
 
+// Get today's leaves by user ID
 export const getTodaysLeaveByUserId = async (req, res) => {
   const { error, value } = userIdSchema.validate(req.params);
   if (error) return res.status(400).json({ message: error.details[0].message });
@@ -147,6 +152,7 @@ export const getTodaysLeaveByUserId = async (req, res) => {
   }
 };
 
+// Get employees with absences by user ID
 export const getEmployeesWithAbsencesByUser = async (req, res) => {
   const { error, value } = userIdSchema.validate(req.params);
   if (error) return res.status(400).json({ message: error.details[0].message });

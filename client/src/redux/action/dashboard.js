@@ -1,20 +1,28 @@
 import * as api from "../../api/index.js";
 
+// Helper function to handle API calls
 const handleApiCall = async (apiFunc, dispatch, actionType, successMessage) => {
   try {
+    // Call the API function and destructure the data from the response
     const { data } = await apiFunc();
     if (!data) throw new Error("No data received from API");
+
+    // Dispatch the action with the received data
     dispatch({ type: actionType, data: data.result || data });
+
+    // Return success response
     return {
       success: true,
       message: successMessage,
       data: data.result || data,
     };
   } catch (err) {
+    // Return error response
     return { success: false, message: err.message || "An error occurred" };
   }
 };
 
+// Action to get absent data for a specific employee
 export const getAbsentApi = (employeeId) => {
   return async (dispatch) => {
     if (!employeeId) {
@@ -29,6 +37,7 @@ export const getAbsentApi = (employeeId) => {
   };
 };
 
+// Action to get employee shift data
 export const getEmployeShiftApi = () => {
   return async (dispatch) => {
     return handleApiCall(
@@ -40,6 +49,7 @@ export const getEmployeShiftApi = () => {
   };
 };
 
+// Action to get birthday data
 export const getBirthdayApi = () => {
   return async (dispatch) => {
     return handleApiCall(
@@ -51,6 +61,7 @@ export const getBirthdayApi = () => {
   };
 };
 
+// Action to get upcoming birthday data
 export const getUpcomingBirthdayApi = () => {
   return async (dispatch) => {
     return handleApiCall(

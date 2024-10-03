@@ -1,5 +1,6 @@
 import * as api from "../../api/index.js";
 
+// Helper function to handle API calls
 const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
   try {
     const { data } = await apiCall();
@@ -15,6 +16,7 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
   }
 };
 
+// Action to fetch employee data by ID
 export const getEmployeeApi = (employeeId) => {
   return async (dispatch) => {
     if (!employeeId) {
@@ -29,6 +31,7 @@ export const getEmployeeApi = (employeeId) => {
   };
 };
 
+// Action to post new employee data
 export const postEmployeeApi = (dataemployee) => {
   return async (dispatch) => {
     if (!dataemployee) {
@@ -43,6 +46,7 @@ export const postEmployeeApi = (dataemployee) => {
   };
 };
 
+// Action to update existing employee data by ID
 export const updateEmployeeApi = (employeedataId, dataemployee) => {
   return async (dispatch) => {
     if (!employeedataId || !dataemployee) {
@@ -57,6 +61,7 @@ export const updateEmployeeApi = (employeedataId, dataemployee) => {
   };
 };
 
+// Action to delete employee data by ID
 export const deleteEmployeeApi = (employeeId) => {
   return async (dispatch) => {
     if (!employeeId) {
@@ -71,6 +76,7 @@ export const deleteEmployeeApi = (employeeId) => {
   };
 };
 
+// Action to fetch detailed employee data by ID
 export const getEmployeeDetailApi = (employeeId) => {
   return async (dispatch) => {
     if (!employeeId) {

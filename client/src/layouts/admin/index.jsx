@@ -9,6 +9,7 @@ import { SidebarContext } from "../../contexts/SidebarContext.jsx";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import routes from "../../routes.jsx";
+
 // Custom Chakra theme
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -17,10 +18,6 @@ export default function Dashboard(props) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
 
   // functions for changing the states from components
-  const getRoute = () => {
-    return window.location.pathname !== "/admin/full-screen-maps";
-  };
-
   const getActiveRoute = (routes) => {
     let activeRoute = "Default Brand Text";
     for (let i = 0; i < routes.length; i++) {

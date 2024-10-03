@@ -3,7 +3,7 @@ const baseURL = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 
 const API = axios.create({ baseURL: baseURL });
 
-// For Authentication
+// Uncomment the following lines to add authorization token to each request
 // API.interceptors.request.use((req) => {
 //     if(localStorage.getItem('Profile')){
 //         req.headers.Authorization = `Bearer ${JSON.parse(localStorage.getItem('Profile')).token}`;
@@ -11,18 +11,16 @@ const API = axios.create({ baseURL: baseURL });
 //     return req;
 // });
 
-// Auth API
-
+// Authentication APIs
 // Signup
 export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
-
 // Login
 export const loginAPI = (userData) => API.post("/auth/login", userData);
-
+// Login for Delivery Boy
 export const loginDelivBoyAPI = (userData) =>
   API.post("/auth/login-delivboy", userData);
 
-// Items API Start
+// Items Management APIs
 // Add Item
 export const AddItem = (newItem) =>
   API.post("/item-management/additem", newItem);
@@ -37,16 +35,16 @@ export const updateSingleItem = (id, updatedItem) =>
 // Delete Item
 export const deleteSingleItem = (id) =>
   API.delete(`/item-management/deleteitem/${id}`);
-// Items API End
 
-// Stocks APi
+// Stocks Management APIs
+// Get All Stocks
 export const getAllStocks = (localstorageId) =>
   API.get(`/stock-management/get-all-stocks/${localstorageId}`);
-
+// Get Low Stocks
 export const getLowStocks = (localstorageId) =>
   API.get(`/stock-management/get-low-stocks/${localstorageId}`);
 
-// Supplier API
+// Supplier Management APIs
 // Add new Supplier
 export const addSupplier = (newSupplier) =>
   API.post("/supplier/add-supplier", newSupplier);
@@ -63,8 +61,7 @@ export const UpdateSupplier = (id, updatedData) =>
 export const DeleteSupplier = (id) =>
   API.delete(`/supplier/delete-supplier/${id}`);
 
-// Orders API
-
+// Orders Management APIs
 // Post an Order
 export const AddOrderItem = (newItem) =>
   API.post("/orders/add-order-item", newItem);
@@ -94,28 +91,30 @@ export const searchDrinksOnly = (drinksData, localStorageId) =>
     `/orders/search-drinks-onlys/${localStorageId}?orderName=${drinksData}`
   );
 
-// Item Using QR
+// QR Item Management APIs
+// Add Item Using QR
 export const postItemUsingQR = (newItem) =>
   API.post("/qr-items/add-qr-item", newItem);
-
+// Get Single QR Item
 export const getSingleQRItem = (id) =>
   API.get(`/qr-items/get-single-qr-item/${id}`);
-
+// Get All QR Items
 export const getAllQRitems = () => API.get("/qr-items/get-all-qr-items");
-
+// Update QR Item
 export const upadteAllQRItems = (id, updatedData) =>
   API.patch(`/qr-items/update-qr-item/${id}`, updatedData);
-
+// Delete QR Item
 export const deleteSingleQRItem = (id) =>
   API.delete(`/qr-items/delete-qr-item/${id}`);
 
-// Single User Data
+// User Data APIs
+// Get Single User Data
 export const getSingleUserData = (id) => API.get(`/user/get-user/${id}`);
 // Update Single User Data Profile Pic
 export const UpdateUserProfilePic = (id, updatedData) =>
   API.patch(`/user/profile-pic-update/${id}`, updatedData);
 
-// Delivery Personnel API
+// Delivery Personnel Management APIs
 // Add Delivery Personnel
 export const addDeliveryPersonnel = (newPersonnel) =>
   API.post("/delivery-person/create-one", newPersonnel);
@@ -132,15 +131,7 @@ export const updateSingleDeliveryPersonnel = (id, updatedData) =>
 export const deleteSingleDeliveryPersonnel = (id) =>
   API.delete(`/delivery-person/delete-single/${id}`);
 
-// Address API
-// creating new address
-// export const postAddressAPI = (addressdata) => API.post('/address/post-address', addressdata);
-// // get single address
-// export const getSinglAddressAPI = (id) => API.get(`/address/get-single-address/${id}`);
-// //update address
-// export const updateSingleAddressAPI = (id, updatedData) => API.patch(`/address/update-address/${id}`, updatedData);
-
-// Complete Order API
+// Complete Order Management APIs
 // Add Complete Order
 export const addCompleteOrderAPI = (newOrder) =>
   API.post("/complete-order/create", newOrder);
@@ -157,23 +148,23 @@ export const updateSingleCompleteOrderAPI = (id, updatedData) =>
 export const deleteSingleCompleteOrderAPI = (id) =>
   API.delete(`/complete-order/delete/${id}`);
 
-// Dashboard API's
+// Dashboard APIs
 // Total Stocks API
 export const totalStocksAPI = () => API.get("/dashboard/total-stocks-quantity");
 // Low Stocks API
 export const lowStocksAPI = () => API.get("/dashboard/low-stocks-quantity");
 // Expired Items API
 export const expiredItemsAPI = () => API.get("/dashboard/expired-items");
-// supplier location API
+// Supplier Location API
 export const supplierLocationAPI = () =>
   API.get("/dashboard/supplier-location");
-// supplier contacts API
+// Supplier Contacts API
 export const supplierContactsAPI = () => API.get("/dashboard/contacts");
 // Search Contacts API
 export const searchContactsAPI = (contactData) =>
   API.get(`dashboard/search-contacts?nameSearched=${contactData}`);
 
-// Employee Management API
+// Employee Management APIs
 // Assign Task
 export const assignTaskAPI = (newTask) =>
   API.post("/employee/assign-task", newTask);
@@ -190,44 +181,65 @@ export const deleteTaskAPI = (taskId) =>
 // Update Single Task
 export const updateTaskAPI = (taskId, updatedData) =>
   API.patch(`/employee/update-task/${taskId}`, updatedData);
-// Dashboard API
+
+// Employee Data APIs
+// Get Absent Data
 export const getAbsentdata = (employeeId) =>
   API.get(`/absence/get-todays-leave/${employeeId}`);
+// Get Employee Shift Data
 export const getemployeshiftdata = () => API.get("/shift/get-todays-shift");
+// Get Today's Employee Birthday Data
 export const getbirthdayapidata = () =>
   API.get("/employee/get-todays-employee-birthday");
+// Get Upcoming Employee Birthday Data
 export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
-// Employee API
+// Get Employee Data
 export const getemployeedata = (employeeId) =>
   API.get(`/employee/get-employee/userId_${employeeId}`);
+// Add Employee Data
 export const postemployeedata = (data) =>
   API.post("/employee/add-employee", data);
+// Update Employee Data
 export const updateemployeedata = (employeedataId, data) =>
   API.put(`/employee/update-employee/${employeedataId}`, data);
+// Delete Employee Data
 export const deleteemployeedata = (employeedataId) =>
   API.delete(`/employee/delete-employee/${employeedataId}`);
+// Get Employee Detail Data
 export const employeedetaildata = (employeedataId) =>
   API.get(`/employee/get-employee/id_${employeedataId}`);
-// Absent employee API
+
+// Absence Management APIs
+// Fetch Absence Details Data
 export const fetchabsencedetailsdata = (employeedataId) =>
   API.get(`/absence/get-employee-leave/${employeedataId}`);
+// Add Absence Data
 export const addAbsencedata = (data) =>
   API.post("/absence/add-employee-leave", data);
+// Edit Absence Data
 export const editAbsenceData = (data) =>
   API.post("/absence/edit-employee-leave", data);
+// Get Absence by Employee Data
 export const getabsencebyempldata = (userId) =>
   API.get(`/absence/getEmployeesWithAbsencesByUser/${userId}`);
+// Delete Absence Data
 export const deleteAbsenceData = (data) =>
   API.post("/absence/delete-employee-leave", data);
-// Shift employee API
+
+// Shift Management APIs
+// Add Shift Data
 export const addshiftdata = (data) =>
   API.post("/shift/add-employee-shift", data);
+// Edit Shift Data
 export const editshiftdata = (data) =>
   API.post("/shift/edit-employee-shift", data);
+// Delete Shift Data
 export const deleteShiftData = (data) =>
   API.post("/shift/delete-employee-shift", data);
+// Fetch Shift Details Data
 export const fetchshiftdetailsdata = (employeedataId) =>
   API.get(`/shift/get-employee-shift/${employeedataId}`);
+// Get Shift by Employee Data
 export const getshiftbyempldata = (userId) =>
   API.get(`/shift/get-shift-with-employee/${userId}`);

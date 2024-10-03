@@ -10,12 +10,15 @@ import { SidebarContext } from "../../contexts/SidebarContext.jsx";
 
 // Custom Chakra theme
 export default function Auth() {
-  // states and functions
+  // State to manage the sidebar toggle
   const [toggleSidebar, setToggleSidebar] = useState(false);
-  // functions for changing the states from components
+
+  // Function to determine if the current route is not the full-screen maps route
   const getRoute = () => {
     return window.location.pathname !== "/auth/full-screen-maps";
   };
+
+  // Function to generate route components based on the routes configuration
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
       if (prop.layout === "/auth") {
@@ -37,10 +40,16 @@ export default function Auth() {
       }
     });
   };
+
+  // Determine the background color based on the current color mode
   const authBg = useColorModeValue("white", "navy.900");
+
+  // Set the document direction to left-to-right
   document.documentElement.dir = "ltr";
+
   return (
     <Box>
+      {/* Provide the sidebar context to child components */}
       <SidebarContext.Provider
         value={{
           toggleSidebar,
@@ -59,15 +68,12 @@ export default function Auth() {
           transitionProperty="top, bottom, width"
           transitionTimingFunction="linear, linear, ease"
         >
+          {/* Render routes if the current route is not the full-screen maps route */}
           {getRoute() ? (
             <Box mx="auto" minH="100vh">
               <Routes>
                 {getRoutes(routes)}
-                <Route
-                  from="/auth"
-                  to="/auth/sign-in/default
-                  "
-                />
+                <Route from="/auth" to="/auth/sign-in/default" />
               </Routes>
             </Box>
           ) : null}

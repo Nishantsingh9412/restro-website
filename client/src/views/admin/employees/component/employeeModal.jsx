@@ -39,6 +39,7 @@ export default function EmployeeModal({
   employeeData,
   handleSubmit,
 }) {
+  // Initial state for the form
   const initialFormState = {
     name: "",
     email: "",
@@ -67,8 +68,10 @@ export default function EmployeeModal({
     notes: "",
   };
 
+  // State to manage form data
   const [formData, setFormData] = useState(initialFormState);
 
+  // Effect to populate form data when editing an employee
   useEffect(() => {
     if (actionType !== "add" && employeeData) {
       setFormData({
@@ -80,10 +83,11 @@ export default function EmployeeModal({
     }
   }, [actionType, employeeData]);
 
+  // Handle input changes for form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Handle address fields
+    // Handle address fields separately
     if (name.startsWith("address.")) {
       const field = name.split(".")[1]; // Extract the nested field (e.g., "street", "city")
       setFormData((prev) => ({
@@ -98,6 +102,7 @@ export default function EmployeeModal({
     }
   };
 
+  // Handle radio button changes
   const handleRadioChange = (value) => {
     setFormData((prev) => ({
       ...prev,
@@ -105,6 +110,7 @@ export default function EmployeeModal({
     }));
   };
 
+  // Validate required fields
   const validate = () => {
     if (
       formData.name === "" ||
@@ -120,6 +126,7 @@ export default function EmployeeModal({
     return true;
   };
 
+  // Handle save action
   const handleSave = () => {
     if (!validate()) return;
 
@@ -135,15 +142,18 @@ export default function EmployeeModal({
     handleClose();
   };
 
+  // Handle modal close action
   const handleClose = () => {
     setFormData(initialFormState);
     onClose();
   };
 
+  // Utility to get nested values from form data
   const getNestedValue = (obj, path) => {
     return path.split(".").reduce((prev, key) => prev?.[key], obj);
   };
 
+  // Render input fields
   const renderInput = (
     label,
     name,
@@ -181,6 +191,7 @@ export default function EmployeeModal({
     </>
   );
 
+  // Render the modal
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
       <ModalOverlay />

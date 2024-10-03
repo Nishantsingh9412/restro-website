@@ -42,12 +42,14 @@ export default function EmployeeComponent() {
     getEmployees().finally(() => setIsLoading(false));
   }, []);
 
+  // Function to fetch employees from the API
   const getEmployees = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const res = await dispatch(getEmployeeApi(userData.result._id));
     if (res.success) setEmployees(res.data);
   };
 
+  // Function to fetch employee details for viewing/editing
   const getEmployeeDetail = async (id) => {
     const res = await dispatch(getEmployeeDetailApi(id));
     if (res.success) {
@@ -59,6 +61,7 @@ export default function EmployeeComponent() {
     }
   };
 
+  // Function to add a new employee
   const addEmployee = async (formData) => {
     const userId = JSON.parse(localStorage.getItem("ProfileData")).result._id;
     const newEmployee = { ...formData, created_by: userId };
@@ -76,6 +79,7 @@ export default function EmployeeComponent() {
     }
   };
 
+  // Function to update an existing employee
   const updateEmployee = async (formData) => {
     if (!employeeId) return;
 
@@ -89,6 +93,7 @@ export default function EmployeeComponent() {
     }
   };
 
+  // Function to delete an employee
   const deleteEmployee = async (id) => {
     const confirmation = await Swal.fire({
       title: "Are you sure?",
@@ -110,6 +115,7 @@ export default function EmployeeComponent() {
     }
   };
 
+  // Function to open the modal for adding a new employee
   const openModalForAdd = () => {
     setActionType("add");
     setEmployeeId(""); // Reset employeeId for adding
@@ -117,12 +123,14 @@ export default function EmployeeComponent() {
     setIsOpen(true);
   };
 
+  // Function to close the modal
   const onModalClose = () => {
     setIsOpen(false);
     setEmployeeId(""); // Reset employeeId for adding
     setSelectedEmployee(null); // Clear selected employee data
   };
 
+  // Show loading spinner while data is being fetched
   if (isLoading) {
     return (
       <Center height="50vh">
@@ -169,18 +177,19 @@ export default function EmployeeComponent() {
                   <Td>{emp.phone}</Td>
                   <Td>{new Date(emp.birthday).toLocaleDateString()}</Td>
                   <Td>
+                    {/* View Employee Button */}
                     <IconButton
                       margin="0px 2px"
                       colorScheme="green"
                       aria-label="View"
                       icon={<IoMdEye />}
                       onClick={() => {
-                        // console.log(emp);
                         setSelectedEmployee(emp); // Set selected employee data for view
                         setActionType("view");
                         setIsOpen(true);
                       }}
                     />
+                    {/* Edit Employee Button */}
                     <IconButton
                       margin="0px 2px"
                       colorScheme="yellow"
@@ -188,6 +197,7 @@ export default function EmployeeComponent() {
                       icon={<IoPencilOutline />}
                       onClick={() => getEmployeeDetail(emp._id)}
                     />
+                    {/* Delete Employee Button */}
                     <IconButton
                       margin="0px 2px"
                       colorScheme="red"
