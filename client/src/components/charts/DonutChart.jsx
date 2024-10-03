@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
+// eslint-disable-next-line react/prop-types
 const DonutChart = ({ chartData, chartOptions }) => {
-  const [data, setData] = useState([]);
-  const [options, setOptions] = useState({});
+  // State to hold chart data and options
+  const [data, setData] = useState(chartData);
+  const [options, setOptions] = useState(chartOptions);
 
+  // Update state when props change
   useEffect(() => {
     setData(chartData);
     setOptions(chartOptions);
@@ -15,7 +18,7 @@ const DonutChart = ({ chartData, chartOptions }) => {
       options={options}
       series={data}
       type="donut"
-      width="100%"
+      width="40%"
       height="100%"
     />
   );

@@ -27,42 +27,17 @@ import {
 import { Spinner } from "@chakra-ui/react";
 
 export default function DashboardComponent() {
-  //   const {
-  //     isOpen: isOpen1,
-  //     // onOpen: onOpen1,
-  //     onClose: onClose1,
-  //   } = useDisclosure();
-  //   const {
-  //     isOpen: isOpen2,
-  //     onOpen: onOpen2,
-  //     onClose: onClose2,
-  //   } = useDisclosure();
-  //   const {
-  //     isOpen: isOpen3,
-  //     onOpen: onOpen3,
-  //     onClose: onClose3,
-  //   } = useDisclosure();
-  //   // ***** for modal box back *****
-  //   const handleBackToFirstModal = () => {
-  //     onClose3();
-  //     onOpen2();
-  //   };
-  //   // ****** for modal box close ******
-  //   const handleCloseAll = () => {
-  //     onClose1();
-  //     onClose2();
-  //     onClose3();
-  //   };
-
-  //   const [name, setName] = React.useState("");
-
+  // State variables to hold data for employee shifts, absences, birthdays, and upcoming birthdays
   const [employeeshift, setEmployeeShift] = useState([]);
   const [employeeabsense, setEmployeeAbsense] = useState([]);
   const [birthdays, setBirthdays] = useState([]);
   const [upcomingbirthdays, setUpcomingBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Redux dispatch function to trigger actions
   const dispatch = useDispatch();
+
+  // useEffect hook to fetch data when the component mounts
   useEffect(() => {
     fetchBirthdays();
     getUpcomingBirthday();
@@ -71,6 +46,7 @@ export default function DashboardComponent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Function to fetch employee absences
   const getAbsent = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem("ProfileData"));
@@ -90,6 +66,7 @@ export default function DashboardComponent() {
     }
   };
 
+  // Function to fetch employee shifts
   const getEmployeShift = async () => {
     try {
       const res = await dispatch(getEmployeShiftApi());
@@ -103,6 +80,7 @@ export default function DashboardComponent() {
     }
   };
 
+  // Function to fetch birthdays
   const fetchBirthdays = async () => {
     try {
       const res = await dispatch(getBirthdayApi());
@@ -118,6 +96,7 @@ export default function DashboardComponent() {
     }
   };
 
+  // Function to fetch upcoming birthdays
   const getUpcomingBirthday = async () => {
     try {
       const res = await dispatch(getUpcomingBirthdayApi());
