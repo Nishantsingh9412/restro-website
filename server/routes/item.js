@@ -5,7 +5,7 @@ import {
     getAllItems,
     getItemById,
     updateItem,
-    DeletAllItems,
+    deleteAllItems,
 } from '../controllers/itemManagController.js';
 
 
@@ -29,6 +29,6 @@ router.patch('/updateitem/:id', updateItem);
 router.delete('/deleteitem/:id', deleteItem);
 
 // Delete All Items 
-router.delete('/delete-all-items', DeletAllItems);
+router.delete('/delete-all-items', deleteAllItems);
 
 export default router;
