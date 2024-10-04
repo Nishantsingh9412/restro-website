@@ -1,288 +1,123 @@
+/* eslint-disable react/prop-types */
 import { Box, Circle, Flex, Stack, Text } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
 import { LuSoup } from "react-icons/lu";
-import { useSelector } from "react-redux";
 
-import {
-  getLowStocksAction,
-  getAllStocksAction,
-} from "../../../../redux/action/stocks";
+// Helper function to calculate stock percentage
+const calculatePercentage = (minQty, availableQty) => {
+  if (availableQty === 0) return 0;
+  return ((minQty / availableQty) * 100).toFixed(2);
+};
 
-const LowStockCard = () => {
-  const dispatch = useDispatch();
+// Component to render a single low stock item
+const LowStockItem = ({ item, index, isLow }) => {
+  // Calculate the stock percentage
+  const percentage = calculatePercentage(
+    item.minimum_quantity,
+    item.available_quantity
+  );
 
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const userId = localData?.result?._id;
-
-  // const lowStockItems = useSelector(state => state)
-  const allStockItems = useSelector((state) => state.stocksReducer.stocks);
-  const lowStockItems = useSelector((state) => state.stocksReducer.lowStocks);
-  console.log("allStockItems");
-  console.log(allStockItems);
-  console.log("lowStockItems");
-  console.log(lowStockItems);
-
-  useEffect(() => {
-    dispatch(getAllStocksAction(userId));
-    dispatch(getLowStocksAction(userId));
-  }, []);
+  // Render the progress bar
+  const renderProgressBar = (percentage, isLow) => (
+    <Box marginTop={"10px"}>
+      <div
+        style={{
+          background: "white",
+          height: "8px",
+          borderRadius: "50px",
+          width: "100%",
+          display: "flex",
+        }}
+      >
+        <div
+          style={{
+            background: isLow ? "red" : "green", // Color based on low stock condition
+            height: "8px",
+            borderRadius: "50px",
+            width: `${percentage}%`,
+          }}
+        ></div>
+      </div>
+    </Box>
+  );
 
   return (
-    <>
-      <div style={{ marginTop: "5vw", fontWeight: "bold" }}>
-        <h3 style={{ marginLeft: "10px", fontWeight: "900", color: "#3e97cd" }}>
-          {" "}
-          Low Stocks Alert{" "}
-        </h3>
+    <Box
+      key={index}
+      minWidth={"275px"}
+      maxW={"300px"}
+      bg={"#f9f9f9"}
+      boxShadow={"0 4px 8px rgba(0, 0, 0, 0.1)"}
+      border={"1px solid #e2e8f0"}
+      borderRadius={"lg"}
+      padding={"20px"}
+      transition={"transform 0.2s"}
+      _hover={{ transform: "scale(1.05)" }}
+    >
+      {/* Header section with item name and last updated date */}
+      <Flex justifyContent="space-between">
+        <Box>
+          <Text fontSize={"lg"} fontWeight={"semibold"} color={"#2d3748"}>
+            {item.item_name}
+          </Text>
+          <Text fontSize={"sm"} fontWeight={"500"} color={"#718096"}>
+            Last Updated: {item.updatedAt.split("T")[0]}
+          </Text>
+        </Box>
+        <Box justifyContent={"end"}>
+          <Box
+            color={"#ee7213"}
+            backgroundColor={"#fff5f5"}
+            borderRadius={"full"}
+            padding={"10px"}
+          >
+            <LuSoup size={"30"} />
+          </Box>
+        </Box>
+      </Flex>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            padding: "10px",
-            marginLeft: "10px",
-          }}
+      {/* Stock status indicator */}
+      <Flex justifyContent={"end"} marginTop={"20px"} marginBottom={"15px"}>
+        <Flex alignItems={"center"}>
+          <Circle
+            size="10px"
+            marginRight={"5px"}
+            bg={isLow ? "red.500" : "green.500"}
+          />
+          <Text fontSize={"sm"} color={isLow ? "red.500" : "green.500"}>
+            {isLow ? "Low Stock" : "In Stock"}
+          </Text>
+        </Flex>
+      </Flex>
+
+      {/* Render the progress bar */}
+      {renderProgressBar(percentage, isLow)}
+
+      {/* Footer section with quantity details and percentage */}
+      <Flex
+        justifyContent={"space-between"}
+        alignItems={"center"}
+        marginTop={"4"}
+      >
+        <Stack direction={"row"} spacing={1}>
+          <Text fontSize={"sm"} color={"#4a5568"}>
+            {`${item.minimum_quantity} / ${item.available_quantity}`}
+          </Text>
+          <Text fontSize={"sm"} color={"#a0aec0"} fontWeight={"500"}>
+            Total Amount
+          </Text>
+        </Stack>
+        <Box
+          border={`2px solid ${isLow ? "red" : "green"}`}
+          padding={"3px 6px"}
+          borderRadius={"md"}
+          fontSize={"sm"}
+          color={isLow ? "red.500" : "green.500"}
         >
-          {lowStockItems.map((item, index) => (
-            <Box
-              key={index}
-              minWidth={"340px"}
-              marginLeft={"25px"}
-              marginTop={"25px"}
-              maxW={"300px"}
-              bg={"#f3f2ee"}
-              boxShadow={"2px 2px 2px #b39b9b"}
-              border={"5px solid #fff"}
-              borderRadius={"3xl"}
-              padding={"20px"}
-              color={index & 1 ? "#ee2d4f" : "#ee7213"}
-            >
-              <>
-                <Flex justifyContent="space-between">
-                  <Box>
-                    <h4 style={{ fontWeight: "600" }}>{item.item_name}</h4>
-                    <Text>Last Updated {item.updatedAt.split("T")[0]} </Text>
-                  </Box>
-                  <Box justifyContent={"end"}>
-                    <Box
-                      color={"saddlebrown"}
-                      backgroundColor={"white"}
-                      borderRadius={"3xl"}
-                      padding={"10px"}
-                    >
-                      <LuSoup size={"30"} />
-                    </Box>
-                  </Box>
-                </Flex>
-                <Flex
-                  justifyContent={"end"}
-                  marginTop={"15px"}
-                  marginBottom={"20px"}
-                >
-                  <Flex>
-                    <Circle
-                      size="10px"
-                      marginTop={"8px"}
-                      marginRight={"5px"}
-                      bg="red"
-                    />
-                    <h6 style={{ color: "red" }}>Low Stock</h6>
-                  </Flex>
-                </Flex>
-                <Box marginTop={"10px"}>
-                  <div
-                    style={{
-                      background: "white",
-                      height: "6px",
-                      borderRadius: "50px",
-                      width: "100%",
-                      display: "flex",
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: "red",
-                        height: "6px",
-                        borderRadius: "50px",
-                        width: `${parseInt(
-                          (item.minimum_quantity / item.available_quantity) *
-                            100
-                        )}%`,
-                      }}
-                    ></div>
-                  </div>
-                </Box>
-                <Flex justifyContent={"space-between"} marginTop={"4"}>
-                  <Stack direction={"row"}>
-                    <Text>
-                      {" "}
-                      {`${item.minimum_quantity} / ${item.available_quantity}`}{" "}
-                    </Text>
-                    <Text>Total Amount</Text>
-                  </Stack>
-                  <span
-                    style={{
-                      border:
-                        index & 1 ? "2px solid #ee2d4f" : "2px solid #ee7213",
-                      padding: "3px",
-                      borderRadius: "10%",
-                      fontSize: "smaller",
-                    }}
-                  >
-                    {" "}
-                    {(item.minimum_quantity / item.available_quantity).toFixed(
-                      1
-                    ) * 100}
-                    %
-                  </span>
-                </Flex>
-              </>
-            </Box>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginTop: "5vw" }}>
-        <h3 style={{ marginLeft: "10px", fontWeight: "900", color: "#3e97cd" }}>
-          {" "}
-          Overall Stocks{" "}
-        </h3>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            padding: "10px",
-            marginLeft: "10px",
-          }}
-        >
-          {allStockItems.map((item, index) => (
-            <Box
-              key={index}
-              minWidth={"340px"}
-              marginLeft={"25px"}
-              marginTop={"25px"}
-              boxShadow={"2px 2px 2px #b39b9b"}
-              maxW={"300px"}
-              bg={"#F3F2EE"}
-              color={index & 1 ? "#ee7213" : "#ee2d4f"}
-              fontWeight={"bold"}
-              borderRadius={"3xl"}
-              padding={"20px"}
-              border={"5px solid #fff"}
-            >
-              <>
-                <Flex justifyContent="space-between">
-                  <Box>
-                    <h4 style={{ fontWeight: "600" }}>{item.item_name}</h4>
-                    <Text>Last Updated {item.updatedAt.split("T")[0]} </Text>
-                  </Box>
-                  <Box justifyContent={"end"}>
-                    <Box
-                      color={"saddlebrown"}
-                      backgroundColor={"white"}
-                      borderRadius={"3xl"}
-                      padding={"10px"}
-                    >
-                      <LuSoup size={"30"} />
-                    </Box>
-                  </Box>
-                </Flex>
-                <Flex
-                  justifyContent={"end"}
-                  marginTop={"15px"}
-                  marginBottom={"20px"}
-                >
-                  <Flex>
-                    <Circle
-                      size="10px"
-                      marginTop={"8px"}
-                      marginRight={"5px"}
-                      bg={
-                        parseInt(
-                          (item.minimum_quantity / item.available_quantity) *
-                            100
-                        ) >= 70
-                          ? "red"
-                          : "green"
-                      } // Change color based on percentage (70% threshold)
-                    />
-
-                    {parseInt(
-                      (item.minimum_quantity / item.available_quantity) * 100
-                    ) >= 70 ? (
-                      <>
-                        <h6 style={{ color: "red" }}> Low Stock</h6>
-                      </>
-                    ) : (
-                      <>
-                        <h6 style={{ color: "green" }}> In Stock</h6>
-                      </>
-                    )}
-                  </Flex>
-                </Flex>
-                <Box marginTop={"10px"}>
-                  <div
-                    style={{
-                      background: "white",
-                      height: "6px",
-                      borderRadius: "50px",
-                      width: "100%",
-                      display: "flex",
-                    }}
-                  >
-                    <div
-                      style={{
-                        background:
-                          parseInt(
-                            (item.minimum_quantity / item.available_quantity) *
-                              100
-                          ) >= 70
-                            ? "red"
-                            : "green", // Change color based on percentage (70% threshold)
-                        height: "6px",
-                        borderRadius: "50px",
-                        width: `${parseInt(
-                          (item.minimum_quantity / item.available_quantity) *
-                            100
-                        )}%`,
-                      }}
-                    ></div>
-                  </div>
-                </Box>
-                <Flex justifyContent={"space-between"} marginTop={"4"}>
-                  <Stack direction={"row"}>
-                    <Text>{`${item.minimum_quantity} / ${item.available_quantity}`}</Text>
-                    <Text>Total Amount</Text>
-                  </Stack>
-                  <span
-                    style={{
-                      border:
-                        index & 1 ? "2px solid #ee7213" : "2px solid #ee2d4f",
-                      padding: "3px",
-                      borderRadius: "10%",
-                      fontSize: "smaller",
-                    }}
-                  >
-                    {parseFloat(
-                      (
-                        (item.minimum_quantity / item.available_quantity) *
-                        100
-                      ).toFixed(1)
-                    )}
-                    %
-                  </span>
-                </Flex>
-              </>
-            </Box>
-          ))}
-        </div>
-      </div>
-    </>
+          {`${percentage}%`}
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 
-export default LowStockCard;
+export default LowStockItem;

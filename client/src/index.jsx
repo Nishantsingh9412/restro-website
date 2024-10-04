@@ -17,6 +17,7 @@ import routes2 from "./routes";
 import SignUp from "./views/auth/signup";
 import { ToastContainer } from "react-toastify";
 
+// Create Redux store with middleware
 const store = createStore(
   Reducers,
   compose(
@@ -25,7 +26,10 @@ const store = createStore(
   )
 );
 
+// Create root element for React application
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
+// Render the application
 root.render(
   <ChakraProvider theme={theme}>
     <Provider store={store}>
@@ -33,10 +37,19 @@ root.render(
         <ThemeEditorProvider>
           <Router>
             <Routes>
+              {/* Fallback route for unmatched paths */}
               <Route path="*" element={<h1>NOT FOUND</h1>} />
+              
+              {/* Authentication layout routes */}
               <Route path="/auth/*" element={<AuthLayout />} />
+              
+              {/* RTL layout routes */}
               <Route path="/rtl/*" element={<RtlLayout />} />
+              
+              {/* Default route to SignIn component */}
               <Route path="/" element={<SignIn />} />
+              
+              {/* SignUp route */}
               <Route path="/auth/sign-up" element={<SignUp />} />
 
               {/* Admin Layout Routes */}
@@ -68,6 +81,7 @@ root.render(
               {/* Uncomment to redirect from root to /admin */}
               {/* <Route path="/" element={<Navigate to="/admin" replace />} /> */}
             </Routes>
+            {/* Toast notifications container */}
             <ToastContainer style={{ zIndex: 99999 }} newestOnTop={true} />
           </Router>
         </ThemeEditorProvider>

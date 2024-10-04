@@ -23,8 +23,8 @@ import { IoMdAnalytics } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  AddItemAction,
-  GetAllItemsAction,
+  addItemAction,
+  getAllItemsAction,
   deleteSingleItemAction,
   updateSingleItemAction,
 } from "../../../redux/action/Items";
@@ -91,7 +91,7 @@ export default function ItemManagement() {
   const handleSubmit = (formData) => {
     formData.created_by = userId;
     try {
-      const AddItemPromise = dispatch(AddItemAction(formData)).then((res) => {
+      const AddItemPromise = dispatch(addItemAction(formData)).then((res) => {
         if (res.success) {
           onClose();
           return res.message;
@@ -138,7 +138,7 @@ export default function ItemManagement() {
     const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId)).then(
       (res) => {
         if (res.success) {
-          dispatch(GetAllItemsAction(userId));
+          dispatch(getAllItemsAction(userId));
           return res.message;
         } else {
           throw new Error("Error Deleting Item");
@@ -192,7 +192,7 @@ export default function ItemManagement() {
 
   // Fetch all items on component mount
   useEffect(() => {
-    dispatch(GetAllItemsAction(userId));
+    dispatch(getAllItemsAction(userId));
     setLoading(false);
   }, []);
 

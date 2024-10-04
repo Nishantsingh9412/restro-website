@@ -3,7 +3,7 @@ const initialState = {
     selectedItem: null,
 };
 
-export default function itemsReducer(state = initialState, action) {
+function itemsReducer(state = initialState, action) {
     switch (action.type) {
         case 'ADD_ITEM':
             return {
@@ -30,4 +30,6 @@ export default function itemsReducer(state = initialState, action) {
         default:
             return state;
     }
-}
+};
+
+export default itemsReducer;

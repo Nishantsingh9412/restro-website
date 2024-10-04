@@ -1,14 +1,14 @@
 import express from 'express';
 import {
     getLowStockItems,
-    getallStockItems
+    getAllStockItems
 } from '../controllers/stockAlert.js';
 
 const router = express.Router();
 
 router.get('/get-low-stocks/:id', getLowStockItems);
 
-router.get('/get-all-stocks/:id', getallStockItems);
+router.get('/get-all-stocks/:id', getAllStockItems);
 
 
 export default router;
