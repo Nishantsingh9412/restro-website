@@ -1,167 +1,136 @@
-import React, { useEffect, useState } from 'react'
-import { IoMail } from "react-icons/io5";
+/* eslint-disable react/prop-types */
+import { useEffect } from "react";
+import { IoMail, IoLocation } from "react-icons/io5";
 import { FaPhoneAlt } from "react-icons/fa";
-import { IoLocation } from "react-icons/io5";
-import { Image } from '@chakra-ui/react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from "react-redux";
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    Button,
-    Text,
-    Flex,
-    Box,
-} from '@chakra-ui/react'
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Button,
+  Text,
+  Flex,
+  Box,
+  Image,
+} from "@chakra-ui/react";
+import {
+  clearSelectedSupplierAction,
+  getSingleSupplierAction,
+} from "../../../../redux/action/supplier.js";
 
-import { clearSelectedSupplierAction, getSingleSupplierAction } from '../../../../redux/action/supplier.js'
+const ViewSupplier = ({ selectedId, isOpen, onClose }) => {
+  const dispatch = useDispatch();
 
+  // Fetch supplier data when modal opens or selectedId changes
+  useEffect(() => {
+    if (isOpen && selectedId) {
+      dispatch(getSingleSupplierAction(selectedId));
+    }
+  }, [dispatch, selectedId, isOpen]);
 
-const ViewSupplier = (props) => {
-    const SelectedItemId = props.selectedId;
-    const isOpen = props.isOpen;
-    const onOpen = props.onOpen;
-    const onClose = props.onClose;
+  const selectedSupplier = useSelector(
+    (state) => state.supplierReducer.seletectedSupplier
+  );
 
-    const dispatch = useDispatch();
+  // Clear supplier data when modal closes
+  const handleClose = () => {
+    onClose();
+    dispatch(clearSelectedSupplierAction());
+  };
 
-    useEffect(() => {
-        dispatch(getSingleSupplierAction(SelectedItemId))
-    }, [SelectedItemId, isOpen])
+  return (
+    <Modal isCentered isOpen={isOpen} onClose={handleClose}>
+      <ModalOverlay />
+      <ModalContent
+        maxW="45rem"
+        background="#FFFFFF"
+        color="#ee7213"
+        borderRadius="lg"
+        boxShadow="xl"
+      >
+        {/* Modal Header: Supplier Image and Name */}
+        <ModalHeader>
+          <Flex align="center">
+            <Image
+              borderRadius="full"
+              boxSize="50px"
+              src={selectedSupplier?.pic}
+              alt={selectedSupplier?.name || "Supplier Image"}
+              fallbackSrc="https://via.placeholder.com/150"
+              mr={3}
+            />
+            <Text fontSize="lg" fontWeight="bold" color={"blue"}>
+              {selectedSupplier?.name}
+            </Text>
+          </Flex>
+        </ModalHeader>
+        <ModalCloseButton />
 
-    const selectedSupplier = useSelector(state => state.supplierReducer.seletectedSupplier);
-    console.log(selectedSupplier);
+        {/* Modal Body: Supplier Details */}
+        <ModalBody>
+          {/* Last Updated Date */}
+          <Text fontSize="sm" color="gray.600">
+            Last Updated: {selectedSupplier?.updatedAt?.split("T")[0]}
+          </Text>
 
-    const OverlayOne = () => (
-        <ModalOverlay
-        // bg='blackAlpha.800'
-        // backdropFilter='blur(10px) hue-rotate(90deg)'
-        />
-    )
-    const [overlay, setOverlay] = useState(<OverlayOne />)
+          {/* Contact Information: Email, Phone, Location */}
+          {selectedSupplier?.email && (
+            <Flex align="center" mt={3} fontSize="sm" color={"black"}>
+              <IoMail size="20" /> <Text ml={2}>{selectedSupplier?.email}</Text>
+            </Flex>
+          )}
+          {selectedSupplier?.phone && (
+            <Flex align="center" mt={3} fontSize="sm" color={"black"}>
+              <FaPhoneAlt size="18" />{" "}
+              <Text ml={2}>
+                +{selectedSupplier?.countryCode} - {selectedSupplier?.phone}
+              </Text>
+            </Flex>
+          )}
+          {selectedSupplier?.location && (
+            <Flex align="center" mt={3} fontSize="sm" color={"black"}>
+              <IoLocation size="20" />{" "}
+              <Text ml={2}>{selectedSupplier?.location}</Text>
+            </Flex>
+          )}
 
-    useEffect(() => {
-        console.log("Selected Supplier ID: ", SelectedItemId)
-    }, [])
+          {/* Supplier Items */}
+          <Text fontSize="lg" fontWeight="bold" mt={6} color={"blue"}>
+            Items
+          </Text>
+          <Flex wrap="wrap" mt={2}>
+            {selectedSupplier?.items?.map((item, index) => (
+              <Box
+                key={index}
+                m={1}
+                px={3}
+                py={1}
+                bg="white"
+                border="1px solid #ddd"
+                borderRadius="md"
+                fontSize="sm"
+                color="gray.700"
+                boxShadow="sm"
+              >
+                {item}
+              </Box>
+            ))}
+          </Flex>
+        </ModalBody>
 
-    return (
-        <div>
-            <>
-                <Modal isCentered isOpen={isOpen} onClose={() => {
-                    onClose();
-                    dispatch(clearSelectedSupplierAction());
-                }}>
-                    {overlay}
+        {/* Modal Footer */}
+        <ModalFooter>
+          <Button colorScheme="blue" onClick={handleClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
 
-                    <ModalContent
-                        maxW='45rem'
-                        background={'#F3F2EE'}
-                        color={'#ee7213'}
-                    >
-                        <ModalHeader>
-                            <Flex>
-                                <Image
-                                    marginRight={2}
-                                    borderRadius='full'
-                                    boxSize='50px'
-                                    src={selectedSupplier?.pic}
-                                    alt='Dan Abramov'
-                                />
-
-                                <Text
-                                    marginTop={2}
-                                >
-                                    {selectedSupplier?.name}
-                                </Text>
-
-                            </Flex>
-
-                        </ModalHeader>
-                        <ModalCloseButton />
-                        <ModalBody>
-                            <Text> Last Updated : {selectedSupplier?.updatedAt?.split('T')[0]}  </Text>
-                            {
-                                selectedSupplier?.email &&
-                                <Text
-                                    marginTop={2}
-                                    display={'flex'}
-                                    gap='5px'
-                                    alignItems={'center'}
-                                >
-                                    <IoMail
-                                        size={'20'}
-                                    /> {selectedSupplier?.email}
-                                </Text>
-                            }
-                            {
-                                selectedSupplier?.phone &&
-                                <Text
-                                    marginTop={2}
-                                    display={'flex'}
-                                    gap='5px'
-                                    alignItems={'center'}
-                                >
-                                    <FaPhoneAlt /> +{selectedSupplier?.countryCode} - {selectedSupplier?.phone}
-                                </Text>
-                            }
-                             {
-                                selectedSupplier?.location &&
-                                <Text
-                                    marginTop={2}
-                                    display={'flex'}
-                                    gap='5px'
-                                    alignItems={'center'}
-                                >
-                                    <IoLocation 
-                                        size={'20'}
-                                    /> {selectedSupplier?.location} 
-                                </Text>
-                            }
-                            <h1
-                                style={{
-                                    fontSize: '20px',
-                                    fontWeight: 'bold',
-                                    marginBottom: '5px',
-                                    marginTop: '20px'
-                                }}
-                            >
-                                Items
-                            </h1>
-                            <ol style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                flexWrap: 'wrap',
-                                justifyContent: 'start'
-                            }}>
-                                {selectedSupplier?.Items?.map((item, index) => {
-                                    return (
-                                        <Box
-                                            marginLeft={'1vw'}
-                                            marginTop={'1vw'}
-                                            borderRadius={'20px'}
-                                            padding={'6px'}
-                                            border={'1px solid #ddd'}
-                                            background={'#fff'}
-                                        >
-                                            {item}
-                                        </Box>
-                                    )
-                                })}
-                            </ol>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button onClick={onClose}>Close</Button>
-                        </ModalFooter>
-                    </ModalContent>
-
-                </Modal>
-            </>
-        </div>
-    )
-}
-
-export default ViewSupplier
+export default ViewSupplier;
