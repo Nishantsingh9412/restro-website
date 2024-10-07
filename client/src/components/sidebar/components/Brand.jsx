@@ -1,95 +1,105 @@
-import { useEffect, useRef } from "react";
-
-// Chakra imports
-import { Box, Button, Flex, Img, useColorModeValue } from "@chakra-ui/react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
+import { Box, Button, Flex, Img } from "@chakra-ui/react";
 import { FaPencil } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// Custom components
-// import { HorizonLogo } from 'components/icons/Icons';
-// import { HSeparator } from 'components/separator/Separator';
 import { useDispatch, useSelector } from "react-redux";
 import {
   singleUserDataAction,
   updateProfilePicAction,
 } from "../../../redux/action/user";
 
+// SidebarBrand component
 export function SidebarBrand() {
-  //   Chakra color mode
-  let logoColor = useColorModeValue("navy.700", "white");
-
+  // Reference to the file input element
   const fileInputRef = useRef(null);
+  // Redux dispatch function
   const dispatch = useDispatch();
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  // Retrieve local profile data from localStorage
+  const localData = useMemo(
+    () => JSON.parse(localStorage.getItem("ProfileData")),
+    []
+  );
+  // Retrieve user profile data from Redux store
   const userProfileData = useSelector((state) => state?.userReducer?.user);
+  // Extract user ID from local profile data
   const user_id = localData?.result?._id;
-  console.log("USERPDATA FORM BRAND.JS \n", userProfileData);
 
-  const handleProfilePicUpdate = () => {
+  // Function to handle profile picture update click
+  const handleProfilePicUpdate = useCallback(() => {
     fileInputRef.current.click();
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("profile_picture", file);
-      dispatch(updateProfilePicAction(user_id, formData)).then((res) => {
-        if (res.success) {
-          toast.success(res.message);
-        } else {
-          toast.error(res.message);
-        }
-        console.log(file);
-      });
-    }
-  };
-
-  useEffect(() => {
-    dispatch(singleUserDataAction(localData?.result?._id));
   }, []);
 
-  let ImageUrl =
-    "https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png";
-  if (userProfileData?.profile_picture.includes("http")) {
-    ImageUrl = userProfileData?.profile_picture;
-  } else {
-    const baseUrl = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
+  // Function to handle file input change
+  const handleFileChange = useCallback(
+    (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append("profile_picture", file);
+        // Dispatch action to update profile picture
+        dispatch(updateProfilePicAction(user_id, formData)).then((res) => {
+          if (res.success) {
+            toast.success(res.message);
+          } else {
+            toast.error(res.message);
+          }
+        });
+      }
+    },
+    [dispatch, user_id]
+  );
 
-    ImageUrl = `${baseUrl}/uploads/${userProfileData?.profile_picture}`;
-  }
+  // Fetch user data on component mount
+  useEffect(() => {
+    dispatch(singleUserDataAction(user_id));
+  }, [dispatch, user_id]);
+
+  // Memoized function to get the profile picture URL
+  const ImageUrl = useMemo(() => {
+    if (userProfileData?.profile_picture?.includes("http")) {
+      return userProfileData.profile_picture;
+    }
+    const baseUrl = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
+    return `${baseUrl}/uploads/${userProfileData?.profile_picture}`;
+  }, [userProfileData]);
 
   return (
     <Flex align="center" direction="column" justifyContent="center" gap="20px">
       <Box>
+        {/* Toast notifications container */}
         <ToastContainer />
+        {/* Profile picture */}
         <Img src={ImageUrl} w="100px" h="100px" borderRadius="full" />
+        {/* Edit profile picture icon */}
         <Box
-          display={"flex"}
-          justifyContent={"center"}
-          style={{ cursor: "pointer" }}
+          display="flex"
+          justifyContent="center"
+          cursor="pointer"
           onClick={handleProfilePicUpdate}
         >
           <FaPencil />
         </Box>
+        {/* Hidden file input for profile picture upload */}
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           style={{ display: "none" }}
-          accept="image/*" // Accept only images
+          accept="image/*"
         />
       </Box>
+      {/* Membership ID display */}
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        fontSize={"larger"}
-        fontWeight={"500"}
+        display="flex"
+        flexDirection="column"
+        fontSize="larger"
+        fontWeight="500"
       >
         Membership Id
-        <Box letterSpacing={"2px"}> {userProfileData?.uniqueId} </Box>
+        <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
       </Box>
+      {/* Buttons for Favourites and Recently */}
       <Flex alignItems="center" justifyContent="space-between">
         <Button bg="var(--primary)" color="#fff">
           Favourites

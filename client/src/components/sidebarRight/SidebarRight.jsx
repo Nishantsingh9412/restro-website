@@ -2,16 +2,14 @@ import { Box } from "@chakra-ui/react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Notifications from "./components/Notifications";
-import Logs from "./components/Logs";
 import Contacts from "./components/Contacts";
 
-export default function SidebarRight() {
-  const location = useLocation(); // Use the useLocation hook to access the location object
-  const [notifications, setNotifications] = useState(dummyData.notifications);
-  const [logs, setLogs] = useState(dummyData.logs);
-  const [contacts, setContacts] = useState(dummyData.contacts);
+// SidebarRight component definition
+const SidebarRight = () => {
+  const location = useLocation(); // Get the current location
+  const [data] = useState(dummyData); // Initialize state with dummy data
 
-  // Show the sidebar only on the /admin/dashboards/default route
+  // Only render the sidebar if the current path is "/admin/dashboards/default"
   if (location.pathname !== "/admin/dashboards/default") {
     return null;
   }
@@ -27,14 +25,19 @@ export default function SidebarRight() {
       borderLeftRadius="30px"
       display={{ base: "none", xl: "block" }}
     >
-      <Notifications data={notifications} />
+      {/* Render Notifications component with data */}
+      <Notifications data={data.notifications} />
       {/* Uncomment if needed */}
-      {/* <Logs data={logs} /> */}
-      <Contacts data={contacts} />
+      {/* <Logs data={data.logs} /> */}
+      {/* Render Contacts component with data */}
+      <Contacts data={data.contacts} />
     </Box>
   );
-}
+};
 
+export default SidebarRight;
+
+// Dummy data for notifications, logs, and contacts
 const dummyData = {
   notifications: [
     {

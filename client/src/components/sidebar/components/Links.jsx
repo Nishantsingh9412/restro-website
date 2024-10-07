@@ -1,7 +1,6 @@
 /* eslint-disable */
-import React from "react";
+import React, { useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-// chakra imports
 import {
   Box,
   Center,
@@ -13,101 +12,24 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-export function SidebarLinks(props) {
-  //   Chakra color mode
-  let location = useLocation();
-
-  const { routes } = props;
-
-  // verifies if routeName is the one active (in browser input)
-  const activeRoute = (routeName) => {
-    return location.pathname === "/admin" + routeName;
-  };
-  const includeActiveRoute = (routeName) => {
-    return location.pathname.includes(routeName);
-  };
-
-  // this function creates the links from the secondary accordions (for example auth -> sign-in -> default)
-  const createLinks = (routes) => {
-    return routes.map((route, index) => {
-      if (route.category) {
-        return (
-          <React.Fragment key={index}>
-            <Text
-              fontSize={"md"}
-              color={useColorModeValue("gray.700", "white")}
-              fontWeight="bold"
-              mx="auto"
-              ps={{ sm: "10px", xl: "16px" }}
-              pt="18px"
-              pb="12px"
-            >
-              {route.name}
-            </Text>
-            {createLinks(route.items)}
-          </React.Fragment>
-        );
-      } else if (
-        route.layout === "/admin" ||
-        route.layout === "/auth" ||
-        route.layout === "/rtl"
-      ) {
-        return (
-          <Box mb="6" key={index}>
-            <NavLink to={route.layout + route.path}>
-              <Heading
-                fontSize="28px"
-                textAlign="center"
-                fontWeight="500"
-                mb="10px"
-                py="10px"
-                className={
-                  "sidebar-link " +
-                  (includeActiveRoute(route.path) ? "active-sidebar-link" : "")
-                }
-              >
-                {route.name}
-              </Heading>
-            </NavLink>
-            {/* Render nested links */}
-            {route.links &&
-              route.links.map((nestedRoute, j) => (
-                <NavItem
-                  key={j}
-                  route={nestedRoute}
-                  activeRoute={activeRoute}
-                  prefix={route.icon}
-                />
-              ))}
-          </Box>
-        );
-      }
-      return null;
-    });
-  };
-
-  return createLinks(routes);
-}
-
-export default SidebarLinks;
-
-const NavItem = ({ route, activeRoute, prefix = "" }) => {
-  let activeColor = useColorModeValue("gray.700", "white");
-  let inactiveColor = useColorModeValue(
+// NavItem component to render individual navigation items
+const NavItem = React.memo(({ route, activeRoute, prefix = "" }) => {
+  // Define color values based on the current color mode
+  const activeColor = useColorModeValue("gray.700", "white");
+  const inactiveColor = useColorModeValue(
     "secondaryGray.600",
     "secondaryGray.600"
   );
-  let activeIcon = useColorModeValue("brand.500", "white");
-  let textColor = useColorModeValue("secondaryGray.500", "white");
-  let brandColor = useColorModeValue("brand.500", "brand.400");
+  const activeIcon = useColorModeValue("brand.500", "white");
+  const textColor = useColorModeValue("secondaryGray.500", "white");
+  const brandColor = useColorModeValue("brand.500", "brand.400");
 
   return (
     <NavLink to={route.layout + route.path}>
       <Box
-        className={
-          "sidebar-link " +
-          (activeRoute(route.path.toLowerCase()) ? "active-sidebar-link" : "")
-        }
+        className={`sidebar-link ${
+          activeRoute(route.path.toLowerCase()) ? "active-sidebar-link" : ""
+        }`}
       >
         <HStack
           spacing={activeRoute(route.path.toLowerCase()) ? "22px" : "26px"}
@@ -152,4 +74,80 @@ const NavItem = ({ route, activeRoute, prefix = "" }) => {
       </Box>
     </NavLink>
   );
-};
+});
+
+// SidebarLinks component to render the sidebar with navigation links
+export function SidebarLinks({ routes }) {
+  const location = useLocation();
+
+  // Memoized function to check if a route is active
+  const activeRoute = useMemo(
+    () => (routeName) => location.pathname === "/admin" + routeName,
+    [location.pathname]
+  );
+
+  // Memoized function to check if the current path includes a route
+  const includeActiveRoute = useMemo(
+    () => (routeName) => location.pathname.includes(routeName),
+    [location.pathname]
+  );
+
+  // Function to create navigation links from routes
+  const createLinks = (routes) => {
+    return routes.map((route, index) => {
+      if (route.category) {
+        // Render category header and its items
+        return (
+          <React.Fragment key={index}>
+            <Text
+              fontSize={"md"}
+              color={useColorModeValue("gray.700", "white")}
+              fontWeight="bold"
+              mx="auto"
+              ps={{ sm: "10px", xl: "16px" }}
+              pt="18px"
+              pb="12px"
+            >
+              {route.name}
+            </Text>
+            {createLinks(route.items)}
+          </React.Fragment>
+        );
+      } else if (["/admin", "/auth", "/rtl"].includes(route.layout)) {
+        // Render main navigation links
+        return (
+          <Box mb="6" key={index}>
+            <NavLink to={route.layout + route.path}>
+              <Heading
+                fontSize="28px"
+                textAlign="center"
+                fontWeight="500"
+                mb="10px"
+                py="10px"
+                className={`sidebar-link ${
+                  includeActiveRoute(route.path) ? "active-sidebar-link" : ""
+                }`}
+              >
+                {route.name}
+              </Heading>
+            </NavLink>
+            {route.links &&
+              route.links.map((nestedRoute, j) => (
+                <NavItem
+                  key={j}
+                  route={nestedRoute}
+                  activeRoute={activeRoute}
+                  prefix={route.icon}
+                />
+              ))}
+          </Box>
+        );
+      }
+      return null;
+    });
+  };
+
+  return createLinks(routes);
+}
+
+export default React.memo(SidebarLinks);

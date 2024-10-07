@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-
-// chakra imports
+import { useEffect, useRef } from "react";
 import {
   Box,
   Flex,
@@ -12,39 +10,26 @@ import {
   useDisclosure,
   DrawerContent,
   DrawerCloseButton,
-} from '@chakra-ui/react';
-import Content from './components/Content';
-import {
-  renderThumb,
-  renderTrack,
-  renderView,
-} from '../scrollbar/Scrollbar';
-import { Scrollbars } from 'react-custom-scrollbars-2';
-import PropTypes from 'prop-types';
-import { useLocation } from 'react-router-dom';
+} from "@chakra-ui/react";
+import Content from "./components/Content";
+import { renderThumb, renderTrack, renderView } from "../scrollbar/Scrollbar";
+import { Scrollbars } from "react-custom-scrollbars-2";
+import PropTypes from "prop-types";
+import { useLocation } from "react-router-dom";
+import { IoMenuOutline } from "react-icons/io5";
 
-// Assets
-import { IoMenuOutline } from 'react-icons/io5';
+// Sidebar component for larger screens
+const Sidebar = ({ routes }) => {
+  const variantChange = "0.2s linear"; // Transition effect for sidebar
+  const sidebarBg = useColorModeValue("var(--primary)", "navy.800"); // Background color based on color mode
+  const sidebarMargins = "0px"; // Sidebar margins
 
-function Sidebar(props) {
-  const { routes } = props;
-
-  let variantChange = '0.2s linear';
-  let shadow = useColorModeValue(
-    '14px 17px 40px 4px rgba(112, 144, 176, 0.08)',
-    'unset'
-  );
-  // Chakra Color Mode
-  let sidebarBg = useColorModeValue('var(--primary)', 'navy.800');
-  let sidebarMargins = '0px';
-
-  // SIDEBAR
   return (
     <Box
       position="relative"
       w="300px"
       maxW="300px"
-      display={{ base: 'none', xl: 'block' }}
+      display={{ base: "none", xl: "block" }} // Only display on extra-large screens
     >
       <Box
         bg={sidebarBg}
@@ -55,7 +40,6 @@ function Sidebar(props) {
         h="100%"
         m={sidebarMargins}
         overflowX="hidden"
-        // boxShadow={shadow}
         color="#fff"
         borderRightRadius="30px"
         position="fixed"
@@ -68,32 +52,33 @@ function Sidebar(props) {
           renderThumbVertical={renderThumb}
           renderView={renderView}
         >
-          <Content routes={routes} />
+          <Content routes={routes} /> {/* Render the content with routes */}
         </Scrollbars>
       </Box>
     </Box>
   );
-}
+};
 
-// FUNCTIONS
-export function SidebarResponsive(props) {
-  let sidebarBackgroundColor = useColorModeValue('var(--primary)', 'navy.800');
-  let menuColor = useColorModeValue('white', 'white');
-  // // SIDEBAR
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = React.useRef();
-
-  const { routes } = props;
-  const { pathname } = useLocation();
-  // let isWindows = navigator.platform.startsWith("Win");
-  //  BRAND
+// Responsive Sidebar component for smaller screens
+// eslint-disable-next-line react/prop-types
+export const SidebarResponsive = ({ routes }) => {
+  const sidebarBackgroundColor = useColorModeValue(
+    "var(--primary)",
+    "navy.800"
+  ); // Background color based on color mode
+  const menuColor = useColorModeValue("white", "white"); // Menu icon color
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Disclosure hook for drawer
+  const btnRef = useRef(); // Reference for the menu button
+  const { pathname } = useLocation(); // Get current path
 
   useEffect(() => {
-    onClose();
-  }, [pathname]);
+    onClose(); // Close the drawer when the path changes
+  }, [pathname, onClose]);
 
   return (
-    <Flex display={{ sm: 'flex', xl: 'none' }} alignItems="center">
+    <Flex display={{ sm: "flex", xl: "none" }} alignItems="center">
+      {" "}
+      {/* Only display on small screens */}
       <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
         <Icon
           as={IoMenuOutline}
@@ -102,13 +87,13 @@ export function SidebarResponsive(props) {
           w="40px"
           h="40px"
           me="10px"
-          _hover={{ cursor: 'pointer' }}
+          _hover={{ cursor: "pointer" }} // Hover effect for the menu icon
         />
       </Flex>
       <Drawer
         isOpen={isOpen}
         onClose={onClose}
-        placement={document.documentElement.dir === 'rtl' ? 'right' : 'left'}
+        placement={document.documentElement.dir === "rtl" ? "right" : "left"} // Drawer placement based on text direction
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
@@ -116,8 +101,8 @@ export function SidebarResponsive(props) {
           <DrawerCloseButton
             zIndex="3"
             onClose={onClose}
-            _focus={{ boxShadow: 'none' }}
-            _hover={{ boxShadow: 'none' }}
+            _focus={{ boxShadow: "none" }}
+            _hover={{ boxShadow: "none" }} // Remove focus and hover box shadow
           />
           <DrawerBody maxW="285px" px="0rem" pb="0">
             <Scrollbars
@@ -126,20 +111,18 @@ export function SidebarResponsive(props) {
               renderThumbVertical={renderThumb}
               renderView={renderView}
             >
-              <Content routes={routes} />
+              <Content routes={routes} /> {/* Render the content with routes */}
             </Scrollbars>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </Flex>
   );
-}
-// PROPS
+};
 
+// PropTypes validation for Sidebar component
 Sidebar.propTypes = {
-  logoText: PropTypes.string,
-  routes: PropTypes.arrayOf(PropTypes.object),
-  variant: PropTypes.string,
+  routes: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 export default Sidebar;
