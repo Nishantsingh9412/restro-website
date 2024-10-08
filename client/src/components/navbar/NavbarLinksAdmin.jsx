@@ -11,79 +11,67 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
-// Custom Components
-// import { ItemContent } from 'components/menu/ItemContent';
 import { SearchBar } from "./searchBar/SearchBar.jsx";
-// import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
-// Assets
-// import navImage from 'assets/img/layout/Navbar.png';
-// import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md';
 import { FaEthereum } from "react-icons/fa";
-// import routes from 'routes.js';
-// import { ThemeEditor } from './ThemeEditor.js';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { singleUserDataAction } from "../../redux/action/user.js";
 
-export default function HeaderLinks(props) {
-  const { secondary } = props;
-  // Chakra Color Mode
-  // const navbarIcon = useColorModeValue('white', 'white');
-  let menuBg = useColorModeValue("white", "navy.800");
-  // const textColor = useColorModeValue('white', 'white');
-  // const textColorBrand = useColorModeValue('white', 'brand.400');
+export default function HeaderLinks({ secondary }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Fetching local data from local storage and handling potential parsing errors
+  const localData = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("ProfileData"));
+    } catch (error) {
+      console.error("Failed to parse local storage data:", error);
+      return null;
+    }
+  })();
+
+  // Getting user data from the Redux store
+  const singleUserData = useSelector((state) => state.userReducer);
+
+  // Chakra UI color mode values
+  const menuBg = useColorModeValue("white", "navy.800");
   const ethColor = useColorModeValue("gray.700", "white");
-  const borderColor = useColorModeValue("#E6ECFA", "rgba(135, 140, 189, 0.3)");
   const ethBg = useColorModeValue("secondaryGray.300", "navy.900");
   const ethBox = useColorModeValue("white", "navy.800");
+  const borderColor = useColorModeValue("#E6ECFA", "rgba(135, 140, 189, 0.3)");
   const shadow = useColorModeValue(
     "14px 17px 40px 4px rgba(112, 144, 176, 0.18)",
     "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
   );
-  // const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // const User = useSelector((state) => (state))
-  // console.log("All States \n")
-  // console.log(User);
-
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const singleUserData = useSelector((state) => state.userReducer);
-  // console.log("Single User Data \n")
-  // console.log(singleUserData);
-  // console.log("Local Data \n")
-  // console.log(localData);
-
+  // Handle user logout
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
     navigate("/");
   };
 
+  // Effect to handle user data fetching and token expiration
   useEffect(() => {
-    dispatch(singleUserDataAction(localData?.result?._id));
-  }, []);
+    if (localData) {
+      // Dispatch action to fetch single user data
+      dispatch(singleUserDataAction(localData?.result?._id));
 
-  useEffect(() => {
-    if (!localData) {
+      const token = localData?.token;
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        // Logout if the token is expired
+        if (decodedToken.exp * 1000 < Date.now()) {
+          handleLogout();
+        }
+      }
+    } else {
+      // Redirect if localData is not available
       navigate("/");
     }
-  }, []);
-
-  useEffect(() => {
-    const token = localData?.token;
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      // const durationInSeconds = decodedToken.exp - decodedToken.iat;
-      // console.log(`Token duration: ${durationInSeconds} seconds`);
-      if (decodedToken.exp * 1000 < new Date().getTime()) {
-        handleLogout();
-      }
-    }
-  }, [dispatch]);
+  }, [dispatch, localData, navigate]); // Added localData to dependencies
 
   return (
     <Flex
@@ -95,11 +83,13 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
+      {/* Search Bar Component */}
       <SearchBar
         mb={secondary ? { base: "10px", md: "unset" } : "unset"}
         me="10px"
         borderRadius="30px"
       />
+      {/* Ethereum Info Box */}
       <Flex
         bg={ethBg}
         display={secondary ? "flex" : "none"}
@@ -134,107 +124,14 @@ export default function HeaderLinks(props) {
           </Text>
         </Text>
       </Flex>
-      {/* <SidebarResponsive routes={routes} /> */}
-      {/* <Menu>
-				<MenuButton p="0px">
-					<Icon mt="6px" as={MdNotificationsNone} color={navbarIcon} w="18px" h="18px" me="10px" />
-				</MenuButton>
-				<MenuList
-					boxShadow={shadow}
-					p="20px"
-					borderRadius="20px"
-					bg={menuBg}
-					border="none"
-					mt="22px"
-					me={{ base: '30px', md: 'unset' }}
-					minW={{ base: 'unset', md: '400px', xl: '450px' }}
-					maxW={{ base: '360px', md: 'unset' }}>
-					<Flex jusitfy="space-between" w="100%" mb="20px">
-						<Text fontSize="md" fontWeight="600" color={textColor}>
-							Notifications
-						</Text>
-						<Text fontSize="sm" fontWeight="500" color={textColorBrand} ms="auto" cursor="pointer">
-							Mark all read
-						</Text>
-					</Flex>
-					<Flex flexDirection="column">
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px="0" borderRadius="8px" mb="10px">
-							<ItemContent info="Horizon UI Dashboard PRO" aName="Alicia" />
-						</MenuItem>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px="0" borderRadius="8px" mb="10px">
-							<ItemContent info="Horizon Design System Free" aName="Josh Henry" />
-						</MenuItem>
-					</Flex>
-				</MenuList>
-			</Menu> */}
 
-      {/* <Menu>
-				<MenuButton p='0px'>
-					<Icon
-						mt='6px'
-						as={MdInfoOutline}
-						color={navbarIcon}
-						w='18px'
-						h='18px'
-						me='10px'
-					/>
-				</MenuButton>
-				<MenuList
-					boxShadow={shadow}
-					p='20px'
-					me={{ base: "30px", md: "unset" }}
-					borderRadius='20px'
-					bg={menuBg}
-					border='none'
-					mt='22px'
-					minW={{ base: "unset" }}
-					maxW={{ base: "360px", md: "unset" }}>
-					<Image src={navImage} borderRadius='16px' mb='28px' />
-					<Flex flexDirection='column'>
-						<Link
-							w='100%'
-							href='https://horizon-ui.com/pro?ref=horizon-chakra-free'>
-							<Button w='100%' h='44px' mb='10px' variant='brand'>
-								Buy Horizon UI PRO
-							</Button>
-						</Link>
-						<Link
-							w='100%'
-							href='https://horizon-ui.com/documentation/docs/introduction?ref=horizon-chakra-free'>
-							<Button
-								w='100%'
-								h='44px'
-								mb='10px'
-								border='1px solid'
-								bg='transparent'
-								borderColor={borderButton}>
-								See Documentation
-							</Button>
-						</Link>
-						<Link
-							w='100%'
-							href='https://github.com/horizon-ui/horizon-ui-chakra'>
-							<Button
-								w='100%'
-								h='44px'
-								variant='no-hover'
-								color={textColor}
-								bg='transparent'>
-								Try Horizon Free
-							</Button>
-						</Link>
-					</Flex>
-				</MenuList>
-			</Menu> */}
-
-      {/* <ThemeEditor navbarIcon={navbarIcon} /> */}
-
+      {/* User Menu */}
       <Menu>
         <MenuButton p="0px">
           <Avatar
             _hover={{ cursor: "pointer" }}
             color="white"
-            name={singleUserData?.user?.name}
+            name={singleUserData?.user?.name || "User"}
             bg="#11047A"
             size="sm"
             w="40px"
@@ -261,7 +158,7 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={"black"}
             >
-              👋&nbsp; Hey, {singleUserData?.user?.name}
+              👋&nbsp; Hey, {singleUserData?.user?.name || "User"}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
@@ -282,9 +179,7 @@ export default function HeaderLinks(props) {
   );
 }
 
+// PropTypes validation
 HeaderLinks.propTypes = {
-  variant: PropTypes.string,
-  fixed: PropTypes.bool,
   secondary: PropTypes.bool,
-  onOpen: PropTypes.func,
 };

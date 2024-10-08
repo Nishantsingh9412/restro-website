@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -20,16 +20,19 @@ import { IoMenuOutline } from "react-icons/io5";
 
 // Sidebar component for larger screens
 const Sidebar = ({ routes }) => {
-  const variantChange = "0.2s linear"; // Transition effect for sidebar
-  const sidebarBg = useColorModeValue("var(--primary)", "navy.800"); // Background color based on color mode
-  const sidebarMargins = "0px"; // Sidebar margins
+  const variantChange = "0.2s linear";
+  const sidebarBg = useColorModeValue("var(--primary)", "navy.800");
+  const sidebarMargins = "0px";
+
+  // Memoize routes to avoid unnecessary re-renders
+  const memoizedRoutes = useMemo(() => routes, [routes]);
 
   return (
     <Box
       position="relative"
       w="300px"
       maxW="300px"
-      display={{ base: "none", xl: "block" }} // Only display on extra-large screens
+      display={{ base: "none", xl: "block" }}
     >
       <Box
         bg={sidebarBg}
@@ -52,33 +55,34 @@ const Sidebar = ({ routes }) => {
           renderThumbVertical={renderThumb}
           renderView={renderView}
         >
-          <Content routes={routes} /> {/* Render the content with routes */}
+          <Content routes={memoizedRoutes} />
         </Scrollbars>
       </Box>
     </Box>
   );
 };
 
-// Responsive Sidebar component for smaller screens
-// eslint-disable-next-line react/prop-types
+// Sidebar component for smaller screens (responsive)
 export const SidebarResponsive = ({ routes }) => {
   const sidebarBackgroundColor = useColorModeValue(
     "var(--primary)",
     "navy.800"
-  ); // Background color based on color mode
-  const menuColor = useColorModeValue("white", "white"); // Menu icon color
-  const { isOpen, onOpen, onClose } = useDisclosure(); // Disclosure hook for drawer
-  const btnRef = useRef(); // Reference for the menu button
-  const { pathname } = useLocation(); // Get current path
+  );
+  const menuColor = useColorModeValue("white", "white");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef();
+  const { pathname } = useLocation();
 
+  // Memoize routes to avoid unnecessary re-renders
+  const memoizedRoutes = useMemo(() => routes, [routes]);
+
+  // Close the drawer when the pathname changes
   useEffect(() => {
-    onClose(); // Close the drawer when the path changes
+    onClose();
   }, [pathname, onClose]);
 
   return (
     <Flex display={{ sm: "flex", xl: "none" }} alignItems="center">
-      {" "}
-      {/* Only display on small screens */}
       <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
         <Icon
           as={IoMenuOutline}
@@ -87,22 +91,21 @@ export const SidebarResponsive = ({ routes }) => {
           w="40px"
           h="40px"
           me="10px"
-          _hover={{ cursor: "pointer" }} // Hover effect for the menu icon
+          _hover={{ cursor: "pointer" }}
         />
       </Flex>
       <Drawer
         isOpen={isOpen}
         onClose={onClose}
-        placement={document.documentElement.dir === "rtl" ? "right" : "left"} // Drawer placement based on text direction
+        placement={document.documentElement.dir === "rtl" ? "right" : "left"}
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
         <DrawerContent w="285px" maxW="285px" bg={sidebarBackgroundColor}>
           <DrawerCloseButton
             zIndex="3"
-            onClose={onClose}
             _focus={{ boxShadow: "none" }}
-            _hover={{ boxShadow: "none" }} // Remove focus and hover box shadow
+            _hover={{ boxShadow: "none" }}
           />
           <DrawerBody maxW="285px" px="0rem" pb="0">
             <Scrollbars
@@ -111,7 +114,7 @@ export const SidebarResponsive = ({ routes }) => {
               renderThumbVertical={renderThumb}
               renderView={renderView}
             >
-              <Content routes={routes} /> {/* Render the content with routes */}
+              <Content routes={memoizedRoutes} />
             </Scrollbars>
           </DrawerBody>
         </DrawerContent>
@@ -120,8 +123,12 @@ export const SidebarResponsive = ({ routes }) => {
   );
 };
 
-// PropTypes validation for Sidebar component
+// PropTypes validation
 Sidebar.propTypes = {
+  routes: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
+
+SidebarResponsive.propTypes = {
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 

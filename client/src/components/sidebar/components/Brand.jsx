@@ -73,6 +73,8 @@ export function SidebarBrand() {
         <Img src={ImageUrl} w="100px" h="100px" borderRadius="full" />
         {/* Edit profile picture icon */}
         <Box
+          mt={-5}
+          color={["#fff", "#fff", "var(--primary)"]}
           display="flex"
           justifyContent="center"
           cursor="pointer"
@@ -100,14 +102,14 @@ export function SidebarBrand() {
         <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
       </Box>
       {/* Buttons for Favourites and Recently */}
-      <Flex alignItems="center" justifyContent="space-between">
+      {/* <Flex alignItems="center" justifyContent="space-between">
         <Button bg="var(--primary)" color="#fff">
           Favourites
         </Button>
         <Button bg="var(--primary)" color="#fff">
           Recently
         </Button>
-      </Flex>
+      </Flex> */}
     </Flex>
   );
 }
