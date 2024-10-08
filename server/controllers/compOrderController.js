@@ -56,7 +56,6 @@ export const createCompleteOrder = async (req, res) => {
             }
         }
     } catch (err) {
-        console.log("Error from Order Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
@@ -68,10 +67,8 @@ export const getCompleteOrders = async (req, res) => {
     }
     try {
         const completeOrders = await completeOrder.find({created_by:_id}).populate('orderItems.item').sort({ createdAt: -1 });
-        console.log("completeOrders :", completeOrders);
         return res.status(200).json({ success: true, message: "All Orders", result: completeOrders })
     } catch (err) {
-        console.log("Error from Order Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
@@ -90,7 +87,6 @@ export const getCompleteOrderById = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found" })
         }
     } catch (err) {
-        console.log("Error from Order Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
@@ -136,7 +132,6 @@ export const updateCompleteOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not updated" });
         }
     } catch (err) {
-        console.log("Error from Order Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
@@ -154,7 +149,6 @@ export const deleteCompleteOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not deleted" });
         }
     } catch (err) {
-        console.log("Error from Order Controller : ", err.message)
         return res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }

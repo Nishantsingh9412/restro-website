@@ -88,7 +88,7 @@ export const searchOrderItem = (orderNameData, localStorageId) =>
 // Search Drinks Only
 export const searchDrinksOnly = (drinksData, localStorageId) =>
   API.get(
-    `/orders/search-drinks-onlys/${localStorageId}?orderName=${drinksData}`
+    `/orders/search-drinks-only/${localStorageId}?orderName=${drinksData}`
   );
 
 // QR Item Management APIs
