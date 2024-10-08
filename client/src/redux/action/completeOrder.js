@@ -1,56 +1,72 @@
-import * as api from '../../api/index.js';
+import * as api from "../../api/index.js";
 
+// Helper function to handle API calls
+const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
+  try {
+    // Execute the API call
+    const { data } = await apiCall();
+    // Dispatch the action with the result data
+    dispatch({ type: actionType, data: data?.result });
+    // Return success message
+    return { success: true, message: successMessage };
+  } catch (err) {
+    // Log the error
+    console.error(`Error from ${actionType}: ${err.message}`, err.stack);
+    // Return error message
+    return {
+      success: false,
+      message: err?.response?.data?.message || "An unexpected error occurred",
+    };
+  }
+};
+
+// Action to post a complete order
 export const postCompleteOrderAction = (orderData) => async (dispatch) => {
-    try {
-        const { data } = await api.addCompleteOrderAPI(orderData);
-        dispatch({ type: 'POST_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'Order placed successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.addCompleteOrderAPI(orderData),
+    dispatch,
+    "POST_COMPLETE_ORDER",
+    "Order placed successfully"
+  );
+};
 
+// Action to get all complete orders
 export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.getAllCompleteOrdersAPI(localstorageId);
-        dispatch({ type: 'GET_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order fetched successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.getAllCompleteOrdersAPI(localstorageId),
+    dispatch,
+    "GET_COMPLETE_ORDER",
+    "Order fetched successfully"
+  );
+};
 
+// Action to get a single complete order by ID
 export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
-    try {
-        const { data } = await api.getSingleCompleteOrderAPI(id);
-        dispatch({ type: 'GET_SINGLE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order fetched successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.getSingleCompleteOrderAPI(id),
+    dispatch,
+    "GET_SINGLE_COMPLETE_ORDER",
+    "Order fetched successfully"
+  );
+};
 
-export const updateCompleteOrderAction = (id, orderData) => async (dispatch) => {
-    try {
-        const { data } = await api.updateSingleCompleteOrderAPI(id, orderData);
-        dispatch({ type: 'UPDATE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order updated successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+// Action to update a complete order by ID
+export const updateCompleteOrderAction =
+  (id, orderData) => async (dispatch) => {
+    return handleApiCall(
+      () => api.updateSingleCompleteOrderAPI(id, orderData),
+      dispatch,
+      "UPDATE_COMPLETE_ORDER",
+      "Order updated successfully"
+    );
+  };
 
+// Action to delete a complete order by ID
 export const deleteCompleteOrderAction = (id) => async (dispatch) => {
-    try {
-        const { data } = await api.deleteSingleCompleteOrderAPI(id);
-        dispatch({ type: 'DELETE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order deleted successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.deleteSingleCompleteOrderAPI(id),
+    dispatch,
+    "DELETE_COMPLETE_ORDER",
+    "Order deleted successfully"
+  );
+};

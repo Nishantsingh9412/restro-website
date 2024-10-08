@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
-const OrderdItemsSchema = mongoose.Schema(
+const { Schema, model } = mongoose;
+
+const OrderedItemsSchema = new Schema(
   {
     orderName: { type: String, required: true },
     priceVal: { type: Number, required: true },
@@ -9,13 +11,12 @@ const OrderdItemsSchema = mongoose.Schema(
       type: String,
       default:
         "https://res.cloudinary.com/dezifvepx/image/upload/v1712836597/restro-website/salad.png",
-      required: false,
     },
-    description: { type: String, required: false },
+    description: { type: String },
     isFavorite: { type: Boolean, default: false },
     isDrink: { type: Boolean, default: false },
     created_by: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Auth",
       required: true,
     },
@@ -23,4 +24,4 @@ const OrderdItemsSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("OrderdItems", OrderdItemsSchema);
+export default model("OrderdItems", OrderedItemsSchema);

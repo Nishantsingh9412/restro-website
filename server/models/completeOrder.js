@@ -1,77 +1,75 @@
 import mongoose from "mongoose";
 
+const { Schema, model } = mongoose;
 
-const orderItemsSubDocsSchema = new mongoose.Schema({
-    item: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'OrderdItems',
-        required: true
-    },
-    quantity: {
-        type: Number,
-        required: true
-    },
-    total: {
-        type: Number,
-        required: true
-    }
-})
+const orderItemsSubDocsSchema = new Schema({
+  item: {
+    type: Schema.Types.ObjectId,
+    //TODO: change to OrderedItems
+    ref: "OrderdItems",
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  total: {
+    type: Number,
+    required: true,
+  },
+});
 
-const completeOrderSchema = new mongoose.Schema({
+const completeOrderSchema = new Schema(
+  {
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     phoneNumber: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     paymentMethod: {
-        type: String,
-        required: false
+      type: String,
     },
     deliveryMethod: {
-        type: String,
-        required: false
+      type: String,
     },
     address: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     address2: {
-        type: String,
-        required: false
+      type: String,
     },
     city: {
-        type: String,
-        required: false
+      type: String,
     },
     state: {
-        type: String,
-        required: false
+      type: String,
     },
     zip: {
-        type: String,
-        required: false
+      type: String,
     },
     noteFromCustomer: {
-        type: String,
-        required: false
+      type: String,
     },
     orderItems: [orderItemsSubDocsSchema],
-    TotalPrice: {
-        type: Number,
-        required: true
+    totalPrice: {
+      type: Number,
+      required: true,
     },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Auth',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Auth",
+      required: true,
     },
     orderId: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true })
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model('CompleteOrder', completeOrderSchema)
+export default model("CompleteOrder", completeOrderSchema);

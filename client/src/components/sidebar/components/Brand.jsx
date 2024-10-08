@@ -53,7 +53,7 @@ export function SidebarBrand() {
   // Fetch user data on component mount
   useEffect(() => {
     dispatch(singleUserDataAction(user_id));
-  }, [dispatch, user_id]);
+  }, []);
 
   // Memoized function to get the profile picture URL
   const ImageUrl = useMemo(() => {

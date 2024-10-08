@@ -17,7 +17,6 @@ import React, { useEffect } from "react";
 import { FaEthereum } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { singleUserDataAction } from "../../redux/action/user.js";
 
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
@@ -57,7 +56,6 @@ export default function HeaderLinks({ secondary }) {
   useEffect(() => {
     if (localData) {
       // Dispatch action to fetch single user data
-      dispatch(singleUserDataAction(localData?.result?._id));
 
       const token = localData?.token;
       if (token) {
