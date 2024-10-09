@@ -64,6 +64,7 @@ export default function LeaveRequestModal({
         ...prev,
         startDate: leaveData?.startDate,
       }));
+    console.log(formatDateForInput(leaveData?.startDate));
   }, [actionType, leaveData]);
 
   // Handle input change for form fields
@@ -77,6 +78,10 @@ export default function LeaveRequestModal({
     const { leaveType, startDate, endDate, type } = formData;
     if (!leaveType || !startDate || !endDate || !type) {
       toast.error("All required fields must be filled out");
+      return false;
+    }
+    if (new Date(startDate) >= new Date(endDate)) {
+      toast.error("End date must be greater than start date");
       return false;
     }
     return true;

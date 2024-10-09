@@ -171,6 +171,7 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
         : "Supplier Added Successfully",
       error: "Error in processing supplier",
     });
+    handleClose();
   };
 
   // Handle modal close

@@ -138,7 +138,7 @@ export const getTodaysLeaveByUserId = async (req, res) => {
     }).populate("employeeId", "name");
 
     if (absences.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No leaves found for today for these employees.",
         success: false,
       });

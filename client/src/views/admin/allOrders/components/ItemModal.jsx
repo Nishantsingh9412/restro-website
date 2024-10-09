@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
@@ -11,39 +12,38 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
-  ModalOverlay,
   Select,
   Textarea,
+  Text,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
-
-import { AddOrderItemAction } from "../../../../redux/action/OrderItems";
-import { set } from "date-fns";
 
 const ItemModal = (props) => {
+  // Initial state for the form
   const initialState = {
-    itemName: "",
+    orderName: "",
     priceVal: "",
     priceUnit: "",
     description: "",
     isFavourite: "",
   };
-  const { onOpen, isOpen, onClose, onSubmitData, isDrink } = props;
 
-  const dispatch = useDispatch();
+  // Destructuring props
+  const { isOpen, onClose, onSubmitData, isDrink, data } = props;
 
+  // State hooks for form data and loading status
   const [formState, setFormState] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
+  // Retrieve user ID from local storage
   const localUserId = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localUserId?.result?._id;
 
+  // Function to auto-fill the form based on whether the item is a drink or not
   const autoFillform = () => {
     if (isDrink) {
       setFormState({
-        itemName: "Coke",
+        orderName: "Coke",
         priceVal: 2,
         priceUnit: "Euro",
         description: "This is coke",
@@ -51,7 +51,7 @@ const ItemModal = (props) => {
         pic: formState.pic,
       });
     } else {
-      const itemNames = [
+      const orderNames = [
         "Mix Veg",
         "Normal Dal",
         "Paneer Tikka",
@@ -65,7 +65,7 @@ const ItemModal = (props) => {
         "This is Dal Makhani",
       ];
       setFormState({
-        itemName: itemNames[Math.floor(Math.random() * itemNames.length)],
+        orderName: orderNames[Math.floor(Math.random() * orderNames.length)],
         priceVal: priceVals[Math.floor(Math.random() * priceVals.length)],
         priceUnit: "Euro",
         description:
@@ -76,11 +76,31 @@ const ItemModal = (props) => {
     }
   };
 
+  // Effect hook to update form state when data changes
+  useEffect(() => {
+    if (data != null) {
+      setFormState((prevState) => ({
+        ...prevState,
+        orderName: data?.orderName || "",
+        priceVal: data?.priceVal || "",
+        priceUnit: data?.priceUnit || "",
+        description: data?.description || "",
+        isFavourite: data?.isFavourite,
+        pic: data.pic,
+        created_by: data.created_by,
+      }));
+    }
+    // Cleanup function to reset form state
+    return () => setFormState(initialState);
+  }, [data]);
+
+  // Function to handle modal close and reset form state
   const handleClose = () => {
     onClose();
     setFormState(initialState);
   };
 
+  // Function to handle image upload
   const postOrderImage = async (pics) => {
     setLoading(true);
     if (pics === undefined) {
@@ -121,36 +141,7 @@ const ItemModal = (props) => {
       });
   };
 
-  //   const handleSubmitDrinks = (e) => {
-  //     e.preventDefault();
-  //     const drinksData = {
-  //       orderName: formState.itemName,
-  //       priceVal: formState.priceVal,
-  //       priceUnit: formState.priceUnit,
-  //       description: formState.description,
-  //       isFavorite: formState.isFavourite,
-  //       pic: formState.pic,
-  //       isDrink: true,
-  //       created_by: userId,
-  //     };
-
-  //     const AddItemPromise = dispatch(AddOrderItemAction(drinksData)).then(
-  //       (res) => {
-  //         if (res.success) {
-  //           handleClose();
-  //           return res.message;
-  //         } else {
-  //           throw new Error(res.message); // Make sure to throw an error here
-  //         }
-  //       }
-  //     );
-  //     toast.promise(AddItemPromise, {
-  //       pending: "Processing Addition of Drink...",
-  //       success: "Drink Added Successfully",
-  //       error: (err) => err.message,
-  //     });
-  //   };
-
+  // Function to handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prevState) => ({
@@ -159,10 +150,21 @@ const ItemModal = (props) => {
     }));
   };
 
+  // Function to handle form submission
   const handleSubmit = (e) => {
     formState.isDrink = isDrink;
+    formState.created_by = userId;
+    if (
+      formState.priceUnit === "" ||
+      formState.orderName === "" ||
+      formState.priceVal === ""
+    ) {
+      toast.error("Please fill all the required fields");
+      return;
+    }
     e.preventDefault();
     onSubmitData(formState);
+    handleClose();
   };
 
   return (
@@ -182,16 +184,16 @@ const ItemModal = (props) => {
               background={"whiteAlpha.100"}
             >
               <form onSubmit={handleSubmit}>
-                <FormControl id="itemName" isRequired>
+                <FormControl id="orderName" isRequired>
                   <FormLabel>Item Name</FormLabel>
                   <Input
                     type="text"
-                    name="itemName"
+                    name="orderName"
                     onChange={handleChange}
-                    value={formState.itemName}
+                    value={formState.orderName}
+                    required={true}
                   />
                 </FormControl>
-
                 <FormControl id="priceVal" isRequired>
                   <FormLabel>Price Value</FormLabel>
                   <Input
@@ -200,21 +202,21 @@ const ItemModal = (props) => {
                     onChange={handleChange}
                     min={0}
                     value={formState.priceVal}
+                    required={true}
                   />
                 </FormControl>
-
                 <FormControl id="priceUnit">
                   <FormLabel>Price Unit</FormLabel>
                   <Select
                     name="priceUnit"
                     onChange={handleChange}
                     value={formState.priceUnit}
+                    required={true}
                   >
                     <option value=""> Select Price Unit </option>
                     <option value="Euro">Euro</option>
                   </Select>
                 </FormControl>
-
                 <FormControl id="description">
                   <FormLabel>Description</FormLabel>
                   <Textarea
@@ -224,7 +226,6 @@ const ItemModal = (props) => {
                     value={formState.description}
                   />
                 </FormControl>
-
                 <FormControl id="isFavourite">
                   <FormLabel>Favourite</FormLabel>
                   <Select
@@ -237,7 +238,6 @@ const ItemModal = (props) => {
                     <option value={true}>Yes</option>
                   </Select>
                 </FormControl>
-
                 <FormControl id="pic">
                   <FormLabel>Upload Picture</FormLabel>
                   <Input
@@ -246,21 +246,35 @@ const ItemModal = (props) => {
                     onChange={(e) => postOrderImage(e.target.files[0])}
                   />
                 </FormControl>
-
-                <Button
-                  mt="4"
-                  colorScheme="blue"
-                  type="submit"
-                  isLoading={loading}
-                >
-                  Add Item
-                </Button>
+                <Text>{formState.pic}</Text>
+                {data ? (
+                  <>
+                    <Button
+                      mt="4"
+                      mr={2}
+                      colorScheme="blue"
+                      type="submit"
+                      isLoading={loading}
+                    >
+                      Update Item
+                    </Button>
+                    <Button mt="4" colorScheme="red" onClick={onClose}>
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    mt="4"
+                    colorScheme="blue"
+                    type="submit"
+                    isLoading={loading}
+                  >
+                    Add Item
+                  </Button>
+                )}
               </form>
             </Box>
           </ModalBody>
-          {/* <ModalFooter>
-                        <Button onClick={onClose}>Close</Button>
-                    </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>

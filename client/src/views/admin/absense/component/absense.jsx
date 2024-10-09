@@ -160,7 +160,9 @@ export default function AbsenseComponent() {
 
   // Convert date to new format
   const convertDateToNewFormat = (dateString) => {
-    return new Date(dateString).toISOString().split("T")[0];
+    const date = new Date(dateString).toISOString().split("T")[0];
+    const [year, month, day] = date.split("-");
+    return `${day}-${month}-${year}`;
   };
 
   // API Call to get absence by date
@@ -317,14 +319,31 @@ export default function AbsenseComponent() {
                       {emp.name}
                     </Td>
                     {daysToDisplay.map((day, index) => {
-                      const absence = emp.absences.find(
-                        (ab) =>
-                          new Date(ab.startDate).toLocaleDateString("en-US", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }) === day.date
-                      );
+                      // Format the current day's date for comparison
+                      const formattedDay = new Date(
+                        day.date
+                      ).toLocaleDateString();
+
+                      // Find absences that cover this particular day
+                      const absences = emp.absences.filter((absence) => {
+                        const startDate = new Date(
+                          absence.startDate
+                        ).toLocaleDateString();
+                        const endDate = new Date(
+                          absence.endDate
+                        ).toLocaleDateString();
+                        // console.log(absence);
+                        console.log("startDate", startDate);
+                        console.log("endDate", endDate);
+                        console.log("formattedDay", formattedDay);
+                        console.log(
+                          formattedDay >= startDate && formattedDay <= endDate
+                        );
+                        return (
+                          formattedDay >= startDate && formattedDay <= endDate
+                        );
+                      });
+
                       return (
                         <Td
                           key={index}
@@ -335,72 +354,85 @@ export default function AbsenseComponent() {
                           className="add_hover"
                           _hover={{ bg: "gray.200" }}
                         >
-                          {absence ? (
+                          {absences.length > 0 ? (
                             <Box
                               display="flex"
+                              flexDirection="column"
                               alignItems="center"
-                              justifyContent="center"
-                              // onClick={() => handleEditOrDelete(absence)}
-                              cursor="pointer"
                             >
-                              <StarIcon
-                                mb={3}
-                                color={
-                                  absence.type === "Paid vacation"
-                                    ? "#00A7C4"
-                                    : absence.type === "Sick leave"
-                                    ? "#f8c150"
-                                    : absence.type === "Special leave"
-                                    ? "#543eac"
-                                    : absence.type === "Unpaid vacation"
-                                    ? "#ff910a"
-                                    : ""
-                                }
-                              />
-                              &nbsp;
-                              {`${convertDateToNewFormat(
-                                absence.startDate
-                              )} - ${convertDateToNewFormat(absence.endDate)}`}
-                              &nbsp; &nbsp;
-                              <EditIcon
-                                onClick={() => {
-                                  setSelectedEmployeeId(emp._id);
-                                  setEditAbsenceId(absence._id);
-                                  setSelectedAbsence({
-                                    ...absence,
-                                    emp_name: emp.name,
-                                  });
-                                  setActionType("edit");
-
-                                  onOpen();
-                                }}
-                                className="edit_icon_hover"
-                                sx={{
-                                  marginRight: "10px",
-                                  color: "black",
-                                  cursor: "pointer",
-                                }}
-                              />
+                              {absences.map((absence) => (
+                                <Box
+                                  key={absence._id}
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  cursor="pointer"
+                                  mb={2}
+                                >
+                                  <StarIcon
+                                    color={
+                                      absence.type === "Paid vacation"
+                                        ? "#00A7C4"
+                                        : absence.type === "Sick leave"
+                                        ? "#f8c150"
+                                        : absence.type === "Special leave"
+                                        ? "#543eac"
+                                        : absence.type === "Unpaid vacation"
+                                        ? "#ff910a"
+                                        : ""
+                                    }
+                                  />
+                                  &nbsp;
+                                  {`${convertDateToNewFormat(
+                                    absence.startDate
+                                  )} — ${convertDateToNewFormat(
+                                    absence.endDate
+                                  )}`}
+                                  &nbsp; &nbsp;
+                                  <EditIcon
+                                    onClick={() => {
+                                      setSelectedEmployeeId(emp._id);
+                                      setEditAbsenceId(absence._id);
+                                      setSelectedAbsence({
+                                        ...absence,
+                                        emp_name: emp.name,
+                                      });
+                                      setActionType("edit");
+                                      onOpen();
+                                    }}
+                                    className="edit_icon_hover"
+                                    sx={{
+                                      marginRight: "10px",
+                                      color: "black",
+                                      cursor: "pointer",
+                                    }}
+                                  />
+                                </Box>
+                              ))}
                             </Box>
                           ) : (
                             <AddIcon
                               onClick={() => {
                                 const date = new Date(day.date);
-                                date.setFullYear(
-                                  new Date(currentDate).getFullYear()
-                                );
-                                const [_month, _day, _year] = date
-                                  .toLocaleDateString()
-                                  .split("/");
-                                const formattedStartDate = `${_year}-${_month.padStart(
+
+                                const year = date.getFullYear(); // Get the full year (e.g., 2024)
+                                const month = String(
+                                  date.getMonth() + 1
+                                ).padStart(2, "0"); // Get month (0-11) and pad to 2 digits
+                                const days = String(date.getDate()).padStart(
                                   2,
                                   "0"
-                                )}-${_day.padStart(2, "0")}`;
+                                ); // Get day of the month (1-31) and pad to 2 digits
+
+                                // Format as "yyyy-MM-dd"
+                                const formattedDate = `${year}-${month}-${days}`;
+
+                                console.log("date", formattedDate);
                                 setActionType("add");
                                 setSelectedEmployeeId(emp._id);
                                 setSelectedAbsence({
                                   emp_name: emp.name,
-                                  startDate: formattedStartDate,
+                                  startDate: formattedDate,
                                 });
                                 onOpen();
                               }}

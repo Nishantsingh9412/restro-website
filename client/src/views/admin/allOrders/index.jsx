@@ -1,35 +1,24 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { MdCancel } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
 import { FaCartShopping } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Image,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   useDisclosure,
   Text,
   Box,
-  FormControl,
-  FormLabel,
   Input,
   Button,
-  Textarea,
-  Select,
   InputLeftElement,
   InputGroup,
   List,
   InputRightElement,
   Badge,
+  Spinner,
 } from "@chakra-ui/react";
-import { BiSolidTrash } from "react-icons/bi";
 import { IoMdSearch } from "react-icons/io";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -39,13 +28,14 @@ import {
   searchOrderItemAction,
   searchDrinksOnlyAction,
   getDrinksOnlyAction,
+  deleteSingleItemOrderAction,
+  updateSingleItemOrderAction,
 } from "../../../redux/action/OrderItems";
 import CartDrawer from "./components/CartDrawer";
 import ItemModal from "./components/ItemModal";
 
 export default function AllOrders() {
-  const OverlayOne = () => <ModalOverlay />;
-
+  // Chakra UI hooks for modal and drawer states
   const {
     isOpen: isOpenItem,
     onOpen: onOpenItem,
@@ -61,127 +51,101 @@ export default function AllOrders() {
     onOpen: onOpenDrinks,
     onClose: onCloseDrinks,
   } = useDisclosure();
-  const [overlay, setOverlay] = useState(<OverlayOne />);
 
+  // Redux hooks
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const [selectedItemLength, setSelectedItemLength] = useState(0);
-  const [selectedItemTemp, setSelectedItemTemp] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [ItemName, setItemName] = useState("");
-  const [priceVal, setPriceVal] = useState(0);
-  const [priceUnit, setPriceUnit] = useState("");
-  const [pic, setPic] = useState(undefined);
-  const [description, setDescription] = useState("");
-  const [allOrderTotal, setAllOrderTotal] = useState(0);
-  const [isFavourite, setIsFavourite] = useState(false);
-  const [searchPerformed, setSearchPerformed] = useState(false);
-  const [allItemsData, setAllItemsData] = useState([]);
-  const [drinksSearchPerformed, setDrinksSearchPerformed] = useState(false);
-  const [searchTermDrinks, setSearchTermDrinks] = useState("");
-  const [searchResultsDrinks, setSearchResultsDrinks] = useState([]);
-  const [drinksData, setDrinksData] = useState([]);
-  const [loading, setLoading] = useState(false);
-
   const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
 
-  const handleSearchDrinks = () => {
-    dispatch(searchDrinksOnlyAction(searchTermDrinks, userId)).then((res) => {
-      if (res.success) {
-        setSearchResultsDrinks(res?.data);
-        console.log("Search Results: ", res?.data);
-      } else {
-        console.log("error from searchDrinksOnlyAction: " + res.message);
-      }
-    });
-  };
+  // State variables
+  const [searchState, setSearchState] = useState({
+    searchTerm: "",
+    searchResults: [],
+    searchPerformed: false,
+  });
 
-  const handleProcessOrder = () => {
-    navigate("/admin/process-order", { selectedItemTemp, allOrderTotal });
-  };
+  const [searchStateDrinks, setSearchStateDrinks] = useState({
+    searchTerm: "",
+    searchResults: [],
+    searchPerformed: false,
+  });
 
-  const postOrderImage = (pics) => {
-    if (!pics) {
-      toast.error("Please upload a picture");
-      return;
-    }
-    if (!["image/jpeg", "image/png"].includes(pics.type)) {
-      toast.error("Invalid image format");
-      return;
-    }
+  const [allOrderTotal, setAllOrderTotal] = useState(0);
+  const [allItemsData, setAllItemsData] = useState([]);
+  const [drinksData, setDrinksData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [editDrink, setEditDrink] = useState(null);
 
-    if (pics.size > 2000000) {
-      return toast.error("Image size should be less than 2 MB");
-    }
+  // Selector to get the length of all order items
+  const AllOrderItemsLength = useSelector(
+    (state) => state.OrderItemReducer?.length
+  );
 
-    setLoading(true);
-    const data = new FormData();
-    data.append("file", pics);
-    data.append("upload_preset", "restro-website");
-    data.append("cloud_name", "dezifvepx");
+  // Function to handle search
+  const handleSearch = useCallback(
+    (isDrink) => {
+      const { searchTerm } = isDrink ? searchStateDrinks : searchState;
+      const action = isDrink ? searchDrinksOnlyAction : searchOrderItemAction;
 
-    fetch("https://api.cloudinary.com/v1_1/dezifvepx/image/upload", {
-      method: "post",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setPic(data.url.toString());
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-        toast.error("Error Uploading Image to server");
+      dispatch(action(searchTerm, userId)).then((res) => {
+        if (res.success) {
+          const setSearchStateFn = isDrink
+            ? setSearchStateDrinks
+            : setSearchState;
+          setSearchStateFn((prevState) => ({
+            ...prevState,
+            searchResults: res?.data,
+          }));
+        } else {
+          console.error("Search error: " + res.message);
+        }
       });
-  };
+    },
+    [dispatch, searchState, searchStateDrinks, userId]
+  );
 
+  // Function to handle submission of item order
   const handleSubmitItemOrder = (data) => {
-    // e.preventDefault();
-
-    const AddItemPromise = dispatch(AddOrderItemAction(data)).then((res) => {
+    data.created_by = userId;
+    const actionType = editItem ? "edit" : "add";
+    const actionPromise =
+      actionType === "edit"
+        ? dispatch(updateSingleItemOrderAction(editItem._id, data))
+        : dispatch(AddOrderItemAction(data));
+    setEditItem(null);
+    const AddOrEditItemPromise = actionPromise.then((res) => {
       if (res.success) {
-        onClose();
-        dispatch(getAllOrderItemsAction(userId)).then((res) => {
+        const action = data.isDrink
+          ? getDrinksOnlyAction
+          : getAllOrderItemsAction;
+        dispatch(action(userId)).then((res) => {
           if (res.success) {
-            setAllItemsData(res?.data);
+            data.isDrink
+              ? setDrinksData(res?.data)
+              : setAllItemsData(res?.data);
           } else {
-            console.log("Error Getting Data");
+            console.error("Error fetching data");
           }
         });
-        return res.message;
       } else {
         throw new Error(res.message);
       }
     });
-    toast.promise(AddItemPromise, {
-      pending: "Processing Addition of Item...",
-      success: "Item Added Successfully",
+
+    toast.promise(AddOrEditItemPromise, {
+      pending:
+        actionType === "edit"
+          ? "Processing Edit of Item..."
+          : "Processing Addition of Item...",
+      success:
+        actionType === "edit"
+          ? "Item Edited Successfully"
+          : "Item Added Successfully",
       error: (err) => err.message,
     });
   };
 
-  const AllOrderItemsReducer = useSelector((state) => state.OrderItemReducer);
-  const AllOrderItemsLength = AllOrderItemsReducer?.length;
-
-  const handleRemoveItemOrder = (id) => {
-    if (id) {
-      const item = selectedItemTemp.find((item) => item._id === id);
-      setAllOrderTotal(allOrderTotal - item.priceVal);
-      dispatch({ type: "REMOVE_ORDER_ITEM_TEMP", data: id });
-    }
-  };
-
-  const handleRemoveItemOrderCompletely = (id) => {
-    if (id) {
-      const item = selectedItemTemp.find((item) => item._id === id);
-      setAllOrderTotal(allOrderTotal - item.priceVal * item.quantity);
-      dispatch({ type: "REMOVE_ORDER_ITEM_TEMP_COMPLETELY", data: id });
-    }
-  };
-
+  // Function to handle adding item to order
   const handleAddItemOrder = (product) => {
     if (product) {
       setAllOrderTotal(allOrderTotal + product.priceVal);
@@ -189,377 +153,304 @@ export default function AllOrders() {
     }
   };
 
-  const handleSearch = () => {
-    dispatch(searchOrderItemAction(searchTerm, userId)).then((res) => {
+  // Function to handle editing an item
+  const handleEditItem = (product, isDrink) => {
+    isDrink ? setEditDrink(product) : setEditItem(product);
+    isDrink ? onOpenDrinks() : onOpenItem();
+  };
+
+  const handleClose = () => {
+    setEditItem(null);
+    setEditDrink(null);
+    onCloseItem();
+    onCloseDrinks();
+  };
+
+  // Function to handle deleting an item
+  const handleDeleteItem = (product, isDrink) => {
+    const action = isDrink ? setDrinksData : setAllItemsData;
+    const actionType = isDrink ? getDrinksOnlyAction : getAllOrderItemsAction;
+    const deleteItemPromise = dispatch(
+      deleteSingleItemOrderAction(product._id)
+    ).then((res) => {
       if (res.success) {
-        setSearchResults(res?.data);
-        console.log("Search Results: ", res?.data);
+        dispatch(actionType(userId)).then((res) => {
+          if (res.success) {
+            action(res?.data);
+          } else {
+            console.error("Error fetching data");
+          }
+        });
+        return res.message;
       } else {
-        console.log("error from searchOrderItemAction: " + res.message);
+        throw new Error("Error Deleting Item");
       }
+    });
+    toast.promise(deleteItemPromise, {
+      pending: "Deleting Item...",
+      success: "Item Deleted Successfully",
+      error: "Error in Deleting Item",
     });
   };
 
+  // useEffect to fetch data on component mount
   useEffect(() => {
-    setSelectedItemTemp(AllOrderItemsReducer.items);
-  }, [handleAddItemOrder]);
+    setLoading(true);
+    const fetchData = async () => {
+      const [allItemsRes, drinksRes] = await Promise.all([
+        dispatch(getAllOrderItemsAction(userId)),
+        dispatch(getDrinksOnlyAction(userId)),
+      ]);
+      if (allItemsRes.success) setAllItemsData(allItemsRes?.data);
+      if (drinksRes.success) setDrinksData(drinksRes?.data);
+      setLoading(false);
+    };
+    fetchData();
+  }, [dispatch, userId]);
 
-  useEffect(() => {
-    dispatch(getAllOrderItemsAction(userId)).then((res) => {
-      if (res.success) {
-        setAllItemsData(res?.data);
-      } else {
-        console.log("Error Getting Data");
-      }
-    });
-  }, []);
+  // Function to render search box
+  const renderSearchBox = (isDrink) => {
+    const { searchTerm } = isDrink ? searchStateDrinks : searchState;
+    const setSearchTerm = isDrink ? setSearchStateDrinks : setSearchState;
 
-  useEffect(() => {
-    dispatch(getDrinksOnlyAction(userId)).then((res) => {
-      if (res.success) {
-        setDrinksData(res?.data);
-      } else {
-        console.log("Error Getting Drinks Data");
-      }
-    });
-  }, []);
+    return (
+      <InputGroup mb="1rem">
+        <InputLeftElement pointerEvents={"none"}>
+          <IoMdSearch size={"20"} />
+        </InputLeftElement>
+        <InputRightElement>
+          <MdCancel
+            size={"20"}
+            style={{ cursor: "pointer" }}
+            onClick={() =>
+              setSearchTerm({ searchTerm: "", searchPerformed: false })
+            }
+          />
+        </InputRightElement>
+        <Input
+          paddingLeft={"2.5rem"}
+          borderRadius={"50px"}
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => {
+            const term = e.target.value;
+            setSearchTerm({ searchTerm: term, searchPerformed: !!term });
+            if (term.trim()) handleSearch(isDrink);
+          }}
+        />
+      </InputGroup>
+    );
+  };
 
+  // Function to render search results
+  const renderSearchResults = (data, isDrink) => {
+    const searchResults = isDrink
+      ? searchStateDrinks.searchResults
+      : searchState.searchResults;
+    const isSearchPerformed = isDrink
+      ? searchStateDrinks.searchPerformed
+      : searchState.searchPerformed;
+
+    if (isSearchPerformed) {
+      return (
+        <List mt={2}>
+          {searchResults?.map((result, index) => (
+            <Box
+              key={index}
+              p="4"
+              mb={3}
+              borderWidth="1px"
+              borderRadius="lg"
+              boxShadow="sm"
+              position="relative"
+            >
+              <Box display="flex" alignItems="center">
+                <Image
+                  borderRadius="full"
+                  boxSize="50px"
+                  src={result?.pic}
+                  alt="Food-Image"
+                />
+                <Box ml="1rem">
+                  <Text fontWeight="semibold" as="h4">
+                    {result?.orderName}
+                  </Text>
+                  <Text fontWeight="semibold" as="h4">
+                    {result?.priceVal} {result?.priceUnit}
+                  </Text>
+                </Box>
+              </Box>
+              <Box
+                position="relative"
+                top="0"
+                right="0"
+                display="flex"
+                gap="1rem"
+                p="1"
+              >
+                <EditIcon
+                  cursor="pointer"
+                  onClick={() => handleEditItem(result, isDrink)}
+                />
+                <DeleteIcon
+                  cursor="pointer"
+                  color="red.500"
+                  onClick={() => handleDeleteItem(result, isDrink)}
+                />
+              </Box>
+              <Box mt="2" display="flex" justifyContent="end">
+                <Button
+                  colorScheme="teal"
+                  onClick={() => handleAddItemOrder(result)}
+                >
+                  Add To Cart
+                </Button>
+              </Box>
+            </Box>
+          ))}
+        </List>
+      );
+    }
+
+    return (
+      <Box
+        mt="1rem"
+        display="grid"
+        gridTemplateColumns="repeat(2, 1fr)"
+        gap={6}
+      >
+        {data.map((item) => (
+          <Box
+            key={item._id}
+            p="4"
+            borderWidth="1px"
+            borderRadius="lg"
+            boxShadow="sm"
+            display="flex"
+            flexDir="column"
+          >
+            <Box display="flex" justifyContent={"space-between"}>
+              <Box>
+                <Image
+                  borderRadius="full"
+                  boxSize="50px"
+                  src={item?.pic}
+                  alt="Food-Image"
+                />
+                <Text mt="1" fontWeight="semibold">
+                  {item?.orderName}
+                </Text>
+                <Text fontSize={14} fontWeight="normal">
+                  {item?.priceVal} {item?.priceUnit}
+                </Text>
+              </Box>
+              <Box display="flex" gap="3" p="1" flexDir={"column"}>
+                <EditIcon
+                  cursor="pointer"
+                  fontSize={20}
+                  onClick={() => handleEditItem(item, isDrink)}
+                />
+                <DeleteIcon
+                  cursor="pointer"
+                  color="red.500"
+                  fontSize={20}
+                  onClick={() => handleDeleteItem(item, isDrink)}
+                />
+              </Box>
+            </Box>
+            <Button
+              mt="2"
+              colorScheme="teal"
+              onClick={() => handleAddItemOrder(item)}
+            >
+              Add To Cart
+            </Button>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  // Render loading spinner if data is still loading
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="50vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  // Main component render
   return (
     <div
       style={{ marginTop: "4vw", padding: "2rem", backgroundColor: "#f7f7f7" }}
     >
       <ToastContainer />
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb="2rem"
-      >
+      <Box display="flex" justifyContent="space-between" mb="2rem">
         <Button
           leftIcon={<FiPlusCircle />}
           colorScheme="teal"
-          variant="solid"
           onClick={onOpenItem}
         >
           Add Items
         </Button>
-
-        <Box position="relative" display="inline-block">
+        <Box position="relative">
           <Button
             leftIcon={<FaCartShopping />}
             colorScheme="teal"
-            variant="solid"
             onClick={onOpenCart}
           >
             Cart
           </Button>
           <Badge
-            colorScheme="teal"
-            variant="solid"
             position="absolute"
             top="-2"
             right="-2"
+            colorScheme="teal"
             borderRadius="full"
           >
             {AllOrderItemsLength}
           </Badge>
         </Box>
-
         <Button
           leftIcon={<FiPlusCircle />}
           colorScheme="teal"
-          variant="solid"
           onClick={onOpenDrinks}
         >
           Add Drinks
         </Button>
       </Box>
-
-      {/* <Modal isCentered isOpen={isOpen} onClose={onClose}>
-        {overlay}
-        <ModalContent>
-          <ModalHeader>Add Items</ModalHeader>
-          <Button onClick={autoFillform}>Auto Fill</Button>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box
-              maxW="sm"
-              m="auto"
-              p="4"
-              borderWidth="1px"
-              borderRadius="lg"
-              background={"white"}
-            >
-              <form onSubmit={handleSubmitItemOrder}>
-                <FormControl id="ItemName" isRequired>
-                  <FormLabel>Item Name</FormLabel>
-                  <Input
-                    type="text"
-                    onChange={(e) => setItemName(e.target.value)}
-                    value={ItemName}
-                  />
-                </FormControl>
-
-                <FormControl id="priceVal" isRequired>
-                  <FormLabel>Price Value</FormLabel>
-                  <Input
-                    type="number"
-                    onChange={(e) => setPriceVal(e.target.value)}
-                    min={0}
-                    value={priceVal}
-                  />
-                </FormControl>
-
-                <FormControl id="priceUnit">
-                  <FormLabel>Price Unit</FormLabel>
-                  <Select
-                    onChange={(e) => setPriceUnit(e.target.value)}
-                    value={priceUnit}
-                  >
-                    <option value=""> Select Price Unit </option>
-                    <option value="Euro">Euro</option>
-                  </Select>
-                </FormControl>
-
-                <FormControl id="description">
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    type="text"
-                    onChange={(e) => setDescription(e.target.value)}
-                    value={description}
-                  />
-                </FormControl>
-
-                <FormControl id="isFavourite">
-                  <FormLabel>Favourite</FormLabel>
-                  <Select
-                    onChange={(e) => setIsFavourite(e.target.value)}
-                    value={isFavourite}
-                  >
-                    <option value=""> Select Favourite </option>
-                    <option value={false}>No</option>
-                    <option value={true}>Yes</option>
-                  </Select>
-                </FormControl>
-
-                <FormControl id="pic">
-                  <FormLabel>Upload Picture</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => postOrderImage(e.target.files[0])}
-                  />
-                </FormControl>
-
-                <Button
-                  mt="4"
-                  colorScheme="teal"
-                  type="submit"
-                  isLoading={loading}
-                >
-                  Add Item
-                </Button>
-              </form>
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal> */}
-
       <ItemModal
         isOpen={isOpenItem}
-        onOpen={onOpenItem}
-        onClose={onCloseItem}
+        onClose={handleClose}
         isDrink={false}
-        handleSubmit={handleSubmitItemOrder}
+        onSubmitData={handleSubmitItemOrder}
+        data={editItem}
       />
-
       <ItemModal
         isOpen={isOpenDrinks}
-        onOpen={onOpenDrinks}
-        onClose={onCloseDrinks}
+        onClose={handleClose}
         isDrink={true}
-        handleSubmit={handleSubmitItemOrder}
+        onSubmitData={handleSubmitItemOrder}
+        data={editDrink}
       />
-
-      <Box display={{ base: "block", md: "flex" }} gap="2rem">
+      <Box display="flex" gap="2rem">
         {[
-          {
-            data: allItemsData,
-            searchTerm,
-            setSearchTerm,
-            searchPerformed,
-            setSearchPerformed,
-            searchResults,
-            setSearchResults,
-            handleSearch,
-          },
-          {
-            data: drinksData,
-            searchTerm: searchTermDrinks,
-            setSearchTerm: setSearchTermDrinks,
-            searchPerformed: drinksSearchPerformed,
-            setSearchPerformed: setDrinksSearchPerformed,
-            searchResults: searchResultsDrinks,
-            setSearchResults: setSearchResultsDrinks,
-            handleSearch: handleSearchDrinks,
-          },
+          { data: allItemsData, isDrink: false },
+          { data: drinksData, isDrink: true },
         ].map((section, index) => (
-          <Box
-            key={index}
-            flexBasis={{ base: "100%", md: "50%" }}
-            p={5}
-            borderWidth={1}
-            borderRadius="lg"
-            background="white"
-            boxShadow="md"
-          >
-            <InputGroup mb="1rem">
-              <InputLeftElement pointerEvents={"none"}>
-                <IoMdSearch size={"20"} aria-label="Search database" />
-              </InputLeftElement>
-              <InputRightElement>
-                <MdCancel
-                  size={"20"}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    section.setSearchPerformed(false);
-                    section.setSearchTerm("");
-                  }}
-                />
-              </InputRightElement>
-
-              <Input
-                paddingLeft={"2.5rem"}
-                borderRadius={"50px"}
-                placeholder="Search..."
-                value={section.searchTerm}
-                onChange={(e) => {
-                  section.setSearchTerm(e.target.value);
-                  section.setSearchPerformed(true);
-                  if (e.target.value.trim() !== "") {
-                    section.handleSearch();
-                  } else {
-                    section.setSearchResults([]);
-                  }
-                }}
-              />
-            </InputGroup>
-            {section.searchPerformed ? (
-              <List mt={2}>
-                {section.searchResults?.map((result, index) => (
-                  <Box
-                    key={index}
-                    borderWidth="1px"
-                    borderRadius="lg"
-                    overflow="hidden"
-                    mb={3}
-                    p="4"
-                    background="white"
-                    boxShadow="sm"
-                  >
-                    <Box display="flex" alignItems="center">
-                      <Image
-                        borderRadius="full"
-                        boxSize="50px"
-                        src={result?.pic}
-                        alt="Food-Image"
-                      />
-                      <Box marginLeft={"1rem"}>
-                        <Text
-                          mt="1"
-                          fontWeight="semibold"
-                          as="h4"
-                          lineHeight="tight"
-                          isTruncated
-                        >
-                          {result?.orderName}
-                        </Text>
-                        <Text
-                          mt="1"
-                          fontWeight="semibold"
-                          as="h4"
-                          lineHeight="tight"
-                          isTruncated
-                        >
-                          {result?.priceVal} {result?.priceUnit}
-                        </Text>
-                      </Box>
-                    </Box>
-
-                    <Box display={"flex"} justifyContent={"end"} mt="2">
-                      <Button
-                        colorScheme="teal"
-                        onClick={() => {
-                          handleAddItemOrder(result);
-                        }}
-                      >
-                        Add To Cart
-                      </Button>
-                    </Box>
-                  </Box>
-                ))}
-              </List>
-            ) : (
-              <Box
-                marginTop={"1rem"}
-                display="grid"
-                gridTemplateColumns="repeat(2, 1fr)"
-                gap={6}
-              >
-                {section.data?.map((result, index) => (
-                  <Box
-                    key={result._id}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    p="4"
-                    borderWidth="1px"
-                    borderRadius="lg"
-                    background="white"
-                    boxShadow="sm"
-                  >
-                    <Image
-                      borderRadius="full"
-                      boxSize="50px"
-                      src={result?.pic}
-                      alt="Food-Image"
-                    />
-                    <Box marginLeft="1rem" textAlign="center">
-                      <Text
-                        mt="1"
-                        fontWeight="semibold"
-                        as="h6"
-                        lineHeight="tight"
-                        isTruncated
-                      >
-                        {result?.orderName}
-                      </Text>
-                      <Button
-                        mt="2"
-                        colorScheme="teal"
-                        onClick={() => {
-                          handleAddItemOrder(result);
-                        }}
-                      >
-                        Add To Cart
-                      </Button>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            )}
+          <Box key={index} flex="1">
+            {renderSearchBox(section.isDrink)}
+            {renderSearchResults(section.data, section.isDrink)}
           </Box>
         ))}
       </Box>
-
-      <CartDrawer
-        isOpen={isOpenCart}
-        onOpen={onOpenCart}
-        onClose={onCloseCart}
-      />
+      <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
     </div>
   );
 }

@@ -81,7 +81,7 @@ export default function UserReports() {
           border="#fee1f9"
           label="Total Stock Quantity"
           value={data.totalStocksQuantity}
-          growth="+11.02%"
+          // growth="+11.02%"
         />
         <DashboardCard
           color="#e27e35"
@@ -89,7 +89,7 @@ export default function UserReports() {
           border="#ffebd8"
           label="Low Stock Alert"
           value={data.lowStocksQuantity}
-          growth="-0.03%"
+          // growth="-0.03%"
         />
         <DashboardCard
           color="#035d5d"
@@ -97,7 +97,7 @@ export default function UserReports() {
           border="#d7f7f7"
           label="Expiry Alert"
           value={data.expiredItems}
-          growth="+15.03%"
+          // growth="+15.03%"
         />
       </SimpleGrid>
 

@@ -148,6 +148,25 @@ export default function EmployeeModal({
     onClose();
   };
 
+  const autoFillform = () => {
+    setFormData({
+      name: "John Doe",
+      email: "nizamji100@gmail.com",
+      phone: "1234567890",
+      address: {
+        street: "123 Main St",
+        city: "New York",
+        zipCode: "10001",
+      },
+      birthday: "1990-01-01",
+      employeeID: "12345",
+      status: "Active",
+      type: "Full-time",
+      workingHoursPerWeek: 40,
+      annualHolidayEntitlement: 20,
+    });
+  };
+
   // Utility to get nested values from form data
   const getNestedValue = (obj, path) => {
     return path.split(".").reduce((prev, key) => prev?.[key], obj);
@@ -290,6 +309,9 @@ export default function EmployeeModal({
         <ModalFooter>
           {actionType !== "view" ? (
             <>
+              <Button colorScheme="yellow" mr={3} onClick={autoFillform}>
+                Auto Fill
+              </Button>
               <Button colorScheme="blue" mr={3} onClick={handleClose}>
                 Close
               </Button>

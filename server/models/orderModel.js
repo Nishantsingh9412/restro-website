@@ -13,7 +13,7 @@ const OrderedItemsSchema = new Schema(
         "https://res.cloudinary.com/dezifvepx/image/upload/v1712836597/restro-website/salad.png",
     },
     description: { type: String },
-    isFavorite: { type: Boolean, default: false },
+    isFavourite: { type: Boolean, default: false },
     isDrink: { type: Boolean, default: false },
     created_by: {
       type: Schema.Types.ObjectId,

@@ -33,7 +33,7 @@ export const lowStocksCount = async (req, res) => {
     // Count items where available quantity is 70% or below the minimum required quantity
     const lowStockCount = await ItemManagement.countDocuments({
       $expr: {
-        $gte: [
+        $lt: [
           "$minimum_quantity",
           { $multiply: [0.7, "$available_quantity"] },
         ],
