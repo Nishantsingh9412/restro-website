@@ -306,7 +306,7 @@ const routes2 = [
           <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
         ),
         type: "link",
-        component: () => <>Contact Support</>,
+        component: <></>,
       },
       // {
       //   name: 'Cost Tracking',

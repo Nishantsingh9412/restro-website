@@ -19,6 +19,10 @@ import {
   Input,
   Select,
   useDisclosure,
+  Stack,
+  Flex,
+  Heading,
+  Text,
 } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -57,137 +61,114 @@ const EmployeeManagement = () => {
   const localUserId = localUser?.result?._id;
 
   useEffect(() => {
-    // Fetch tasks and transform them into calendar events
-    getAllTasksAPI()
-      .then((response) => {
-        const tasks = response?.data?.result.map((task) => ({
+    const fetchTasksAndEmployees = async () => {
+      try {
+        const tasksResponse = await getAllTasksAPI();
+        const tasks = tasksResponse?.data?.result.map((task) => ({
           title: task.title,
           start: new Date(task.startDate),
           end: new Date(task.endDate),
           id: task._id,
         }));
         setEvents(tasks);
-      })
-      .catch((err) => {
-        console.log("Error from get all tasks API:");
-        console.log(err);
-      });
 
-    // Fetch employees
-    AllEmployeesAPI()
-      .then((response) => {
-        setEmployees(response?.data?.result);
-      })
-      .catch((err) => {
-        console.log("Error from get all employees API:");
-        console.log(err);
-      });
+        const employeesResponse = await AllEmployeesAPI();
+        setEmployees(employeesResponse?.data?.result);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+
+    fetchTasksAndEmployees();
   }, []);
 
   const handleSelectSlot = (slotInfo) => {
     setSelectedSlot(slotInfo);
     setIsOpen(true);
-    setTaskDetails({
-      ...taskDetails,
+    setTaskDetails((prevDetails) => ({
+      ...prevDetails,
       startDate: slotInfo.start,
       endDate: slotInfo.end,
-    });
+    }));
   };
 
-  const handleEventDrop = ({ event, start, end }) => {
+  const handleEventDrop = async ({ event, start, end }) => {
     const updatedEvent = { ...event, start, end };
     setEvents((prevEvents) =>
       prevEvents.map((evt) => (evt.id === event.id ? updatedEvent : evt))
     );
 
-    // Update the event in the backend
-    updateTaskAPI({
-      ...updatedEvent,
-      startDate: start,
-      endDate: end,
-    })
-      .then((response) => {
-        console.log("Event updated:", response.data);
-      })
-      .catch((err) => {
-        console.log("Error from update task API:");
-        console.log(err);
-      });
+    try {
+      await updateTaskAPI({ ...updatedEvent, startDate: start, endDate: end });
+    } catch (err) {
+      console.error("Error updating task:", err);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newTask = {
-      title: taskDetails.title,
-      description: taskDetails.description,
-      assignedTo: taskDetails.assignedTo,
-      startDate: taskDetails.startDate,
-      endDate: taskDetails.endDate,
+      ...taskDetails,
       created_by: localUserId,
     };
-    assignTaskAPI(newTask)
-      .then((response) => {
-        const task = response?.data?.result;
-        setEvents([
-          ...events,
-          {
-            title: task.title,
-            start: new Date(task.startDate),
-            end: new Date(task.endDate),
-            id: task._id,
-          },
-        ]);
-        setIsOpen(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
+    try {
+      const response = await assignTaskAPI(newTask);
+      const task = response?.data?.result;
+      setEvents((prevEvents) => [
+        ...prevEvents,
+        {
+          title: task.title,
+          start: new Date(task.startDate),
+          end: new Date(task.endDate),
+          id: task._id,
+        },
+      ]);
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Error assigning task:", err);
+    }
   };
 
-  const handleDelete = (event) => {
-    deleteTaskAPI(event.id)
-      .then(() => {
-        setEvents(events.filter((e) => e.id !== event.id));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const handleDelete = async (event) => {
+    try {
+      await deleteTaskAPI(event.id);
+      setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
+    } catch (err) {
+      console.error("Error deleting task:", err);
+    }
   };
 
-  const eventPropGetter = (event, start, end, isSelected) => {
-    return {
-      style: {
-        backgroundColor: isSelected ? "#f50057" : "#3f51b5",
-        cursor: "pointer",
-      },
-    };
-  };
+  const eventPropGetter = (event, start, end, isSelected) => ({
+    style: {
+      backgroundColor: isSelected ? "#ff6347" : "#4682b4",
+      borderRadius: "5px",
+      opacity: 0.8,
+      color: "white",
+      border: "0px",
+      display: "block",
+      padding: "5px",
+    },
+  });
 
   const Event = ({ event }) => (
-    <span>
-      <strong>{event.title}</strong>
-      <Button
-        colorScheme="green"
-        size="xs"
-        onClick={() => {
-          console.log(event);
-          isUpdateOnOpen();
-        }}
-      >
-        Edit
-      </Button>
-      <Button
-        colorScheme="red"
-        size="xs"
-        ml={"2"}
-        onClick={() => handleDelete(event)}
-      >
-        Delete
-      </Button>
-    </span>
+    <Flex align="center" justify="space-between">
+      <Text fontWeight="bold">{event.title}</Text>
+      <Stack direction="row" spacing={2}>
+        <Button colorScheme="green" size="xs" onClick={isUpdateOnOpen}>
+          Edit
+        </Button>
+        <Button colorScheme="red" size="xs" onClick={() => handleDelete(event)}>
+          Delete
+        </Button>
+      </Stack>
+    </Flex>
   );
 
   return (
-    <Box marginTop={"5rem"}>
+    <Box padding="2rem">
+      <Heading as="h1" size="xl" mb="4">
+        Employee Management
+      </Heading>
       <DnDCalendar
         localizer={localizer}
         events={events}
@@ -198,97 +179,106 @@ const EmployeeManagement = () => {
         endAccessor="end"
         style={{ height: 500 }}
         eventPropGetter={eventPropGetter}
-        components={{
-          event: Event,
-        }}
+        components={{ event: Event }}
       />
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Assign Task</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl>
-              <FormLabel>Title</FormLabel>
-              <Input
-                value={taskDetails.title}
-                onChange={(e) =>
-                  setTaskDetails({ ...taskDetails, title: e.target.value })
-                }
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Description</FormLabel>
-              <Input
-                value={taskDetails.description}
-                onChange={(e) =>
-                  setTaskDetails({
-                    ...taskDetails,
-                    description: e.target.value,
-                  })
-                }
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Assign To</FormLabel>
-              <Select
-                placeholder="Select employee"
-                value={taskDetails.assignedTo}
-                onChange={(e) =>
-                  setTaskDetails({ ...taskDetails, assignedTo: e.target.value })
-                }
-              >
-                {employees.map((employee) => (
-                  <option key={employee._id} value={employee._id}>
-                    {employee.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl>
-              <FormLabel>Start Date and Time</FormLabel>
-              <DatePicker
-                selected={taskDetails.startDate}
-                onChange={(date) =>
-                  setTaskDetails({ ...taskDetails, startDate: date })
-                }
-                showTimeSelect
-                dateFormat="Pp"
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>End Date and Time</FormLabel>
-              <DatePicker
-                selected={taskDetails.endDate}
-                onChange={(date) =>
-                  setTaskDetails({ ...taskDetails, endDate: date })
-                }
-                showTimeSelect
-                dateFormat="Pp"
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handleSubmit}>
-              Assign Task
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
+      <TaskModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        taskDetails={taskDetails}
+        setTaskDetails={setTaskDetails}
+        employees={employees}
+        handleSubmit={handleSubmit}
+      />
       <UpdateTask
         isOpen={isUpdateOpen}
         onOpen={isUpdateOnOpen}
         onClose={isUpdateOnClose}
         selectedTask={selectedSlot}
-        // taskDetails={taskDetails}
-        // setTaskDetails={setTaskDetails}
-        // employees={employees}
-        // setEvents={setEvents}
-        // events={events}
       />
     </Box>
   );
 };
+
+const TaskModal = ({
+  isOpen,
+  onClose,
+  taskDetails,
+  setTaskDetails,
+  employees,
+  handleSubmit,
+}) => (
+  <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalOverlay />
+    <ModalContent>
+      <ModalHeader>Assign Task</ModalHeader>
+      <ModalCloseButton />
+      <ModalBody>
+        <Stack spacing={4}>
+          <FormControl>
+            <FormLabel>Title</FormLabel>
+            <Input
+              value={taskDetails.title}
+              onChange={(e) =>
+                setTaskDetails({ ...taskDetails, title: e.target.value })
+              }
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Description</FormLabel>
+            <Input
+              value={taskDetails.description}
+              onChange={(e) =>
+                setTaskDetails({ ...taskDetails, description: e.target.value })
+              }
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Assign To</FormLabel>
+            <Select
+              placeholder="Select employee"
+              value={taskDetails.assignedTo}
+              onChange={(e) =>
+                setTaskDetails({ ...taskDetails, assignedTo: e.target.value })
+              }
+            >
+              {employees.map((employee) => (
+                <option key={employee._id} value={employee._id}>
+                  {employee.name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel>Start Date and Time</FormLabel>
+            <DatePicker
+              selected={taskDetails.startDate}
+              onChange={(date) =>
+                setTaskDetails({ ...taskDetails, startDate: date })
+              }
+              showTimeSelect
+              dateFormat="Pp"
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>End Date and Time</FormLabel>
+            <DatePicker
+              selected={taskDetails.endDate}
+              onChange={(date) =>
+                setTaskDetails({ ...taskDetails, endDate: date })
+              }
+              showTimeSelect
+              dateFormat="Pp"
+            />
+          </FormControl>
+        </Stack>
+      </ModalBody>
+      <ModalFooter>
+        <Button colorScheme="blue" onClick={handleSubmit}>
+          Assign Task
+        </Button>
+      </ModalFooter>
+    </ModalContent>
+  </Modal>
+);
 
 export default EmployeeManagement;
