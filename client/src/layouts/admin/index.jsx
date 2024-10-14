@@ -3,16 +3,14 @@ import Footer from "../../components/footer/FooterAdmin.jsx";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
-import { SidebarContext } from "../../contexts/SidebarContext.jsx";
-import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import routes from "../../routes.jsx";
 
 export default function Dashboard(props) {
   const { ...rest } = props;
-  const location = useLocation(); // Hook to get the current location
   const [fixed] = useState(false);
-  const [toggleSidebar, setToggleSidebar] = useState(false);
+  // const [toggleSidebar, setToggleSidebar] = useState(false);
 
   // functions for changing the states from components
   const getActiveRoute = (routes) => {
