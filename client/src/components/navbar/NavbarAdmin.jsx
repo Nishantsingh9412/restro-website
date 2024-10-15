@@ -15,9 +15,7 @@ import { useState, useEffect, useCallback } from "react";
 import AdminNavbarLinks from "./NavbarLinksAdmin";
 import { SidebarResponsive } from "../sidebar/Sidebar";
 import routes from "../../routes.jsx";
-import { useSelector } from "react-redux";
 import profileImg from "../../assets/img/profile/profile.png";
-import { useMemo } from "react";
 
 export default function AdminNavbar({
   secondary,
@@ -151,4 +149,5 @@ AdminNavbar.propTypes = {
   fixed: PropTypes.bool,
   onOpen: PropTypes.func,
   logoText: PropTypes.string,
+  message: PropTypes.string,
 };

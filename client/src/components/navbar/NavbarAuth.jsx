@@ -31,7 +31,7 @@ import { GoChevronDown, GoChevronRight } from "react-icons/go";
 import routes from "routes.jsx";
 
 export default function AuthNavbar(props) {
-  const { logo, logoText, secondary, sidebarWidth, ...rest } = props;
+  const { logoText, sidebarWidth, ...rest } = props;
   const { colorMode } = useColorMode();
   // Menu States
   const {
@@ -522,4 +522,7 @@ export default function AuthNavbar(props) {
 AuthNavbar.propTypes = {
   color: PropTypes.oneOf(["primary", "info", "success", "warning", "danger"]),
   brandText: PropTypes.string,
+  secondary: PropTypes.bool,
+  logoText: PropTypes.string,
+  sidebarWidth: PropTypes.number,
 };

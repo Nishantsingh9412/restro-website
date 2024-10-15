@@ -4,13 +4,13 @@ import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import routes from "../../routes.jsx";
 
 export default function Dashboard(props) {
   const { ...rest } = props;
   const [fixed] = useState(false);
-  // const [toggleSidebar, setToggleSidebar] = useState(false);
+  const location = useLocation(); // Hook to get the current location
 
   // functions for changing the states from components
   const getActiveRoute = (routes) => {
@@ -30,10 +30,8 @@ export default function Dashboard(props) {
           return linkActiveRoute; // Return the first active route found in links
         }
       } else {
-        // Check if the current route matches the URL
-        if (
-          window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-        ) {
+        // Check if the current route matches the location
+        if (location.pathname === routes[i].layout + routes[i].path) {
           return routes[i].name; // Return the name of the active route
         }
       }
@@ -56,9 +54,7 @@ export default function Dashboard(props) {
           return categoryActiveNavbar;
         }
       } else {
-        if (
-          window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-        ) {
+        if (location.pathname === routes[i].layout + routes[i].path) {
           return routes[i].secondary;
         }
       }
@@ -80,9 +76,7 @@ export default function Dashboard(props) {
           return categoryActiveNavbar;
         }
       } else {
-        if (
-          window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1
-        ) {
+        if (location.pathname === routes[i].layout + routes[i].path) {
           return routes[i].messageNavbar;
         }
       }

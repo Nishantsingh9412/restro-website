@@ -118,6 +118,9 @@ const OrderShipping = () => {
           <Button colorScheme="teal" onClick={handleAddDeliveryBoy}>
             Add Delivery Personnel
           </Button>
+          <Button colorScheme="red" onClick={() => setFilteredDelBoys([])}>
+            Clear Filter
+          </Button>
         </HStack>
       </Flex>
 
