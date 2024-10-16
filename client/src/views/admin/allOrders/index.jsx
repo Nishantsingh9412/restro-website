@@ -33,6 +33,7 @@ import {
 } from "../../../redux/action/OrderItems";
 import CartDrawer from "./components/CartDrawer";
 import ItemModal from "./components/ItemModal";
+import DineInDrawer from "./components/DineInDrawer";
 
 export default function AllOrders() {
   // Chakra UI hooks for modal and drawer states
@@ -50,6 +51,11 @@ export default function AllOrders() {
     isOpen: isOpenDrinks,
     onOpen: onOpenDrinks,
     onClose: onCloseDrinks,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenDineIn,
+    onOpen: onOpenDineIn,
+    onClose: onCloseDineIn,
   } = useDisclosure();
 
   // Redux hooks
@@ -75,6 +81,7 @@ export default function AllOrders() {
   const [loading, setLoading] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [editDrink, setEditDrink] = useState(null);
+  const [IsCartClicked, setIsCartClicked] = useState(false);
 
   // Selector to get the length of all order items
   const AllOrderItemsLength = useSelector(
@@ -103,6 +110,14 @@ export default function AllOrders() {
     },
     [dispatch, searchState, searchStateDrinks, userId]
   );
+
+  const handleCartClick = (type) => {
+    if (type === 1) {
+      onOpenDineIn();
+    } else {
+      onOpenCart();
+    }
+  };
 
   // Function to handle submission of item order
   const handleSubmitItemOrder = (data) => {
@@ -403,7 +418,8 @@ export default function AllOrders() {
           <Button
             leftIcon={<FaCartShopping />}
             colorScheme="teal"
-            onClick={onOpenCart}
+            // onClick={onOpenCart}
+            onClick={() => setIsCartClicked(!IsCartClicked)}
           >
             Cart
           </Button>
@@ -417,6 +433,25 @@ export default function AllOrders() {
             {AllOrderItemsLength}
           </Badge>
         </Box>
+        {IsCartClicked && (
+          <Box>
+            <Button
+              onClick={() => handleCartClick(1)}
+              colorScheme="teal"
+              variant="solid"
+              mr={2}
+            >
+              Dine-In
+            </Button>
+            <Button
+              onClick={() => handleCartClick(2)}
+              colorScheme="orange"
+              variant="solid"
+            >
+              Normal
+            </Button>
+          </Box>
+        )}
         <Button
           leftIcon={<FiPlusCircle />}
           colorScheme="teal"
@@ -451,6 +486,11 @@ export default function AllOrders() {
         ))}
       </Box>
       <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
+      <DineInDrawer
+        isOpen={isOpenDineIn}
+        onOpen={onOpenDineIn}
+        onClose={onCloseDineIn}
+      />
     </div>
   );
 }

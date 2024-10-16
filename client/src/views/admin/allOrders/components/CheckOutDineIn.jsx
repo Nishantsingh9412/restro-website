@@ -17,26 +17,31 @@ import {
   Stepper,
   useSteps,
 } from "@chakra-ui/react";
+import DineInForm from "./stepperDineIn/DineInForm";
+import DineInOrderSummary from "./stepperDineIn/DineInSummary";
 
-import Address from "./stepperComp/Address";
-import AllOrdersData from "./stepperComp/AllOrdersData";
-import OrderSummary from "./stepperComp/OrderSummary";
-
-const CheckoutComp = ({ isOpen, onClose }) => {
-  // Define steps before using them
+const CheckOutDineIn = ({ isOpen, onClose }) => {
+  // Define the steps for the stepper
   const steps = [
-    { title: "Address", description: "Add Address", component: Address },
-    { title: "Items", description: "Added Items", component: AllOrdersData },
-    { title: "Summary", description: "Order Summary", component: OrderSummary },
+    {
+      title: "DineIn Details",
+      description: "Add DineIn Details",
+      component: DineInForm,
+    },
+    {
+      title: "Summary",
+      description: "Order Summary",
+      component: DineInOrderSummary,
+    },
   ];
 
-  // Use useSteps hook with dynamic count
+  // Initialize stepper state
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
     count: steps.length,
   });
 
-  // Unified step navigation logic
+  // Function to navigate between steps
   const goToStep = (direction) => {
     setActiveStep((prevStep) =>
       Math.max(0, Math.min(prevStep + direction, steps.length - 1))
@@ -44,12 +49,14 @@ const CheckoutComp = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Drawer onClose={onClose} isOpen={isOpen} size="full">
+    // Drawer component for the checkout process
+    <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="full">
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />
-        <DrawerHeader>{`Checkout`}</DrawerHeader>
+        <DrawerHeader>Checkout-DineIn</DrawerHeader>
         <DrawerBody>
+          {/* Stepper component to show the steps */}
           <Stepper size="lg" colorScheme="yellow" index={activeStep}>
             {steps.map(({ title, description }, index) => (
               <Step key={index}>
@@ -64,7 +71,7 @@ const CheckoutComp = ({ isOpen, onClose }) => {
               </Step>
             ))}
           </Stepper>
-          {/* Render the active step's component */}
+          {/* Dynamic component rendering based on the active step */}
           <Box mt={4}>
             {React.createElement(steps[activeStep].component, {
               goToNextStep: () => goToStep(1),
@@ -77,4 +84,4 @@ const CheckoutComp = ({ isOpen, onClose }) => {
   );
 };
 
-export default CheckoutComp;
+export default CheckOutDineIn;

@@ -148,6 +148,23 @@ export const updateSingleCompleteOrderAPI = (id, updatedData) =>
 export const deleteSingleCompleteOrderAPI = (id) =>
   API.delete(`/complete-order/delete/${id}`);
 
+// Dine-In Order Management APIs
+// Add Dine-In Order
+export const addDineInOrderAPI = (newOrder) =>
+  API.post("/dine-in/create-dine-in", newOrder);
+// Get All Dine-In Orders
+export const getAllDineInOrdersAPI = (localStorageId) =>
+  API.get(`/dine-in/get-all/${localStorageId}`);
+// Get Single Dine-In Order
+export const getSingleDineInOrderAPI = (id) =>
+  API.get(`/dine-in/get-single/${id}`);
+// Update Dine-In Order
+export const updateSingleDineInOrderAPI = (id, updatedData) =>
+  API.patch(`/dine-in/update/${id}`, updatedData);
+// Delete Dine-In Order
+export const deleteSingleDineInOrderAPI = (id) =>
+  API.delete(`/dine-in-order/delete/${id}`);
+
 // Dashboard APIs
 // Total Stocks API
 export const totalStocksAPI = () => API.get("/dashboard/total-stocks-quantity");

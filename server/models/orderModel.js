@@ -24,4 +24,4 @@ const OrderedItemsSchema = new Schema(
   { timestamps: true }
 );
 
-export default model("OrderdItems", OrderedItemsSchema);
+export default model("OrderedItems", OrderedItemsSchema);

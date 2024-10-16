@@ -59,7 +59,7 @@ const OrderHistory = () => {
               state,
               zip,
               noteFromCustomer,
-              TotalPrice,
+              totalPrice,
               orderItems,
             }) => (
               <Box
@@ -108,7 +108,7 @@ const OrderHistory = () => {
                     <Badge colorScheme="blue">Note</Badge> {noteFromCustomer}
                   </Text>
                   <Text>
-                    <Badge colorScheme="blue">Total</Badge> ${TotalPrice}
+                    <Badge colorScheme="blue">Total</Badge> ${totalPrice}
                   </Text>
                 </Stack>
                 <Heading as="h3" size="sm" mt="6" mb="2">

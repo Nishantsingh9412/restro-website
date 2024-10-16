@@ -10,17 +10,21 @@ import delBoyReducer from "./delboyReducer";
 // import addressReducer from "./addressReducer";
 import stepperFormReducer from "./stepperReducer";
 import compOrderReducer from "./compOrderReducer";
+import { dineInOrderReducer } from "./dineInOrderReducer";
+import dineInStepperReducer from "./dineInStepperReducer";
 
 export default combineReducers({
-    authReducer,
-    userReducer,
-    itemsReducer,
-    stocksReducer,
-    supplierReducer,
-    OrderItemReducer,
-    QRItemsReducer,
-    delBoyReducer,
-    // addressReducer,
-    form:stepperFormReducer,
-    compOrder:compOrderReducer,
-})
+  authReducer,
+  userReducer,
+  itemsReducer,
+  stocksReducer,
+  supplierReducer,
+  OrderItemReducer,
+  QRItemsReducer,
+  delBoyReducer,
+  // addressReducer,
+  form: stepperFormReducer,
+  compOrder: compOrderReducer,
+  dineInOrder: dineInOrderReducer,
+  dineInForm: dineInStepperReducer,
+});
