@@ -165,6 +165,23 @@ export const updateSingleDineInOrderAPI = (id, updatedData) =>
 export const deleteSingleDineInOrderAPI = (id) =>
   API.delete(`/dine-in-order/delete/${id}`);
 
+// Take Away Order Management APIs
+// Add Take Away Order
+export const addTakeAwayOrderAPI = (newOrder) =>
+  API.post("/take-away/create-take-away", newOrder);
+// Get All Take Away Orders
+export const getAllTakeAwayOrdersAPI = (localStorageId) =>
+  API.get(`/take-away/get-all/${localStorageId}`);
+// Get Single Take Away Order
+export const getSingleTakeAwayOrderAPI = (id) =>
+  API.get(`/take-away/get-single/${id}`);
+// Update Take Away Order
+export const updateSingleTakeAwayOrderAPI = (id, updatedData) =>
+  API.patch(`/take-away/update/${id}`, updatedData);
+// Delete Take Away Order
+export const deleteSingleTakeAwayOrderAPI = (id) =>
+  API.delete(`/take-away/delete/${id}`);
+
 // Dashboard APIs
 // Total Stocks API
 export const totalStocksAPI = () => API.get("/dashboard/total-stocks-quantity");

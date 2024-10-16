@@ -12,6 +12,7 @@ import stepperFormReducer from "./stepperReducer";
 import compOrderReducer from "./compOrderReducer";
 import { dineInOrderReducer } from "./dineInOrderReducer";
 import dineInStepperReducer from "./dineInStepperReducer";
+import takeAwayStepperReducer from "./takeAwayStepperReducer";
 
 export default combineReducers({
   authReducer,
@@ -27,4 +28,5 @@ export default combineReducers({
   compOrder: compOrderReducer,
   dineInOrder: dineInOrderReducer,
   dineInForm: dineInStepperReducer,
+  takeAwayForm: takeAwayStepperReducer,
 });

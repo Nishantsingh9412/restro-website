@@ -34,6 +34,7 @@ import {
 import CartDrawer from "./components/CartDrawer";
 import ItemModal from "./components/ItemModal";
 import DineInDrawer from "./components/DineInDrawer";
+import TakeawayDrawer from "./components/TakeAwayDrawer";
 
 export default function AllOrders() {
   // Chakra UI hooks for modal and drawer states
@@ -56,6 +57,12 @@ export default function AllOrders() {
     isOpen: isOpenDineIn,
     onOpen: onOpenDineIn,
     onClose: onCloseDineIn,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenTakeAway,
+    onOpen: onOpenTakeAway,
+    onClose: onCloseTakeAway,
   } = useDisclosure();
 
   // Redux hooks
@@ -114,8 +121,10 @@ export default function AllOrders() {
   const handleCartClick = (type) => {
     if (type === 1) {
       onOpenDineIn();
-    } else {
+    } else if (type === 2) {
       onOpenCart();
+    } else {
+      onOpenTakeAway();
     }
   };
 
@@ -437,7 +446,7 @@ export default function AllOrders() {
           <Box>
             <Button
               onClick={() => handleCartClick(1)}
-              colorScheme="teal"
+              colorScheme="yellow"
               variant="solid"
               mr={2}
             >
@@ -447,8 +456,16 @@ export default function AllOrders() {
               onClick={() => handleCartClick(2)}
               colorScheme="orange"
               variant="solid"
+              mr={2}
             >
               Normal
+            </Button>{" "}
+            <Button
+              onClick={() => handleCartClick(3)}
+              colorScheme="red"
+              variant="solid"
+            >
+              TakeAway
             </Button>
           </Box>
         )}
@@ -490,6 +507,11 @@ export default function AllOrders() {
         isOpen={isOpenDineIn}
         onOpen={onOpenDineIn}
         onClose={onCloseDineIn}
+      />
+      <TakeawayDrawer
+        isOpen={isOpenTakeAway}
+        onOpen={onOpenTakeAway}
+        onClose={onCloseTakeAway}
       />
     </div>
   );
