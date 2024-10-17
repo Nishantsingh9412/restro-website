@@ -179,7 +179,7 @@ const routes2 = [
         icon: (
           <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
         ),
-        component: () => <></>,
+        component: <>Coming Soon</>,
       },
     ],
   },

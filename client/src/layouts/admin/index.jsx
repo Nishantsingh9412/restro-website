@@ -63,7 +63,7 @@ export default function Dashboard(props) {
   };
 
   const getActiveNavbarText = (routes) => {
-    let activeNavbar = false;
+    let activeNavbar = "Default Brand Text";
     for (let i = 0; i < routes.length; i++) {
       if (routes[i].collapse) {
         let collapseActiveNavbar = getActiveNavbarText(routes[i].items);

@@ -60,7 +60,7 @@ const DineInForm = ({ goToNextStep }) => {
   const handleDineInSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    console.log(formData);
+    // console.log(formData);
     goToNextStep();
   };
 

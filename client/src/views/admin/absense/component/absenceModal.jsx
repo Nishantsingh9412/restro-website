@@ -64,7 +64,7 @@ export default function LeaveRequestModal({
         ...prev,
         startDate: leaveData?.startDate,
       }));
-    console.log(formatDateForInput(leaveData?.startDate));
+    // console.log(formatDateForInput(leaveData?.startDate));
   }, [actionType, leaveData]);
 
   // Handle input change for form fields

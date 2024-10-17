@@ -332,13 +332,7 @@ export default function AbsenseComponent() {
                         const endDate = new Date(
                           absence.endDate
                         ).toLocaleDateString();
-                        // console.log(absence);
-                        console.log("startDate", startDate);
-                        console.log("endDate", endDate);
-                        console.log("formattedDay", formattedDay);
-                        console.log(
-                          formattedDay >= startDate && formattedDay <= endDate
-                        );
+
                         return (
                           formattedDay >= startDate && formattedDay <= endDate
                         );
@@ -427,7 +421,7 @@ export default function AbsenseComponent() {
                                 // Format as "yyyy-MM-dd"
                                 const formattedDate = `${year}-${month}-${days}`;
 
-                                console.log("date", formattedDate);
+                                // console.log("date", formattedDate);
                                 setActionType("add");
                                 setSelectedEmployeeId(emp._id);
                                 setSelectedAbsence({

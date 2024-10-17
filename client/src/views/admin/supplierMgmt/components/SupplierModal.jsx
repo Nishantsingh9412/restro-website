@@ -134,7 +134,7 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
         toast.error("Error Uploading Image");
         setLoading(false);
       });

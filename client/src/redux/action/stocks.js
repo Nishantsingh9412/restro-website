@@ -10,7 +10,7 @@ const handleApiCall = async (apiFunc, actionType, localStorageId, dispatch) => {
     dispatch({ type: actionType, data: data.result });
 
     // Log the data for debugging purposes
-    // console.log(`this is the data from ${actionType}: `, data.result);
+    // // console.log(`this is the data from ${actionType}: `, data.result);
 
     // Return success message
     return {
@@ -19,7 +19,7 @@ const handleApiCall = async (apiFunc, actionType, localStorageId, dispatch) => {
     };
   } catch (error) {
     // Log the error message and stack trace for debugging purposes
-    console.log(`Error from ${actionType}: ` + error.message, error.stack);
+    // console.log(`Error from ${actionType}: ` + error.message, error.stack);
 
     // Return failure message
     return { success: false, message: "something went wrong" };

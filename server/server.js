@@ -57,7 +57,7 @@ app.use("/take-away", takeAwayRoutes);
 const __dirname = path.resolve(); // Set the __dirname to current directory
 
 // Serve static files in production (e.g., frontend build files)
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV !== "production") {
   app.use(express.static("./frontend/build"));
 
   // Serve React app for any unknown routes in production

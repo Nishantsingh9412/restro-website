@@ -1,4 +1,4 @@
-//TODO: Delete this file, no use 
+//TODO: Delete this file, no use
 // import React, { useEffect, useState } from 'react'
 // import {
 //     Modal,
@@ -88,7 +88,7 @@
 //     }, [ItemId])
 
 //     const SelectedItemData = useSelector((state) => state.itemsReducer.selectedItem);
-//     console.log(30, "SelectedItemData: \n", SelectedItemData)
+//     // console.log(30, "SelectedItemData: \n", SelectedItemData)
 
 //     useEffect(() => {
 //         if (SelectedItemData) {

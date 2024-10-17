@@ -36,7 +36,7 @@
 //     }, [ItemId, isOpen])
 
 //     const SelectedItemData = useSelector((state) => state.itemsReducer.selectedItem);
-//     console.log(30, "SelectedItemData: \n", SelectedItemData)
+//     // console.log(30, "SelectedItemData: \n", SelectedItemData)
 
 //     return (
 //         <div>

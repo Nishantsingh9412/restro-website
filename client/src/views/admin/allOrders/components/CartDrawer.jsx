@@ -148,7 +148,6 @@ const CartDrawer = ({ isOpen, onClose }) => {
 // PropTypes validation
 CartDrawer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  onOpen: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 

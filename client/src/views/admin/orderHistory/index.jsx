@@ -36,7 +36,7 @@ const OrderHistory = () => {
   }, [fetchCompleteOrders]);
 
   const handleAllotDeliveryBoy = useCallback(() => {
-    console.log("Allot Delivery Boy Pending .........");
+    // console.log("Allot Delivery Boy Pending .........");
   }, []);
 
   return (
@@ -63,7 +63,7 @@ const OrderHistory = () => {
               orderItems,
             }) => (
               <Box
-                key={_id.$oid}
+                key={_id}
                 borderWidth="1px"
                 borderRadius="lg"
                 overflow="hidden"

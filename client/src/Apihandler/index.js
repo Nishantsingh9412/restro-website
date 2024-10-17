@@ -20,7 +20,7 @@ export const getApihandler = async (endPoint) => {
 export const getbyidApihandler = async (endPoint) => {
   try {
     const getres = await axios.get(serverUrl + endPoint);
-    // console.log("getresbyid=>", getres);
+    // // console.log("getresbyid=>", getres);
     return getres.data;
   } catch (error) {
     return { error };
@@ -31,7 +31,7 @@ export const getbyidApihandler = async (endPoint) => {
 export const postLoginApihandler = async (endPoint, value) => {
   try {
     const postRes = await axios.post(serverUrl + endPoint, value);
-    // console.log("apipost=>", postRes);
+    // // console.log("apipost=>", postRes);
     return postRes.data;
   } catch (error) {
     return { error };
@@ -40,11 +40,11 @@ export const postLoginApihandler = async (endPoint, value) => {
 
 // Function to handle generic POST requests
 export const postApihandler = async (endPoint, value) => {
-  // console.log("postvalue=>", endPoint);
-  // console.log("postvalue=>", value);
+  // // console.log("postvalue=>", endPoint);
+  // // console.log("postvalue=>", value);
   try {
     const postRes = await axios.post(serverUrl + endPoint, value);
-    // console.log("apipost=>", postRes);
+    // // console.log("apipost=>", postRes);
     return postRes.data;
   } catch (error) {
     return { error };
@@ -79,7 +79,7 @@ export const putApihandler = async (endPoint, value) => {
     // });
     // return res.data;
   } catch (error) {
-    // console.log("error ");
+    // // console.log("error ");
     return { error };
   }
 };

@@ -65,7 +65,7 @@ export default function EmployeeComponent() {
   const addEmployee = async (formData) => {
     const userId = JSON.parse(localStorage.getItem("ProfileData")).result._id;
     const newEmployee = { ...formData, created_by: userId };
-    console.log(newEmployee);
+    // console.log(newEmployee);
 
     try {
       const res = await dispatch(postEmployeeApi(newEmployee));

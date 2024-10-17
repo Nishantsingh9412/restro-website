@@ -164,8 +164,8 @@ const BarcodeGenerator = () => {
 
   const ItemDataReducerQR = useSelector((state) => state.QRItemsReducer);
   const QRItemsReducerData = ItemDataReducerQR?.items;
-  console.log("This is ItemDataReducer : \n", ItemDataReducerQR);
-  console.log("This is ItemData : \n", QRItemsReducerData);
+  // console.log("This is ItemDataReducer : \n", ItemDataReducerQR);
+  // console.log("This is ItemData : \n", QRItemsReducerData);
 
   const handleAutoAddVals = () => {
     setItemName("Rice");
@@ -189,7 +189,7 @@ const BarcodeGenerator = () => {
         textxalign: "center", // Always good to set this
       });
     } catch (e) {
-      console.log("Error in generating barcode");
+      // console.log("Error in generating barcode");
     }
   };
 

@@ -52,7 +52,7 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
         dispatch(ResetOrderItemAction());
         navigate("/admin/order-history");
       } else toast.error(res.message);
-      console.log(res);
+      // console.log(res);
     });
   };
 

@@ -127,8 +127,8 @@ function SignIn() {
   const handleLogin = (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log("Email: ", email);
-    console.log("Password: ", password);
+    // console.log("Email: ", email);
+    // console.log("Password: ", password);
     if (!validate()) return;
 
     const loginData = {
@@ -137,7 +137,7 @@ function SignIn() {
     };
 
     dispatch(LoginAction(loginData)).then((res) => {
-      console.log("Login Response: ", res);
+      // console.log("Login Response: ", res);
       if (res.success) {
         // toast.success(res.message);
         setLoading(false);
@@ -159,10 +159,10 @@ function SignIn() {
       country_code,
       membership_id: memeberid,
     };
-    console.log(loginData);
+    // console.log(loginData);
 
     dispatch(LoginDelivBoyAction(loginData)).then((res) => {
-      console.log("Login Response: ", res);
+      // console.log("Login Response: ", res);
       if (res.success) {
         // toast.success(res.message);
         setLoading(false);

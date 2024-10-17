@@ -2,7 +2,7 @@ import * as api from "../../api/index.js";
 
 // Helper function to handle errors
 const handleError = (err, actionName) => {
-  console.log(`Error from ${actionName}: ${err.message}`, err.stack);
+  // console.log(`Error from ${actionName}: ${err.message}`, err.stack);
   return { success: false, message: "Something went wrong" };
 };
 

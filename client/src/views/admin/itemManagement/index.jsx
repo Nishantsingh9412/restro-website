@@ -83,7 +83,7 @@ export default function ItemManagement() {
       let dataUrl = canvas.toDataURL();
       setBarcodeDataUrl(dataUrl);
     } catch (e) {
-      console.log("Error in generating barcode", e);
+      // console.log("Error in generating barcode", e);
     }
   };
 
@@ -105,7 +105,7 @@ export default function ItemManagement() {
         error: "Error in Adding Item",
       });
     } catch (e) {
-      console.log("Error in adding item", e);
+      // console.log("Error in adding item", e);
     }
   };
 
@@ -129,7 +129,7 @@ export default function ItemManagement() {
         error: "Error in Updating Item",
       });
     } catch {
-      console.log("Error in updating item");
+      // console.log("Error in updating item");
     }
   };
 

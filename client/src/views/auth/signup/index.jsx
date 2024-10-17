@@ -164,7 +164,7 @@ function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    // console.log(name, email, password, confirmPassword)
+    // // console.log(name, email, password, confirmPassword)
     if (!validate()) return;
 
     const formData = new FormData();
@@ -178,18 +178,18 @@ function SignUp() {
       formData.append("profile_picture", profilePicture);
     }
 
-    console.log("newUserData", formData);
+    // console.log("newUserData", formData);
 
     dispatch(SignUpAction(formData)).then((res) => {
       if (!res.success) {
         setLoading(false);
         toast.error(res.message);
-        console.log(res);
+        // console.log(res);
       } else {
         // toast.success(res.message);
         setLoading(false);
         navigate("/admin/dashboards/default");
-        console.log(res);
+        // console.log(res);
       }
     });
   };
@@ -379,7 +379,7 @@ function SignUp() {
                 size="lg"
                 onChange={(e) => {
                   setProfilePicture(e.target.files[0]);
-                  console.log(e.target.files[0]);
+                  // console.log(e.target.files[0]);
                 }}
               />
               <Flex justifyContent="end" align="center" mb="24px">
