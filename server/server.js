@@ -26,11 +26,16 @@ import takeAwayRoutes from "./routes/takeAwayRoutes.js";
 
 const app = express();
 dotenv.config(); // Load environment variables from .env file
+// Origin Cors
+const corsOptions = {
+  origin: "http://212.132.99.95", // Allow requests from your external server IP
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+};
 
 // Middleware setup
 app.use(express.json({ limit: "30mb", extended: true })); // Parse incoming requests with JSON payloads
 app.use(express.urlencoded({ limit: "30mb", extended: true })); // Parse URL-encoded data
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
 
 // Static file serving (for image uploads)
 app.use("/uploads", express.static("uploads"));
@@ -57,7 +62,7 @@ app.use("/take-away", takeAwayRoutes);
 const __dirname = path.resolve(); // Set the __dirname to current directory
 
 // Serve static files in production (e.g., frontend build files)
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV === "production") {
   app.use(express.static("./frontend/dist"));
 
   // Serve React app for any unknown routes in production
