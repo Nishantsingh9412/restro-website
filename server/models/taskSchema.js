@@ -1,37 +1,38 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'; // Import mongoose library
 
-const taskSchema = new mongoose.Schema({
+const { Schema, model } = mongoose; // Destructure Schema and model from mongoose
+
+// Define the task schema
+const taskSchema = new Schema({
     title: {
-        type: String,
-        required: true
+        type: String, // Title is a string
+        required: true, // Title is required
+        trim: true // Trim whitespace from the title
     },
     description: {
-        type: String,
-        required: false
+        type: String, // Description is a string
+        trim: true // Trim whitespace from the description
     },
     assignedTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: Schema.Types.ObjectId, // Reference to a User object
+        ref: 'User', // Referencing the User model
+        required: true // assignedTo is required
     },
-    // date: {
-    //     type: Date,
-    //     required: true
-    // },
     startDate: {
-        type: Date,
-        required: true
+        type: Date, // Start date is a date
+        required: true, // Start date is required
+        default: Date.now // Default value is the current date
     },
     endDate: {
-        type: Date,
-        required: true
+        type: Date, // End date is a date
+        required: true // End date is required
     },
     created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Auth',
-        required: true
+        type: Schema.Types.ObjectId, // Reference to an Auth object
+        ref: 'Auth', // Referencing the Auth model
+        required: true // createdBy is required
     }
-}, { timestamps: true });
+}, { timestamps: true }); // Automatically add createdAt and updatedAt timestamps
 
-export default mongoose.model('Task', taskSchema);
-
+// Export the Task model based on the taskSchema
+export default model('Task', taskSchema);

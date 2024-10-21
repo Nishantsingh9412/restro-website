@@ -34,7 +34,7 @@ const DeliveryBoyModal = ({
   // State management with an object
   const [formState, setFormState] = useState({
     supplierName: "",
-    phoneNo: "",
+    phone: "",
     countryCode: "",
     loading: false,
   });
@@ -46,7 +46,7 @@ const DeliveryBoyModal = ({
     if (isEditMode && initialData) {
       setFormState({
         supplierName: initialData.name || "",
-        phoneNo: initialData.phone || "",
+        phone: initialData.phone || "",
         countryCode: initialData.country_code || "",
         loading: false,
       });
@@ -64,13 +64,17 @@ const DeliveryBoyModal = ({
 
   // Handle phone input change and update phone number and country code
   const handlePhoneInputChange = (phoneNumber) => {
+    setFormState((prevData) => ({
+      ...prevData,
+      phone: phoneNumber,
+    }));
+
     if (typeof phoneNumber === "string") {
       const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
       if (parsedPhoneNumber) {
         setFormState((prevData) => ({
           ...prevData,
           countryCode: parsedPhoneNumber.countryCallingCode,
-          phone: parsedPhoneNumber.nationalNumber,
         }));
       }
     }
@@ -79,10 +83,15 @@ const DeliveryBoyModal = ({
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formState);
 
-    const { supplierName, phoneNo, countryCode } = formState;
-    if (!supplierName || !phoneNo || !countryCode) {
+    const { supplierName, phone, countryCode } = formState;
+    if (!supplierName || !phone || !countryCode) {
       toast.error("All fields are required");
+      return;
+    }
+    if (phone.length < 10 || phone.length > 15) {
+      toast.error("Phone number must be at least 10 characters");
       return;
     }
 
@@ -91,7 +100,7 @@ const DeliveryBoyModal = ({
     const delboyData = {
       name: supplierName,
       country_code: countryCode,
-      phone: phoneNo,
+      phone: phone,
       created_by: AdminUserId,
     };
 
@@ -122,8 +131,8 @@ const DeliveryBoyModal = ({
   const autoFill = () => {
     setFormState({
       supplierName: "John Doe",
-      phoneNo: "+911234567890",
-      countryCode: "+91",
+      phone: "+491234567890",
+      countryCode: "49",
     });
   };
 
@@ -131,7 +140,7 @@ const DeliveryBoyModal = ({
   const resetForm = () => {
     setFormState({
       supplierName: "",
-      phoneNo: "",
+      phone: "",
       countryCode: "",
       loading: false,
     });
@@ -175,7 +184,7 @@ const DeliveryBoyModal = ({
                 <PhoneInput
                   international
                   defaultCountry="DE"
-                  value={formState.phoneNo}
+                  value={formState.phone}
                   onChange={handlePhoneInputChange}
                   placeholder="Enter phone number"
                   inputComponent={Input}

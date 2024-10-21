@@ -184,7 +184,7 @@ const routes2 = [
     ],
   },
   {
-    name: "Personnel planning",
+    name: "Employee Planning",
     layout: "/admin",
     path: "/personalplan-dashboard",
     type: "list",
@@ -225,6 +225,13 @@ const routes2 = [
         component: <ShiftSchedule />,
       },
       {
+        name: "Assign Schedule",
+        layout: "/admin",
+        path: "/employee-management",
+        icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
+        component: <EmployeeManagement />,
+      },
+      {
         name: "Absences",
         layout: "/admin",
         path: "/absences",
@@ -242,17 +249,6 @@ const routes2 = [
         ),
         component: <Employee />,
       },
-    ],
-  },
-  {
-    name: "Delivery Partners",
-    layout: "/admin",
-    path: "/delivery-partners",
-    type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
-    links: [
       {
         name: "Delivery partners",
         layout: "/admin",
@@ -269,24 +265,58 @@ const routes2 = [
       },
     ],
   },
-  {
-    name: "Employee",
-    layout: "/admin",
-    path: "/employee-management",
-    type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
-    links: [
-      {
-        name: "Assign Schedule",
-        layout: "/admin",
-        path: "/employee-management",
-        icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
-        component: <EmployeeManagement />,
-      },
-    ],
-  },
+  // {
+  //   name: "Delivery Partners",
+  //   layout: "/admin",
+  //   path: "/delivery-partners",
+  //   type: "list",
+  //   icon: (
+  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+  //   ),
+  //   links: [
+  //     // {
+  //     //   name: "Delivery partners",
+  //     //   layout: "/admin",
+  //     //   path: "/delivery-partners",
+  //     //   icon: (
+  //     //     <Icon
+  //     //       as={MdLocalShipping}
+  //     //       width="20px"
+  //     //       height="20px"
+  //     //       color="inherit"
+  //     //     />
+  //     //   ),
+  //     //   component: <OrderShipping />,
+  //     // },
+  //   ],
+  // },
+  // {
+  //   name: "Employee",
+  //   layout: "/admin",
+  //   path: "/employee-management",
+  //   type: "list",
+  //   icon: (
+  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+  //   ),
+  //   links: [
+  //     // {
+  //     //   name: "Assign Schedule",
+  //     //   layout: "/admin",
+  //     //   path: "/employee-management",
+  //     //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
+  //     //   component: <EmployeeManagement />,
+  //     // },
+  //     // {
+  //     //   name: "Shift Schedule",
+  //     //   layout: "/admin",
+  //     //   path: "/shift-schedule",
+  //     //   icon: (
+  //     //     <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+  //     //   ),
+  //     //   component: <ShiftSchedule />,
+  //     // },
+  //   ],
+  // },
   {
     name: "Warehouse",
     layout: "/admin",
