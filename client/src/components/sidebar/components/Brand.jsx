@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useMemo } from "react";
-import { Box, Button, Flex, Img } from "@chakra-ui/react";
+import { Box, Flex, Img } from "@chakra-ui/react";
 import { FaPencil } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

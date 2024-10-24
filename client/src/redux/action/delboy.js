@@ -40,6 +40,15 @@ export const getAllDelboyzAction = () => async (dispatch) => {
   );
 };
 
+// const getSingleDelBoyUser = (id) => async (dispatch) => {
+//   return handleApiCall(
+//     () => api.getSingleDeliveryPersonnel(id),
+//     dispatch,
+//     "GET_DELBOY_USER",
+//     "Delivery Personnel Fetched Successfully"
+//   );
+// };
+
 // Action to get a single delivery personnel by ID
 export const getSingleDelBoyAction = (id) => async (dispatch) => {
   return handleApiCall(

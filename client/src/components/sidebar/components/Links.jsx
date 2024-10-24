@@ -82,7 +82,10 @@ export function SidebarLinks({ routes }) {
 
   // Memoized function to check if a route is active
   const activeRoute = useMemo(
-    () => (routeName) => location.pathname === "/admin" + routeName,
+    () => (routeName) => {
+      const path = location.pathname;
+      return path === "/delivery" + routeName || path === "/admin" + routeName;
+    },
     [location.pathname]
   );
 
@@ -113,7 +116,10 @@ export function SidebarLinks({ routes }) {
             {createLinks(route.items)}
           </React.Fragment>
         );
-      } else if (["/admin", "/auth", "/rtl"].includes(route.layout)) {
+        // TODO: Add support for nested categories
+      } else if (
+        ["/admin", "/auth", "/rtl", "/delivery"].includes(route.layout)
+      ) {
         // Render main navigation links
         return (
           <Box mb="6" key={index}>

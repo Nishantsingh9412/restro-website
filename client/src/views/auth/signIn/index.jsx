@@ -1,39 +1,12 @@
-/* eslint-disable */
-/*!
-  _   _  ___  ____  ___ ________  _   _   _   _ ___   
- | | | |/ _ \|  _ \|_ _|__  / _ \| \ | | | | | |_ _| 
- | |_| | | | | |_) || |  / / | | |  \| | | | | || | 
- |  _  | |_| |  _ < | | / /| |_| | |\  | | |_| || |
- |_| |_|\___/|_| \_\___/____\___/|_| \_|  \___/|___|
-                                                                                                                                                                                                                                                                                                                                       
-=========================================================
-* Horizon UI - v1.1.0
-=========================================================
-
-* Product Page: https://www.horizon-ui.com/
-* Copyright 2023 Horizon UI (https://www.horizon-ui.com/)
-
-* Designed and Coded by Simmmple
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-import React, { useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import PhoneInput from "react-phone-number-input";
-import { parsePhoneNumber } from "react-phone-number-input";
+import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "react-toastify/dist/ReactToastify.css";
-// Chakra imports
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
   FormControl,
   FormLabel,
@@ -42,137 +15,333 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  useColorModeValue,
   Text,
   Tabs,
   TabList,
   Tab,
   TabIndicator,
+  useColorModeValue,
 } from "@chakra-ui/react";
-// Custom components
-// import { HSeparator } from "components/separator/Separator";
 import DefaultAuth from "../../../layouts/auth/Default.jsx";
-// Assets
-// import illustration from "assets/img/auth/auth.png";
 import illustration from "../../../assets/img/auth/login-img.png";
-import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import {
   LoginAction,
   LoginDelivBoyAction,
 } from "../../../redux/action/auth.js";
 
 function SignIn() {
-  // Chakra color mode
+  // Define color modes for different elements
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
   const textColorBrand = useColorModeValue("blue", "white");
   const brandStars = useColorModeValue("brand.500", "brand.400");
-  const googleBg = useColorModeValue("secondaryGray.300", "whiteAlpha.200");
-  const googleText = useColorModeValue("navy.700", "white");
-  const googleHover = useColorModeValue(
-    { bg: "gray.200" },
-    { bg: "whiteAlpha.300" }
-  );
-  const googleActive = useColorModeValue(
-    { bg: "secondaryGray.300" },
-    { bg: "whiteAlpha.200" }
-  );
+
+  // State variables
   const [role, setRole] = useState("admin");
-  const [show, setShow] = React.useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [country_code, setCountryCode] = useState("");
-  const [phone, setPhone] = useState("");
-  const [loadingDeliv, setLoadingDeliv] = useState(false);
-  const [memeberid, setMemberId] = useState("");
+  const [show, setShow] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    country_code: "",
+    phone: "",
+    memberId: "",
+  });
   const [loading, setLoading] = useState(false);
 
+  // Redux dispatch and navigation hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleClick = () => setShow(!show);
 
+  // Check if user is already logged in
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("ProfileData"));
+    console.log("USER", user);
     if (user) {
       navigate("/admin/dashboards/default");
     }
   }, [navigate]);
 
-  const handleGoogleLogin = () => {
-    window.open(
-      `${process.env.VITE_APP_BASE_URL_FOR_APIS}/auth/google/callback`,
-      "_self"
-    );
-  };
+  // Toggle password visibility
+  const handleClick = () => setShow(!show);
 
+  // Validate form data
   const validate = () => {
-    if (!email) {
+    if (!formData.email) {
       toast.error("Email is required");
       return false;
-    } else if (!password) {
+    } else if (!formData.password) {
       toast.error("Password is required");
       return false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast.error("Please enter a valid email");
       return false;
     }
     return true;
   };
 
+  // Handle admin login
   const handleLogin = (e) => {
     e.preventDefault();
     setLoading(true);
-    // console.log("Email: ", email);
-    // console.log("Password: ", password);
     if (!validate()) return;
 
-    const loginData = {
-      email,
-      password,
-    };
+    const loginData = { email: formData.email, password: formData.password };
 
     dispatch(LoginAction(loginData)).then((res) => {
-      // console.log("Login Response: ", res);
+      setLoading(false);
       if (res.success) {
-        // toast.success(res.message);
-        setLoading(false);
         navigate("/admin/dashboards/default");
       } else {
-        setLoading(false);
         toast.error(res.message);
       }
     });
   };
 
+  // Handle delivery boy login
   const handleLoginDelivBoy = (e) => {
     e.preventDefault();
-
     setLoading(true);
 
     const loginData = {
-      phone_number: phone,
-      country_code,
-      membership_id: memeberid,
+      phone_number: formData.phone,
+      country_code: formData.country_code,
+      membership_id: formData.memberId,
     };
-    // console.log(loginData);
 
     dispatch(LoginDelivBoyAction(loginData)).then((res) => {
-      // console.log("Login Response: ", res);
+      setLoading(false);
       if (res.success) {
-        // toast.success(res.message);
-        setLoading(false);
-        navigate("/admin/dashboards/default");
+        navigate("/delivery/dashboard");
       } else {
-        setLoading(false);
         toast.error(res.message);
       }
     });
   };
+
+  // Handle form input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  // Render input field
+  const renderInputField = (
+    label,
+    name,
+    type = "text",
+    placeholder = "",
+    isRequired = true
+  ) => (
+    <FormControl id={name} mb="24px">
+      <FormLabel
+        display="flex"
+        ms="4px"
+        fontSize="sm"
+        fontWeight="500"
+        color={textColor}
+        mb="8px"
+      >
+        {label} <Text color={brandStars}>*</Text>
+      </FormLabel>
+      <Input
+        isRequired={isRequired}
+        variant="auth"
+        fontSize="sm"
+        placeholder={placeholder}
+        mb="24px"
+        fontWeight="500"
+        size="lg"
+        type={type}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+      />
+    </FormControl>
+  );
+
+  // Render admin login form
+  const renderAdminForm = () => (
+    <form onSubmit={handleLogin}>
+      {renderInputField("Email", "email", "email", "mail@example.com")}
+      <FormControl>
+        <FormLabel
+          ms="4px"
+          fontSize="sm"
+          fontWeight="500"
+          color={textColor}
+          display="flex"
+        >
+          Password<Text color={brandStars}>*</Text>
+        </FormLabel>
+        <InputGroup size="md">
+          <Input
+            isRequired
+            fontSize="sm"
+            placeholder="Enter Password"
+            mb="24px"
+            size="lg"
+            type={show ? "text" : "password"}
+            variant="auth"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          <InputRightElement display="flex" alignItems="center" mt="4px">
+            <Icon
+              color={textColorSecondary}
+              _hover={{ cursor: "pointer" }}
+              as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
+              onClick={handleClick}
+            />
+          </InputRightElement>
+        </InputGroup>
+      </FormControl>
+      <Flex justifyContent="end" align="center" mb="24px">
+        <NavLink to="/auth/forgot-password">
+          <Text color={textColorBrand} fontSize="sm" w="124px" fontWeight="500">
+            Forgot password?
+          </Text>
+        </NavLink>
+      </Flex>
+      <Button
+        type="submit"
+        fontSize="sm"
+        colorScheme="blue"
+        fontWeight="500"
+        w="100%"
+        h="50"
+        mb="24px"
+        isLoading={loading}
+      >
+        Sign In
+      </Button>
+      <Button
+        fontSize="sm"
+        colorScheme="green"
+        fontWeight="500"
+        w="100%"
+        h="50"
+        mb="24px"
+        onClick={() => {
+          setFormData({
+            ...formData,
+            email: "prakash@gmail.com",
+            password: "111111",
+          });
+        }}
+      >
+        Test Application
+      </Button>
+      <Flex
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="start"
+        maxW="100%"
+        mt="0px"
+      >
+        <Text color={textColorDetails} fontWeight="400" fontSize="14px">
+          Not registered yet?
+          <NavLink to="/auth/sign-up">
+            <Text color={textColorBrand} as="span" ms="5px" fontWeight="500">
+              Create an Account
+            </Text>
+          </NavLink>
+        </Text>
+      </Flex>
+    </form>
+  );
+
+  // Render delivery boy login form
+  const renderDeliveryBoyForm = () => (
+    <form onSubmit={handleLoginDelivBoy}>
+      <FormControl id="phone">
+        <FormLabel
+          display="flex"
+          ms="4px"
+          fontSize="sm"
+          fontWeight="500"
+          color={textColor}
+          mb="8px"
+        >
+          Phone<Text color={brandStars}>*</Text>
+        </FormLabel>
+        <Box mb="24px" borderRadius="md" overflow="hidden">
+          <PhoneInput
+            isRequired
+            variant="auth"
+            fontSize="sm"
+            international
+            defaultCountry="DE"
+            style={{ width: "100%" }}
+            onChange={(phoneNumber) => {
+              if (typeof phoneNumber === "string") {
+                const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
+                if (parsedPhoneNumber) {
+                  setFormData((prevState) => ({
+                    ...prevState,
+                    country_code: parsedPhoneNumber.countryCallingCode,
+                    phone: parsedPhoneNumber.nationalNumber,
+                  }));
+                }
+              }
+            }}
+            placeholder="Phone"
+            value={
+              formData.phone
+                ? `+${formData.country_code} ${formData.phone}`
+                : ""
+            }
+            inputComponent={Input}
+            inputProps={{
+              _focus: {
+                borderColor: "#ee7213",
+                boxShadow: "0 0 0 1px #ee7213",
+              },
+            }}
+          />
+        </Box>
+      </FormControl>
+      {renderInputField("Member ID", "memberId", "text", "GvI0uopUiTV1")}
+      <Button
+        type="submit"
+        fontSize="sm"
+        colorScheme="green"
+        fontWeight="500"
+        w="100%"
+        h="50"
+        mt="20px"
+        mb="24px"
+        isLoading={loading}
+      >
+        Sign In
+      </Button>
+      <Button
+        fontSize="sm"
+        colorScheme="blue"
+        fontWeight="500"
+        w="100%"
+        h="50"
+        mb="24px"
+        onClick={() => {
+          setFormData({
+            ...formData,
+            phone: "9798425933",
+            country_code: "91",
+            memberId: "Cd5jZSpYhL",
+          });
+        }}
+      >
+        Test Application
+      </Button>
+    </form>
+  );
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
@@ -198,7 +367,7 @@ function SignIn() {
             position="relative"
             variant="unstyled"
             mt="10px"
-            onChange={(index) => setRole(index === 0 ? "admin" : "deliveryboy")}
+            onChange={(index) => setRole(index === 0 ? "admin" : "deliveryBoy")}
           >
             <TabList>
               <Tab _selected={{ boxShadow: "none" }}>Admin</Tab>
@@ -224,274 +393,7 @@ function SignIn() {
           me="auto"
           mb={{ base: "20px", md: "auto" }}
         >
-          {/* <Button
-            fontSize='sm'
-            me='0px'
-            mb='26px'
-            py='15px'
-            h='50px'
-            borderRadius='16px'
-            bg={googleBg}
-            color={googleText}
-            fontWeight='500'
-            _hover={googleHover}
-            _active={googleActive}
-            _focus={googleActive}
-            onClick={handleGoogleLogin}
-
-          >
-            <Icon as={FcGoogle} w='20px' h='20px' me='10px' />
-            Sign in with Google
-          </Button> */}
-
-          {/* <Flex align='center' mb='25px'>
-            <HSeparator />
-            <Text color='gray.400' mx='14px'>
-              or
-            </Text>
-            <HSeparator />
-          </Flex> */}
-
-          {role === "admin" ? (
-            <form onSubmit={handleLogin}>
-              <FormControl>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  color={textColor}
-                  mb="8px"
-                >
-                  Email<Text color={brandStars}>*</Text>
-                </FormLabel>
-                <Input
-                  isRequired={true}
-                  variant="auth"
-                  fontSize="sm"
-                  ms={{ base: "0px", md: "0px" }}
-                  type="email"
-                  placeholder="mail@example.com"
-                  mb="24px"
-                  fontWeight="500"
-                  size="lg"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <FormLabel
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  color={textColor}
-                  display="flex"
-                >
-                  Password<Text color={brandStars}>*</Text>
-                </FormLabel>
-                <InputGroup size="md">
-                  <Input
-                    isRequired={true}
-                    fontSize="sm"
-                    placeholder="Enter Password"
-                    mb="24px"
-                    size="lg"
-                    type={show ? "text" : "password"}
-                    variant="auth"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <InputRightElement
-                    display="flex"
-                    alignItems="center"
-                    mt="4px"
-                  >
-                    <Icon
-                      color={textColorSecondary}
-                      _hover={{ cursor: "pointer" }}
-                      as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-                      onClick={handleClick}
-                    />
-                  </InputRightElement>
-                </InputGroup>
-                <Flex justifyContent="end" align="center" mb="24px">
-                  {/* <FormControl display='flex' alignItems='center'>
-                <Checkbox
-                  id='remember-login'
-                  colorScheme='brandScheme'
-                  me='10px'
-                />
-                <FormLabel
-                  htmlFor='remember-login'
-                  mb='0'
-                  fontWeight='normal'
-                  color={textColor}
-                  fontSize='sm'>
-                  Keep me logged in
-                </FormLabel>
-              </FormControl> */}
-                  <NavLink to="/auth/forgot-password">
-                    <Text
-                      color={textColorBrand}
-                      fontSize="sm"
-                      w="124px"
-                      fontWeight="500"
-                    >
-                      Forgot password?
-                    </Text>
-                  </NavLink>
-                </Flex>
-                <Button
-                  type="submit"
-                  fontSize="sm"
-                  colorScheme="blue"
-                  fontWeight="500"
-                  w="100%"
-                  h="50"
-                  mb="24px"
-                  isLoading={loading}
-                >
-                  Sign In
-                </Button>
-
-                <Button
-                  fontSize="sm"
-                  colorScheme="green"
-                  fontWeight="500"
-                  w="100%"
-                  h="50"
-                  mb="24px"
-                  isLoading={loading}
-                  onClick={() => {
-                    setEmail("prakash@gmail.com");
-                    setPassword("111111");
-                  }}
-                >
-                  Test Application
-                </Button>
-              </FormControl>
-              <Flex
-                flexDirection="column"
-                justifyContent="center"
-                alignItems="start"
-                maxW="100%"
-                mt="0px"
-              >
-                <Text color={textColorDetails} fontWeight="400" fontSize="14px">
-                  Not registered yet?
-                  <NavLink to="/auth/sign-up">
-                    <Text
-                      color={textColorBrand}
-                      as="span"
-                      ms="5px"
-                      fontWeight="500"
-                    >
-                      Create an Account
-                    </Text>
-                  </NavLink>
-                </Text>
-              </Flex>
-            </form>
-          ) : (
-            <form onSubmit={handleLoginDelivBoy}>
-              <FormControl id="phone">
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  color={textColor}
-                  mb="8px"
-                >
-                  Phone<Text color={brandStars}>*</Text>
-                </FormLabel>
-                <Box mb="24px" borderRadius="md" overflow="hidden">
-                  <PhoneInput
-                    isRequired={true}
-                    variant="auth"
-                    fontSize="sm"
-                    ms={{ base: "0px", md: "0px" }}
-                    fontWeight="500"
-                    size="lg"
-                    international
-                    defaultCountry="DE"
-                    style={{ width: "100%" }} // Make the input take up the full width of its container
-                    onChange={(phoneNumber) => {
-                      if (typeof phoneNumber === "string") {
-                        const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
-                        if (parsedPhoneNumber) {
-                          setCountryCode(parsedPhoneNumber.countryCallingCode);
-                          setPhone(parsedPhoneNumber.nationalNumber);
-                        }
-                      }
-                    }}
-                    placeholder="Phone"
-                    value={phone ? `+${country_code} ${phone}` : ""}
-                    inputComponent={Input}
-                    inputProps={{
-                      _focus: {
-                        borderColor: "#ee7213",
-                        boxShadow: "0 0 0 1px #ee7213",
-                      },
-                    }}
-                  />
-                </Box>
-              </FormControl>
-              <FormControl id="memberid" mb="24px">
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  color={textColor}
-                  mb="8px"
-                >
-                  Member ID <Text color={brandStars}>*</Text>
-                </FormLabel>
-                <Input
-                  isRequired={true}
-                  variant="auth"
-                  fontSize="sm"
-                  ms={{ base: "0px", md: "0px" }}
-                  placeholder="GvI0uopUiTV1"
-                  mb="24px"
-                  fontWeight="500"
-                  size="lg"
-                  type="text"
-                  value={memeberid}
-                  onChange={(e) => setMemberId(e.target.value)}
-                />
-
-                <Button
-                  type="submit"
-                  fontSize="sm"
-                  colorScheme="green"
-                  fontWeight="500"
-                  w="100%"
-                  h="50"
-                  mt="20px"
-                  mb="24px"
-                  isLoading={loadingDeliv}
-                >
-                  Sign In
-                </Button>
-
-                <Button
-                  fontSize="sm"
-                  colorScheme="blue"
-                  fontWeight="500"
-                  w="100%"
-                  h="50"
-                  mb="24px"
-                  isLoading={loadingDeliv}
-                  onClick={() => {
-                    setPhone("111111");
-                    setMemberId("GvI0uopUiTV1");
-                  }}
-                >
-                  Test Application
-                </Button>
-              </FormControl>
-            </form>
-          )}
+          {role === "admin" ? renderAdminForm() : renderDeliveryBoyForm()}
         </Flex>
       </Flex>
     </DefaultAuth>

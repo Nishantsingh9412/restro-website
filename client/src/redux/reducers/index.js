@@ -13,6 +13,9 @@ import compOrderReducer from "./compOrderReducer";
 import { dineInOrderReducer } from "./dineInOrderReducer";
 import dineInStepperReducer from "./dineInStepperReducer";
 import takeAwayStepperReducer from "./takeAwayStepperReducer";
+import deliveryDashboardReducer from "./deliveryDashboardReducer";
+import deliveryReducer from "./deliveryReducer";
+import notificationReducer from "./notificationReducer";
 
 export default combineReducers({
   authReducer,
@@ -29,4 +32,7 @@ export default combineReducers({
   dineInOrder: dineInOrderReducer,
   dineInForm: dineInStepperReducer,
   takeAwayForm: takeAwayStepperReducer,
+  deliveryReducer,
+  deliveryDashboardReducer,
+  notificationReducer,
 });

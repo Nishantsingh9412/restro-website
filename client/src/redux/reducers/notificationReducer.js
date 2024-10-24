@@ -1,5 +1,6 @@
 const initialState = {
   notifications: [],
+  adminNotifications: [],
 };
 
 const notificationReducer = (state = initialState, action) => {
@@ -15,6 +16,11 @@ const notificationReducer = (state = initialState, action) => {
       return {
         ...state,
         notifications: action.data || [],
+      };
+    case "GET_ALL_ADMIN_NOTIFICATIONS":
+      return {
+        ...state,
+        adminNotifications: action.data || [],
       };
     default:
       return state;

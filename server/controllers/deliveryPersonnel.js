@@ -14,9 +14,9 @@ const handleError = (res, err, message = "Internal Server Error") => {
 
 // Controller to create a new delivery personnel
 export const createDeliveryPersonnel = async (req, res) => {
-  const { name, country_code, phone, created_by } = req.body;
+  const { name, country_code, phone, created_by, membership_id } = req.body;
   // Validate required fields
-  if (!validateFields([name, country_code, phone, created_by])) {
+  if (!validateFields([name, country_code, phone, created_by, membership_id])) {
     return res
       .status(400)
       .json({ success: false, message: "All fields are required" });
@@ -29,14 +29,13 @@ export const createDeliveryPersonnel = async (req, res) => {
       country_code,
       phone,
       created_by,
+      membership_id,
     });
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Delivery Personnel Added",
-        result: newDelBoy,
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Delivery Personnel Added",
+      result: newDelBoy,
+    });
   } catch (err) {
     return handleError(res, err, "Delivery Personnel not added");
   }
@@ -47,13 +46,11 @@ export const getDeliveryPersonnels = async (req, res) => {
   try {
     // Fetch all delivery personnel
     const allDelBoyz = await authDeliv.find();
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "All Delivery Personnel",
-        result: allDelBoyz,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "All Delivery Personnel",
+      result: allDelBoyz,
+    });
   } catch (err) {
     return handleError(res, err, "No Delivery Personnel Found");
   }
@@ -82,13 +79,11 @@ export const updateDeliveryPersonnel = async (req, res) => {
       { name, country_code, phone },
       { new: true }
     );
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Delivery Personnel Updated",
-        result: updatedDelBoy,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Updated",
+      result: updatedDelBoy,
+    });
   } catch (err) {
     return handleError(res, err, "Delivery Personnel not updated");
   }
@@ -106,13 +101,11 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
   try {
     // Fetch the delivery personnel by ID
     const singleDelBoy = await authDeliv.findById(_id);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Delivery Personnel",
-        result: singleDelBoy,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Personnel",
+      result: singleDelBoy,
+    });
   } catch (err) {
     return handleError(res, err, "No Delivery Personnel Found");
   }
@@ -130,13 +123,11 @@ export const deleteDeliveryPersonnel = async (req, res) => {
   try {
     // Delete the delivery personnel by ID
     const delBoyToDelete = await authDeliv.findByIdAndDelete(_id);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Delivery Personnel Deleted",
-        result: delBoyToDelete,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Deleted",
+      result: delBoyToDelete,
+    });
   } catch (err) {
     return handleError(res, err, "Delivery Personnel not deleted");
   }

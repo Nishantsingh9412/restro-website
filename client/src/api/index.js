@@ -277,3 +277,37 @@ export const fetchshiftdetailsdata = (employeedataId) =>
 // Get Shift by Employee Data
 export const getshiftbyempldata = (userId) =>
   API.get(`/shift/get-shift-with-employee/${userId}`);
+
+// Delivery API
+// Get All Deliveries
+export const getAllDeliveries = (id) => API.get("/delivery/get-all/" + id);
+// Get Active Delivery
+export const getActiveDelivery = (id) => API.get("/delivery/get-active/" + id);
+// Get Single Delivery
+export const getSingleDelivery = (id) => API.get(`/delivery/get-single/${id}`);
+// Get Completed Delivery
+export const getCompletedDeliveries = (userId) =>
+  API.get(`/delivery/get-completed/${userId}`);
+// Add Delivery
+export const addDelivery = (newDelivery) =>
+  API.post("/delivery/create-one", newDelivery);
+// Update Delivery
+export const updateSingleDelivery = (id, updatedData) =>
+  API.patch(`/delivery/update-single/${id}`, updatedData);
+// Update Delivery Status
+export const updateDeliveryStatus = (id, updatedData) =>
+  API.patch(`/delivery/update-status/${id}`, updatedData);
+// Cancel Delivery
+export const cancelDelivery = (id) => API.post(`/delivery/cancel/${id}`);
+
+// Map API
+export const getDirections = async (options) => await axios.request(options);
+
+// Notificaiton API
+export const getAllNotifications = () => API.get("/notification/get-all");
+export const getNotificationsByUser = (userId) =>
+  API.get(`/notification/get-by-user/${userId}`);
+
+// Delivery Dashboard API
+export const getDeliveryDashboardData = (userId) =>
+  API.get(`/delivery-dashboard/get/${userId}`);

@@ -23,6 +23,7 @@ import employeeShiftRoute from "./routes/employeeShiftRoute.js";
 import employeeAbsence from "./routes/absenceRoute.js";
 import dineInOrderRoutes from "./routes/dineInOrderRoutes.js";
 import takeAwayRoutes from "./routes/takeAwayRoutes.js";
+import deliveryDashboardRoutes from "./routes/deliveryDashboardRoutes.js";
 
 const app = express();
 dotenv.config(); // Load environment variables from .env file
@@ -59,6 +60,7 @@ app.use("/shift", employeeShiftRoute);
 app.use("/absence", employeeAbsence);
 app.use("/dine-in", dineInOrderRoutes);
 app.use("/take-away", takeAwayRoutes);
+app.use("/delivery-dashboard", deliveryDashboardRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------
 const __dirname = path.resolve(); // Set the __dirname to current directory

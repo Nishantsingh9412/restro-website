@@ -4,6 +4,7 @@ import "./assets/css/App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminLayout from "./layouts/admin";
 import AuthLayout from "./layouts/auth";
+import DeliveryLayout from "./layouts/delivery";
 import RtlLayout from "./layouts/rtl";
 import SignIn from "./views/auth/signIn";
 import { ChakraProvider } from "@chakra-ui/react";
@@ -13,7 +14,8 @@ import { Provider } from "react-redux";
 import { thunk } from "redux-thunk";
 import { compose, applyMiddleware, createStore } from "redux";
 import Reducers from "./redux/reducers/index";
-import routes2 from "./routes";
+import adminRoutes from "./routes";
+import { deliveryRoutes } from "./routes";
 import SignUp from "./views/auth/signup";
 import { ToastContainer } from "react-toastify";
 
@@ -39,22 +41,22 @@ root.render(
             <Routes>
               {/* Fallback route for unmatched paths */}
               <Route path="*" element={<h1>NOT FOUND</h1>} />
-              
+
               {/* Authentication layout routes */}
               <Route path="/auth/*" element={<AuthLayout />} />
-              
+
               {/* RTL layout routes */}
               <Route path="/rtl/*" element={<RtlLayout />} />
-              
+
               {/* Default route to SignIn component */}
               <Route path="/" element={<SignIn />} />
-              
+
               {/* SignUp route */}
               <Route path="/auth/sign-up" element={<SignUp />} />
 
               {/* Admin Layout Routes */}
               <Route path="/admin/*" element={<AdminLayout />}>
-                {routes2.map((route, index) => {
+                {adminRoutes.map((route, index) => {
                   // Render main component if it exists
                   if (route.component && !route.links) {
                     return (
@@ -80,6 +82,33 @@ root.render(
               </Route>
               {/* Uncomment to redirect from root to /admin */}
               {/* <Route path="/" element={<Navigate to="/admin" replace />} /> */}
+
+              <Route path="/delivery/*" element={<DeliveryLayout />}>
+                {/* Delivery layout routes */}
+                {deliveryRoutes.map((route, index) => {
+                  // Render main component if it exists
+                  if (route.component && !route.links) {
+                    return (
+                      <Route
+                        key={index}
+                        path={route.path.replace(/^\//, "")} // Remove leading '/'
+                        element={route.component}
+                      />
+                    );
+                  }
+                  // If the route has nested links, render them
+                  if (route.links) {
+                    return route.links.map((nestedRoute, nestedIndex) => (
+                      <Route
+                        key={nestedIndex}
+                        path={nestedRoute.path.replace(/^\//, "")} // Remove leading '/'
+                        element={nestedRoute.component}
+                      />
+                    ));
+                  }
+                  return null; // If no valid route exists
+                })}
+              </Route>
             </Routes>
             {/* Toast notifications container */}
             <ToastContainer style={{ zIndex: 99999 }} newestOnTop={true} />
