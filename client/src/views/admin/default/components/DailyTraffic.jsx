@@ -1,16 +1,16 @@
-import { Box, Text, useColorModeValue } from '@chakra-ui/react';
-import BarChart from '../../../../components/charts/BarChart';
-import Card from '../../../../components/card/Card.jsx';
+import { Box, Text, useColorModeValue } from "@chakra-ui/react";
+import BarChart from "../../../../components/charts/BarChart";
+import Card from "../../../../components/card/Card.jsx";
 import {
   barChartDataDemandedItems,
   barChartOptionsDailyTraffic,
-} from '../../../../variables/charts';
+} from "../../../../variables/charts";
 
 export default function DailyTraffic(props) {
   const { ...rest } = props;
 
   // Chakra Color Mode
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const textColor = useColorModeValue("secondaryGray.900", "white");
 
   return (
     <Card align="center" direction="column" w="100%" {...rest}>

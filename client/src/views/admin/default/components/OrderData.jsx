@@ -1,18 +1,17 @@
-// TODO: Delete this file
 // Chakra imports
 import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/react";
-import Card from "../../../../components/card/Card.jsx";
 import { useState } from "react";
+import Card from "../../../../components/card/Card.jsx";
 // Custom components
 import BarChart from "../../../../components/charts/BarChart";
 import {
-  barChartDataDailyUserActivity,
-  barChartWeeklyUserActivity,
-  barChartMonthlyUserActivity,
-  barChartOptionsUserActivity,
-} from "../../../../variables/charts";
+  barChartDataOrdersDaily,
+  barChartDataOrdersWeekly,
+  barChartDataOrdersMonthly,
+  barChartOptionsOrders,
+} from "../../../../variables/charts"; // Assume you have separate data for daily, weekly, and monthly orders
 
-export default function UserActivity(props) {
+export default function OrdersChart(props) {
   const { ...rest } = props;
 
   // State to handle the selected period (Daily, Weekly, Monthly)
@@ -25,16 +24,17 @@ export default function UserActivity(props) {
   const getChartData = () => {
     switch (selectedPeriod) {
       case "Daily":
-        return barChartDataDailyUserActivity;
+        return barChartDataOrdersDaily;
       case "Weekly":
-        return barChartWeeklyUserActivity;
+        return barChartDataOrdersWeekly;
       case "Monthly":
-        return barChartMonthlyUserActivity;
+        return barChartDataOrdersMonthly;
       default:
-        return barChartDataDailyUserActivity; // Default to weekly
+        return barChartDataOrdersWeekly; // Default to weekly
     }
   };
 
+  // Function to get the correct X-axis categories based on the selected period
   const getXAxisCategories = () => {
     switch (selectedPeriod) {
       case "Daily":
@@ -50,12 +50,13 @@ export default function UserActivity(props) {
 
   // Update the chart options with dynamic x-axis labels
   const updatedChartOptions = {
-    ...barChartOptionsUserActivity,
+    ...barChartOptionsOrders,
     xaxis: {
-      ...barChartOptionsUserActivity.xaxis,
+      ...barChartOptionsOrders.xaxis,
       categories: getXAxisCategories(),
     },
   };
+
   return (
     <Card align="center" direction="column" w="100%" {...rest}>
       <Flex align="center" w="100%" px="15px" py="10px">
@@ -66,15 +67,15 @@ export default function UserActivity(props) {
           fontWeight="700"
           lineHeight="100%"
         >
-          User Activity
+          Orders Data
         </Text>
         <Select
-          id="user_type"
+          id="orders_type"
           w="unset"
           variant="transparent"
           display="flex"
           alignItems="center"
-          defaultValue="Weekly"
+          value={selectedPeriod}
           onChange={(e) => setSelectedPeriod(e.target.value)} // Handle change
         >
           <option value="Weekly">Weekly</option>
@@ -85,8 +86,8 @@ export default function UserActivity(props) {
 
       <Box h="240px" mt="auto">
         <BarChart
-          chartData={getChartData()}
-          chartOptions={updatedChartOptions}
+          chartData={getChartData()} // Get the correct chart data
+          chartOptions={updatedChartOptions} // Pass the updated options with dynamic X-axis
         />
       </Box>
     </Card>

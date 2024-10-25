@@ -21,6 +21,7 @@ import {
   Tab,
   TabIndicator,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import DefaultAuth from "../../../layouts/auth/Default.jsx";
 import illustration from "../../../assets/img/auth/login-img.png";
@@ -58,11 +59,17 @@ function SignIn() {
 
   // Check if user is already logged in
   useEffect(() => {
+    setLoading(true);
     const user = JSON.parse(localStorage.getItem("ProfileData"));
     console.log("USER", user);
-    if (user) {
+
+    const role = user?.result?.role;
+    if (role === "admin" && user) {
       navigate("/admin/dashboards/default");
+    } else if (user) {
+      navigate("/delivery/dashboard");
     }
+    setLoading(false);
   }, [navigate]);
 
   // Toggle password visibility
@@ -342,6 +349,15 @@ function SignIn() {
       </Button>
     </form>
   );
+
+  // Render loader
+  const renderLoader = () => (
+    <Flex justifyContent="center" alignItems="center" h="100vh">
+      <Spinner size="xl" color="blue.500" />
+    </Flex>
+  );
+
+  if (loading) return renderLoader();
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>

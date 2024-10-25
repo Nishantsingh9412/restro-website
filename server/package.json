@@ -85,6 +85,7 @@
     "short-unique-id": "^5.2.0",
     "side-channel": "^1.0.6",
     "sift": "^16.0.1",
+    "socket.io": "^4.8.0",
     "sparse-bitfield": "^3.0.3",
     "statuses": "^2.0.1",
     "toidentifier": "^1.0.1",

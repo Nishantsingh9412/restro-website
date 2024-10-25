@@ -23,7 +23,7 @@ export default function TotalSpent(props) {
     >
       {/* Header Section */}
       <Flex alignItems="center" gap="20px">
-        <Text fontWeight="500">Total Cost Tracking</Text>
+        <Text fontWeight="500">Total Inventory Tracking</Text>
         <Text>|</Text>
         <ul
           style={{

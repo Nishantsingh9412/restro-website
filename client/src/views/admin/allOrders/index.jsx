@@ -273,7 +273,7 @@ export default function AllOrders() {
       : searchState.searchResults;
     const isSearchPerformed = isDrink
       ? searchStateDrinks.searchPerformed
-      : searchState.searchPerformed; 
+      : searchState.searchPerformed;
 
     if (isSearchPerformed) {
       return (
@@ -458,7 +458,7 @@ export default function AllOrders() {
               variant="solid"
               mr={2}
             >
-              Normal
+              Deliver
             </Button>{" "}
             <Button
               onClick={() => handleCartClick(3)}

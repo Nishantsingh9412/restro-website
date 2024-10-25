@@ -7,6 +7,8 @@ import DashboardCard from "./components/Cards";
 import DailyTraffic from "./components/DailyTraffic";
 import PieCard from "./components/PieCard";
 import TotalSpent from "./components/TotalSpent";
+// import SalesGrowth from "./components/SalesGrowth";
+// import CustomerSatisfaction from "./components/CustomerSatisfaction";
 // import WeeklyRevenue from "./components/WeeklyRevenue";
 
 // API imports
@@ -15,6 +17,9 @@ import {
   lowStocksAPI,
   expiredItemsAPI,
 } from "../../../api/index.js";
+import UserActivity from "./components/UserActivity.jsx";
+import Conversion from "./components/Tasks.jsx";
+import OrdersChart from "./components/OrderData.jsx";
 
 export default function UserReports() {
   // State variables to store API data
@@ -108,6 +113,11 @@ export default function UserReports() {
       <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap="20px">
         <DailyTraffic />
         <PieCard />
+        {/* <SalesGrowth />
+        <CustomerSatisfaction /> */}
+        {/* <Conversion /> */}
+        <OrdersChart />
+        <UserActivity />
       </SimpleGrid>
 
       {/* Weekly revenue section */}

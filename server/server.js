@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
-
+import http from "http";
+import { Server } from "socket.io";
 import passportSetup from "./controllers/passport.js";
 
 // Route imports
@@ -24,6 +25,7 @@ import employeeAbsence from "./routes/absenceRoute.js";
 import dineInOrderRoutes from "./routes/dineInOrderRoutes.js";
 import takeAwayRoutes from "./routes/takeAwayRoutes.js";
 import deliveryDashboardRoutes from "./routes/deliveryDashboardRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 dotenv.config(); // Load environment variables from .env file
@@ -60,6 +62,7 @@ app.use("/shift", employeeShiftRoute);
 app.use("/absence", employeeAbsence);
 app.use("/dine-in", dineInOrderRoutes);
 app.use("/take-away", takeAwayRoutes);
+app.use("/notification", notificationRoutes);
 app.use("/delivery-dashboard", deliveryDashboardRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------
@@ -85,6 +88,47 @@ if (process.env.NODE_ENV === "production") {
 const PORT = process.env.PORT || 8000;
 const DATABASE_URL = process.env.CONNECTION_URL;
 
+// socket setup
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
+const onlineUsers = new Map();
+
+io.on("connection", (socket) => {
+  console.log("New client connected", socket.id);
+
+  // Listen for user joining
+  socket.on("userJoined", (userId) => {
+    onlineUsers.set(userId, { socketId: socket.id, lastActive: Date.now() });
+    console.log(`User ${userId} connected`);
+  });
+
+  // Listen for heartbeat
+  socket.on("heartbeat", (userId) => {
+    if (onlineUsers.has(userId)) {
+      onlineUsers.get(userId).lastActive = Date.now();
+      console.log(
+        Array.from(onlineUsers.keys()).length + " Online at " + new Date(),
+        Array.from(onlineUsers.keys())
+      );
+    }
+  });
+
+  // Handle user disconnect
+  socket.on("disconnect", () => {
+    for (let [userId, userData] of onlineUsers.entries()) {
+      if (userData.socketId === socket.id) {
+        onlineUsers.delete(userId);
+        console.log(`User ${userId} disconnected`);
+      }
+    }
+  });
+});
+
 // MongoDB Connection (Optimized)
 mongoose
   .connect(DATABASE_URL)
@@ -95,3 +139,5 @@ mongoose
   .catch((error) => {
     console.error("Database connection error:", error.message);
   });
+
+export { io, onlineUsers };

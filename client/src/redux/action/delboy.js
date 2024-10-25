@@ -61,7 +61,7 @@ export const getSingleDelBoyAction = (id) => async (dispatch) => {
 
 // Action to update a single delivery personnel by ID
 export const updateSingleDelBoyAction =
-  (id, updateData) => async (dispatch) => {
+  (id, updateData) => async (dispatch) => { 
     return handleApiCall(
       () => api.updateSingleDeliveryPersonnel(id, updateData),
       dispatch,

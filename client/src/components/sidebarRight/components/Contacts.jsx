@@ -28,6 +28,7 @@ export default function Contacts() {
         setContactsData(res?.data?.result);
         // Set loading to false after data is fetched
         setLoading(false);
+        console.log(contactsData);
       })
       .catch((err) => {
         // Log error if API call fails

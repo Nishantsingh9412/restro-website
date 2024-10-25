@@ -33,10 +33,7 @@ export const lowStocksCount = async (req, res) => {
     // Count items where available quantity is 70% or below the minimum required quantity
     const lowStockCount = await ItemManagement.countDocuments({
       $expr: {
-        $lt: [
-          "$minimum_quantity",
-          { $multiply: [0.7, "$available_quantity"] },
-        ],
+        $lt: ["$minimum_quantity", { $multiply: [0.7, "$available_quantity"] }],
       },
     });
 
@@ -127,7 +124,7 @@ export const contactInfo = async (req, res) => {
     // Find suppliers with non-empty phone numbers and sort by creation date
     const contactInfo = await Supplier.find(
       { phone: { $ne: "" } },
-      "name phone" // Select only necessary fields
+      "name phone pic" // Select only necessary fields
     ).sort({ createdAt: -1 });
 
     if (!contactInfo.length) {

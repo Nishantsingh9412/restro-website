@@ -1,16 +1,25 @@
 import { useSelector } from "react-redux";
 import { Flex, Heading, Text } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-
+import { useDispatch } from "react-redux";
+import { getAllReceivedNotifications } from "../../../redux/action/notifications";
 // Main Notifications component
 export default function Notifications() {
   // Select notifications from the Redux store
   const notifications = useSelector(
     (state) => state.notificationReducer.notifications || []
   );
+  const dispatch = useDispatch();
+  useEffect(() => {
+    // Fetch notifications from the server
+    const localData = JSON.parse(localStorage.getItem("ProfileData"));
+    const userId = localData?.result?._id;
+    const role = localData?.result?.role;
+    dispatch(getAllReceivedNotifications(userId, role));
+  }, []);
 
   // Memoize notifications to avoid unnecessary re-renders
   const memoizedNotifications = useMemo(() => notifications, [notifications]);

@@ -210,13 +210,13 @@ const adminRoutes = [
         ),
         component: <ShiftSchedule />,
       },
-      {
-        name: "Assign Schedule",
-        layout: "/admin",
-        path: "/employee-management",
-        icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
-        component: <EmployeeManagement />,
-      },
+      // {
+      //   name: "Assign Schedule",
+      //   layout: "/admin",
+      //   path: "/employee-management",
+      //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
+      //   component: <EmployeeManagement />,
+      // },
       {
         name: "Absences",
         layout: "/admin",

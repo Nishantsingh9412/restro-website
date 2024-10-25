@@ -1,134 +1,165 @@
 import authDeliv from "../models/authDeliv.js";
+import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
+import { onlineUsers } from "../server.js";
 
-// Helper function to validate that all fields are present
-const validateFields = (fields) => {
-  return fields.every((field) => field);
-};
-
-// Helper function to handle errors and send a response
+// Helper function to handle errors
 const handleError = (res, err, message = "Internal Server Error") => {
   console.error("Error from DeliveryPersonnel Controller:", err.message);
   return res.status(500).json({ success: false, message });
 };
 
-// Controller to create a new delivery personnel
-export const createDeliveryPersonnel = async (req, res) => {
-  const { name, country_code, phone, created_by, membership_id } = req.body;
-  // Validate required fields
-  if (!validateFields([name, country_code, phone, created_by, membership_id])) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+// Helper function to validate MongoDB ObjectId
+const validateObjectId = (id, res, entity = "Entity") => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(404).json({ success: false, message: `No ${entity} with that id` });
+    return false;
   }
+  return true;
+};
 
+// Invite delivery personnels to a delivery
+export const inviteDeliveryPersonnels = async (req, res) => {
   try {
-    // Create a new delivery personnel
-    const newDelBoy = await authDeliv.create({
-      name,
-      country_code,
-      phone,
-      created_by,
-      membership_id,
+    const { deliveryId, userIds } = req.body;
+    if (!deliveryId || !Array.isArray(userIds) || !userIds.length) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+    const delivery = await Delivery.findById(deliveryId);
+    await sendDeliveryOffers(userIds, delivery);
+    res.status(200).json({ success: true, message: "Delivery offers sent" });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// Get online delivery personnels by supplier
+export const getOnlineDeliveryPersonnelsBySupplier = async (req, res) => {
+  try {
+    const { supplierId } = req.params;
+    if (!supplierId) {
+      return res.status(400).json({ success: false, message: "Supplier ID is required" });
+    }
+    if (!validateObjectId(supplierId, res, "Supplier")) return;
+
+    const online = Array.from(onlineUsers.keys());
+    const onlineDeliveryPersonnels = await authDeliv.find({
+      _id: { $in: online },
+      created_by: supplierId,
+      isOnline: true,
     });
-    return res.status(201).json({
+
+    const onlineWithCompletedCount = await Promise.all(
+      onlineDeliveryPersonnels.map(async (guy) => {
+        const count = await Delivery.countDocuments({
+          currentStatus: "Completed",
+          assignedTo: guy._id,
+        });
+        return { ...guy._doc, completedCount: count };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Online Delivery Personnels",
+      result: onlineWithCompletedCount,
+    });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// Create a new delivery personnel
+export const createDeliveryPersonnel = async (req, res) => {
+  try {
+    const { name, country_code, phone, created_by } = req.body;
+    if (!name || !country_code || !phone || !created_by) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    const newDelBoy = await authDeliv.create({ name, country_code, phone, created_by });
+    res.status(201).json({
       success: true,
       message: "Delivery Personnel Added",
       result: newDelBoy,
     });
   } catch (err) {
-    return handleError(res, err, "Delivery Personnel not added");
+    handleError(res, err);
   }
 };
 
-// Controller to get all delivery personnel
+// Get all delivery personnels
 export const getDeliveryPersonnels = async (req, res) => {
   try {
-    // Fetch all delivery personnel
     const allDelBoyz = await authDeliv.find();
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "All Delivery Personnel",
       result: allDelBoyz,
     });
   } catch (err) {
-    return handleError(res, err, "No Delivery Personnel Found");
+    handleError(res, err, "No Delivery Personnel Found");
   }
 };
 
-// Controller to update a delivery personnel by ID
+// Update a delivery personnel
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
   const { name, country_code, phone } = req.body;
 
-  // Validate the ID
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res.status(404).send("No Delivery Personnel with that id");
-  }
-  // Validate required fields
-  if (!validateFields([name, country_code, phone])) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+  if (!validateObjectId(_id, res, "Delivery Personnel")) return;
+
+  if (!name || !country_code || !phone) {
+    return res.status(400).json({ success: false, message: "All fields are required" });
   }
 
   try {
-    // Update the delivery personnel
     const updatedDelBoy = await authDeliv.findByIdAndUpdate(
       _id,
       { name, country_code, phone },
       { new: true }
     );
-    return res.status(200).json({
+
+    res.status(200).json({
       success: true,
       message: "Delivery Personnel Updated",
       result: updatedDelBoy,
     });
   } catch (err) {
-    return handleError(res, err, "Delivery Personnel not updated");
+    handleError(res, err, "Delivery Personnel not updated");
   }
 };
 
-// Controller to get a single delivery personnel by ID
+// Get a single delivery personnel by ID
 export const getDeliveryPersonnelSingle = async (req, res) => {
   const { id: _id } = req.params;
-
-  // Validate the ID
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res.status(404).send("No Delivery Personnel with that id");
-  }
+  if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {
-    // Fetch the delivery personnel by ID
-    const singleDelBoy = await authDeliv.findById(_id);
-    return res.status(200).json({
+    const singleDelBoy = await authDeliv.findById(_id).populate("created_by");
+    res.status(200).json({
       success: true,
       message: "Delivery Personnel",
       result: singleDelBoy,
     });
   } catch (err) {
-    return handleError(res, err, "No Delivery Personnel Found");
+    handleError(res, err, "No Delivery Personnel Found");
   }
 };
 
-// Controller to delete a delivery personnel by ID
+// Delete a delivery personnel by ID
 export const deleteDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-
-  // Validate the ID
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res.status(404).send("No Delivery Personnel with that id");
-  }
+  if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {
-    // Delete the delivery personnel by ID
     const delBoyToDelete = await authDeliv.findByIdAndDelete(_id);
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Delivery Personnel Deleted",
       result: delBoyToDelete,
     });
   } catch (err) {
-    return handleError(res, err, "Delivery Personnel not deleted");
+    handleError(res, err, "Delivery Personnel not deleted");
   }
 };

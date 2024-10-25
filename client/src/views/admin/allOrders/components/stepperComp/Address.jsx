@@ -25,7 +25,7 @@ const Address = ({ goToNextStep }) => {
     name,
     phoneNumber,
     paymentMethod,
-    deliveryMethod,
+    // deliveryMethod,
     address,
     address2,
     city,
@@ -113,7 +113,7 @@ const Address = ({ goToNextStep }) => {
           </RadioGroup>
         </FormControl>
 
-        <FormControl id="delivery-method" mt={4}>
+        {/* <FormControl id="delivery-method" mt={4}>
           <FormLabel>Delivery Method</FormLabel>
           <RadioGroup
             value={deliveryMethod}
@@ -124,7 +124,7 @@ const Address = ({ goToNextStep }) => {
               <Radio value="delivery">Delivery</Radio>
             </Stack>
           </RadioGroup>
-        </FormControl>
+        </FormControl> */}
 
         <FormControl id="address" isRequired>
           <FormLabel>Address</FormLabel>
