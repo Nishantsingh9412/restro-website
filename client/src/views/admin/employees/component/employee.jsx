@@ -65,7 +65,6 @@ export default function EmployeeComponent() {
   const addEmployee = async (formData) => {
     const userId = JSON.parse(localStorage.getItem("ProfileData")).result._id;
     const newEmployee = { ...formData, created_by: userId };
-    // console.log(newEmployee);
 
     try {
       const res = await dispatch(postEmployeeApi(newEmployee));
@@ -73,9 +72,11 @@ export default function EmployeeComponent() {
         toast.success("Employee added successfully");
         getEmployees();
         setIsOpen(false);
+      } else {
+        toast.error("Failed to add employee", res.error);
       }
     } catch (error) {
-      toast.error("Failed to add employee", error);
+      toast.error("Error to add employee", error);
     }
   };
 
@@ -83,13 +84,17 @@ export default function EmployeeComponent() {
   const updateEmployee = async (formData) => {
     if (!employeeId) return;
 
-    const res = await dispatch(updateEmployeeApi(employeeId, formData));
-    if (res.success) {
-      toast.success("Employee updated successfully");
-      getEmployees();
-      setIsOpen(false);
-    } else {
-      toast.error("Failed to update employee");
+    try {
+      const res = await dispatch(updateEmployeeApi(employeeId, formData));
+      if (res.success) {
+        toast.success("Employee updated successfully");
+        getEmployees();
+        setIsOpen(false);
+      } else {
+        toast.error("Failed to update employee");
+      }
+    } catch (error) {
+      toast.error("Failed to update employee", error);
     }
   };
 
@@ -158,9 +163,9 @@ export default function EmployeeComponent() {
           <Thead>
             <Tr>
               <Th style={{ borderBottom: "2px solid black" }}>Name</Th>
-              <Th style={{ borderBottom: "2px solid black" }}>Position</Th>
+              <Th style={{ borderBottom: "2px solid black" }}>Role</Th>
+              <Th style={{ borderBottom: "2px solid black" }}>Type</Th>
               <Th style={{ borderBottom: "2px solid black" }}>Phone</Th>
-              <Th style={{ borderBottom: "2px solid black" }}>Birthday</Th>
               <Th style={{ borderBottom: "2px solid black" }}>Actions</Th>
             </Tr>
           </Thead>
@@ -173,9 +178,9 @@ export default function EmployeeComponent() {
               employees.map((emp) => (
                 <Tr key={emp._id}>
                   <Td>{emp.name}</Td>
-                  <Td>{emp.position}</Td>
+                  <Td>{emp.role}</Td>
+                  <Td>{emp.type}</Td>
                   <Td>{emp.phone}</Td>
-                  <Td>{new Date(emp.birthday).toLocaleDateString()}</Td>
                   <Td>
                     {/* View Employee Button */}
                     <IconButton

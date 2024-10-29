@@ -4,7 +4,6 @@ import stocksReducer from "./stocks";
 import supplierReducer from "./supplierReducer";
 import OrderItemReducer from "./orderItems";
 import QRItemsReducer from "./qrItems";
-import authReducer from "./auth";
 import userReducer from "./user";
 import delBoyReducer from "./delboyReducer";
 // import addressReducer from "./addressReducer";
@@ -16,9 +15,11 @@ import takeAwayStepperReducer from "./takeAwayStepperReducer";
 import deliveryDashboardReducer from "./deliveryDashboardReducer";
 import deliveryReducer from "./deliveryReducer";
 import notificationReducer from "./notificationReducer";
+import adminReducer from "./adminReducer";
+import deliveryEmpReducer from "./deliveryEmpReducer";
 
 export default combineReducers({
-  authReducer,
+  adminReducer,
   userReducer,
   itemsReducer,
   stocksReducer,
@@ -26,6 +27,7 @@ export default combineReducers({
   OrderItemReducer,
   QRItemsReducer,
   delBoyReducer,
+  deliveryEmpReducer,
   // addressReducer,
   form: stepperFormReducer,
   compOrder: compOrderReducer,

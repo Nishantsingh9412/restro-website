@@ -3,22 +3,35 @@ const baseURL = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 
 const API = axios.create({ baseURL: baseURL });
 
-// Uncomment the following lines to add authorization token to each request
-// API.interceptors.request.use((req) => {
-//     if(localStorage.getItem('Profile')){
-//         req.headers.Authorization = `Bearer ${JSON.parse(localStorage.getItem('Profile')).token}`;
-//     }
-//     return req;
-// });
+// Add an interceptor to attach the authorization token to each request
+API.interceptors.request.use(
+  (req) => {
+    // Check if user profile exists in localStorage
+    const profile = localStorage.getItem("ProfileData");
+    // console.log(profile);
+    if (profile) {
+      // Parse the profile JSON and attach the token to Authorization header
+      const token = JSON.parse(profile).token;
+      req.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // console.log("Request:", req); // For debugging: remove in production
+    return req;
+  },
+  (error) => {
+    console.error("Request error:", error);
+    return Promise.reject(error);
+  }
+);
 
 // Authentication APIs
 // Signup
-export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
+export const signUpAPI = (newUser) => API.post("/admin/signup", newUser);
 // Login
-export const loginAPI = (userData) => API.post("/auth/login", userData);
+export const loginAPI = (userData) => API.post("/admin/login", userData);
 // Login for Delivery Boy
 export const loginDelivBoyAPI = (userData) =>
-  API.post("/auth/login-delivboy", userData);
+  API.post("/admin/login-delivboy", userData);
 
 // Items Management APIs
 // Add Item
@@ -113,7 +126,9 @@ export const getSingleUserData = (id) => API.get(`/user/get-user/${id}`);
 // Update Single User Data Profile Pic
 export const UpdateUserProfilePic = (id, updatedData) =>
   API.patch(`/user/profile-pic-update/${id}`, updatedData);
-
+// Delivery Employee Date APIs
+export const getAllDeliveryEmpAPI = (id) =>
+  API.get(`/employee/get-delivery-employees/${id}`);
 // Delivery Personnel Management APIs
 // Add Delivery Personnel
 export const addDeliveryPersonnel = (newPersonnel) =>
@@ -121,12 +136,19 @@ export const addDeliveryPersonnel = (newPersonnel) =>
 // Get All Delivery Personnel
 export const getAllDeliveryPersonnels = () =>
   API.get("/delivery-person/get-all");
+// Get All Delivery Personnel by supplier
+export const getDeliveryPersonnelsBySupplier = (id) =>
+  API.get(`/delivery-person/get-by-supplier/${id}`);
 // Get Single Delivery Personnel
 export const getSingleDeliveryPersonnel = (id) =>
   API.get(`/delivery-person/get-single/${id}`);
 // Update Delivery Personnel
 export const updateSingleDeliveryPersonnel = (id, updatedData) =>
   API.patch(`/delivery-person/update-del-person/${id}`, updatedData);
+// Update Delivery Personnel Status
+export const updateDeliveryPersonnelStatus = (id, updatedData) =>
+  API.patch(`/delivery-person/change-online-status/${id}`, updatedData);
+
 // Delete Delivery Personnel
 export const deleteSingleDeliveryPersonnel = (id) =>
   API.delete(`/delivery-person/delete-single/${id}`);
@@ -230,7 +252,7 @@ export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
 export const getemployeedata = (employeeId) =>
-  API.get(`/employee/get-employee/userId_${employeeId}`);
+  API.get(`/employee/get-employee/${employeeId}`);
 // Add Employee Data
 export const postemployeedata = (data) =>
   API.post("/employee/add-employee", data);

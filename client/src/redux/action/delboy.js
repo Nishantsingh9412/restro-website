@@ -61,7 +61,7 @@ export const getSingleDelBoyAction = (id) => async (dispatch) => {
 
 // Action to update a single delivery personnel by ID
 export const updateSingleDelBoyAction =
-  (id, updateData) => async (dispatch) => { 
+  (id, updateData) => async (dispatch) => {
     return handleApiCall(
       () => api.updateSingleDeliveryPersonnel(id, updateData),
       dispatch,
@@ -77,5 +77,15 @@ export const deleteSingleDelBoyAction = (id) => async (dispatch) => {
     dispatch,
     "DELETE_SINGLE_DELBOY",
     "Delivery Personnel Deleted Successfully"
+  );
+};
+
+// Action to change the status of a delivery personnel
+export const changeDelBoyStatusAction = (id, status) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryPersonnelStatus(id, status),
+    dispatch,
+    status === "Completed" ? "ADD_COMPLETED_DELBOY" : "UPDATE_DELBOY_STATUS",
+    "Delivery Personnel status updated successfully"
   );
 };

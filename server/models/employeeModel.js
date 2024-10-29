@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-// Employee Schema Definition
+// Define the schema for the Employee model
 const employeeSchema = new Schema(
   {
     name: {
@@ -20,10 +20,6 @@ const employeeSchema = new Schema(
       required: true,
       unique: true,
     },
-    country_code: {
-      type: String,
-      required: true,
-    },
     address: {
       street: {
         type: String,
@@ -38,7 +34,9 @@ const employeeSchema = new Schema(
         trim: true,
       },
     },
-    birthday: Date,
+    birthday: {
+      type: Date,
+    },
     nationality: {
       type: String,
       trim: true,
@@ -66,8 +64,18 @@ const employeeSchema = new Schema(
       unique: true,
       trim: true,
     },
-    dateOfJoining: Date,
-    endOfEmployment: Date,
+    dateOfJoining: {
+      type: Date,
+      required: true,
+    },
+    endOfEmployment: {
+      type: Date,
+    },
+    position: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     role: {
       type: String,
       enum: [
@@ -111,18 +119,5 @@ const employeeSchema = new Schema(
   { timestamps: true } // Automatically manage createdAt and updatedAt fields
 );
 
-// Post middleware to handle cleanup after an employee is deleted
-employeeSchema.post("findOneAndDelete", async function (doc) {
-  if (doc) {
-    const Shift = model("Shift");
-    const Absence = model("Absence");
-
-    // Delete related Shifts and Absences
-    await Promise.all([
-      Shift.deleteMany({ employeeId: doc._id }),
-      Absence.deleteMany({ employeeId: doc._id }),
-    ]);
-  }
-});
-
-export default model("Employee", employeeSchema);
+// Export the Employee model
+export default model("Employees", employeeSchema);

@@ -129,7 +129,7 @@ export default function HeaderLinks({ secondary }) {
           <Avatar
             _hover={{ cursor: "pointer" }}
             color="white"
-            name={singleUserData?.user?.name || "User"}
+            name={singleUserData?.user?.username || "User"}
             bg="#11047A"
             size="sm"
             w="40px"
@@ -156,7 +156,7 @@ export default function HeaderLinks({ secondary }) {
               fontWeight="700"
               color={"black"}
             >
-              👋&nbsp; Hey, {singleUserData?.user?.name || "User"}
+              👋&nbsp; Hey, {singleUserData?.user?.username || "User"}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">

@@ -26,7 +26,11 @@ import dineInOrderRoutes from "./routes/dineInOrderRoutes.js";
 import takeAwayRoutes from "./routes/takeAwayRoutes.js";
 import deliveryDashboardRoutes from "./routes/deliveryDashboardRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 
+import adminRoutes from "./routes/adminRoutes.js";
+
+// Initialize express app
 const app = express();
 dotenv.config(); // Load environment variables from .env file
 
@@ -53,7 +57,8 @@ app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
-app.use("/delivery-person", deliveryRoutes);
+// app.use("/delivery-person", deliveryRoutes);
+app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
 app.use("/complete-order", compOrderRoutes);
 app.use("/dashboard", dashboardRoutes);
@@ -64,6 +69,8 @@ app.use("/dine-in", dineInOrderRoutes);
 app.use("/take-away", takeAwayRoutes);
 app.use("/notification", notificationRoutes);
 app.use("/delivery-dashboard", deliveryDashboardRoutes);
+
+app.use("/admin", adminRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------
 const __dirname = path.resolve(); // Set the __dirname to current directory

@@ -12,10 +12,41 @@ const handleError = (res, err, message = "Internal Server Error") => {
 // Helper function to validate MongoDB ObjectId
 const validateObjectId = (id, res, entity = "Entity") => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(404).json({ success: false, message: `No ${entity} with that id` });
+    res
+      .status(404)
+      .json({ success: false, message: `No ${entity} with that id` });
     return false;
   }
   return true;
+};
+
+// update delivery personnels online status
+export const updateDeliveryPersonnelOnlineStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!validateObjectId(id, res, "Delivery Personnel")) return;
+
+    const { isOnline } = req.body;
+    if (isOnline === undefined) {
+      return res
+        .status(400)
+        .json({ success: false, message: "isOnline field is required" });
+    }
+
+    const updatedDelBoy = await authDeliv.findByIdAndUpdate(
+      id,
+      { isOnline },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Updated",
+      result: updatedDelBoy,
+    });
+  } catch (err) {
+    handleError(res, err, "Delivery Personnel not updated");
+  }
 };
 
 // Invite delivery personnels to a delivery
@@ -23,7 +54,9 @@ export const inviteDeliveryPersonnels = async (req, res) => {
   try {
     const { deliveryId, userIds } = req.body;
     if (!deliveryId || !Array.isArray(userIds) || !userIds.length) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
     const delivery = await Delivery.findById(deliveryId);
     await sendDeliveryOffers(userIds, delivery);
@@ -38,7 +71,9 @@ export const getOnlineDeliveryPersonnelsBySupplier = async (req, res) => {
   try {
     const { supplierId } = req.params;
     if (!supplierId) {
-      return res.status(400).json({ success: false, message: "Supplier ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Supplier ID is required" });
     }
     if (!validateObjectId(supplierId, res, "Supplier")) return;
 
@@ -74,10 +109,17 @@ export const createDeliveryPersonnel = async (req, res) => {
   try {
     const { name, country_code, phone, created_by } = req.body;
     if (!name || !country_code || !phone || !created_by) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
-    const newDelBoy = await authDeliv.create({ name, country_code, phone, created_by });
+    const newDelBoy = await authDeliv.create({
+      name,
+      country_code,
+      phone,
+      created_by,
+    });
     res.status(201).json({
       success: true,
       message: "Delivery Personnel Added",
@@ -110,7 +152,9 @@ export const updateDeliveryPersonnel = async (req, res) => {
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   if (!name || !country_code || !phone) {
-    return res.status(400).json({ success: false, message: "All fields are required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required" });
   }
 
   try {

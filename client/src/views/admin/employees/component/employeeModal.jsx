@@ -18,6 +18,9 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import React from "react";
 
 // Date conversion utilities
 const formatDateForInput = (isoDate) => {
@@ -44,6 +47,7 @@ export default function EmployeeModal({
     name: "",
     email: "",
     phone: "",
+    country_code: "",
     address: {
       street: "",
       city: "",
@@ -56,11 +60,9 @@ export default function EmployeeModal({
     healthInsurance: "",
     socialSecurityNumber: "",
     taxID: "",
-    status: "",
     dateOfJoining: "",
     endOfEmployment: "",
-    employeeID: "",
-    position: "",
+    role: "",
     type: "",
     workingHoursPerWeek: 30,
     variableWorkingHours: false,
@@ -109,6 +111,23 @@ export default function EmployeeModal({
       variableWorkingHours: value === "variable",
     }));
   };
+  // Handle phone input change and update phone number and country code
+  const handlePhoneInputChange = (phoneNumber) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      phone: phoneNumber,
+    }));
+
+    if (typeof phoneNumber === "string") {
+      const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
+      if (parsedPhoneNumber) {
+        setFormData((prevData) => ({
+          ...prevData,
+          country_code: parsedPhoneNumber.countryCallingCode,
+        }));
+      }
+    }
+  };
 
   // Validate required fields
   const validate = () => {
@@ -116,9 +135,8 @@ export default function EmployeeModal({
       formData.name === "" ||
       formData.email === "" ||
       formData.phone === "" ||
-      formData.employeeID === "" ||
-      formData.status === "" ||
-      formData.type === ""
+      formData.type === "" ||
+      formData.role === ""
     ) {
       toast.error("All required fields must be filled out");
       return false;
@@ -152,16 +170,16 @@ export default function EmployeeModal({
     setFormData({
       name: "John Doe",
       email: "nizamji100@gmail.com",
-      phone: "1234567890",
+      country_code: "91",
+      phone: "+911234567890",
       address: {
         street: "123 Main St",
         city: "New York",
         zipCode: "10001",
       },
       birthday: "1990-01-01",
-      employeeID: "12345",
-      status: "Active",
-      type: "Full-time",
+      role: "Waiter",
+      type: "Full-Time",
       workingHoursPerWeek: 40,
       annualHolidayEntitlement: 20,
     });
@@ -210,6 +228,10 @@ export default function EmployeeModal({
     </>
   );
 
+  const CustomInput = React.forwardRef(({ inputProps, ...props }, ref) => {
+    return <Input ref={ref} {...inputProps} {...props} />;
+  });
+
   // Render the modal
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -224,7 +246,21 @@ export default function EmployeeModal({
             <GridItem colSpan={{ base: 12, md: 6 }}>
               {renderInput("Employee name", "name", "text", false, [], true)}
               {renderInput("Email", "email", "email", false, [], true)}
-              {renderInput("Phone", "phone", "text", false, [], true)}
+              {/* {renderInput("Phone", "phone", "text", false, [], true)} */}
+              <PhoneInput
+                international
+                defaultCountry="DE"
+                value={formData.phone}
+                onChange={handlePhoneInputChange}
+                placeholder="Enter phone number"
+                inputComponent={CustomInput}
+                inputProps={{
+                  _focus: {
+                    borderColor: "#ee7213",
+                    boxShadow: "0 0 0 1px #ee7213",
+                  },
+                }}
+              />
               {renderInput("Street", "address.street")}
               {renderInput("City", "address.city")}
               {renderInput("Zip code", "address.zipCode", "number")}
@@ -236,44 +272,33 @@ export default function EmployeeModal({
                 "Divorced",
               ])}
               {renderInput("Children", "children", "number")}
-              {renderInput("Health insurance", "healthInsurance")}
-              {renderInput(
-                "Social security number",
-                "socialSecurityNumber",
-                "number"
-              )}
-              {renderInput("Tax ID", "taxID", "number")}
             </GridItem>
             <GridItem colSpan={{ base: 12, md: 6 }}>
-              {renderInput(
-                "Status",
-                "status",
-                "text",
-                true,
-                ["Active", "Inactive", "Suspended"],
-                true
-              )}
               {renderInput("Date of joining", "dateOfJoining", "date")}
               {renderInput("End of employment", "endOfEmployment", "date")}
+
               {renderInput(
-                "Employee ID",
-                "employeeID",
-                "number",
-                false,
-                [],
+                "Role",
+                "role",
+                "text",
+                true,
+                [
+                  "Waiter",
+                  "Manager",
+                  "Chef",
+                  "Delivery Boy",
+                  "Bar Tender",
+                  "Kitchen Staff",
+                  "Custom",
+                ],
                 true
               )}
-              {renderInput("Position", "position", "text", true, [
-                "Waiter",
-                "Manager",
-                "Chef",
-              ])}
               {renderInput(
                 "Type",
                 "type",
                 "text",
                 true,
-                ["Full-time", "Part-time", "Contract"],
+                ["Full-Time", "Part-Time", "Contract"],
                 true
               )}
               <RadioGroup
@@ -302,6 +327,13 @@ export default function EmployeeModal({
                 "annualHolidayEntitlement",
                 "number"
               )}
+              {renderInput("Health insurance", "healthInsurance")}
+              {renderInput(
+                "Social security number",
+                "socialSecurityNumber",
+                "number"
+              )}
+              {renderInput("Tax ID", "taxID", "number")}
               {renderInput("Notes", "notes")}
             </GridItem>
           </Grid>

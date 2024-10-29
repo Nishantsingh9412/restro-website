@@ -29,9 +29,9 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import {
-  LoginAction,
+  LoginAdminAction,
   LoginDelivBoyAction,
-} from "../../../redux/action/auth.js";
+} from "../../../redux/action/admin.js";
 
 function SignIn() {
   // Define color modes for different elements
@@ -98,7 +98,7 @@ function SignIn() {
 
     const loginData = { email: formData.email, password: formData.password };
 
-    dispatch(LoginAction(loginData)).then((res) => {
+    dispatch(LoginAdminAction(loginData)).then((res) => {
       setLoading(false);
       if (res.success) {
         navigate("/admin/dashboards/default");
@@ -239,8 +239,8 @@ function SignIn() {
         onClick={() => {
           setFormData({
             ...formData,
-            email: "prakash@gmail.com",
-            password: "111111",
+            email: "nizx@gmail.com",
+            password: "123456",
           });
         }}
       >

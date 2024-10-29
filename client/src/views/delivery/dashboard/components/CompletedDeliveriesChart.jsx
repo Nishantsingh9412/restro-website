@@ -1,5 +1,4 @@
-import PropTypes from "prop-types";
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
 import {
@@ -10,71 +9,54 @@ import {
   subMonths,
 } from "date-fns";
 
-// Component to display completed deliveries chart
 export default function CompletedDeliveriesChart({
-  weekly = [],
-  monthly = [],
-  yearly = [],
+  weekly,
+  monthly,
+  yearly,
+  totalInWeek,
+  totalInMonth,
+  totalInYear,
 }) {
-  // State to store chart data
-  const [chartData, setChartData] = useState({
-    weeklyData: [],
-    monthlyData: [],
-    yearlyData: [],
-  });
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [yearlyData, setYearlyData] = useState([]);
 
-  // Get today's date
-  const today = useMemo(() => startOfToday(), []);
-
-  // Calculate past week dates and map them to the weekly data
-  const pastWeekDates = useMemo(
-    () =>
-      eachDayOfInterval({
-        start: subDays(today, 6),
-        end: today,
-      }).map((date, index) => ({
-        x: date.getTime(),
-        y: weekly[index] || 0,
-      })),
-    [today, weekly]
-  );
-
-  // Calculate past month dates and map them to the monthly data
-  const pastMonthDates = useMemo(
-    () =>
-      eachDayOfInterval({
-        start: subDays(today, 29),
-        end: today,
-      }).map((date, index) => ({
-        x: date.getTime(),
-        y: monthly[index] || 0,
-      })),
-    [today, monthly]
-  );
-
-  // Calculate past year months and map them to the yearly data
-  const pastYearMonths = useMemo(
-    () =>
-      eachMonthOfInterval({
-        start: subMonths(today, 11),
-        end: today,
-      }).map((date, index) => ({
-        x: date.getTime(),
-        y: yearly[index] || 0,
-      })),
-    [today, yearly]
-  );
-
-  // Update chart data when past dates change
   useEffect(() => {
-    setChartData({
-      weeklyData: pastWeekDates,
-      monthlyData: pastMonthDates,
-      yearlyData: pastYearMonths,
-    });
-  }, [pastWeekDates, pastMonthDates, pastYearMonths]);
+    // Calculate dynamic date ranges
+    const today = startOfToday();
 
-  // Chart options configuration
+    // Prepare past week dates and fill in the data from props
+    const pastWeekDates = eachDayOfInterval({
+      start: subDays(today, 6),
+      end: today,
+    }).map((date, index) => ({
+      x: date.getTime(),
+      y: weekly[index] || 0, // Use data from props or 0 if not available
+    }));
+
+    // Prepare past month dates and fill in the data from props
+    const pastMonthDates = eachDayOfInterval({
+      start: subDays(today, 29),
+      end: today,
+    }).map((date, index) => ({
+      x: date.getTime(),
+      y: monthly[index] || 0, // Use data from props or 0 if not available
+    }));
+
+    // Prepare past year months and fill in the data from props
+    const pastYearMonths = eachMonthOfInterval({
+      start: subMonths(today, 11),
+      end: today,
+    }).map((date, index) => ({
+      x: date.getTime(),
+      y: yearly[index] || 0, // Use data from props or 0 if not available
+    }));
+
+    setWeeklyData(pastWeekDates);
+    setMonthlyData(pastMonthDates);
+    setYearlyData(pastYearMonths);
+  }, [weekly, monthly, yearly]);
+
   const chartOptions = {
     chart: {
       type: "area",
@@ -105,7 +87,6 @@ export default function CompletedDeliveriesChart({
   };
 
   return (
-    // Tabs to switch between weekly, monthly, and yearly data
     <Tabs variant="enclosed">
       <TabList>
         <Tab>Last Week</Tab>
@@ -116,7 +97,7 @@ export default function CompletedDeliveriesChart({
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[{ name: "Deliveries", data: chartData.weeklyData }]}
+            series={[{ name: "Deliveries", data: weeklyData }]}
             type="area"
             height={350}
           />
@@ -124,7 +105,7 @@ export default function CompletedDeliveriesChart({
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[{ name: "Deliveries", data: chartData.monthlyData }]}
+            series={[{ name: "Deliveries", data: monthlyData }]}
             type="area"
             height={350}
           />
@@ -132,7 +113,7 @@ export default function CompletedDeliveriesChart({
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[{ name: "Deliveries", data: chartData.yearlyData }]}
+            series={[{ name: "Deliveries", data: yearlyData }]}
             type="area"
             height={350}
           />
@@ -141,13 +122,3 @@ export default function CompletedDeliveriesChart({
     </Tabs>
   );
 }
-
-// PropTypes validation
-CompletedDeliveriesChart.propTypes = {
-  weekly: PropTypes.array,
-  monthly: PropTypes.array,
-  yearly: PropTypes.array,
-  totalInWeek: PropTypes.number.isRequired,
-  totalInMonth: PropTypes.number.isRequired,
-  totalInYear: PropTypes.number.isRequired,
-};

@@ -35,9 +35,10 @@ import Employee from "./views/admin/employees";
 import AvailableDeliveries from "./views/delivery/availableDeliveries"; // Adjust the path as necessary
 import Notifications from "./views/delivery/notifications"; // Adjust the path as necessary
 import DeliveryHistory from "./views/delivery/history"; // Adjust the path as necessary
-import DelivertSettings from "./views/delivery/settings"; // Adjust the path as necessary
 import TestMap from "./views/delivery/testMap"; // Adjust the path as necessary
 import DeliveryDashboard from "./views/delivery/dashboard/index";
+import AdminNotifications from "./views/admin/Notification";
+import DeliverySettings from "./views/delivery/settings";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -107,8 +108,23 @@ const adminRoutes = [
             height="20px"
           />
         ),
-        // type: 'link',
+        type: "link",
         component: <SupplierManagement />,
+      },
+      {
+        name: "Notifications",
+        layout: "/admin",
+        path: "/dashboards/notifications",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        type: "link",
+        component: <AdminNotifications />,
       },
 
       // {
@@ -236,9 +252,9 @@ const adminRoutes = [
         component: <Employee />,
       },
       {
-        name: "Delivery partners",
+        name: "Delivery Tracking",
         layout: "/admin",
-        path: "/delivery-partners",
+        path: "/delivery-tracking",
         icon: (
           <Icon
             as={MdLocalShipping}
@@ -488,7 +504,7 @@ export const deliveryRoutes = [
         icon: (
           <Icon as={MdSettings} color="inherit" width="15px" height="15px" />
         ),
-        component: <DelivertSettings />,
+        component: <DeliverySettings />,
       },
       {
         name: "Test Map",

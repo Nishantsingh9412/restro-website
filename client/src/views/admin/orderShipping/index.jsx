@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Swal from "sweetalert2";
 import {
   Box,
@@ -21,19 +21,28 @@ import {
   getAllDelboyzAction,
 } from "../../../redux/action/delboy.js";
 
+import { getAllDeliveryEmpAction } from "../../../redux/action/deliveryEmp.js";
+
 const OrderShipping = () => {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editData, setEditData] = useState(null);
   const [actionType, setActionType] = useState("add");
   const [filteredDelBoys, setFilteredDelBoys] = useState([]);
-
+  const localUserData = useMemo(
+    () => JSON.parse(localStorage.getItem("ProfileData")),
+    []
+  );
+  const userId = localUserData?.result?._id;
   // Get all delivery boys from the Redux store
   const allDelBoyz = useSelector((state) => state?.delBoyReducer?.delboyz);
+  const allDeliveryEmp = useSelector(
+    (state) => state?.deliveryEmpReducer?.deliveryEmployees
+  );
 
   // Search delivery boys by name or other criteria
   const handleSearch = (query) => {
-    const filtered = allDelBoyz.filter(
+    const filtered = allDeliveryEmp.filter(
       (boy) => boy.name.toLowerCase().includes(query.toLowerCase()) // Case-insensitive search by name
     );
     setFilteredDelBoys(filtered); // Update filtered results
@@ -47,7 +56,7 @@ const OrderShipping = () => {
 
   // Fetch all delivery boys when the component mounts
   useEffect(() => {
-    dispatch(getAllDelboyzAction());
+    dispatch(getAllDeliveryEmpAction(userId));
   }, [dispatch]);
 
   // Open the modal to add a new delivery boy
@@ -138,14 +147,16 @@ const OrderShipping = () => {
 
       {/* Delivery Boys List */}
       <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing="4" mt="2">
-        {(filteredDelBoys.length ? filteredDelBoys : allDelBoyz).map((boy) => (
-          <DeliveryBoyCard
-            key={boy?._id}
-            boy={boy}
-            handleDeleteDelboy={handleDeleteDelboy}
-            handleEdit={handleEditDeliveryBoy}
-          />
-        ))}
+        {(filteredDelBoys.length ? filteredDelBoys : allDeliveryEmp).map(
+          (boy) => (
+            <DeliveryBoyCard
+              key={boy?._id}
+              boy={boy}
+              handleDeleteDelboy={handleDeleteDelboy}
+              handleEdit={handleEditDeliveryBoy}
+            />
+          )
+        )}
       </SimpleGrid>
     </Box>
   );

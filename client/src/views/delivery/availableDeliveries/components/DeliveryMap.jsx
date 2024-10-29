@@ -1,9 +1,9 @@
-import PropTypes from "prop-types";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet-fullscreen";
+import { Text, Heading, Button } from "@chakra-ui/react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
@@ -24,14 +24,12 @@ const containerStyle = {
   height: "700px",
 };
 
-// RoutingMachine component to handle routing on the map
 const RoutingMachine = ({ waypoints }) => {
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
 
-    // Add fullscreen control to the map
     const fullScreenControl = L.control
       .fullscreen({
         position: "topright",
@@ -42,31 +40,31 @@ const RoutingMachine = ({ waypoints }) => {
       })
       .addTo(map);
 
-    // Add routing control to the map
     const routingControl = L.Routing.control({
       waypoints: waypoints.map((point) => L.latLng(point.lat, point.lng)),
       lineOptions: {
         styles: [{ color: "#4a90e2", weight: 6 }],
       },
-      createMarker: (i, waypoint, n) =>
-        L.marker(waypoint.latLng).bindPopup(
+      createMarker: function (i, waypoint, n) {
+        return L.marker(waypoint.latLng).bindPopup(
           i === 0 ? "You" : i === n - 1 ? "Deliver" : "Pickup"
-        ),
+        );
+      },
       addWaypoints: false,
       draggableWaypoints: false,
       routeWhileDragging: false,
     }).addTo(map);
 
-    // Cleanup on component unmount
     return () => {
-      // Remove the routing control if it exists
-      if (routingControl) {
-        map.removeControl(routingControl); // Properly remove the routing control
-      }
-
-      // Remove fullscreen control
-      if (fullScreenControl) {
-        map.removeControl(fullScreenControl);
+      try {
+        if (routingControl) {
+          routingControl.getPlan().setWaypoints([]);
+          map.removeControl(routingControl);
+        }
+        if (fullScreenControl) map.removeControl(fullScreenControl);
+        // map.remove()
+      } catch (err) {
+        console.error(err);
       }
     };
   }, [map, waypoints]);
@@ -74,7 +72,6 @@ const RoutingMachine = ({ waypoints }) => {
   return null;
 };
 
-// RecenterControl component to handle recentering the map
 const RecenterControl = ({ center }) => {
   const map = useMap();
 
@@ -91,29 +88,33 @@ const RecenterControl = ({ center }) => {
       const icon = document.createElement("div");
       icon.style.width = "30px";
       icon.style.height = "30px";
-      icon.style.background = "#fff";
+      icon.style.background = "#fff"; // Customize background color if needed
       icon.style.border = "none";
       icon.style.borderRadius = "4px";
       icon.style.cursor = "pointer";
       icon.style.padding = "5px";
       icon.innerHTML = `<img src="https://static.thenounproject.com/png/2819186-200.png" alt="Recenter" class="react-icon" />`;
       button.appendChild(icon);
-      button.onclick = () => map.setView(center, 16);
+      button.onclick = function () {
+        map.setView(center, 16);
+      };
       return button;
     };
 
     recenterControl.addTo(map);
 
-    // Cleanup on component unmount
     return () => {
-      map.removeControl(recenterControl);
+      try {
+        map.removeControl(recenterControl);
+      } catch (err) {
+        console.error(err);
+      }
     };
   }, [map, center]);
 
   return null;
 };
 
-// DeliveryMap component to render the map with routing and recenter controls
 const DeliveryMap = ({ origin, destination, waypoints = [], center }) => {
   const allPoints = [origin, ...waypoints, destination];
 
@@ -132,46 +133,10 @@ const DeliveryMap = ({ origin, destination, waypoints = [], center }) => {
         <RoutingMachine waypoints={allPoints} />
         <RecenterControl center={center} />
       </MapContainer>
+
+      <script>L.map('map').setBearing(rotation);</script>
     </div>
   );
-};
-
-// PropTypes validation
-DeliveryMap.propTypes = {
-  origin: PropTypes.shape({
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-  }).isRequired,
-  destination: PropTypes.shape({
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-  }).isRequired,
-  waypoints: PropTypes.arrayOf(
-    PropTypes.shape({
-      lat: PropTypes.number.isRequired,
-      lng: PropTypes.number.isRequired,
-    })
-  ),
-  center: PropTypes.shape({
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-  }).isRequired,
-};
-
-RoutingMachine.propTypes = {
-  waypoints: PropTypes.arrayOf(
-    PropTypes.shape({
-      lat: PropTypes.number.isRequired,
-      lng: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-};
-
-RecenterControl.propTypes = {
-  center: PropTypes.shape({
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-  }).isRequired,
 };
 
 export default DeliveryMap;

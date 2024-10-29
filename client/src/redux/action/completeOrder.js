@@ -20,6 +20,31 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
   }
 };
 
+export const allotDeliveryBoyAction =
+  (orderId, deliveryBoy, supplier) => async (dispatch) => {
+    // try {
+    //   await api.allotDeliveryBoyAPI(orderId, deliveryBoy._id, supplier);
+    //   dispatch({
+    //     type: "ALLOT_DELIVERY_BOY",
+    //     data: {
+    //       orderId: orderId,
+    //       assignedTo: { name: deliveryBoy.name, _id: deliveryBoy._id },
+    //     },
+    //   });
+    //   return { success: true, message: "Delivery boy allocated successfully" };
+    // } catch (err) {
+    //   console.log("Error from courseFilter Action: " + err.message, err.stack);
+    //   return { success: false, message: err?.response?.data?.message };
+    // }
+
+    return handleApiCall(
+      () => api.allotDeliveryBoyAPI(orderId, deliveryBoy._id, supplier),
+      dispatch,
+      "ALLOT_DELIVERY_BOY",
+      "Delivery Allotted Successfully"
+    );
+  };
+
 // Action to post a complete order
 export const postCompleteOrderAction = (orderData) => async (dispatch) => {
   return handleApiCall(

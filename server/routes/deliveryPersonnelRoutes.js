@@ -6,6 +6,7 @@ import {
   getDeliveryPersonnels,
   getOnlineDeliveryPersonnelsBySupplier,
   updateDeliveryPersonnel,
+  updateDeliveryPersonnelOnlineStatus,
 } from "../controllers/deliveryPersonnel.js";
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.get(
 );
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);
+router.patch("/change-online-status/:id", updateDeliveryPersonnelOnlineStatus);
 router.get("/get-single/:id", getDeliveryPersonnelSingle);
 router.delete("/delete-single/:id", deleteDeliveryPersonnel);
 

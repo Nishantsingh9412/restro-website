@@ -1,4 +1,4 @@
-import { Grid, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, Heading, Text } from "@chakra-ui/react";
 import DeliveryCard from "./components/DeliveryCard";
 import ActiveDelivery from "./components/ActiveDelivery";
 import Swal from "sweetalert2";
@@ -9,13 +9,11 @@ import {
   deleteSingleDeliveryAction,
   completeDeliveryAction,
   cancelDeliveryAction,
-  updateDeliveryStatusAction,
+  udpateDeliveryStatusAction,
 } from "../../../redux/action/delivery";
 import { getSingleDelBoyAction } from "../../../redux/action/delboy";
 
-// Main component function
 export default function AvailableDeliveries() {
-  const dispatch = useDispatch();
   const auth = useSelector((state) => state.authReducer.data);
   const availableDeliveries = useSelector(
     (state) => state.deliveryReducer.deliveries
@@ -23,179 +21,144 @@ export default function AvailableDeliveries() {
   const activeDelivery = useSelector(
     (state) => state.deliveryReducer.activeDelivery
   );
-  // eslint-disable-next-line no-unused-vars
-  const loggedInDelBoy = useSelector(
-    (state) => state.delBoyReducer.selectedDelBoy
-  );
-
-  // Retrieve local data from localStorage
+  const dispatch = useDispatch();
+  // For getting delivery boy data Start
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const localId = localData?.result?._id;
 
-  // Fetch single delivery boy data on component mount
   useEffect(() => {
-    if (localId) {
-      dispatch(getSingleDelBoyAction(localId));
-    }
-  }, [dispatch, localId]);
+    dispatch(getSingleDelBoyAction(localId));
+  }, []);
 
-  // Function to show alert using SweetAlert2
-  const showAlert = (
-    title,
-    text,
-    icon,
-    confirmButtonColor,
-    timer,
-    timerProgressBar
-  ) =>
+  const logged_in_del_boy = useSelector(
+    (state) => state.delBoyReducer.selectedDelBoy
+  );
+  console.log(logged_in_del_boy);
+
+  // For Getting Delivery Boy Data End
+
+  const showAcceptConfirmation = () =>
     Swal.fire({
-      title,
-      text,
-      icon,
-      confirmButtonColor,
-      timer,
-      timerProgressBar,
+      title: "Delivery Accepted",
+      text: "Complete the order to get more delivery offers",
+      icon: "success",
+      confirmButtonColor: "skyblue",
+      timer: 2500,
+      timerProgressBar: true,
     });
 
-  // Function to show confirmation dialog using SweetAlert2
-  const showConfirmation = (
-    title,
-    text,
-    icon,
-    confirmButtonColor,
-    confirmButtonText,
-    callback
-  ) =>
+  const showStatusChangeConfirm = (id, status) =>
     Swal.fire({
-      title,
-      text,
-      icon,
-      confirmButtonColor,
-      confirmButtonText,
+      title: "Change Status to " + status,
+      text: `Confirm that you have ${status.toLowerCase()} the order`,
+      icon: "success",
+      confirmButtonColor: "green",
+      confirmButtonText: "Yes",
       showCancelButton: true,
     }).then((result) => {
-      if (result.isConfirmed) callback();
+      if (result.isConfirmed) handleUpdateStatus(id, status);
+    });
+  const showDeliveryCompleted = () =>
+    Swal.fire({
+      title: "Delivery Completed",
+      text: "You can earn more, get more deliveries",
+      icon: "success",
+      confirmButtonColor: "skyblue",
     });
 
-  // Handle accept delivery action
-  const handleAccept = (id) => {
-    dispatch(acceptDeliveryAction(id, localId || auth?._id)).then(() =>
-      showAlert(
-        "Delivery Accepted",
-        "Complete the order to get more delivery offers",
-        "success",
-        "skyblue",
-        2500,
-        true
-      )
-    );
-  };
+  const showRejectConfirmation = (id) =>
+    Swal.fire({
+      title: "Reject delivery offer?",
+      text: "Are you sure you want to reject this offer?",
+      icon: "question",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleReject(id);
+    });
 
-  // Handle reject delivery action
+  const showCancelConfirmation = (id) =>
+    Swal.fire({
+      title: "Cancel delivery in progress?",
+      text: "Are you sure you want to cancel this delivery?",
+      icon: "warning",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleCancel(id);
+    });
+
   const handleReject = (id) => {
     dispatch(deleteSingleDeliveryAction(id));
   };
 
-  // Handle complete delivery action
   const handleCompleteDelivery = (id) => {
     dispatch(completeDeliveryAction(id, localId || auth?._id)).then(() =>
-      showAlert(
-        "Delivery Completed",
-        "You can earn more, get more deliveries",
-        "success",
-        "skyblue"
-      )
+      showDeliveryCompleted()
     );
   };
 
-  // Handle update delivery status action
   const handleUpdateStatus = (id, status) => {
-    if (status === "Completed") {
-      handleCompleteDelivery(id);
-    } else {
-      dispatch(updateDeliveryStatusAction(id, status, localId || auth?._id));
-    }
+    if (status === "Completed") return handleCompleteDelivery(id);
+    dispatch(udpateDeliveryStatusAction(id, status, localId || auth?._id));
   };
 
-  // Handle cancel delivery action
+  const handleAccept = (id) => {
+    dispatch(acceptDeliveryAction(id, localId || auth?._id)).then(() =>
+      showAcceptConfirmation()
+    );
+  };
+
   const handleCancel = () => {
     dispatch(cancelDeliveryAction());
   };
 
-  // Render active delivery component if there is an active delivery
-  if (activeDelivery) {
+  if (activeDelivery)
     return (
       <ActiveDelivery
         activeDelivery={activeDelivery}
-        handleCancel={() =>
-          showConfirmation(
-            "Cancel delivery in progress?",
-            "Are you sure you want to cancel this delivery?",
-            "warning",
-            "red",
-            "Yes",
-            handleCancel
-          )
-        }
-        handleUpdateStatus={(id, status) =>
-          showConfirmation(
-            `Change Status to ${status}`,
-            `Confirm that you have ${status.toLowerCase()} the order`,
-            "success",
-            "green",
-            "Yes",
-            () => handleUpdateStatus(id, status)
-          )
-        }
+        handleCancel={showCancelConfirmation}
+        handleUpdateStatus={showStatusChangeConfirm}
       />
     );
-  }
-
-  // Render available deliveries or a message if there are no deliveries
-  return (
-    <>
-      <Heading mt={20} mb={5} fontSize={20}>
-        Available Deliveries
-      </Heading>
-      {availableDeliveries.length === 0 ? (
-        <Text
-          p={3}
-          w={"fit-content"}
-          bg={"rgba(255, 255, 255, 0.5)"}
-          mx={"auto"}
-          my={20}
-        >
-          You don&apos;t have any delivery offer at this moment
-        </Text>
-      ) : (
-        <Grid
-          gap={5}
-          gridTemplateColumns={{
-            base: "1fr",
-            md: "1fr 1fr",
-            lg: "1fr 1fr 1fr",
-          }}
-        >
-          {availableDeliveries.map((delivery, i) => (
-            <DeliveryCard
-              data={delivery}
-              key={i}
-              handleAccept={handleAccept}
-              handleReject={(id) =>
-                showConfirmation(
-                  "Reject delivery offer?",
-                  "Are you sure you want to reject this offer?",
-                  "question",
-                  "red",
-                  "Yes",
-                  () => handleReject(id)
-                )
-              }
-              disabled={!!activeDelivery}
-            />
-          ))}
-        </Grid>
-      )}
-    </>
-  );
+  else
+    return (
+      <>
+        <Heading mt={20} mb={5} fontSize={20}>
+          Available Deliveries
+        </Heading>
+        {availableDeliveries.length === 0 ? (
+          <Text
+            p={3}
+            w={"fit-content"}
+            bg={"rgba(255, 255, 255, 0.5)"}
+            mx={"auto"}
+            my={20}
+          >
+            You don't have any delivery offer at this moment
+          </Text>
+        ) : (
+          <Grid
+            gap={5}
+            gridTemplateColumns={{
+              base: "1fr",
+              md: "1fr 1fr",
+              lg: "1fr 1fr 1fr",
+            }}
+          >
+            {availableDeliveries.map((delivery, i) => (
+              <DeliveryCard
+                data={delivery}
+                key={i}
+                handleAccept={handleAccept}
+                handleReject={showRejectConfirmation}
+                disabled={activeDelivery ? true : false}
+              />
+            ))}
+          </Grid>
+        )}
+      </>
+    );
 }

@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 import {
   assignTask,
@@ -16,6 +17,7 @@ import {
   deleteEmployee,
   getTodaysBirthday,
   getUpcomingEmployeeBirthday,
+  getDeliveryEmployees,
 } from "../controllers/employeeController.js";
 
 const router = express.Router();
@@ -29,7 +31,13 @@ router.patch("/update-task/:id", updateSingleTask);
 
 router.post("/add-employee", addEmployee);
 
-router.get("/get-employee/:allActive", getEmployeesByRestaurant);
+router.get(
+  "/get-employee/:id",
+  authMiddleware,
+  getEmployeesByRestaurant
+);
+
+router.get("/get-delivery-employees/:id", authMiddleware, getDeliveryEmployees);
 
 router.put("/update-employee/:employeeId", updateEmployee);
 

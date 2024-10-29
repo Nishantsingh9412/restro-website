@@ -1,5 +1,7 @@
 import {
+  Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Grid,
@@ -11,19 +13,34 @@ import DeliveryMap from "../availableDeliveries/components/DeliveryMap";
 import { useEffect, useState } from "react";
 
 export default function TestMap() {
-  const [destination, setDestination] = useState({ lat: "", lng: "" });
-  const [utils, setUtils] = useState({ showMap: false });
+  const [destination, setDestination] = useState({
+    lat: "",
+    lng: "",
+  });
+  const [utils, setUtils] = useState({
+    showMap: false,
+  });
+
   const [origin, setOrigin] = useState(null);
 
-  // Use effect to get the user's current location
   useEffect(() => {
     if (navigator.geolocation) {
       const watcher = navigator.geolocation.watchPosition(
         (position) => {
-          const { latitude, longitude } = position.coords;
-          if (origin?.lat === latitude && origin?.lng === longitude) return;
-          setOrigin({ lat: latitude, lng: longitude });
-          console.log("My location: ", latitude, longitude);
+          if (
+            origin?.lat === position.coords.latitude &&
+            origin?.lng === position.coords.longitude
+          )
+            return;
+          setOrigin({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          console.log(
+            "My location: ",
+            position.coords.latitude,
+            position.coords.longitude
+          );
         },
         (error) => {
           console.error("Error getting location", error);
@@ -36,14 +53,12 @@ export default function TestMap() {
     }
   }, [origin]);
 
-  // Handle input change for destination coordinates
   const handleChangeDestinationInput = (e) =>
     setDestination((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  // Handle form submission to toggle map visibility
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setUtils((prev) => ({ ...prev, showMap: !prev.showMap }));
+    setUtils((prev) => ({ ...prev, showMap: !utils.showMap }));
   };
 
   return (
@@ -96,8 +111,8 @@ export default function TestMap() {
           {utils.showMap ? "Change Destination" : "Show Direction"}
         </Button>
       </form>
-      {utils.showMap &&
-        (origin ? (
+      {utils.showMap ? (
+        origin ? (
           <DeliveryMap
             origin={origin}
             destination={destination}
@@ -107,7 +122,8 @@ export default function TestMap() {
           <Text my={20} mx={"auto"} width={"fit-content"} p={3} bg={"#eee"}>
             Loading...
           </Text>
-        ))}
+        )
+      ) : null}
     </>
   );
 }

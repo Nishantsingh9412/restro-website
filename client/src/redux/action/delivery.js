@@ -29,6 +29,18 @@ export const acceptDeliveryAction =
     );
   };
 
+export const udpateDeliveryStatusAction =
+  (deliveryId, status, userId) => async (dispatch) => {
+    return handleApiCall(
+      () => api.updateDeliveryStatus(deliveryId, { userId, status }),
+      dispatch,
+      status === "Completed"
+        ? "ADD_COMPLETED_DELIVERY"
+        : "UPDATE_DELIVERY_STATUS",
+      "Delivery status updated successfully"
+    );
+  };
+
 // Action to cancel a delivery
 export const cancelDeliveryAction = (deliveryId) => async (dispatch) => {
   dispatch({ type: "CANCEL_DELIVERY", data: { _id: deliveryId } });
