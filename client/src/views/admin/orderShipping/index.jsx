@@ -29,17 +29,12 @@ const OrderShipping = () => {
   const [editData, setEditData] = useState(null);
   const [actionType, setActionType] = useState("add");
   const [filteredDelBoys, setFilteredDelBoys] = useState([]);
-  const localUserData = useMemo(
-    () => JSON.parse(localStorage.getItem("ProfileData")),
-    []
-  );
-  const userId = localUserData?.result?._id;
+  const [loading, setLoading] = useState(true);
+
   // Get all delivery boys from the Redux store
-  const allDelBoyz = useSelector((state) => state?.delBoyReducer?.delboyz);
   const allDeliveryEmp = useSelector(
     (state) => state?.deliveryEmpReducer?.deliveryEmployees
   );
-
   // Search delivery boys by name or other criteria
   const handleSearch = (query) => {
     const filtered = allDeliveryEmp.filter(
@@ -54,9 +49,19 @@ const OrderShipping = () => {
     onClose: onCloseAdd,
   } = useDisclosure();
 
+  // Fetch delivery Employees
+  const fetchDeliveryEmp = async () => {
+    const res = await dispatch(getAllDeliveryEmpAction());
+    if (res.success) {
+      setLoading(false);
+    } else {
+      toast.error(res.message);
+    }
+  };
+
   // Fetch all delivery boys when the component mounts
   useEffect(() => {
-    dispatch(getAllDeliveryEmpAction(userId));
+    fetchDeliveryEmp();
   }, [dispatch]);
 
   // Open the modal to add a new delivery boy
@@ -106,6 +111,25 @@ const OrderShipping = () => {
     setEditData(null);
     onCloseAdd();
   };
+
+  // Show loader while fetching data
+  if (loading) {
+    return (
+      <Box
+        mt="2vw"
+        ml="2vw"
+        p="4"
+        bg="gray.50"
+        minH="100vh"
+        borderRadius={"10px"}
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Heading size="lg">Loading...</Heading>
+      </Box>
+    );
+  }
 
   return (
     <Box

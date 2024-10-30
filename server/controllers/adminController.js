@@ -5,7 +5,7 @@ import ShortUniqueId from "short-unique-id";
 import handleApiCall from "../utils/utils.js";
 import Joi from "joi";
 import Admin from "../models/adminModel.js";
-import Employee from "../models/employeeModel.js";
+import Employee from "../models/employee.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({

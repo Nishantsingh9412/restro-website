@@ -30,7 +30,7 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import {
   LoginAdminAction,
-  LoginDelivBoyAction,
+  // LoginDelivBoyAction,
 } from "../../../redux/action/admin.js";
 
 function SignIn() {
@@ -119,14 +119,14 @@ function SignIn() {
       membership_id: formData.memberId,
     };
 
-    dispatch(LoginDelivBoyAction(loginData)).then((res) => {
-      setLoading(false);
-      if (res.success) {
-        navigate("/delivery/dashboard");
-      } else {
-        toast.error(res.message);
-      }
-    });
+    // dispatch(LoginDelivBoyAction(loginData)).then((res) => {
+    //   setLoading(false);
+    //   if (res.success) {
+    //     navigate("/delivery/dashboard");
+    //   } else {
+    //     toast.error(res.message);
+    //   }
+    // });
   };
 
   // Handle form input changes

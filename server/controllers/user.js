@@ -1,17 +1,15 @@
 import fs from "fs";
 import path from "path";
 import mongoose from "mongoose";
-import Auth from "../models/auth.js";
 import Admin from "../models/adminModel.js";
-import Employee from "../models/employeeModel.js";
-
+import Employee from "../models/employee.js";
+import Auth from "../models/auth.js";
 // Array of user models
 const usersModel = [Admin, Employee, Auth];
 
 // Function to get logged-in user data
 export const getLoggedInUserData = async (req, res) => {
-  const { id: _id } = req.params;
-
+  const _id = req.user.id;
   // Check if the provided ID is valid
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(400).json({ success: false, message: "Invalid User ID" });

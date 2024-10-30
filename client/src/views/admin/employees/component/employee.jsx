@@ -45,7 +45,7 @@ export default function EmployeeComponent() {
   // Function to fetch employees from the API
   const getEmployees = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const res = await dispatch(getEmployeeApi(userData.result._id));
+    const res = await dispatch(getEmployeeApi());
     if (res.success) setEmployees(res.data);
   };
 

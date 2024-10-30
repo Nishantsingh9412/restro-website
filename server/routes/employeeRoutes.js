@@ -31,13 +31,9 @@ router.patch("/update-task/:id", updateSingleTask);
 
 router.post("/add-employee", addEmployee);
 
-router.get(
-  "/get-employee/:id",
-  authMiddleware,
-  getEmployeesByRestaurant
-);
+router.get("/get-all-employee", authMiddleware, getEmployeesByRestaurant);
 
-router.get("/get-delivery-employees/:id", authMiddleware, getDeliveryEmployees);
+router.get("/get-delivery-employees", authMiddleware, getDeliveryEmployees);
 
 router.put("/update-employee/:employeeId", updateEmployee);
 

@@ -81,11 +81,11 @@ export const deleteAbsenceApi = (dataemployee) => {
 };
 
 // Action to get absence data of an employee by their user ID
-export const getAbsenceByEmpl = (userId) => {
+export const getAbsenceByEmpl = () => {
   return async (dispatch) => {
     try {
       // Call the API to get absence data by user ID
-      const { data } = await api.getabsencebyempldata(userId);
+      const { data } = await api.getAbsenceByEmpl();
 
       // Dispatch the fetched data to the Redux store
       dispatch({ type: "GET_EMPLOYEE_ONLY", data: data.result });

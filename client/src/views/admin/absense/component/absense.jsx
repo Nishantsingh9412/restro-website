@@ -168,7 +168,7 @@ export default function AbsenseComponent() {
   // API Call to get absence by date
   const getAbsencebyDate = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const res = await dispatch(getAbsenceByEmpl(userData.result._id));
+    const res = await dispatch(getAbsenceByEmpl());
     if (res.success) setEmployees(res.data);
   };
 

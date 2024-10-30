@@ -17,13 +17,10 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
 };
 
 // Action to fetch employee data by ID
-export const getEmployeeApi = (employeeId) => {
+export const getEmployeeApi = () => {
   return async (dispatch) => {
-    if (!employeeId) {
-      return { success: false, message: "Employee ID is required" };
-    }
     return handleApiCall(
-      () => api.getemployeedata(employeeId),
+      () => api.getemployeedata(),
       dispatch,
       "GET_EMPLOYEE_ONLY",
       "Employee fetched successfully"

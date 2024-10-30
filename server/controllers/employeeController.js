@@ -53,19 +53,13 @@ export const addEmployee = async (req, res) => {
 
 // Get employees by restaurant based on userId or id
 export const getEmployeesByRestaurant = async (req, res) => {
-  const { id } = req.params;
+  const id = req.user.id;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ success: false, message: "Invalid User ID" });
   }
   const query = { created_by: id };
   try {
     const employees = await Employee.find(query);
-    if (!employees.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No employees found for this restaurant",
-      });
-    }
     return res.status(200).json({
       success: true,
       message: "Employees retrieved successfully",
@@ -89,11 +83,7 @@ export const updateEmployee = async (req, res) => {
     const employee = await Employee.findByIdAndUpdate(employeeId, req.body, {
       new: true,
     });
-    if (!employee) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Employee not found" });
-    }
+
     return res.status(200).json({
       success: true,
       message: "Employee updated successfully",
@@ -187,7 +177,7 @@ export const getUpcomingEmployeeBirthday = async (req, res) => {
 
 // Get all delivery employees
 export const getDeliveryEmployees = async (req, res) => {
-  const { id } = req.params;
+  const id = req.user.id;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ success: false, message: "Invalid User ID" });
   }
@@ -196,12 +186,14 @@ export const getDeliveryEmployees = async (req, res) => {
       created_by: id,
       role: "Delivery Boy",
     });
-    if (!deliveryEmployees.length) {
+
+    if (!deliveryEmployees) {
       return res.status(404).json({
         success: false,
         message: "No delivery employees found",
       });
     }
+
     return res.status(200).json({
       success: true,
       message: "Delivery employees retrieved successfully",

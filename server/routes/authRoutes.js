@@ -33,10 +33,4 @@ router.post('/login', loginController);
 router.post('/login-delivboy', delivBoyLoginController);
 
 
-
-
-
-
-
-
 export default router;

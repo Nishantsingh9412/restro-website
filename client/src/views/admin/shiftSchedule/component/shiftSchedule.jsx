@@ -108,8 +108,8 @@ const ShiftScheduleComponent = () => {
   // Fetch data from APIs
   const fetchData = async () => {
     const userData = JSON.parse(localStorage.getItem("ProfileData"));
-    const empRes = await dispatch(getEmployeeApi(userData.result._id));
-    const shiftRes = await dispatch(getShiftByEmpl(userData.result._id));
+    const empRes = await dispatch(getEmployeeApi());
+    const shiftRes = await dispatch(getShiftByEmpl());
     if (empRes.success) setEmployee(empRes.data);
     if (shiftRes.success) setEmployee(shiftRes.data);
     setIsLoading(false);

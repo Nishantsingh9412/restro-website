@@ -153,11 +153,8 @@ export const getTodaysLeaveByUserId = async (req, res) => {
 
 // Get employees with absences by user ID
 export const getEmployeesWithAbsencesByUser = async (req, res) => {
-  const { error, value } = userIdSchema.validate(req.params);
-  if (error) return res.status(400).json({ message: error.details[0].message });
-
   try {
-    const { userId } = value;
+    const userId = req.user.id;
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const employees = await Employee.find({ created_by: userObjectId });
 

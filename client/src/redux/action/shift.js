@@ -69,11 +69,11 @@ export const fetchShitDetailsApi = (employeeId) => {
 };
 
 // Action to get shift data by user ID
-export const getShiftByEmpl = (userId) => {
+export const getShiftByEmpl = () => {
   return async (dispatch) => {
     try {
       // Call the get shift by employee API
-      const { data } = await api.getshiftbyempldata(userId);
+      const { data } = await api.getShiftByEmpl();
       // Dispatch the action to the reducer with the fetched data
       dispatch({ type: "GET_EMPLOYEE_ONLY", data: data.result });
       return {

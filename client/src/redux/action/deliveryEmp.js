@@ -1,9 +1,9 @@
 import * as api from "../../api/index.js";
 
 // Get all delivery employees
-export const getAllDeliveryEmpAction = (id) => async (dispatch) => {
+export const getAllDeliveryEmpAction = () => async (dispatch) => {
   try {
-    const { data } = await api.getAllDeliveryEmpAPI(id);
+    const { data } = await api.getAllDeliveryEmpAPI();
     dispatch({ type: "GET_ALL_DELIVERY_EMP", data: data?.result });
     return { success: true, message: "All delivery employees fetched successfully" };
   } catch (err) {

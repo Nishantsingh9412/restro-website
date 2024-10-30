@@ -122,13 +122,13 @@ export const deleteSingleQRItem = (id) =>
 
 // User Data APIs
 // Get Single User Data
-export const getSingleUserData = (id) => API.get(`/user/get-user/${id}`);
+export const getSingleUserData = (id) => API.get(`/user/get-user`);
 // Update Single User Data Profile Pic
 export const UpdateUserProfilePic = (id, updatedData) =>
   API.patch(`/user/profile-pic-update/${id}`, updatedData);
 // Delivery Employee Date APIs
-export const getAllDeliveryEmpAPI = (id) =>
-  API.get(`/employee/get-delivery-employees/${id}`);
+export const getAllDeliveryEmpAPI = () =>
+  API.get(`/employee/get-delivery-employees`);
 // Delivery Personnel Management APIs
 // Add Delivery Personnel
 export const addDeliveryPersonnel = (newPersonnel) =>
@@ -251,8 +251,7 @@ export const getbirthdayapidata = () =>
 export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
-export const getemployeedata = (employeeId) =>
-  API.get(`/employee/get-employee/${employeeId}`);
+export const getemployeedata = () => API.get(`/employee/get-all-employee`);
 // Add Employee Data
 export const postemployeedata = (data) =>
   API.post("/employee/add-employee", data);
@@ -277,8 +276,8 @@ export const addAbsencedata = (data) =>
 export const editAbsenceData = (data) =>
   API.post("/absence/edit-employee-leave", data);
 // Get Absence by Employee Data
-export const getabsencebyempldata = (userId) =>
-  API.get(`/absence/getEmployeesWithAbsencesByUser/${userId}`);
+export const getAbsenceByEmpl = () =>
+  API.get(`/absence/get-all-employee-leave`);
 // Delete Absence Data
 export const deleteAbsenceData = (data) =>
   API.post("/absence/delete-employee-leave", data);
@@ -297,8 +296,7 @@ export const deleteShiftData = (data) =>
 export const fetchshiftdetailsdata = (employeedataId) =>
   API.get(`/shift/get-employee-shift/${employeedataId}`);
 // Get Shift by Employee Data
-export const getshiftbyempldata = (userId) =>
-  API.get(`/shift/get-shift-with-employee/${userId}`);
+export const getShiftByEmpl = () => API.get(`/shift/get-shift-with-employee`);
 
 // Delivery API
 // Get All Deliveries

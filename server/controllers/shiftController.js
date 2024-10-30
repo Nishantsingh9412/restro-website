@@ -208,7 +208,7 @@ export const getShiftByIdAndDate = async (req, res, next) => {
 // Get Employees with Shifts by User
 export const getEmployeesWithShiftsByUser = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
     if (!userId) return res.status(400).json({ error: "userId is required" });
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
