@@ -3,7 +3,7 @@ const initialState = {
   order: [],
 };
 // Dine-In Order Reducer
-export const dineInOrderReducer = (state = initialState, action) => {
+const dineInOrderReducer = (state = initialState, action) => {
   switch (action.type) {
     case "POST_DINE_IN_ORDER":
       return {
@@ -27,3 +27,4 @@ export const dineInOrderReducer = (state = initialState, action) => {
       return state;
   }
 };
+export default dineInOrderReducer;

@@ -53,7 +53,7 @@ const itemManageMentSchema = new Schema(
     // Created by field (reference to Auth model)
     created_by: {
       type: Schema.Types.ObjectId,
-      ref: "Auth",
+      ref: "Admin",
       required: [true, "Created by is required"],
     },
   },

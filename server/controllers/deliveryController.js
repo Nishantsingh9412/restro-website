@@ -3,7 +3,8 @@ import Delivery from "../models/delivery.js";
 import deliveryPersonnel from "../models/deliveryPersonnel.js";
 import notification from "../models/notification.js";
 import { hideDeliveryOffer, notifyUser } from "../utils/socket.js";
-import authDeliv from "../models/authDeliv.js";
+// import authDeliv from "../models/authDeliv.js";
+import deliveryBoy from "../models/deliveryBoyModel.js";
 
 // Helper function to validate ID
 const validateId = (id, res, message) => {
@@ -307,7 +308,7 @@ export const updateDeliveryStatus = async (req, res) => {
   if (!validateId(userId, res, "Invalid User ID")) return;
 
   try {
-    const delPer = await authDeliv.findById(userId).select("name");
+    const delPer = await deliveryBoy.findById(userId).select("name");
     if (!delPer) {
       return sendErrorResponse(res, 404, "Delivery Personnel not found");
     }

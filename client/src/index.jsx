@@ -11,22 +11,13 @@ import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme";
 import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
 import { Provider } from "react-redux";
-import { thunk } from "redux-thunk";
-import { compose, applyMiddleware, createStore } from "redux";
-import Reducers from "./redux/reducers/index";
 import adminRoutes from "./routes";
 import { deliveryRoutes } from "./routes";
 import SignUp from "./views/auth/signup";
 import { ToastContainer } from "react-toastify";
+import store from "./redux/store";
 
-// Create Redux store with middleware
-const store = createStore(
-  Reducers,
-  compose(
-    applyMiddleware(thunk)
-    // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__() // Uncomment for Redux DevTools
-  )
-);
+
 
 // Create root element for React application
 const root = ReactDOM.createRoot(document.getElementById("root"));

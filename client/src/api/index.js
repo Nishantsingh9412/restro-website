@@ -26,12 +26,12 @@ API.interceptors.request.use(
 
 // Authentication APIs
 // Signup
-export const signUpAPI = (newUser) => API.post("/admin/signup", newUser);
+export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
 // Login
-export const loginAPI = (userData) => API.post("/admin/login", userData);
+export const loginAPI = (userData) => API.post("/auth/login", userData);
 // Login for Delivery Boy
-export const loginDelivBoyAPI = (userData) =>
-  API.post("/admin/login-delivboy", userData);
+export const loginEmployee = (userData) =>
+  API.post("/auth/login-employee", userData);
 
 // Items Management APIs
 // Add Item

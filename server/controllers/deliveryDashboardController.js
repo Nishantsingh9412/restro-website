@@ -1,4 +1,3 @@
-import authDeliv from "../models/authDeliv.js";
 import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
 

@@ -17,7 +17,7 @@ const SupplierSchema = new Schema(
     location: String,
     created_by: {
       type: Schema.Types.ObjectId,
-      ref: "Auth",
+      ref: "Admin",
       required: true,
     },
   },

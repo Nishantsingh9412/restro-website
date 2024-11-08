@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Employee from "../models/employee.js";
+import Employee from "../models/employeeModel.js";
 import moment from "moment-timezone";
 import Joi from "joi";
 
@@ -38,6 +38,16 @@ export const addEmployee = async (req, res) => {
     return res
       .status(400)
       .json({ success: false, message: error.details[0].message });
+  }
+  const { email, phone } = req.body;
+  const existingEmployee = await Employee.findOne({
+    $or: [{ email }, { phone }],
+  });
+  if (existingEmployee) {
+    return res.status(400).json({
+      success: false,
+      message: "Employee with this email or phone number already exists",
+    });
   }
   try {
     const newEmployee = await Employee.create(req.body);

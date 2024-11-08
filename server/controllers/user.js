@@ -2,10 +2,9 @@ import fs from "fs";
 import path from "path";
 import mongoose from "mongoose";
 import Admin from "../models/adminModel.js";
-import Employee from "../models/employee.js";
-import Auth from "../models/auth.js";
+import Employee from "../models/employeeModel.js";
 // Array of user models
-const usersModel = [Admin, Employee, Auth];
+const usersModel = [Admin, Employee];
 
 // Function to get logged-in user data
 export const getLoggedInUserData = async (req, res) => {

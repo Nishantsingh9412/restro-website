@@ -44,7 +44,6 @@ export default function EmployeeComponent() {
 
   // Function to fetch employees from the API
   const getEmployees = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const res = await dispatch(getEmployeeApi());
     if (res.success) setEmployees(res.data);
   };
@@ -73,7 +72,7 @@ export default function EmployeeComponent() {
         getEmployees();
         setIsOpen(false);
       } else {
-        toast.error("Failed to add employee", res.error);
+        toast.error("Failed to add employee", res.message);
       }
     } catch (error) {
       toast.error("Error to add employee", error);

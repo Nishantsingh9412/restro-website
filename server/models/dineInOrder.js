@@ -63,7 +63,7 @@ const dineInOrderSchema = new Schema({
   },
   created_by: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Auth", // Reference to the Auth model
+    ref: "Admin", // Reference to the Admin model
     required: true,
   },
 });

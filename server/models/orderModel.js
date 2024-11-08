@@ -17,7 +17,7 @@ const OrderedItemsSchema = new Schema(
     isDrink: { type: Boolean, default: false },
     created_by: {
       type: Schema.Types.ObjectId,
-      ref: "Auth",
+      ref: "Admin",
       required: true,
     },
   },

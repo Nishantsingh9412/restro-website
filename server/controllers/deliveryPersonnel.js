@@ -1,4 +1,4 @@
-import authDeliv from "../models/authDeliv.js";
+import deliveryBoy from "../models/deliveryBoyModel.js";
 import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
 import { onlineUsers } from "../server.js";
@@ -33,7 +33,7 @@ export const updateDeliveryPersonnelOnlineStatus = async (req, res) => {
         .json({ success: false, message: "isOnline field is required" });
     }
 
-    const updatedDelBoy = await authDeliv.findByIdAndUpdate(
+    const updatedDelBoy = await deliveryBoy.findByIdAndUpdate(
       id,
       { isOnline },
       { new: true }
@@ -78,7 +78,7 @@ export const getOnlineDeliveryPersonnelsBySupplier = async (req, res) => {
     if (!validateObjectId(supplierId, res, "Supplier")) return;
 
     const online = Array.from(onlineUsers.keys());
-    const onlineDeliveryPersonnels = await authDeliv.find({
+    const onlineDeliveryPersonnels = await deliveryBoy.find({
       _id: { $in: online },
       created_by: supplierId,
       isOnline: true,
@@ -114,7 +114,7 @@ export const createDeliveryPersonnel = async (req, res) => {
         .json({ success: false, message: "All fields are required" });
     }
 
-    const newDelBoy = await authDeliv.create({
+    const newDelBoy = await deliveryBoy.create({
       name,
       country_code,
       phone,
@@ -133,7 +133,7 @@ export const createDeliveryPersonnel = async (req, res) => {
 // Get all delivery personnels
 export const getDeliveryPersonnels = async (req, res) => {
   try {
-    const allDelBoyz = await authDeliv.find();
+    const allDelBoyz = await deliveryBoy.find();
     res.status(200).json({
       success: true,
       message: "All Delivery Personnel",
@@ -158,7 +158,7 @@ export const updateDeliveryPersonnel = async (req, res) => {
   }
 
   try {
-    const updatedDelBoy = await authDeliv.findByIdAndUpdate(
+    const updatedDelBoy = await deliveryBoy.findByIdAndUpdate(
       _id,
       { name, country_code, phone },
       { new: true }
@@ -180,7 +180,7 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {
-    const singleDelBoy = await authDeliv.findById(_id).populate("created_by");
+    const singleDelBoy = await deliveryBoy.findById(_id).populate("created_by");
     res.status(200).json({
       success: true,
       message: "Delivery Personnel",
@@ -197,7 +197,7 @@ export const deleteDeliveryPersonnel = async (req, res) => {
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {
-    const delBoyToDelete = await authDeliv.findByIdAndDelete(_id);
+    const delBoyToDelete = await deliveryBoy.findByIdAndDelete(_id);
     res.status(200).json({
       success: true,
       message: "Delivery Personnel Deleted",

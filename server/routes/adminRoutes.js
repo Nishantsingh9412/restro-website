@@ -1,21 +1,17 @@
-import express from "express";
-import passport from "passport";
-
-// Importing the admin controllers
+//TODO:Delete after project completion
+import express from 'express';
 import {
-  signUpAdminController,
-  loginAdminController,
-} from "../controllers/adminController.js";
-import { upload } from "../middleware/fileupload.js";
+    getAllAdmins,
+    deleteAdmin,
+} from '../controllers/adminController.js';
 
-// Create a new router instance
+
 const router = express.Router();
 
-// Route for admin signup
-router.post("/signup", upload.single("profile_picture"), signUpAdminController);
+// get all admins
+router.get('/get-all-admins', getAllAdmins);
 
-// Route for admin login
-router.post("/login", loginAdminController);
+// delete admin
+router.delete('/delete-admin/:id', deleteAdmin);
 
-// Export the router to be used in other parts of the application
 export default router;

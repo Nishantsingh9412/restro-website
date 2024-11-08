@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import moment from "moment-timezone";
 import Shift from "../models/employeeShift.js";
-import Employee from "../models/employee.js";
+import Employee from "../models/employeeModel.js";
 import Joi from "joi";
 
 // Utility function to parse date and time

@@ -2,7 +2,7 @@ import moment from "moment-timezone";
 import mongoose from "mongoose";
 import Joi from "joi";
 import Absence from "../models/absence.js";
-import Employee from "../models/employee.js";
+import Employee from "../models/employeeModel.js";
 
 // Validation schemas
 const absenceSchema = Joi.object({

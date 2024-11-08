@@ -13,7 +13,7 @@ import lowStockItems from "./routes/lowStocks.js";
 import supplierRoutes from "./routes/suppliers.js";
 import orderRoutes from "./routes/orders.js";
 import qrRoutes from "./routes/qr.js";
-import authRoutes from "./routes/authRoutes.js";
+// import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/user.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 import addressRoutes from "./routes/address.js";
@@ -28,6 +28,8 @@ import deliveryDashboardRoutes from "./routes/deliveryDashboardRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 
+// import adminRoutes from "./routes/authRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 // Initialize express app
@@ -55,7 +57,7 @@ app.use("/stock-management", lowStockItems);
 app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
-app.use("/auth", authRoutes);
+// app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 // app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
@@ -70,6 +72,7 @@ app.use("/take-away", takeAwayRoutes);
 app.use("/notification", notificationRoutes);
 app.use("/delivery-dashboard", deliveryDashboardRoutes);
 
+app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------

@@ -1,26 +1,3 @@
-/* eslint-disable */
-/*!
-  _   _  ___  ____  ___ ________  _   _   _   _ ___   
- | | | |/ _ \|  _ \|_ _|__  / _ \| \ | | | | | |_ _| 
- | |_| | | | | |_) || |  / / | | |  \| | | | | || | 
- |  _  | |_| |  _ < | | / /| |_| | |\  | | |_| || |
- |_| |_|\___/|_| \_\___/____\___/|_| \_|  \___/|___|
-                                                                                                                                                                                                                                                                                                                                       
-=========================================================
-* Horizon UI - v1.1.0
-=========================================================
-
-* Product Page: https://www.horizon-ui.com/
-* Copyright 2023 Horizon UI (https://www.horizon-ui.com/)
-
-* Designed and Coded by Simmmple
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -44,7 +21,7 @@ import illustration from "../../../assets/img/auth/login-img.png";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
-import { SignUpAdminAction } from "../../../redux/action/admin.js";
+import { signUpAdmin } from "../../../redux/action/auth.js";
 
 function SignUp() {
   // Chakra color mode
@@ -142,11 +119,10 @@ function SignUp() {
       formData.append("profile_picture", profilePicture);
     }
 
-    dispatch(SignUpAdminAction(formData)).then((res) => {
+    dispatch(signUpAdmin(formData)).then((res) => {
       setLoading(false);
-      if (!res.success) {
+      if (!res.payload.success) {
         toast.error(res.message);
-        
       } else {
         navigate("/admin/dashboards/default");
       }

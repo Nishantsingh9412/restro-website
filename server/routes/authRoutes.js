@@ -1,36 +1,25 @@
-import express from 'express';
-import passport from 'passport';
+import express from "express";
+import passport from "passport";
 
+// Importing the admin controllers
 import {
-    signupController,
-    loginController,
-    authenticateUser,
-    authFailed,
-    authSuccess,
-    logoutUser,
-    delivBoyLoginController
-} from '../controllers/auth.js'
-import { upload } from '../middleware/fileupload.js';
+  signUpAdminController,
+  loginAdminController,
+  loginEmployeeController
+} from "../controllers/authController.js";
+import { upload } from "../middleware/fileupload.js";
 
+// Create a new router instance
 const router = express.Router();
 
-router.get('/google/callback', authenticateUser);
+// Route for admin signup
+router.post("/signup", upload.single("profile_picture"), signUpAdminController);
 
-router.get('/login/failed', authFailed);
+// Route for admin login
+router.post("/login", loginAdminController);
 
-router.get('/login/success', authSuccess);
+// router to login employee
+router.post("/login-employee", loginEmployeeController);
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-router.get('/logout', logoutUser);
-
-
-
-router.post('/signup', upload.single('profile_picture') , signupController);
-
-router.post('/login', loginController);
-
-router.post('/login-delivboy', delivBoyLoginController);
-
-
+// Export the router to be used in other parts of the application
 export default router;

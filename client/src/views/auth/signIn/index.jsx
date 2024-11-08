@@ -28,10 +28,7 @@ import illustration from "../../../assets/img/auth/login-img.png";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
-import {
-  LoginAdminAction,
-  // LoginDelivBoyAction,
-} from "../../../redux/action/admin.js";
+import { loginAdmin, loginEmployee } from "../../../redux/action/auth.js";
 
 function SignIn() {
   // Define color modes for different elements
@@ -98,14 +95,18 @@ function SignIn() {
 
     const loginData = { email: formData.email, password: formData.password };
 
-    dispatch(LoginAdminAction(loginData)).then((res) => {
-      setLoading(false);
-      if (res.success) {
-        navigate("/admin/dashboards/default");
-      } else {
-        toast.error(res.message);
-      }
-    });
+    dispatch(loginAdmin(loginData))
+      .then((res) => {
+        setLoading(false);
+        if (res.payload.success) {
+          navigate("/admin/dashboards/default");
+        } else {
+          toast.error(res.error.message);
+        }
+      })
+      .catch((err) => {
+        console.log("ERROR", err);
+      });
   };
 
   // Handle delivery boy login
@@ -114,19 +115,20 @@ function SignIn() {
     setLoading(true);
 
     const loginData = {
-      phone_number: formData.phone,
+      phone: "+" + formData.country_code + formData.phone,
       country_code: formData.country_code,
       membership_id: formData.memberId,
     };
 
-    // dispatch(LoginDelivBoyAction(loginData)).then((res) => {
-    //   setLoading(false);
-    //   if (res.success) {
-    //     navigate("/delivery/dashboard");
-    //   } else {
-    //     toast.error(res.message);
-    //   }
-    // });
+    dispatch(loginEmployee(loginData)).then((res) => {
+      console.log(res)
+      setLoading(false);
+      if (res.payload.success) {
+        navigate("/delivery/dashboard");
+      } else {
+        toast.error(res.payload);
+      }
+    });
   };
 
   // Handle form input changes
@@ -339,9 +341,9 @@ function SignIn() {
         onClick={() => {
           setFormData({
             ...formData,
-            phone: "9798425933",
+            phone: "1234567892",
             country_code: "91",
-            memberId: "Cd5jZSpYhL",
+            memberId: "DxB3SYiOIW",
           });
         }}
       >
