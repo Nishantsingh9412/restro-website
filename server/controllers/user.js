@@ -3,7 +3,6 @@ import path from "path";
 import mongoose from "mongoose";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
-// Array of user models
 const usersModel = [Admin, Employee];
 
 // Function to get logged-in user data
@@ -34,7 +33,7 @@ export const getLoggedInUserData = async (req, res) => {
 
 // Function to update user profile picture
 export const updateUserProfilePic = async (req, res) => {
-  const { id: _id } = req.params;
+  const _id = req.user.id;
   const profile_picture = req.file ? req.file.filename : null;
 
   // Check if the provided ID is valid
@@ -50,31 +49,37 @@ export const updateUserProfilePic = async (req, res) => {
   }
 
   try {
-    // Retrieve the current user to get the old profile picture
-    const user = await Auth.findById(_id);
-    if (user && user.profile_picture) {
-      // Construct the path to the old profile picture
-      const oldProfilePicPath = path.join("uploads/", user.profile_picture); // Adjust the path as necessary
-
-      // Check if the file exists before attempting to delete
-      if (fs.existsSync(oldProfilePicPath)) {
-        fs.unlink(oldProfilePicPath, (err) => {
-          if (err) {
-            console.error("Failed to delete old profile picture:", err);
+    // Iterate through each user model to find the user by ID
+    for (const model of usersModel) {
+      const user = await model.findById(_id).select("-password -__v ");
+      if (user) {
+        // If user has an old profile picture, delete it
+        if (user.profile_picture) {
+          const oldProfilePicPath = path.join("uploads/", user.profile_picture); // Adjust the path as necessary
+          if (fs.existsSync(oldProfilePicPath)) {
+            fs.unlink(oldProfilePicPath, (err) => {
+              if (err) {
+                console.error("Failed to delete old profile picture:", err);
+              }
+            });
           }
+        }
+
+        // Update the user with the new profile picture
+        user.profile_picture = profile_picture;
+        await user.save();
+
+        // Return the updated user data
+        return res.status(200).json({
+          success: true,
+          result: user,
+          message: "Profile picture updated successfully",
         });
       }
     }
 
-    // Update the user with the new profile picture
-    const updatedUser = await Auth.findByIdAndUpdate(
-      _id,
-      { profile_picture: profile_picture },
-      { new: true }
-    );
-
-    // Return the updated user data
-    return res.status(200).json({ success: true, result: updatedUser });
+    // If user is not found in any model, return 404
+    return res.status(404).json({ success: false, message: "User not found" });
   } catch (err) {
     // Handle any errors that occur during the process
     return res

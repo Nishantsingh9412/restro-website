@@ -50,7 +50,7 @@ const itemManageMentSchema = new Schema(
           `Expiry date (${props.value}) should be in the future`,
       },
     },
-    // Created by field (reference to Auth model)
+    // Created by field (reference to Admin model)
     created_by: {
       type: Schema.Types.ObjectId,
       ref: "Admin",

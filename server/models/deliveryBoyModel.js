@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import Employee from "./employeeModel.js";
 
 const deliveryBoySchema = new mongoose.Schema({
-  onlineStatus: {
-    type: Boolean,
-    default: false,
-  },
-  liveLocationURL: {
+  odometer_photo: {
     type: String,
-    default: "",
+    default: null,
+  },
+  odometer_reading: {
+    type: Number,
+    default: 0,
   },
 });
 

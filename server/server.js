@@ -32,6 +32,9 @@ import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
+import waiterRoutes from "./routes/waiterRoutes.js";
+import commonRoutes from "./routes/commonRoutes.js";
+
 // Initialize express app
 const app = express();
 dotenv.config(); // Load environment variables from .env file
@@ -74,6 +77,11 @@ app.use("/delivery-dashboard", deliveryDashboardRoutes);
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
+
+app.use("/waiter", waiterRoutes)
+
+
+app.use("/common", commonRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------
 const __dirname = path.resolve(); // Set the __dirname to current directory

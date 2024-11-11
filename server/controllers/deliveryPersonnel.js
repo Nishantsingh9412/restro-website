@@ -2,6 +2,7 @@ import deliveryBoy from "../models/deliveryBoyModel.js";
 import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
 import { onlineUsers } from "../server.js";
+import Employee from "../models/employeeModel.js";
 
 // Helper function to handle errors
 const handleError = (res, err, message = "Internal Server Error") => {
@@ -205,5 +206,59 @@ export const deleteDeliveryPersonnel = async (req, res) => {
     });
   } catch (err) {
     handleError(res, err, "Delivery Personnel not deleted");
+  }
+};
+
+// Update delivery boy odometer reading
+export const updateDeliveryBoyOdometerReading = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // Validate the delivery personnel ID
+    if (!validateObjectId(id, res, "Delivery Personnel")) return;
+
+    const { odometer_reading } = req.body;
+    const odometer_photo = req.file ? req.file.filename : null;
+
+    // Check if both odometer reading and photo are provided
+    if (!odometer_reading || !odometer_photo) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    // Find the delivery personnel by ID
+    const delBoy = await deliveryBoy.findById(id);
+    const emp = await Employee.findById(id);
+    console.log(emp);
+    if (!delBoy) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery Personnel not found" });
+    }
+
+    // Delete old odometer photo if it exists
+    if (delBoy.odometer_photo) {
+      const oldOdometerPhotoPath = path.join("uploads/", delBoy.odometer_photo);
+      if (fs.existsSync(oldOdometerPhotoPath)) {
+        fs.unlink(oldOdometerPhotoPath, (err) => {
+          if (err) {
+            console.error("Error deleting old odometer photo:", err);
+          }
+        });
+      }
+    }
+
+    // Update delivery personnel's odometer reading and photo
+    delBoy.odometer_reading = odometer_reading;
+    delBoy.odometer_photo = odometer_photo;
+    await delBoy.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Updated",
+      result: delBoy,
+    });
+  } catch (err) {
+    handleError(res, err, "Delivery Personnel not updated");
   }
 };

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import Employee from "../models/employeeModel.js";
+import DeliveryBoy from "../models/deliveryBoyModel.js";
+import Waiter from "../models/waiterModel.js";
 import moment from "moment-timezone";
 import Joi from "joi";
 
@@ -24,6 +26,7 @@ const schema = Joi.object({
   annualHolidayEntitlement: Joi.number().optional(),
   notes: Joi.string().optional(),
   created_by: Joi.string().required(),
+  is_online: Joi.boolean().optional(),
 });
 
 const handleError = (res, error, message = "Internal Server Error") => {
@@ -33,13 +36,18 @@ const handleError = (res, error, message = "Internal Server Error") => {
 
 // Add a new employee to the database
 export const addEmployee = async (req, res) => {
+  // Validate request body against schema
   const { error } = schema.validate(req.body);
   if (error) {
     return res
       .status(400)
       .json({ success: false, message: error.details[0].message });
   }
-  const { email, phone } = req.body;
+
+  const empData = req.body;
+  const { email, phone, role } = empData;
+
+  // Check if an employee with the same email or phone already exists
   const existingEmployee = await Employee.findOne({
     $or: [{ email }, { phone }],
   });
@@ -49,8 +57,10 @@ export const addEmployee = async (req, res) => {
       message: "Employee with this email or phone number already exists",
     });
   }
+
   try {
-    const newEmployee = await Employee.create(req.body);
+    // Create a new employee based on the role
+    const newEmployee = await createEmployee(role, empData);
     return res.status(200).json({
       success: true,
       message: "Employee created successfully",
@@ -58,6 +68,24 @@ export const addEmployee = async (req, res) => {
     });
   } catch (error) {
     return handleError(res, error, "Error in Add Employee");
+  }
+};
+
+// Helper function to create employee based on role
+const createEmployee = (role, empData) => {
+  switch (role) {
+    case "Delivery Boy":
+      return DeliveryBoy.create(empData);
+    case "Waiter":
+      return Waiter.create(empData);
+    //TODO: Add other roles here
+    case "Chef":
+    case "Manager":
+    case "Bar Tender":
+    case "Kitchen Staff":
+    case "Custom":
+    default:
+      return Employee.create(empData);
   }
 };
 

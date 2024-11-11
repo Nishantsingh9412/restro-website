@@ -28,8 +28,8 @@ const taskSchema = new Schema({
         required: true // End date is required
     },
     created_by: {
-        type: Schema.Types.ObjectId, // Reference to an Auth object
-        ref: 'Admin', // Referencing the Auth model
+        type: Schema.Types.ObjectId, // Reference to an Admin object
+        ref: 'Admin', // Referencing the Admin model
         required: true // createdBy is required
     }
 }, { timestamps: true }); // Automatically add createdAt and updatedAt timestamps

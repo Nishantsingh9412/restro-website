@@ -10,7 +10,8 @@ const router = express.Router();
 
 router.get("/get-user", authMiddleware, getLoggedInUserData); // get user by id
 router.patch(
-  "/profile-pic-update/:id",
+  "/profile-pic-update",
+  authMiddleware,
   upload.single("profile_picture"),
   updateUserProfilePic
 );

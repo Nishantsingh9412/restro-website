@@ -5,6 +5,7 @@ const employeeSchema = new Schema(
   {
     name: {
       type: String,
+      default: "Employee",
       required: true,
       trim: true,
     },
@@ -90,6 +91,11 @@ const employeeSchema = new Schema(
       type: Number,
       default: 40,
     },
+    profile_picture: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png",
+    },
     variableWorkingHours: {
       type: Boolean,
       default: false,
@@ -97,6 +103,15 @@ const employeeSchema = new Schema(
     annualHolidayEntitlement: {
       type: Number,
       default: 20,
+    },
+    is_online: {
+      type: Boolean,
+      default: false,
+    },
+    live_photo: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png",
     },
     notes: {
       type: String,
@@ -114,11 +129,12 @@ const employeeSchema = new Schema(
 // Add a custom validation for `dateOfJoining` and `endOfEmployment`
 employeeSchema.pre("save", function (next) {
   if (this.endOfEmployment && this.dateOfJoining > this.endOfEmployment) {
-    return next(new Error("End of employment cannot be before date of joining"));
+    return next(
+      new Error("End of employment cannot be before date of joining")
+    );
   }
   next();
 });
-
 
 // Post middleware to handle cleanup after an employee is deleted
 employeeSchema.post("findOneAndDelete", async function (doc) {

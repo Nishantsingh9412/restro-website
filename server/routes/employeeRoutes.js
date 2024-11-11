@@ -29,7 +29,7 @@ router.get("/all-employees", AllEmployees);
 router.delete("/delete-single-task/:id", deleteSingleTask);
 router.patch("/update-task/:id", updateSingleTask);
 
-router.post("/add-employee", addEmployee);
+router.post("/add-employee", authMiddleware, addEmployee);
 
 router.get("/get-all-employee", authMiddleware, getEmployeesByRestaurant);
 

@@ -1,7 +1,7 @@
 import Task from "../models/taskSchema.js";
-// import Auth from "../models/auth.js";
 import mongoose from "mongoose";
 import Joi from "joi";
+import Employee from "../models/employeeModel.js";
 
 // Validation schema for task
 const taskSchema = Joi.object({
@@ -111,7 +111,7 @@ export const getALLEmployeesAssignedTo = async (req, res) => {
 export const AllEmployees = async (req, res) => {
     try {
         // Fetch all employees from database
-        const allEmployees = await Auth.find({ role: "employee" });
+        const allEmployees = await Employee.find();
         return res
             .status(200)
             .json({
