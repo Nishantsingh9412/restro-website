@@ -9,7 +9,8 @@ import {
   editEmployeeShift,
   deleteEmployeeShift,
 } from "../controllers/shiftController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { adminMiddleware } from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.get("/get-shift-by-IdAndDate/:employeeId/:date", getShiftByIdAndDate);
 
 router.get(
   "/get-shift-with-employee",
-  authMiddleware,
+  adminMiddleware,
   getEmployeesWithShiftsByUser
 );
 export default router;

@@ -1,4 +1,5 @@
 import Admin from "../models/adminModel.js";
+import mongoose from "mongoose";
 
 // Get all admins
 export const getAllAdmins = async (req, res) => {
@@ -52,7 +53,7 @@ export const getLoggedInAdminData = async (req, res) => {
   }
   try {
     // Find admin by ID
-    const admin = await Admin.findById(_id);
+    const admin = await Admin.findById(_id).select("-password -__v ");
     if (!admin) {
       // If admin not found, return 404 status
       return res.status(404).json({ message: "Admin not found" });

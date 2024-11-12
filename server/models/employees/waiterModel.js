@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Employee from "./employeeModel.js";
+import Employee from "../employeeModel.js";
 
 const waiterSchema = new mongoose.Schema({
   section: {

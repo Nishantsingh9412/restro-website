@@ -1,5 +1,5 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { adminMiddleware } from "../middleware/authMiddleware.js";
 
 import {
   assignTask,
@@ -29,11 +29,11 @@ router.get("/all-employees", AllEmployees);
 router.delete("/delete-single-task/:id", deleteSingleTask);
 router.patch("/update-task/:id", updateSingleTask);
 
-router.post("/add-employee", authMiddleware, addEmployee);
+router.post("/add-employee", adminMiddleware, addEmployee);
 
-router.get("/get-all-employee", authMiddleware, getEmployeesByRestaurant);
+router.get("/get-all-employee", adminMiddleware, getEmployeesByRestaurant);
 
-router.get("/get-delivery-employees", authMiddleware, getDeliveryEmployees);
+router.get("/get-delivery-employees", adminMiddleware, getDeliveryEmployees);
 
 router.put("/update-employee/:employeeId", updateEmployee);
 

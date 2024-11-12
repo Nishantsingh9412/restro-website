@@ -1,9 +1,14 @@
 import mongoose from "mongoose";
 import Employee from "../models/employeeModel.js";
 import DeliveryBoy from "../models/deliveryBoyModel.js";
-import Waiter from "../models/waiterModel.js";
+import Waiter from "../models/employees/waiterModel.js";
 import moment from "moment-timezone";
 import Joi from "joi";
+import Bartender from "../models/employees/bartenderModel.js";
+import Staff from "../models/employees/staffModel.js";
+import Manager from "../models/employees/managerModel.js";
+import Chef from "../models/employees/chefModel.js";
+import HelperEmployee from "../models/employees/helperEmpModel.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -80,10 +85,17 @@ const createEmployee = (role, empData) => {
       return Waiter.create(empData);
     //TODO: Add other roles here
     case "Chef":
+      return Chef.create(empData);
     case "Manager":
+      return Manager.create(empData);
     case "Bar Tender":
+      return Bartender.create(empData);
     case "Kitchen Staff":
+      return Staff.create(empData);
+    case "Helper":
+      return HelperEmployee.create(empData);
     case "Custom":
+      return Employee.create(empData);
     default:
       return Employee.create(empData);
   }

@@ -33,7 +33,7 @@ const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
 
 // Update the status of employee to online or offline based on location
 export const updateEmployeeOnlineStatus = async (req, res) => {
-  const id = req.params.id; // Extract employee ID from request parameters
+  const id = req.user.id; // Extract employee ID from request parameters
   const { status, latitude, longitude } = req.body; // Extract status and location from request body
   const live_photo = req.file ? req.file.filename : null; // Extract live photo filename if provided
 
@@ -118,6 +118,7 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // get all working shift based on the employee
 export const getAllShiftByEmployee = async (req, res) => {

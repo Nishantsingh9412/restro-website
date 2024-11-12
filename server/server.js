@@ -32,8 +32,13 @@ import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-import waiterRoutes from "./routes/waiterRoutes.js";
-import commonRoutes from "./routes/commonRoutes.js";
+import bartenderRoutes from "./routes/employees/bartenderRoutes.js";
+import chefRoutes from "./routes/employees/chefRoutes.js";
+import commonRoutes from "./routes/employees/commonRoutes.js";
+import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
+import managerRoutes from "./routes/employees/managerRoutes.js";
+import staffRoutes from "./routes/employees/staffRoutes.js";
+import waiterRoutes from "./routes/employees/waiterRoutes.js";
 
 // Initialize express app
 const app = express();
@@ -74,14 +79,18 @@ app.use("/dine-in", dineInOrderRoutes);
 app.use("/take-away", takeAwayRoutes);
 app.use("/notification", notificationRoutes);
 app.use("/delivery-dashboard", deliveryDashboardRoutes);
-
+// Auth routes
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 
-app.use("/waiter", waiterRoutes)
-
-
+// Employee routes
 app.use("/common", commonRoutes);
+app.use("/waiter", waiterRoutes);
+app.use("/bartender", bartenderRoutes);
+app.use("/chef", chefRoutes);
+app.use("/helper", helperEmpRoutes);
+app.use("/manager", managerRoutes);
+app.use("/staff", staffRoutes);
 
 // ---------------------------- Deployment Configuration ----------------------------
 const __dirname = path.resolve(); // Set the __dirname to current directory

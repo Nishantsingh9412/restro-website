@@ -1,26 +1,27 @@
 const jwt = require("jsonwebtoken");
 
-const roleMiddleware = (allowedRoles) => {
+// Middleware to check the role of the user
+const roleMiddleware = () => {
   return (req, res, next) => {
-    const token = req.header("Authorization").replace("Bearer ", "");
+    // Get the token from the Authorization header
+    const token = req.header("Authorization").split(" ")[1];
     if (!token) {
+      // If no token is provided, return a 401 Unauthorized response
       return res
         .status(401)
-        .send({ error: "Access denied. No token provided." }); 
+        .send({ error: "Access denied. No token provided." });
     }
 
     try {
+      // Verify the token using the secret key
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // Attach the decoded user information to the request object
       req.user = decoded;
 
-      if (!allowedRoles.includes(req.user.role)) {
-        return res
-          .status(403)
-          .send({ error: "Access denied. You do not have the required role." });
-      }
-
+      // Call the next middleware function
       next();
     } catch (ex) {
+      // If the token is invalid, return a 400 Bad Request response
       res.status(400).send({ error: "Invalid token." });
     }
   };

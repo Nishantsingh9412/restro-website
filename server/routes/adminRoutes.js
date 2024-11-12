@@ -6,7 +6,7 @@ import {
   getLoggedInAdminData,
   updateAdminProfilePic,
 } from "../controllers/adminController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { adminMiddleware } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/fileupload.js";
 
 const router = express.Router();
@@ -18,12 +18,12 @@ router.get("/get-all-admins", getAllAdmins);
 router.delete("/delete-admin/:id", deleteAdmin);
 
 // get logged in admin data
-router.get("/get-admin", authMiddleware, getLoggedInAdminData);
+router.get("/get-admin", adminMiddleware, getLoggedInAdminData);
 
 // update admin profile picture
 router.patch(
   "/profile-pic-update",
-  authMiddleware,
+  adminMiddleware,
   upload.single("profile_picture"),
   updateAdminProfilePic
 );

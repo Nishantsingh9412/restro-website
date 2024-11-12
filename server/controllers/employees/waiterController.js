@@ -1,4 +1,4 @@
-import Waiter from "../../models/waiterModel.js";
+import Waiter from "../../models/employees/waiterModel.js";
 
 // Function to get all waiter employees
 export const getAllWaiters = async (req, res) => {
@@ -8,7 +8,9 @@ export const getAllWaiters = async (req, res) => {
 
     // Check if waiters exist
     if (!waiters || waiters.length === 0) {
-      return res.status(404).json({ message: "No waiters found" });
+      return res
+        .status(404)
+        .json({ sucess: false, message: "No waiters found" });
     }
 
     // Send the list of waiters as a response
