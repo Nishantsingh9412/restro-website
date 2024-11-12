@@ -119,7 +119,6 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
   }
 };
 
-
 // get all working shift based on the employee
 export const getAllShiftByEmployee = async (req, res) => {
   const empId = req.user.id; // Extract employee ID from request user object
@@ -140,6 +139,90 @@ export const getAllShiftByEmployee = async (req, res) => {
 
     // Send success response with shifts data
     res.status(200).json(shifts);
+  } catch (error) {
+    // Handle invalid employee ID error
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ message: "Invalid Employee ID" });
+    }
+    // Handle other errors
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getEmployee = async (req, res) => {
+  const id = req.user.id; // Extract employee ID from request user object
+
+  // Check if employee ID is provided
+  if (!id) {
+    return res.status(400).json({ message: "Employee ID is required" });
+  }
+
+  try {
+    // Find employee by ID
+    const employee = await Employee.findById(id);
+
+    // Check if employee is found
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Send success response with employee data
+    res.status(200).json({ success: true, result: employee });
+  } catch (error) {
+    // Handle invalid employee ID error
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ message: "Invalid Employee ID" });
+    }
+    // Handle other errors
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update employee profile picture
+export const updateEmployeeProfilePic = async (req, res) => {
+  const id = req.user.id; // Extract employee ID from request user object
+  const profile_picture = req.file ? req.file.filename : null; // Extract profile picture filename if provided
+
+  // Check if employee ID is provided
+  if (!id) {
+    return res.status(400).json({ message: "Employee ID is required" });
+  }
+
+  // Check if profile picture is provided
+  if (!profile_picture) {
+    return res.status(400).json({ message: "Profile picture is required" });
+  }
+
+  try {
+    // Find employee by ID
+    const employee = await Employee.findById(id);
+
+    // Check if employee is found
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Delete old profile picture if it exists
+    if (employee.profile_picture) {
+      const oldProfilePicPath = path.join("uploads/", employee.profile_picture);
+      if (fs.existsSync(oldProfilePicPath)) {
+        fs.unlink(oldProfilePicPath, (err) => {
+          if (err) {
+            console.error("Error deleting old profile picture:", err);
+          }
+        });
+      }
+    }
+
+    // Update employee's profile picture
+    employee.profile_picture = profile_picture;
+    await employee.save(); // Save changes to the database
+
+    // Send success response
+    res.status(200).json({
+      message: "Profile picture updated successfully",
+      result: employee,
+    });
   } catch (error) {
     // Handle invalid employee ID error
     if (error.kind === "ObjectId") {

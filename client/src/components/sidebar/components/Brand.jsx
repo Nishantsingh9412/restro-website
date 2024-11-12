@@ -4,8 +4,14 @@ import { FaPencil } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
+// import {
+//   // singleUserDataAction,
+//   updateProfilePicAction,
+// } from "../../../redux/action/user";
+
+// import { getAdminData } from "../../../redux/action/admin";
 import {
-  singleUserDataAction,
+  getLoggedInUserData,
   updateProfilePicAction,
 } from "../../../redux/action/user";
 
@@ -20,14 +26,17 @@ export function SidebarBrand() {
     () => JSON.parse(localStorage.getItem("ProfileData")),
     []
   );
+  const role = localData?.result?.role;
   // Retrieve user profile data from Redux store
-  const userProfileData = useSelector((state) => state?.userReducer?.user);
-  // Extract user ID from local profile data
-  const user_id = localData?.result?._id;
+  const userProfileData = useSelector((state) => state?.userReducer?.data);
+  // const adminData = useSelector((state) => state?.admin?.data);
+  // const employeeData = useSelector((state) => state?.employee?.data);
+  // const userProfileData = adminData || employeeData;
 
   // Function to handle profile picture update click
   const handleProfilePicUpdate = useCallback(() => {
     fileInputRef.current.click();
+    console.log("clicked");
   }, []);
 
   // Function to handle file input change
@@ -37,8 +46,9 @@ export function SidebarBrand() {
       if (file) {
         const formData = new FormData();
         formData.append("profile_picture", file);
+        formData.append("role", role);
         // Dispatch action to update profile picture
-        dispatch(updateProfilePicAction(user_id, formData)).then((res) => {
+        dispatch(updateProfilePicAction(formData)).then((res) => {
           if (res.success) {
             toast.success(res.message);
           } else {
@@ -47,12 +57,13 @@ export function SidebarBrand() {
         });
       }
     },
-    [dispatch, user_id]
+    [dispatch]
   );
 
   // Fetch user data on component mount
   useEffect(() => {
-    dispatch(singleUserDataAction(user_id));
+    // dispatch(singleUserDataAction(user_id));
+    dispatch(getLoggedInUserData(role));
   }, []);
 
   // Memoized function to get the profile picture URL

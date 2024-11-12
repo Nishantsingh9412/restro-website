@@ -33,6 +33,22 @@ export const loginAPI = (userData) => API.post("/auth/login", userData);
 export const loginEmployee = (userData) =>
   API.post("/auth/login-employee", userData);
 
+// Admin APIs
+// Get Admin Data
+export const getAdminData = () => API.get(`/admin/get-admin`);
+// Update Admin Profile Pic
+export const updateAdminProfilePic = (updatedData) =>
+  API.patch(`/admin/update-profile-pic`, updatedData);
+
+//common apis
+// Get Employee
+export const getEmployeeData = () => API.get(`/common/get-employee`);
+// Get shifts by employee
+export const getEmployeeShift = () => API.get(`/common/get-all-shifts`);
+// Update Employee Profile Pic
+export const updateEmployeeProfilePic = (updatedData) =>
+  API.patch(`/common/update-profile-pic`, updatedData);
+
 // Items Management APIs
 // Add Item
 export const AddItem = (newItem) =>
@@ -124,8 +140,8 @@ export const deleteSingleQRItem = (id) =>
 // Get Single User Data
 export const getSingleUserData = (id) => API.get(`/user/get-user`);
 // Update Single User Data Profile Pic
-export const UpdateUserProfilePic = (id, updatedData) =>
-  API.patch(`/user/profile-pic-update/${id}`, updatedData);
+export const UpdateUserProfilePic = (updatedData) =>
+  API.patch(`/user/profile-pic-update`, updatedData);
 // Delivery Employee Date APIs
 export const getAllDeliveryEmpAPI = () =>
   API.get(`/employee/get-delivery-employees`);

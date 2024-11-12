@@ -56,9 +56,10 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    logout: (state) => {
+    logoutUser: (state) => {
       state.profile = null;
       localStorage.removeItem("ProfileData");
+      console.log("Logged out", state);
     },
   },
   extraReducers: (builder) => {
@@ -99,6 +100,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logoutUser } = authSlice.actions;
 
 export default authSlice.reducer;

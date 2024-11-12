@@ -17,6 +17,8 @@ import React, { useEffect } from "react";
 import { FaEthereum } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../redux/action/auth.js";
+// import { logoutUser } from "../../redux/action/user.js";
 
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
@@ -33,7 +35,7 @@ export default function HeaderLinks({ secondary }) {
   })();
 
   // Getting user data from the Redux store
-  const singleUserData = useSelector((state) => state.userReducer);
+  const singleUserData = useSelector((state) => state.userReducer.data);
 
   // Chakra UI color mode values
   const menuBg = useColorModeValue("white", "navy.800");
@@ -48,7 +50,8 @@ export default function HeaderLinks({ secondary }) {
 
   // Handle user logout
   const handleLogout = () => {
-    dispatch({ type: "LOGOUT" });
+    dispatch(logoutUser());
+    console.log("Logged out");
     navigate("/");
   };
 
@@ -129,7 +132,7 @@ export default function HeaderLinks({ secondary }) {
           <Avatar
             _hover={{ cursor: "pointer" }}
             color="white"
-            name={singleUserData?.user?.username || "User"}
+            name={singleUserData?.username || "User"}
             bg="#11047A"
             size="sm"
             w="40px"
@@ -156,7 +159,7 @@ export default function HeaderLinks({ secondary }) {
               fontWeight="700"
               color={"black"}
             >
-              👋&nbsp; Hey, {singleUserData?.user?.username || "User"}
+              👋&nbsp; Hey, {singleUserData?.username || "User"}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">

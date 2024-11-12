@@ -13,8 +13,6 @@ import lowStockItems from "./routes/lowStocks.js";
 import supplierRoutes from "./routes/suppliers.js";
 import orderRoutes from "./routes/orders.js";
 import qrRoutes from "./routes/qr.js";
-// import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/user.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 import addressRoutes from "./routes/address.js";
 import compOrderRoutes from "./routes/compOrderRoutes.js";
@@ -28,7 +26,6 @@ import deliveryDashboardRoutes from "./routes/deliveryDashboardRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 
-// import adminRoutes from "./routes/authRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
@@ -66,7 +63,6 @@ app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
 // app.use("/auth", authRoutes);
-app.use("/user", userRoutes);
 // app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);

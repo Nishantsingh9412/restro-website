@@ -109,8 +109,21 @@ function SignIn() {
       });
   };
 
-  // Handle delivery boy login
-  const handleLoginDelivBoy = (e) => {
+  const handleRouteByRole = (role) => {
+    switch (role) {
+      case "Waiter":
+        navigate("/waiter/dashboard");
+        break;
+      case "Delivery Boy":
+        navigate("/delivery/dashboard");
+        break;
+      default:
+        navigate("/");
+    }
+  };
+
+  // Handle employee boy login
+  const handleLoginEmployee = (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -121,10 +134,11 @@ function SignIn() {
     };
 
     dispatch(loginEmployee(loginData)).then((res) => {
-      console.log(res)
+      console.log(res.payload);
       setLoading(false);
       if (res.payload.success) {
-        navigate("/delivery/dashboard");
+        const employee = res?.payload?.result?.role;
+        handleRouteByRole(employee);
       } else {
         toast.error(res.payload);
       }
@@ -267,9 +281,9 @@ function SignIn() {
     </form>
   );
 
-  // Render delivery boy login form
-  const renderDeliveryBoyForm = () => (
-    <form onSubmit={handleLoginDelivBoy}>
+  // Render employee boy login form
+  const renderEmployeeForm = () => (
+    <form onSubmit={handleLoginEmployee}>
       <FormControl id="phone">
         <FormLabel
           display="flex"
@@ -385,11 +399,11 @@ function SignIn() {
             position="relative"
             variant="unstyled"
             mt="10px"
-            onChange={(index) => setRole(index === 0 ? "admin" : "deliveryBoy")}
+            onChange={(index) => setRole(index === 0 ? "admin" : "employee")}
           >
             <TabList>
               <Tab _selected={{ boxShadow: "none" }}>Admin</Tab>
-              <Tab _selected={{ boxShadow: "none" }}>Delivery Boy</Tab>
+              <Tab _selected={{ boxShadow: "none" }}>Employee</Tab>
             </TabList>
             <TabIndicator
               mt="-1.5px"
@@ -411,7 +425,7 @@ function SignIn() {
           me="auto"
           mb={{ base: "20px", md: "auto" }}
         >
-          {role === "admin" ? renderAdminForm() : renderDeliveryBoyForm()}
+          {role === "admin" ? renderAdminForm() : renderEmployeeForm()}
         </Flex>
       </Flex>
     </DefaultAuth>

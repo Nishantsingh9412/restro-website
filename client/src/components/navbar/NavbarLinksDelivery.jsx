@@ -22,6 +22,8 @@ import {
   changeDelBoyStatusAction,
 } from "../../redux/action/delboy.js";
 
+import { logoutUser } from "../../redux/action/auth.js";
+
 export default function HeaderLinks({ secondary }) {
   const menuBg = useColorModeValue("white", "navy.800");
   const ethColor = useColorModeValue("gray.700", "white");
@@ -40,7 +42,7 @@ export default function HeaderLinks({ secondary }) {
   const [isOnline, setIsOnline] = useState(true);
 
   const handleLogout = useCallback(() => {
-    dispatch({ type: "LOGOUT" });
+    dispatch(logoutUser());
     navigate("/");
   }, [dispatch, navigate]);
 
@@ -163,7 +165,7 @@ export default function HeaderLinks({ secondary }) {
               fontWeight="700"
               color={"black"}
             >
-              👋&nbsp; Hey, {singleUserData?.user?.name}
+              👋&nbsp; Hey, {singleUserData?.name ?? "Employee"}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">

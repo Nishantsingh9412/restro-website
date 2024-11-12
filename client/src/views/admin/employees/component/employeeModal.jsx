@@ -68,6 +68,7 @@ export default function EmployeeModal({
     variableWorkingHours: false,
     annualHolidayEntitlement: "",
     notes: "",
+    is_online: false,
   };
 
   // State to manage form data

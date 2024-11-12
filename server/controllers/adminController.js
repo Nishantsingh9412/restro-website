@@ -1,5 +1,7 @@
 import Admin from "../models/adminModel.js";
 import mongoose from "mongoose";
+import fs from "fs";
+import path from "path";
 
 // Get all admins
 export const getAllAdmins = async (req, res) => {
@@ -45,7 +47,7 @@ export const deleteAdmin = async (req, res) => {
 };
 
 // Get logged in admin data
-export const getLoggedInAdminData = async (req, res) => {
+export const getAdmin = async (req, res) => {
   const _id = req.user.id;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     // If ID is not valid, return 400 status
@@ -107,6 +109,7 @@ export const updateAdminProfilePic = async (req, res) => {
     return res.status(200).json({ success: true, result: updatedAdmin });
   } catch (error) {
     // Handle any server errors
+    console.log("Error from Admin Controller : ", error.message);
     return res
       .status(500)
       .json({ success: false, message: "Something went wrong", error: error });

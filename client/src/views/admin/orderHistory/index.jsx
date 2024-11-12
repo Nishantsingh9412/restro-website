@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompleteOrderAction } from "../../../redux/action/completeOrder.js";
-import { singleUserDataAction } from "../../../redux/action/user.js";
+// import { singleUserDataAction } from "../../../redux/action/user.js";
 import { useState } from "react";
 import AllotDeliveryBoyModal from "./components/AllotDeliveryModal.jsx";
 
@@ -40,7 +40,7 @@ const OrderHistory = () => {
 
   useEffect(() => {
     fetchCompleteOrders();
-    dispatch(singleUserDataAction(localUserId));
+    // dispatch(singleUserDataAction(localUserId));
   }, [fetchCompleteOrders]);
 
   const handleAllotDeliveryBoy = useCallback((orderId) => {

@@ -39,6 +39,7 @@ import TestMap from "./views/delivery/testMap"; // Adjust the path as necessary
 import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
 import DeliverySettings from "./views/delivery/settings";
+import WaiterDashboard from "./views/employees/Waiter/Dashboard";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -513,6 +514,46 @@ export const deliveryRoutes = [
         type: "link",
         icon: <Icon as={MdMap} color="inherit" width="15px" height="15px" />,
         component: <TestMap />,
+      },
+    ],
+  },
+];
+
+export const waiterRoutes = [
+  {
+    name: "Waiter",
+    layout: "/waiter",
+    path: "/dashboard",
+    type: "list",
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    component: <WaiterDashboard />,
+    links: [
+      {
+        name: "Dashboard",
+        layout: "/waiter",
+        path: "/dashboard",
+        type: "link",
+        icon: (
+          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
+        ),
+        component: <WaiterDashboard />,
+      },
+      {
+        name: "Available Work",
+        layout: "/waiter",
+        path: "/available-work",
+        type: "link",
+        icon: (
+          <Icon
+            as={MdOutlineDeliveryDining}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <WaiterDashboard />,
       },
     ],
   },

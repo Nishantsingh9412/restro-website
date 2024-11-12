@@ -1,21 +1,81 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
 import * as api from "../../api/index.js";
 
-export const singleUserDataAction = (id) => async (dispatch) => {
-  try {
-    const { data } = await api.getSingleUserData(id);
-    dispatch({ type: "SINGLE_USER_DATA", data: data.result });
-    return { success: true, message: "User data fetched successfully" };
-  } catch (error) {
-    return { success: false, message: error.response.data.message };
+export const getLoggedInUserData = createAsyncThunk(
+  "user/getLoggedInUserData",
+  async (role, { rejectWithValue }) => {
+    try {
+      if (role === "admin") {
+        const { data } = await api.getAdminData();
+        return data.result;
+      } else {
+        const { data } = await api.getEmployeeData();
+        return data.result;
+      }
+    } catch (err) {
+      return rejectWithValue(err.response.data.message);
+    }
   }
-};
+);
 
-export const updateProfilePicAction = (id, formData) => async (dispatch) => {
-  try {
-    const { data } = await api.UpdateUserProfilePic(id, formData);
-    dispatch({ type: "UPDATE_PROFILE_PIC", data: data.result });
-    return { success: true, message: "Profile Picture Updated Successfully" };
-  } catch (err) {
-    return { success: false, message: err.response.data.message };
+// update profile picture
+export const updateProfilePicAction = createAsyncThunk(
+  "user/updateProfilePic",
+  async (formData, { rejectWithValue }) => {
+    try {
+      if (formData.role === "admin") {
+        const { data } = await api.updateAdminProfilePic(formData);
+        return data.result;
+      } else {
+        const { data } = await api.updateEmployeeProfilePic(formData);
+        return data.result;
+      }
+    } catch (err) {
+      return rejectWithValue(err.response.data.message);
+    }
   }
-};
+);
+
+const userSlice = createSlice({
+  name: "user",
+  initialState: {
+    data: null,
+    status: "idle",
+    error: null,
+  },
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getLoggedInUserData.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getLoggedInUserData.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload;
+      })
+      .addCase(getLoggedInUserData.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(updateProfilePicAction.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProfilePicAction.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload;
+      })
+      .addCase(updateProfilePicAction.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
+  },
+});
+
+export const { clearError } = userSlice.actions;
+
+export default userSlice.reducer;
