@@ -58,13 +58,11 @@ function SignIn() {
   useEffect(() => {
     setLoading(true);
     const user = JSON.parse(localStorage.getItem("ProfileData"));
-    console.log("USER", user);
-
     const role = user?.result?.role;
     if (role === "admin" && user) {
       navigate("/admin/dashboards/default");
     } else if (user) {
-      navigate("/delivery/dashboard");
+      handleRouteByRole(role);
     }
     setLoading(false);
   }, [navigate]);
@@ -110,16 +108,8 @@ function SignIn() {
   };
 
   const handleRouteByRole = (role) => {
-    switch (role) {
-      case "Waiter":
-        navigate("/waiter/dashboard");
-        break;
-      case "Delivery Boy":
-        navigate("/delivery/dashboard");
-        break;
-      default:
-        navigate("/");
-    }
+    const route = role.split(" ")[0].toLowerCase();
+    navigate(`employee/${route}/dashboard/default`);
   };
 
   // Handle employee boy login
@@ -137,8 +127,8 @@ function SignIn() {
       console.log(res.payload);
       setLoading(false);
       if (res.payload.success) {
-        const employee = res?.payload?.result?.role;
-        handleRouteByRole(employee);
+        const empRole = res?.payload?.result?.role;
+        handleRouteByRole(empRole);
       } else {
         toast.error(res.payload);
       }

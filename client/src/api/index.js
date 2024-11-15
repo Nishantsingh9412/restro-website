@@ -44,10 +44,13 @@ export const updateAdminProfilePic = (updatedData) =>
 // Get Employee
 export const getEmployeeData = () => API.get(`/common/get-employee`);
 // Get shifts by employee
-export const getEmployeeShift = () => API.get(`/common/get-all-shifts`);
+export const getEmployeeShifts = () => API.get(`/common/get-all-shifts`);
 // Update Employee Profile Pic
 export const updateEmployeeProfilePic = (updatedData) =>
   API.patch(`/common/update-profile-pic`, updatedData);
+// Update Employee Availability Status
+export const updateEmployeeOnlineStatus = (updatedData) =>
+  API.put(`/common/update-online-status`, updatedData);
 
 // Items Management APIs
 // Add Item

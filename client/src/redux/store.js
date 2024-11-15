@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-// import adminReducer from "./reducers/adminReducer";
-// import userReducer from "./reducers/user";
+
 import userReducer from "./action/user";
 import itemsReducer from "./reducers/ItemsReducer";
 import stocksReducer from "./reducers/stocks";
@@ -20,6 +19,7 @@ import deliveryEmpReducer from "./reducers/deliveryEmpReducer";
 import adminReducer from "./action/admin";
 import waiterReducer from "./action/waiter";
 import authReducer from "./action/auth";
+import employeeReducer from "./action/Employees/employee";
 
 const store = configureStore({
   reducer: {
@@ -42,6 +42,7 @@ const store = configureStore({
     deliveryDashboardReducer,
     notificationReducer,
     waiter: waiterReducer,
+    employee: employeeReducer,
   },
 });
 

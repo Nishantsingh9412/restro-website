@@ -36,7 +36,6 @@ export function SidebarBrand() {
   // Function to handle profile picture update click
   const handleProfilePicUpdate = useCallback(() => {
     fileInputRef.current.click();
-    console.log("clicked");
   }, []);
 
   // Function to handle file input change
@@ -63,7 +62,7 @@ export function SidebarBrand() {
   // Fetch user data on component mount
   useEffect(() => {
     // dispatch(singleUserDataAction(user_id));
-    dispatch(getLoggedInUserData(role));
+    // dispatch(getLoggedInUserData(role));
   }, []);
 
   // Memoized function to get the profile picture URL
@@ -102,16 +101,18 @@ export function SidebarBrand() {
           accept="image/*"
         />
       </Box>
-      {/* Membership ID display */}
-      <Box
-        display="flex"
-        flexDirection="column"
-        fontSize="larger"
-        fontWeight="500"
-      >
-        Membership Id
-        <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
-      </Box>
+      {/* Membership ID display only for admin */}
+      {role === "admin" && (
+        <Box
+          display="flex"
+          flexDirection="column"
+          fontSize="larger"
+          fontWeight="500"
+        >
+          Membership Id
+          <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
+        </Box>
+      )}
       {/* Buttons for Favourites and Recently */}
       {/* <Flex alignItems="center" justifyContent="space-between">
         <Button bg="var(--primary)" color="#fff">

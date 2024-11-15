@@ -84,7 +84,7 @@ export function SidebarLinks({ routes }) {
   const activeRoute = useMemo(
     () => (routeName) => {
       const path = location.pathname;
-      return path === "/delivery" + routeName || path === "/admin" + routeName;
+      return path === "/employee" + routeName || path === "/admin" + routeName;
     },
     [location.pathname]
   );
@@ -118,7 +118,7 @@ export function SidebarLinks({ routes }) {
         );
         // TODO: Add support for nested categories
       } else if (
-        ["/admin", "/auth", "/rtl", "/delivery"].includes(route.layout)
+        ["/admin", "/auth", "/rtl", "/employee"].includes(route.layout)
       ) {
         // Render main navigation links
         return (

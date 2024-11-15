@@ -17,12 +17,21 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import { IoMenuOutline } from "react-icons/io5";
+import { useDispatch } from "react-redux";
+import { getLoggedInUserData } from "../../redux/action/user";
 
 // Sidebar component for larger screens
 const Sidebar = ({ routes }) => {
   const variantChange = "0.2s linear";
   const sidebarBg = useColorModeValue("var(--primary)", "navy.800");
   const sidebarMargins = "0px";
+  const dispatch = useDispatch();
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const role = localData?.result?.role;
+
+  useEffect(() => {
+    dispatch(getLoggedInUserData(role));
+  }, [dispatch, role]);
 
   // Memoize routes to avoid unnecessary re-renders
   const memoizedRoutes = useMemo(() => routes, [routes]);
