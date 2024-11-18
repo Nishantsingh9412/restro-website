@@ -106,7 +106,9 @@ export default function ItemManagementModal({
   // Handle form submission
   const handleSave = () => {
     //The nanoid() function generate a unique id for the barcode
-    formData.bar_code = nanoid(13);
+    if (actionType === "add") {
+      formData.bar_code = nanoid(13);
+    }
 
     //if required field is empty it'll return;
     if (!validate()) return;

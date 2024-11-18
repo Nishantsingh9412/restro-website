@@ -27,6 +27,18 @@ export const updateEmployeeOnlineStatus = createAsyncThunk(
   }
 );
 
+export const updateOdometerReading = createAsyncThunk(
+  "employee/updateOdometerReading",
+  async (formdata, { rejectWithValue }) => {
+    try {
+      const { data } = await api.updateOdometerReading(formdata);
+      return data.result;
+    } catch (err) {
+      return rejectWithValue(err.response.data.message);
+    }
+  }
+);
+
 export const getEmployeeShifts = createAsyncThunk(
   "employee/getEmployeeShifts",
   async (_, { rejectWithValue }) => {
@@ -44,6 +56,7 @@ const employeeSlice = createSlice({
   initialState: {
     shifts: [],
     status: null,
+    odometer: null,
     loading: false,
     error: null,
   },
@@ -63,7 +76,12 @@ const employeeSlice = createSlice({
       .addCase(getEmployeeShifts.fulfilled, (state, action) =>
         handleFulfilled(state, action, "shifts")
       )
-      .addCase(getEmployeeShifts.rejected, handleRejected);
+      .addCase(getEmployeeShifts.rejected, handleRejected)
+      .addCase(updateOdometerReading.pending, handlePending)
+      .addCase(updateOdometerReading.fulfilled, (state, action) =>
+        handleFulfilled(state, action, "odometer")
+      )
+      .addCase(updateOdometerReading.rejected, handleRejected);
   },
 });
 

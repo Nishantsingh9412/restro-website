@@ -14,7 +14,7 @@ const schema = Joi.object({
 // Define restaurant's fixed coordinates
 const RESTAURANT_COORDINATES = {
   latitude: 24.2291173, // Replace with actual restaurant latitude
-  longitude: 86.2666564, // Replace with actual restaurant longitude
+  longitude: 86.2366564, // Replace with actual restaurant longitude
 };
 
 // Helper function to calculate distance between two coordinates using the Haversine formula

@@ -18,6 +18,7 @@ import {
   Button,
   Image,
   Spinner,
+  Input,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -27,7 +28,21 @@ import { logoutUser } from "../../redux/action/auth.js";
 import {
   updateEmployeeOnlineStatus,
   clearError,
+  updateOdometerReading,
 } from "../../redux/action/Employees/employee.js";
+import { set } from "date-fns";
+
+// Modal component for displaying different modals
+const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
+  <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalOverlay />
+    <ModalContent>
+      <ModalHeader>{title}</ModalHeader>
+      <ModalBody>{body}</ModalBody>
+      <ModalFooter>{footer}</ModalFooter>
+    </ModalContent>
+  </Modal>
+);
 
 export default function EmployeeNavbarLinks() {
   const menuBg = useColorModeValue("white", "navy.800");
@@ -44,7 +59,9 @@ export default function EmployeeNavbarLinks() {
   const empData = useSelector((state) => state?.userReducer?.data);
   const error = useSelector((state) => state?.employee?.error);
   const empStatus = useSelector((state) => state?.employee?.status);
+
   const [location, setLocation] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isCameraPreviewModalOpen, setIsCameraPreviewModalOpen] =
@@ -53,60 +70,68 @@ export default function EmployeeNavbarLinks() {
   const [cameraStream, setCameraStream] = useState(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [cameraPreview, setCameraPreview] = useState(null);
+  const [isOdometerModalOpen, setIsOdometerModalOpen] = useState(false);
+  const [odometerReading, setOdometerReading] = useState("");
+  const [capturedOdometerPhoto, setCapturedOdometerPhoto] = useState(null);
 
+  // Handle user logout
   const handleLogout = useCallback(() => {
     dispatch(logoutUser());
     navigate("/");
   }, [dispatch, navigate]);
 
-  const updateStatus = useCallback(
-    async (status) => {
-      const formData = new FormData();
-      formData.append("is_online", status);
-      if (status) {
-        formData.append("latitude", location?.latitude);
-        formData.append("longitude", location?.longitude);
-        formData.append("live_photo", capturedPhoto);
-      }
-      try {
-        const res = await dispatch(
-          updateEmployeeOnlineStatus(status ? formData : { is_online: status })
-        );
-        if (res.error)
-          throw new Error(res.error.message || "Something went wrong");
-        toast({
-          title: status ? "Online" : "Offline",
-          description: status ? "You are now online" : "You are now offline",
-          status: status ? "success" : "info",
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [dispatch, location, capturedPhoto, toast]
-  );
+  // Update employee online status
+  const updateOnlineStatus = useCallback(async () => {
+    const formData = new FormData();
+    formData.append("is_online", true);
+    formData.append("latitude", location?.latitude);
+    formData.append("longitude", location?.longitude);
+    formData.append("live_photo", capturedPhoto, "photo.jpg");
 
+    try {
+      const res = await dispatch(updateEmployeeOnlineStatus(formData));
+      if (res.error)
+        throw new Error(res.error.message || "Something went wrong");
+      toast({
+        title: "Online",
+        description: "You are now online",
+        status: "success",
+      });
+      setCapturedPhoto(null);
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: err.message, status: "error" });
+    }
+  }, [dispatch, location, capturedPhoto, toast]);
+
+  // Handle toggle status switch
   const handleToggleStatus = async (e) => {
     const newStatus = e.target.checked;
     setLoading(true);
     if (newStatus) {
-      if (!location) setIsLocationModalOpen(true);
-      else await handleCameraCapture();
+      setIsLocationModalOpen(true);
     } else {
-      await updateStatus(false);
+      await dispatch(updateEmployeeOnlineStatus({ is_online: false }));
+      toast({
+        title: "Offline",
+        description: "You are now offline",
+        status: "info",
+      });
     }
     setLoading(false);
   };
 
+  // Handle location permission
   const handleLocationPermission = () => {
+    setLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         });
-        setIsLocationModalOpen(false);
         handleCameraCapture();
+        setIsCameraPreviewModalOpen(true);
       },
       () => {
         toast({
@@ -116,17 +141,18 @@ export default function EmployeeNavbarLinks() {
           duration: 4000,
           isClosable: true,
         });
-        setIsLocationModalOpen(false);
         setLoading(false);
       }
     );
+    setIsLocationModalOpen(false);
+    setLocationLoading(false);
   };
 
+  // Handle camera capture
   const handleCameraCapture = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       setCameraStream(stream);
-      setIsCameraPreviewModalOpen(true);
     } catch {
       toast({
         title: "Camera Permission Denied",
@@ -139,24 +165,90 @@ export default function EmployeeNavbarLinks() {
     }
   };
 
+  // Handle confirm photo
   const handleConfirmPhoto = async () => {
-    await updateStatus(true);
     setIsCameraPreviewModalOpen(false);
-    setCapturedPhoto(null);
+    if (empData?.role === "Delivery Boy") {
+      handleCameraCapture();
+      setIsOdometerModalOpen(true);
+    } else {
+      setCapturedPhoto(null);
+      await updateOnlineStatus();
+    }
   };
 
-  const handleTakePhoto = async () => {
+  // Capture photo from camera stream
+  const capturePhoto = (setPhoto, closeModal) => {
     const track = cameraStream.getVideoTracks()[0];
-    const imageCapture = new ImageCapture(track);
-    setIsCameraPreviewModalOpen(false);
-    setImageLoading(true);
-    const photo = await imageCapture.takePhoto();
-    track.stop();
-    setCapturedPhoto(photo);
-    setCameraStream(null);
-    setImageLoading(false);
+    const canvas = document.createElement("canvas");
+    canvas.width = cameraPreview.videoWidth;
+    canvas.height = cameraPreview.videoHeight;
+    const context = canvas.getContext("2d");
+    context.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      setPhoto(blob);
+      setCameraStream(null);
+      track.stop();
+      setImageLoading(false);
+    }, "image/jpeg");
+    closeModal();
   };
 
+  // Handle take photo
+  const handleTakePhoto = () => {
+    setImageLoading(true);
+    capturePhoto(setCapturedPhoto, () => setIsCameraPreviewModalOpen(false));
+  };
+
+  // Handle odometer capture
+  const handleOdometerCapture = () => {
+    if (!odometerReading) {
+      toast({
+        title: "Error",
+        description: "Please enter odometer reading",
+        status: "error",
+      });
+      return;
+    }
+    capturePhoto(setCapturedOdometerPhoto, () => setIsOdometerModalOpen(false));
+  };
+
+  // Handle odometer submission
+  const handleOdometerSubmission = useCallback(async () => {
+    const formData = new FormData();
+    formData.append("odometer_reading", odometerReading);
+    formData.append("odometer_photo", capturedOdometerPhoto, "odometer.jpg");
+
+    try {
+      const res = await dispatch(updateOdometerReading(formData));
+      if (res.error)
+        throw new Error(res.error.message || "Something went wrong");
+      toast({
+        title: "Odometer Submitted",
+        description: "Your odometer reading has been successfully submitted.",
+        status: "success",
+      });
+      await updateOnlineStatus();
+      setIsOdometerModalOpen(false);
+      setOdometerReading("");
+      setCapturedOdometerPhoto(null);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to submit odometer data",
+        status: "error",
+      });
+    }
+  }, [
+    dispatch,
+    odometerReading,
+    capturedOdometerPhoto,
+    updateOnlineStatus,
+    toast,
+  ]);
+
+  // Handle errors
   useEffect(() => {
     if (error) {
       toast({
@@ -170,12 +262,14 @@ export default function EmployeeNavbarLinks() {
     }
   }, [dispatch, error, toast]);
 
+  // Set camera preview stream
   useEffect(() => {
     if (cameraPreview && cameraStream) {
       cameraPreview.srcObject = cameraStream;
     }
   }, [cameraStream, cameraPreview]);
 
+  // Check token expiration
   useEffect(() => {
     const token = localData?.token;
     if (token) {
@@ -184,6 +278,7 @@ export default function EmployeeNavbarLinks() {
     }
   }, [handleLogout, localData?.token]);
 
+  // Show loading spinner if image is loading
   if (imageLoading) {
     return (
       <Flex justifyContent="center" alignItems="center">
@@ -234,17 +329,15 @@ export default function EmployeeNavbarLinks() {
         </Menu>
       </Flex>
 
-      <Modal
+      <ModalComponent
         isOpen={isLocationModalOpen}
         onClose={() => setIsLocationModalOpen(false)}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Location Permission</ModalHeader>
-          <ModalBody>Please grant location access to proceed.</ModalBody>
-          <ModalFooter>
+        title="Location Permission"
+        body="Please grant location access to proceed."
+        footer={
+          <>
             <Button colorScheme="blue" onClick={handleLocationPermission}>
-              Allow
+              {locationLoading ? <Spinner size="sm" /> : "Allow"}
             </Button>
             <Button
               variant="ghost"
@@ -252,11 +345,11 @@ export default function EmployeeNavbarLinks() {
             >
               Cancel
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </>
+        }
+      />
 
-      <Modal
+      <ModalComponent
         isOpen={isCameraPreviewModalOpen}
         onClose={() => {
           setIsCameraPreviewModalOpen(false);
@@ -265,18 +358,16 @@ export default function EmployeeNavbarLinks() {
             setCameraStream(null);
           }
         }}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Camera Preview</ModalHeader>
-          <ModalBody>
-            <video
-              ref={(el) => setCameraPreview(el)}
-              autoPlay
-              style={{ width: "100%" }}
-            />
-          </ModalBody>
-          <ModalFooter>
+        title="Camera Preview"
+        body={
+          <video
+            ref={(el) => setCameraPreview(el)}
+            autoPlay
+            style={{ width: "100%" }}
+          />
+        }
+        footer={
+          <>
             <Button colorScheme="blue" onClick={handleTakePhoto}>
               Capture
             </Button>
@@ -292,20 +383,21 @@ export default function EmployeeNavbarLinks() {
             >
               Cancel
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </>
+        }
+      />
 
-      <Modal isOpen={!!capturedPhoto} onClose={() => setCapturedPhoto(null)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Preview Photo</ModalHeader>
-          <ModalBody>
-            {capturedPhoto && (
-              <Image src={URL.createObjectURL(capturedPhoto)} alt="Preview" />
-            )}
-          </ModalBody>
-          <ModalFooter>
+      <ModalComponent
+        isOpen={!!capturedPhoto}
+        onClose={() => setCapturedPhoto(null)}
+        title="Preview Photo"
+        body={
+          capturedPhoto && (
+            <Image src={URL.createObjectURL(capturedPhoto)} alt="Preview" />
+          )
+        }
+        footer={
+          <>
             <Button colorScheme="blue" onClick={handleConfirmPhoto}>
               Confirm
             </Button>
@@ -319,9 +411,81 @@ export default function EmployeeNavbarLinks() {
             >
               Retake
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </>
+        }
+      />
+
+      <ModalComponent
+        isOpen={!!capturedOdometerPhoto}
+        onClose={() => setCapturedOdometerPhoto(null)}
+        title="Preview Odometer"
+        body={
+          capturedOdometerPhoto && (
+            <Image
+              src={URL.createObjectURL(capturedOdometerPhoto)}
+              alt="Preview"
+            />
+          )
+        }
+        footer={
+          <>
+            <Button colorScheme="blue" onClick={handleOdometerSubmission}>
+              Confirm
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setCapturedOdometerPhoto(null);
+                setIsOdometerModalOpen(true);
+                handleCameraCapture();
+              }}
+            >
+              Retake
+            </Button>
+          </>
+        }
+      />
+
+      <ModalComponent
+        isOpen={isOdometerModalOpen}
+        onClose={() => setIsOdometerModalOpen(false)}
+        title="Odometer Reading"
+        body={
+          <>
+            <Input
+              placeholder="Enter Odometer Reading"
+              value={odometerReading}
+              onChange={(e) => setOdometerReading(e.target.value)}
+              required
+              mb={4}
+            />
+            <video
+              ref={(el) => setCameraPreview(el)}
+              autoPlay
+              style={{ width: "100%" }}
+            />
+          </>
+        }
+        footer={
+          <>
+            <Button colorScheme="blue" onClick={handleOdometerCapture}>
+              Capture Odometer Photo
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsOdometerModalOpen(false);
+                if (cameraStream) {
+                  cameraStream.getTracks().forEach((track) => track.stop());
+                  setCameraStream(null);
+                }
+              }}
+            >
+              Cancel
+            </Button>
+          </>
+        }
+      />
     </>
   );
 }

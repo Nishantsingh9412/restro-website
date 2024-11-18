@@ -2,7 +2,8 @@ import deliveryBoy from "../models/deliveryBoyModel.js";
 import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
 import { onlineUsers } from "../server.js";
-import Employee from "../models/employeeModel.js";
+import path from "path";
+import fs from "fs";
 
 // Helper function to handle errors
 const handleError = (res, err, message = "Internal Server Error") => {
@@ -212,7 +213,7 @@ export const deleteDeliveryPersonnel = async (req, res) => {
 // Update delivery boy odometer reading
 export const updateDeliveryBoyOdometerReading = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.user.id;
     // Validate the delivery personnel ID
     if (!validateObjectId(id, res, "Delivery Personnel")) return;
 
@@ -228,8 +229,7 @@ export const updateDeliveryBoyOdometerReading = async (req, res) => {
 
     // Find the delivery personnel by ID
     const delBoy = await deliveryBoy.findById(id);
-    const emp = await Employee.findById(id);
-    console.log(emp);
+
     if (!delBoy) {
       return res
         .status(404)

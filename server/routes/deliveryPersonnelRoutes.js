@@ -10,6 +10,7 @@ import {
   updateDeliveryBoyOdometerReading,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
+import { employeeMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -25,7 +26,8 @@ router.get("/get-single/:id", getDeliveryPersonnelSingle);
 router.delete("/delete-single/:id", deleteDeliveryPersonnel);
 
 router.put(
-  "/update-odometer/:id",
+  "/update-odometer",
+  employeeMiddleware,
   upload.single("odometer_photo"),
   updateDeliveryBoyOdometerReading
 );

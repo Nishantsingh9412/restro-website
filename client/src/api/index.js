@@ -52,6 +52,8 @@ export const updateEmployeeProfilePic = (updatedData) =>
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);
 
+
+
 // Items Management APIs
 // Add Item
 export const AddItem = (newItem) =>
@@ -350,3 +352,7 @@ export const getNotificationsByUser = (userId) =>
 // Delivery Dashboard API
 export const getDeliveryDashboardData = (userId) =>
   API.get(`/delivery-dashboard/get/${userId}`);
+
+// Update Odometer Reading
+export const updateOdometerReading = (updatedData) =>
+  API.put(`/delivery-person/update-odometer`, updatedData);
