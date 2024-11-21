@@ -1,6 +1,6 @@
 import { io, onlineUsers } from "../server.js";
 
-// emits
+// Emits a notification to a specific user
 export const notifyUser = async (id, message) => {
   const user = onlineUsers.get(id);
   if (user) {
@@ -8,6 +8,7 @@ export const notifyUser = async (id, message) => {
   }
 };
 
+// Emits a notification to multiple users
 export const notifyUsers = async (ids = [], message) => {
   const users = ids.map((id) => onlineUsers.get(id));
   users.forEach((user) => {
@@ -15,11 +16,13 @@ export const notifyUsers = async (ids = [], message) => {
   });
 };
 
+// Sends a delivery offer to a specific user
 export const sendDeliveryOffer = async (id, offer) => {
   const user = onlineUsers.get(id);
   if (user) io.to(user.socketId).emit("delivery", offer);
 };
 
+// Sends delivery offers to multiple users
 export const sendDeliveryOffers = async (ids = [], offer) => {
   const users = ids.map((id) => onlineUsers.get(id));
   users.forEach((user) => {
@@ -27,6 +30,7 @@ export const sendDeliveryOffers = async (ids = [], offer) => {
   });
 };
 
+// Hides a delivery offer for all users
 export const hideDeliveryOffer = async (offerId) => {
   const users = Array.from(onlineUsers.keys()).map((id) => onlineUsers.get(id));
   users.forEach((user) => {

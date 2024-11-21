@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import Notification from "../models/notification.js";
 
 // Get notifications by user ID
-export const getNotificationByUser = async (req, res) => {
-  const { id } = req.params;
+export const getNotificationByEmployee = async (req, res) => {
+  const id = req.user.id;
   try {
     // Validate user ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -53,6 +53,39 @@ export const getAllNotifications = async (req, res) => {
     });
   } catch (err) {
     console.error("Error from getAllNotifications Controller:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const getNotificationByAdmin = async (req, res) => {
+  const id = req.user.id;
+  try {
+    // Validate admin ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Admin ID" });
+    }
+    // Fetch notifications for the admin
+    const notifications = await Notification.find({ receiver: id }).sort({
+      createdAt: -1,
+    });
+    if (!notifications.length) {
+      return res.status(200).json({
+        success: false,
+        message: "No notifications found for this admin",
+      });
+    }
+    // Return notifications
+    return res.status(200).json({
+      success: true,
+      message: "Notifications retrieved",
+      result: notifications,
+    });
+  } catch (err) {
+    console.error("Error from getNotificationByAdmin Controller:", err);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });

@@ -1,5 +1,6 @@
 import Employee from "../../models/employeeModel.js";
 import Shift from "../../models/employeeShift.js";
+import Notification from "../../models/notification.js";
 import fs from "fs";
 import path from "path";
 import Joi from "joi";
@@ -227,5 +228,38 @@ export const updateEmployeeProfilePic = async (req, res) => {
     }
     // Handle other errors
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const getNotificationByEmployee = async (req, res) => {
+  const id = req.user.id;
+  try {
+    // Validate employee ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Employee ID" });
+    }
+    // Fetch notifications for the employee
+    const notifications = await Notification.find({ receiver: id }).sort({
+      createdAt: -1,
+    });
+    if (!notifications.length) {
+      return res.status(200).json({
+        success: false,
+        message: "No notifications found for this employee",
+      });
+    }
+    // Return notifications
+    return res.status(200).json({
+      success: true,
+      message: "Notifications retrieved",
+      result: notifications,
+    });
+  } catch (err) {
+    console.error("Error from getNotificationByEmployee Controller:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };

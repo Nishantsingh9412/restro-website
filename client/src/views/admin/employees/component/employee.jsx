@@ -52,8 +52,9 @@ export default function EmployeeComponent() {
   const getEmployeeDetail = async (id) => {
     const res = await dispatch(getEmployeeDetailApi(id));
     if (res.success) {
+      console.log(res);
       // Set the employee data and open the modal in edit mode
-      setSelectedEmployee(res.data[0]); // Set selected employee data
+      setSelectedEmployee(res.data); // Set selected employee data
       setEmployeeId(id);
       setActionType("edit");
       setIsOpen(true);

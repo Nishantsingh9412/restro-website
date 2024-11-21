@@ -18,6 +18,7 @@ import {
   getDeliveryEmployees,
   getEmployeesByRestaurant,
   getUpcomingEmployeeBirthday,
+  getEmployeeById,
 } from "../controllers/employeeController.js";
 
 const router = express.Router();
@@ -31,13 +32,15 @@ router.patch("/update-task/:id", updateSingleTask);
 
 router.post("/add-employee", adminMiddleware, addEmployee);
 
+router.get("/get-employee/:id", adminMiddleware, getEmployeeById);
+
 router.get("/get-all-employee", adminMiddleware, getEmployeesByRestaurant);
 
 router.get("/get-delivery-employees", adminMiddleware, getDeliveryEmployees);
 
-router.put("/update-employee/:employeeId", updateEmployee);
+router.put("/update-employee/:id", updateEmployee);
 
-router.delete("/delete-employee/:employeeId", deleteEmployee);
+router.delete("/delete-employee/:id", deleteEmployee);
 
 router.get("/get-todays-employee-birthday", getTodaysBirthday);
 

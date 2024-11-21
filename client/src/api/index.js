@@ -52,8 +52,6 @@ export const updateEmployeeProfilePic = (updatedData) =>
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);
 
-
-
 // Items Management APIs
 // Add Item
 export const AddItem = (newItem) =>
@@ -284,7 +282,7 @@ export const deleteemployeedata = (employeedataId) =>
   API.delete(`/employee/delete-employee/${employeedataId}`);
 // Get Employee Detail Data
 export const employeedetaildata = (employeedataId) =>
-  API.get(`/employee/get-employee/id_${employeedataId}`);
+  API.get(`/employee/get-employee/${employeedataId}`);
 
 // Absence Management APIs
 // Fetch Absence Details Data
@@ -346,8 +344,10 @@ export const getDirections = async (options) => await axios.request(options);
 
 // Notificaiton API
 export const getAllNotifications = () => API.get("/notification/get-all");
-export const getNotificationsByUser = (userId) =>
-  API.get(`/notification/get-by-user/${userId}`);
+export const getNotificationsByUser = () =>
+  API.get(`/notification/get-emp-notification`);
+export const getNotificationByAdmin = () =>
+  API.get(`/notification/get-admin-notification`);
 
 // Delivery Dashboard API
 export const getDeliveryDashboardData = (userId) =>

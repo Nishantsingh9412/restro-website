@@ -115,3 +115,4 @@ export const updateAdminProfilePic = async (req, res) => {
       .json({ success: false, message: "Something went wrong", error: error });
   }
 };
+

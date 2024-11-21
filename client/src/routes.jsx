@@ -252,6 +252,17 @@ const adminRoutes = [
         ),
         component: <Employee />,
       },
+    ],
+  },
+  {
+    name: "Delivery Partners",
+    layout: "/admin",
+    path: "/delivery-tracking",
+    type: "list",
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    links: [
       {
         name: "Delivery Tracking",
         layout: "/admin",
@@ -266,33 +277,22 @@ const adminRoutes = [
         ),
         component: <OrderShipping />,
       },
+      // {
+      //   name: "Delivery partners",
+      //   layout: "/admin",
+      //   path: "/delivery-partners",
+      //   icon: (
+      //     <Icon
+      //       as={MdLocalShipping}
+      //       width="20px"
+      //       height="20px"
+      //       color="inherit"
+      //     />
+      //   ),
+      //   component: <OrderShipping />,
+      // },
     ],
   },
-  // {
-  //   name: "Delivery Partners",
-  //   layout: "/admin",
-  //   path: "/delivery-partners",
-  //   type: "list",
-  //   icon: (
-  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-  //   ),
-  //   links: [
-  //     // {
-  //     //   name: "Delivery partners",
-  //     //   layout: "/admin",
-  //     //   path: "/delivery-partners",
-  //     //   icon: (
-  //     //     <Icon
-  //     //       as={MdLocalShipping}
-  //     //       width="20px"
-  //     //       height="20px"
-  //     //       color="inherit"
-  //     //     />
-  //     //   ),
-  //     //   component: <OrderShipping />,
-  //     // },
-  //   ],
-  // },
   // {
   //   name: "Employee",
   //   layout: "/admin",

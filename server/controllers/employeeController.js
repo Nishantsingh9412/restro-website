@@ -120,17 +120,41 @@ export const getEmployeesByRestaurant = async (req, res) => {
   }
 };
 
+export const getEmployeeById = async (req, res) => {
+  const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
+  try {
+    const employee = await Employee.findById(id);
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employee not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Employee retrieved successfully",
+      result: employee,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in getEmployeeById");
+  }
+};
+
 // Update an existing employee's details
 export const updateEmployee = async (req, res) => {
   try {
-    const { employeeId } = req.params;
-    if (!employeeId) {
+    const { id } = req.params;
+    if (!id) {
       return res
         .status(400)
         .json({ success: false, message: "Employee ID parameter is required" });
     }
 
-    const employee = await Employee.findByIdAndUpdate(employeeId, req.body, {
+    const employee = await Employee.findByIdAndUpdate(id, req.body, {
       new: true,
     });
 
@@ -147,14 +171,14 @@ export const updateEmployee = async (req, res) => {
 // Delete an employee from the database
 export const deleteEmployee = async (req, res) => {
   try {
-    const { employeeId } = req.params;
-    if (!employeeId) {
+    const { id } = req.params;
+    if (!id) {
       return res
         .status(400)
         .json({ success: false, message: "Employee ID parameter is required" });
     }
 
-    const employee = await Employee.findByIdAndDelete(employeeId);
+    const employee = await Employee.findByIdAndDelete(id);
     if (!employee) {
       return res
         .status(404)
