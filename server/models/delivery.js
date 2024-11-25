@@ -115,7 +115,7 @@ const deliverySchema = new mongoose.Schema(
     // Reference to the delivery person assigned
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AuthDeliv",
+      ref: "DeliveryBoy",
       default: null,
     },
     // Time taken for the delivery in minutes

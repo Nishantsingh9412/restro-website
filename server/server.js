@@ -115,12 +115,15 @@ const DATABASE_URL = process.env.CONNECTION_URL;
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: "*", // Replace with your frontend domain in production
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
   },
 });
 
 const onlineUsers = new Map();
 
+// Handle new socket connection
 io.on("connection", (socket) => {
   console.log("New client connected", socket.id);
 
@@ -130,12 +133,12 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} connected`);
   });
 
-  // Listen for heartbeat
+  // Listen for heartbeat to keep track of user activity
   socket.on("heartbeat", (userId) => {
     if (onlineUsers.has(userId)) {
       onlineUsers.get(userId).lastActive = Date.now();
       console.log(
-        Array.from(onlineUsers.keys()).length + " Online at " + new Date(),
+        `${onlineUsers.size} users online at ${new Date()}`,
         Array.from(onlineUsers.keys())
       );
     }
@@ -150,6 +153,14 @@ io.on("connection", (socket) => {
       }
     }
   });
+
+  // Optional: Ping for monitoring connection health
+  socket.on("ping", () => {
+    console.log("Ping received from:", socket.id);
+  });
+  socket.on("test", (message) => {
+    console.log("Test event received:", message);
+  });
 });
 
 // MongoDB Connection (Optimized)
@@ -157,7 +168,10 @@ mongoose
   .connect(DATABASE_URL)
   .then(() => {
     // Start the server after successful DB connection
-    app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+    // app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+    httpServer.listen(PORT, () =>
+      console.log(`Server running on port: ${PORT}`)
+    );
   })
   .catch((error) => {
     console.error("Database connection error:", error.message);

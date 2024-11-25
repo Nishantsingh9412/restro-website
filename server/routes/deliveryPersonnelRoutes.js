@@ -10,13 +10,17 @@ import {
   updateDeliveryBoyOdometerReading,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
-import { employeeMiddleware } from "../middleware/authMiddleware.js";
+import {
+  employeeMiddleware,
+  adminMiddleware,
+} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/get-all", getDeliveryPersonnels);
 router.get(
-  "/get-by-supplier/:supplierId",
+  "/get-by-supplier",
+  adminMiddleware,
   getOnlineDeliveryPersonnelsBySupplier
 );
 router.post("/create-one", createDeliveryPersonnel);

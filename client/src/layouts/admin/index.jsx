@@ -3,14 +3,37 @@ import Footer from "../../components/footer/FooterAdmin.jsx";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import routes from "../../routes.jsx";
+import { connectSocketIfDisconnected, socket } from "../../api/socket.js";
 
 export default function Dashboard(props) {
   const { ...rest } = props;
   const [fixed] = useState(false);
   const location = useLocation(); // Hook to get the current location
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+
+  useEffect(() => {
+    //Socket Initializer
+    connectSocketIfDisconnected(); // Connect to socket
+
+    // Emit event when user joins
+    socket.on("connect", () => {
+      console.log("Socket Connected");
+      socket.emit("userJoined", localData?.result?._id);
+      const heartbeatInterval = setInterval(() => {
+        socket.emit("heartbeat", localData?.result?._id);
+      }, 10000);
+      return () => {
+        clearInterval(heartbeatInterval);
+      };
+    });
+    return () => {
+      socket.off("connect");
+      socket.disconnect();
+    };
+  }, []);
 
   // functions for changing the states from components
   const getActiveRoute = (routes) => {

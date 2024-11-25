@@ -17,7 +17,7 @@ import { FaAngleRight } from "react-icons/fa6";
 import { RiPinDistanceFill } from "react-icons/ri";
 import CompletedDeliveriesChart from "./components/CompletedDeliveriesChart";
 import { getDeliveryDashboardDataAction } from "../../../redux/action/deliveryDashboard";
-import { BiRefresh } from "react-icons/bi";
+import { BiPlus, BiRefresh } from "react-icons/bi";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 
@@ -103,6 +103,11 @@ export default function Dashboard() {
     }
   }, [dispatch, user]);
 
+  // Handle create deliveries
+  const handleCreateDeliveries = () => {
+    toast.info("Feature coming soon!");
+  };
+
   // Fetch data on component mount
   useEffect(() => {
     handleRefresh();
@@ -119,7 +124,14 @@ export default function Dashboard() {
         mt={{ lg: 10, base: 24 }}
         mb={5}
       >
-        <Heading fontSize={30}>Dashboard</Heading>
+        {/* <Heading fontSize={35}>Dashboard</Heading> */}
+        <Button
+          // isLoading={utils.isLoading}
+          leftIcon={<BiPlus />}
+          onClick={handleCreateDeliveries}
+        >
+          Create Deliveries
+        </Button>
         <Button
           isLoading={utils.isLoading}
           leftIcon={<BiRefresh />}

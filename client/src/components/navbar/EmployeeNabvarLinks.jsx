@@ -131,6 +131,7 @@ export default function EmployeeNavbarLinks() {
           longitude: position.coords.longitude,
         });
         handleCameraCapture();
+        console.log(location);
         setIsCameraPreviewModalOpen(true);
       },
       () => {

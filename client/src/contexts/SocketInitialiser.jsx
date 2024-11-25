@@ -1,70 +1,90 @@
+import { socket, connectSocketIfDisconnected } from "../api/socket"; // Import socket manager
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { socket } from "../api/socket";
-// import { getAuth } from "../redux/action/auth";
 import { getAllReceivedNotifications } from "../redux/action/notifications";
 import {
-  getActiveDeliveryAction,
   getAllAvailabelDeliveryAction,
   getCompletedDeliveriesAction,
 } from "../redux/action/delivery";
 import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboard";
 
 export default function SocketInitializer() {
-  const auth = useSelector((state) => state.authReducer?.data);
   const dispatch = useDispatch();
-  const user = JSON.parse(localStorage.getItem("ProfileData"));
+  // const user = useSelector((state) => state.authReducer?.profile);
+  const user = localStorage.getItem("ProfileData");
+  // console.log("User:", user);
 
   useEffect(() => {
-    // if (!auth) {
-    // const user = JSON.parse(localStorage.getItem("ProfileData"));
-    // console.log("USER", user, user?.result?._id);
-    // // if (user?.result?._id) dispatch(getAuth(user.result._id));
-    // return;
-    // }
-    // Emit event when user joins
-    if (user?.result?._id) socket.emit("userJoined", user.result._id);
+    if (!user?.result?._id) return; // Skip if user is not logged in
 
-    // Send heartbeat every 10 seconds
-    const heartbeatInterval = user?.result?._id
-      ? setInterval(() => {
-          socket.emit("heartbeat", user.result._id);
-        }, 10000)
-      : 1;
+    console.log("User ID:", user.result._id);
+    connectSocketIfDisconnected(); // Ensure socket is connected
 
-    if (user && !user?.result?.email) {
-      dispatch(getAllReceivedNotifications(user.result?._id));
-      dispatch(getCompletedDeliveriesAction(user.result?._id));
-      dispatch(getAllAvailabelDeliveryAction(user.result?._id));
-      dispatch(getActiveDeliveryAction(user.result?._id));
-      dispatch(getDeliveryDashboardDataAction(user.result?._id));
-    }
+    // Ensure socket is connected before emitting events
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
 
-    // Cleanup on component unmount
+      socket.emit("test", "Hello, server!");
+
+      // Emit event when user joins
+      socket.emit("userJoined", user.result._id);
+
+      // Send heartbeat every 10 seconds
+      const heartbeatInterval = setInterval(() => {
+        socket.emit("heartbeat", user.result._id);
+      }, 1000);
+
+      // Dispatch initial actions if the user has no email (presumably means they're logged in)
+      if (!user?.result?.email) {
+        dispatch(getAllReceivedNotifications(user.result._id));
+        dispatch(getCompletedDeliveriesAction(user.result._id));
+        dispatch(getAllAvailabelDeliveryAction(user.result._id));
+        dispatch(getDeliveryDashboardDataAction(user.result._id));
+      }
+
+      // Cleanup on component unmount
+      return () => {
+        clearInterval(heartbeatInterval);
+        socket.off("connect"); // Clean up socket event listeners
+      };
+    });
+
+    // Cleanup socket connection when the component unmounts
     return () => {
-      clearInterval(heartbeatInterval);
-      socket.disconnect();
+      socket.disconnect(); // Disconnect socket if needed
     };
-  }, [auth]);
+  }, [dispatch, user?.result?._id]); // Only re-run when user._id changes
 
-  socket.on("notification", (data) =>
-    dispatch({ type: "ADD_NOTIFICATION", data })
-  );
+  // Handling socket events
+  useEffect(() => {
+    const handleNotification = (data) => {
+      dispatch({ type: "ADD_NOTIFICATION", data });
+    };
+    const handleDelivery = (data) => {
+      console.log(data);
+      dispatch({ type: "ADD_DELIVERY", data });
+    };
+    const handleHideDeliveryOffer = (data) => {
+      if (user?.result?._id === data?.userId) {
+        dispatch({
+          type: "DELETE_SINGLE_DELIVERY",
+          data: { _id: data.deliveryId },
+        });
+      }
+    };
 
-  socket.on("delivery", (data) => {
-    console.log(data);
-    dispatch({ type: "ADD_DELIVERY", data });
-  });
+    // Subscribe to socket events
+    socket.on("notification", handleNotification);
+    socket.on("delivery", handleDelivery);
+    socket.on("hideDeliveryOffer", handleHideDeliveryOffer);
 
-  console.log("location temp id", user?.result?._id);
+    // Cleanup socket event listeners when the component unmounts
+    return () => {
+      socket.off("notification", handleNotification);
+      socket.off("delivery", handleDelivery);
+      socket.off("hideDeliveryOffer", handleHideDeliveryOffer);
+    };
+  }, [dispatch, user?.result?._id]); // Only re-run when user._id changes
 
-  socket.on("hideDeliveryOffer", (data) => {
-    console.log(auth?._id, data);
-    if (auth?._id === data?.userId)
-      dispatch({
-        type: "DELETE_SINGLE_DELIVERY",
-        data: { _id: data.deliveryId },
-      });
-  });
-  return <></>;
+  return null; // No UI to render
 }

@@ -157,7 +157,7 @@ export const getAllDeliveryPersonnels = () =>
   API.get("/delivery-person/get-all");
 // Get All Delivery Personnel by supplier
 export const getDeliveryPersonnelsBySupplier = (id) =>
-  API.get(`/delivery-person/get-by-supplier/${id}`);
+  API.get(`/delivery-person/get-by-supplier`);
 // Get Single Delivery Personnel
 export const getSingleDeliveryPersonnel = (id) =>
   API.get(`/delivery-person/get-single/${id}`);

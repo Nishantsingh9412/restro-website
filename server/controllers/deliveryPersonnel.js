@@ -69,23 +69,45 @@ export const inviteDeliveryPersonnels = async (req, res) => {
 };
 
 // Get online delivery personnels by supplier
+// Get online delivery personnels by supplier
 export const getOnlineDeliveryPersonnelsBySupplier = async (req, res) => {
   try {
-    const { supplierId } = req.params;
+    // Get supplier ID from the request user object
+    const supplierId = req.user.id;
     if (!supplierId) {
       return res
         .status(400)
         .json({ success: false, message: "Supplier ID is required" });
     }
+    // Validate the supplier ID
     if (!validateObjectId(supplierId, res, "Supplier")) return;
 
+    // Get the list of online users
     const online = Array.from(onlineUsers.keys());
+    if (!online.length) {
+      return res.status(200).json({
+        success: true,
+        message: "No online delivery personnels found",
+        result: [],
+      });
+    }
+
+    // Find online delivery personnels created by the supplier
     const onlineDeliveryPersonnels = await deliveryBoy.find({
       _id: { $in: online },
       created_by: supplierId,
-      isOnline: true,
+      is_online: true,
     });
 
+    if (!onlineDeliveryPersonnels.length) {
+      return res.status(200).json({
+        success: true,
+        message: "No online delivery personnels found",
+        result: [],
+      });
+    }
+
+    // Get the count of completed deliveries for each online delivery personnel
     const onlineWithCompletedCount = await Promise.all(
       onlineDeliveryPersonnels.map(async (guy) => {
         const count = await Delivery.countDocuments({
@@ -96,12 +118,14 @@ export const getOnlineDeliveryPersonnelsBySupplier = async (req, res) => {
       })
     );
 
+    // Respond with the list of online delivery personnels and their completed delivery count
     res.status(200).json({
       success: true,
       message: "Online Delivery Personnels",
       result: onlineWithCompletedCount,
     });
   } catch (err) {
+    // Handle any errors that occur
     handleError(res, err);
   }
 };

@@ -5,6 +5,7 @@ import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { socket, connectSocketIfDisconnected } from "../../api/socket.js";
 import {
   waiterRoutes,
   deliveryRoutes,
@@ -27,6 +28,25 @@ export default function EmployeeDashboard(props) {
   useEffect(() => {
     const localData = JSON.parse(localStorage.getItem("ProfileData"));
     setRole(localData?.result?.role?.toLowerCase());
+    console.log("Role:", localData?.result?.role?.toLowerCase());
+
+    // Connect to socket
+    connectSocketIfDisconnected();
+
+    socket.on("connect", () => {
+      console.log("Socket Connected");
+      socket.emit("userJoined", localData?.result?._id);
+      const heartbeatInterval = setInterval(() => {
+        socket.emit("heartbeat", localData?.result?._id);
+      }, 10000);
+      return () => {
+        clearInterval(heartbeatInterval);
+      };
+    });
+    return () => {
+      socket.off("connect");
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -126,7 +146,6 @@ export default function EmployeeDashboard(props) {
 
         <Box mt="130px" p="20px">
           <Outlet />
-          {/* Show Outlet when role is loaded */}
         </Box>
 
         <Footer />
