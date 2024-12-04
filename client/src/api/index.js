@@ -188,6 +188,11 @@ export const updateSingleCompleteOrderAPI = (id, updatedData) =>
 // Delete Complete Order
 export const deleteSingleCompleteOrderAPI = (id) =>
   API.delete(`/complete-order/delete/${id}`);
+//Allot Order to the Delivery boy
+export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
+  API.post(`/complete-order/allot-delivery/${orderId}`, {
+    deliveryBoyId,
+  });
 
 // Dine-In Order Management APIs
 // Add Dine-In Order
@@ -325,8 +330,7 @@ export const getActiveDelivery = (id) => API.get("/delivery/get-active/" + id);
 // Get Single Delivery
 export const getSingleDelivery = (id) => API.get(`/delivery/get-single/${id}`);
 // Get Completed Delivery
-export const getCompletedDeliveries = (userId) =>
-  API.get(`/delivery/get-completed/${userId}`);
+export const getCompletedDeliveries = () => API.get(`/delivery/get-completed`);
 // Add Delivery
 export const addDelivery = (newDelivery) =>
   API.post("/delivery/create-one", newDelivery);
@@ -338,6 +342,9 @@ export const updateDeliveryStatus = (id, updatedData) =>
   API.patch(`/delivery/update-status/${id}`, updatedData);
 // Cancel Delivery
 export const cancelDelivery = (id) => API.post(`/delivery/cancel/${id}`);
+// Delete Delivery
+export const deleteSingleDelivery = (id) =>
+  API.delete(`/delivery/delete-single/${id}`);
 
 // Map API
 export const getDirections = async (options) => await axios.request(options);

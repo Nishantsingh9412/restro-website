@@ -5,6 +5,15 @@ const initialState = {
 
 export default function compOrderReducer(state = initialState, action) {
   switch (action.type) {
+    case "ALLOT_DELIVERY_BOY":
+      return {
+        ...state,
+        data: state.data.map((item) =>
+          item.orderId === action.data.orderId
+            ? { ...item, assignedTo: action.data.assignedTo }
+            : item
+        ),
+      };
     case "POST_COMPLETE_ORDER":
       return {
         ...state,

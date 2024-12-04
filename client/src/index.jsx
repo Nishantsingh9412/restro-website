@@ -25,6 +25,7 @@ import adminRoutes, {
   chefRoutes,
 } from "./routes";
 import {} from "./routes";
+import SocketInitializer from "./contexts/SocketInitialiser";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -51,6 +52,7 @@ root.render(
   <ChakraProvider theme={theme}>
     <Provider store={store}>
       <React.StrictMode>
+        <SocketInitializer />
         <ThemeEditorProvider>
           <Router>
             <Routes>

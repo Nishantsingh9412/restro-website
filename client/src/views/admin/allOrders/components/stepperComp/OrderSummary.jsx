@@ -50,6 +50,7 @@ const OrderSummary = ({ goToPreviousStep }) => {
         navigate("/admin/order-history");
       } else {
         toast.error(res.message);
+
       }
     });
   };
@@ -57,8 +58,7 @@ const OrderSummary = ({ goToPreviousStep }) => {
   return (
     <Box p={4}>
       <Heading mb={4}>Summary Page</Heading>
-
-      {/* Address Section */}
+      {/* /* Address Section */}
       <Box mb={8}>
         <Heading size="md" mb={4}>
           Address Information
@@ -72,21 +72,23 @@ const OrderSummary = ({ goToPreviousStep }) => {
           borderColor={borderColor}
           p={4}
         >
-          {Object.entries(addressData).map(([key, value]) => (
-            <Text mb={2} key={key}>
-              <strong>
-                {key
+          {Object.entries(addressData)
+            .filter(([key]) => key !== "dropLocation")
+            .map(([key, value]) => (
+              <Text mb={2} key={key}>
+                <strong>
+                  {key
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())}
+                  :
+                </strong>{" "}
+                {value
                   .replace(/([A-Z])/g, " $1")
                   .replace(/^./, (str) => str.toUpperCase())}
-                :
-              </strong>{" "}
-              {value}
-            </Text>
-          ))}
+              </Text>
+            ))}
         </Box>
       </Box>
-
-      {/* Cart Items Section */}
       <Box mb={8}>
         <Heading size="md" mb={4}>
           Your Cart Items
@@ -142,7 +144,6 @@ const OrderSummary = ({ goToPreviousStep }) => {
           </Box>
         ))}
       </Box>
-
       {/* Total Amount */}
       <Box>
         <Heading size="md" mb={4}>
@@ -165,7 +166,6 @@ const OrderSummary = ({ goToPreviousStep }) => {
           </Flex>
         </Box>
       </Box>
-
       {/* Buttons for navigation */}
       <Stack direction="row" spacing={4} mt={8}>
         <Button onClick={goToPreviousStep} colorScheme="gray">

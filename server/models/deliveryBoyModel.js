@@ -10,6 +10,10 @@ const deliveryBoySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  liveLocationURL: {
+    type: String,
+    default: null,
+  },
 });
 
 export default Employee.discriminator("DeliveryBoy", deliveryBoySchema);

@@ -43,7 +43,7 @@ const deliverySchema = new mongoose.Schema(
       required: true,
     },
     // Pickup location coordinates
-    pickupLocation: {
+    dropLocation: {
       lat: {
         type: Number,
         required: true,
@@ -92,7 +92,7 @@ const deliverySchema = new mongoose.Schema(
     // Name of the restaurant
     restaurantName: {
       type: String,
-      required: true,
+      required: false,
     },
     // Image URL of the restaurant
     restaurantImage: {

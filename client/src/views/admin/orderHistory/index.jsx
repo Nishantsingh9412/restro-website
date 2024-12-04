@@ -18,7 +18,7 @@ import { getCompleteOrderAction } from "../../../redux/action/completeOrder.js";
 // import { singleUserDataAction } from "../../../redux/action/user.js";
 import { useState } from "react";
 import AllotDeliveryBoyModal from "./components/AllotDeliveryModal.jsx";
-
+import { allotDeliveryBoyAction } from "../../../redux/action/completeOrder.js";
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.userReducer?.user);
@@ -44,18 +44,17 @@ const OrderHistory = () => {
   }, [fetchCompleteOrders]);
 
   const handleAllotDeliveryBoy = useCallback((orderId) => {
+    console.log(orderId);
     // console.log("Allot Delivery Boy Pending .........");
     setSelectedOrderId(orderId);
     setIsModalOpen(true);
   }, []);
 
   const handleModalSubmit = useCallback((data) => {
-    console.log("Delivery");
     dispatch(
       allotDeliveryBoyAction({
         orderId: selectedOrderId,
-        data: data,
-        localUserId,
+        deliveryBoy: data,
       })
     );
   });
@@ -111,7 +110,7 @@ const OrderHistory = () => {
                       Order #{orderId}
                     </Heading>
                     <IconButton
-                      onClick={handleAllotDeliveryBoy}
+                      onClick={() => handleAllotDeliveryBoy(orderId)}
                       aria-label="Allot Delivery Boy"
                       title="Allot Delivery Boy"
                       icon={<MdLocalShipping />}

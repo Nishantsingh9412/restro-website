@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import Select from "react-select";
 import {
   Box,
   FormControl,
@@ -11,87 +11,199 @@ import {
   Textarea,
   Button,
   SimpleGrid,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { setFormData } from "../../../../../redux/action/stepperFormAction";
+import MapInput from "../../../../../components/mapInput/MapInput";
 
 const Address = ({ goToNextStep }) => {
   const dispatch = useDispatch();
-  // const [loading, setLoading] = useState(false);
+  const [addressType, setAddressType] = useState("existing");
+  const [countriesAll, setCountriesAll] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [statesAll, setStatesAll] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [selectedState, setSelectedState] = useState("");
+  const [citiesAll, setCitiesAll] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const userId = localData?.result?._id;
   const formData = useSelector((state) => state.form);
-  const {
-    name,
-    phoneNumber,
-    paymentMethod,
-    // deliveryMethod,
-    address,
-    address2,
-    city,
-    state,
-    zip,
-    noteFromCustomer,
-  } = formData;
 
-  const validate = useCallback(() => {
-    if (!name) {
-      toast.error("Please enter customer name");
-      return false;
-    }
-    if (!phoneNumber) {
-      toast.error("Please enter phone number");
-      return false;
-    }
-    if (!address) {
-      toast.error("Please enter address");
-      return false;
+  const validate = () => {
+    const requiredFields = [
+      "name",
+      "phoneNumber",
+      "address",
+      "dropLocation",
+      "dropLocationName",
+    ];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        toast.error(
+          `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`
+        );
+        return false;
+      }
     }
     return true;
-  }, [name, phoneNumber, address]);
+  };
 
-  const handleAddressSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!validate()) {
-        return;
-      }
-      // const addressData = {
-      // ...formData,
-      // created_by: userId,
-      // };
-      // // console.log("AddressData", addressData);
-      goToNextStep();
-    },
-    [validate, goToNextStep]
-  );
+  const fetchData = async (url, setData, setLoading) => {
+    setLoading(true);
+    const response = await axios.get(url, {
+      headers: { "X-CSCAPI-KEY": import.meta.env.VITE_APP_CSC_API_KEY },
+    });
+    setData(
+      response.data.map((item) => ({
+        value: item.name,
+        label: item.name,
+        iso2: item.iso2,
+      }))
+    );
+    setLoading(false);
+  };
 
-  const handleChange = useCallback(
-    (field, value) => {
-      dispatch(setFormData({ [field]: value }));
-    },
-    [dispatch]
-  );
+  useEffect(() => {
+    fetchData(
+      "https://api.countrystatecity.in/v1/countries",
+      setCountriesAll,
+      () => {}
+    );
+  }, []);
+
+  useEffect(() => {
+    if (selectedCountry) {
+      fetchData(
+        `https://api.countrystatecity.in/v1/countries/${selectedCountry}/states`,
+        setStatesAll,
+        setStatesLoading
+      );
+    }
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    if (selectedState) {
+      fetchData(
+        `https://api.countrystatecity.in/v1/countries/${selectedCountry}/states/${selectedState}/cities`,
+        setCitiesAll,
+        setCitiesLoading
+      );
+    }
+  }, [selectedState]);
+
+  const handleAddressSubmit = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    dispatch(setFormData({ created_by: userId }));
+    goToNextStep();
+  };
+
+  const handleChange = (field, value) => {
+    dispatch(setFormData({ [field]: value }));
+  };
 
   return (
     <Box p={4}>
       <form onSubmit={handleAddressSubmit}>
-        <FormControl id="customer-name" isRequired>
-          <FormLabel>Name</FormLabel>
-          <Input
-            type="text"
-            placeholder="Customer Name"
-            value={name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-        </FormControl>
+        <div className="flex flex-wrap gap-3 items-center">
+          <FormControl id="customer-name" isRequired>
+            <FormLabel>Pickup Location</FormLabel>
+            <RadioGroup onChange={setAddressType} value={addressType} mt={4}>
+              <Radio value="existing" mr={4}>
+                Use Existing Address
+              </Radio>
+              <Radio value="new">Enter New Address</Radio>
+            </RadioGroup>
+            <FormControl id="name" isRequired mt={4}>
+              <FormLabel>Name</FormLabel>
+              <Input
+                type="text"
+                placeholder="Customer Name"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+              />
+            </FormControl>
 
+            {addressType === "new" && (
+              <>
+                <FormControl id="address" isRequired mt={4}>
+                  <FormLabel>Address Line 1</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="1234 Main St"
+                    value={formData.address}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                  />
+                </FormControl>
+
+                <FormControl id="address2">
+                  <FormLabel>Address Line 2</FormLabel>
+                  <Input
+                    placeholder="Apartment, studio, or floor"
+                    value={formData.address2}
+                    onChange={(e) => handleChange("address2", e.target.value)}
+                  />
+                </FormControl>
+
+                <SimpleGrid columns={3} spacing={4} mt={4}>
+                  <FormControl id="country" isRequired>
+                    <FormLabel>Country</FormLabel>
+                    <Select
+                      options={countriesAll}
+                      onChange={(e) => setSelectedCountry(e.iso2)}
+                    />
+                  </FormControl>
+
+                  <FormControl id="state">
+                    <FormLabel>State</FormLabel>
+                    <Select
+                      options={statesAll}
+                      isDisabled={statesLoading}
+                      isLoading={statesLoading}
+                      onChange={(e) => {
+                        setSelectedState(e.iso2);
+                        handleChange("state", e.value);
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl id="city">
+                    <FormLabel>City</FormLabel>
+                    <Select
+                      options={citiesAll}
+                      isDisabled={citiesLoading}
+                      isLoading={citiesLoading}
+                      onChange={(e) => handleChange("city", e.value)}
+                    />
+                  </FormControl>
+                </SimpleGrid>
+
+                <FormControl id="zip" mt={4}>
+                  <FormLabel>Zip</FormLabel>
+                  <Input
+                    placeholder="Zip"
+                    type="number"
+                    value={formData.zip}
+                    onChange={(e) => handleChange("zip", e.target.value)}
+                  />
+                </FormControl>
+              </>
+            )}
+          </FormControl>
+        </div>
         <FormControl id="phone-number" mt={4} isRequired>
           <FormLabel>Phone Number</FormLabel>
           <Input
             type="number"
             placeholder="Phone Number"
-            value={phoneNumber}
+            value={formData.phoneNumber}
             onChange={(e) => handleChange("phoneNumber", e.target.value)}
           />
         </FormControl>
@@ -99,24 +211,22 @@ const Address = ({ goToNextStep }) => {
         <FormControl id="payment-method" mt={4}>
           <FormLabel>Payment Method</FormLabel>
           <RadioGroup
-            value={paymentMethod}
+            value={formData.paymentMethod}
             onChange={(value) => handleChange("paymentMethod", value)}
           >
             <Stack direction="row">
-              <Radio value="online">Online</Radio>
-              <Radio value="offline">Offline</Radio>
               <Radio value="cash">Cash</Radio>
               <Radio value="card">Card</Radio>
               <Radio value="alreadyPaid">Already Paid</Radio>
-              <Radio value="masterCard">MasterCard</Radio>
+              <Radio value="online">Online</Radio>
+              <Radio value="paypal">Paypal</Radio>
             </Stack>
           </RadioGroup>
         </FormControl>
-
-        {/* <FormControl id="delivery-method" mt={4}>
+        <FormControl id="delivery-method" mt={4}>
           <FormLabel>Delivery Method</FormLabel>
           <RadioGroup
-            value={deliveryMethod}
+            value={formData.deliveryMethod}
             onChange={(value) => handleChange("deliveryMethod", value)}
           >
             <Stack direction="row">
@@ -124,70 +234,44 @@ const Address = ({ goToNextStep }) => {
               <Radio value="delivery">Delivery</Radio>
             </Stack>
           </RadioGroup>
-        </FormControl> */}
-
-        <FormControl id="address" isRequired>
-          <FormLabel>Address</FormLabel>
-          <Input
-            type="text"
-            placeholder="1234 Main St"
-            value={address}
-            onChange={(e) => handleChange("address", e.target.value)}
-          />
         </FormControl>
 
-        <FormControl id="address2">
-          <FormLabel>Address 2</FormLabel>
-          <Input
-            placeholder="Apartment, studio, or floor"
-            value={address2}
-            onChange={(e) => handleChange("address2", e.target.value)}
-          />
+        <FormControl id="droplocation" isRequired mt={4}>
+          <FormLabel>Drop Location</FormLabel>
+          <Button
+            borderRadius={"4px"}
+            bg={"#029CFF"}
+            color={"#fff"}
+            _hover={{ background: "blue.500" }}
+            onClick={onOpen}
+          >
+            Open Map Now
+          </Button>
+
+          {isOpen && (
+            <MapInput
+              data={{
+                dropLocation: formData.dropLocation,
+                dropLocationName: formData.dropLocationName,
+              }}
+              isOpen={isOpen}
+              onClose={onClose}
+            />
+          )}
         </FormControl>
-
-        <SimpleGrid columns={3} spacing={4}>
-          <FormControl id="city">
-            <FormLabel>City</FormLabel>
-            <Input
-              type="text"
-              placeholder="City"
-              value={city}
-              onChange={(e) => handleChange("city", e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl id="state">
-            <FormLabel>State</FormLabel>
-            <Input
-              placeholder="State"
-              type="text"
-              value={state}
-              onChange={(e) => handleChange("state", e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl id="zip">
-            <FormLabel>Zip</FormLabel>
-            <Input
-              placeholder="Zip"
-              type="number"
-              value={zip}
-              onChange={(e) => handleChange("zip", e.target.value)}
-            />
-          </FormControl>
-        </SimpleGrid>
 
         <FormControl id="note-from-customer" mt={4}>
           <FormLabel>Note from Customer</FormLabel>
           <Textarea
             type="text"
-            value={noteFromCustomer}
+            value={formData.noteFromCustomer}
             onChange={(e) => handleChange("noteFromCustomer", e.target.value)}
             placeholder="Any special instructions?"
           />
         </FormControl>
         <Box display={"flex"} justifyContent={"center"}>
           <Button
+            isLoading={loading}
             mt={4}
             width={"70%"}
             background={"#029CFF"}
@@ -195,17 +279,12 @@ const Address = ({ goToNextStep }) => {
             _hover={{ color: "#029CFF", bg: "whitesmoke" }}
             type="submit"
           >
-            {" "}
-            Add Address{" "}
+            Add Address
           </Button>
         </Box>
       </form>
     </Box>
   );
-};
-
-Address.propTypes = {
-  goToNextStep: PropTypes.func.isRequired,
 };
 
 export default Address;

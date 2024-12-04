@@ -5,7 +5,11 @@ import DeliveryMap from "./DeliveryMap";
 import { HiExternalLink } from "react-icons/hi";
 import { useEffect, useState } from "react";
 
-export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
+export default function ActiveDelivery({
+  activeDelivery,
+  handleUpdateStatus,
+  handleCancel,
+}) {
   return (
     <>
       <Heading mt={{ base: 40, md: 20 }} fontSize={20}>
@@ -16,9 +20,9 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
       </Text>
       {activeDelivery.deliveryLocation ? (
         <DeliveryMap
-          origin={activeDelivery?.pickupLocation}
+          origin={activeDelivery?.dropLocation}
           destination={activeDelivery?.deliveryLocation}
-          center={activeDelivery?.pickupLocation}
+          center={activeDelivery?.dropLocation}
         />
       ) : (
         <Text my={20} mx={"auto"} width={"fit-content"} p={3} bg={"#eee"}>
@@ -28,10 +32,8 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
 
       <a
         href={`https://www.google.com/maps/dir/?api=1&origin=${
-          activeDelivery?.pickupLocation?.lat
-        },${
-          activeDelivery?.pickupLocation?.lng
-        }&destination=${encodeURIComponent(
+          activeDelivery?.dropLocation?.lat
+        },${activeDelivery?.dropLocation?.lng}&destination=${encodeURIComponent(
           `${activeDelivery?.deliveryAddress}`
         )}&travelmode=driving`}
         target="_blank"
@@ -129,6 +131,20 @@ export default function ActiveDelivery({ activeDelivery, handleUpdateStatus }) {
             >
               {getNextStatus(activeDelivery.currentStatus)}
             </Button>
+            <Button
+              onClick={() => {
+                handleCancel(activeDelivery._id);
+              }}
+              w={"100%"}
+              borderRadius={"4px"}
+              p={3}
+              bg={"red.500"}
+              color={"#fff"}
+              _hover={{ background: "red" }}
+              mt={2}
+            >
+              Cancel Delivery
+            </Button>
           </Text>
         </Flex>
       </Flex>
@@ -140,4 +156,5 @@ const getNextStatus = (current) => {
   if (current === "Available") return "Accepted";
   if (current === "Accepted") return "Picked up";
   if (current === "Picked up") return "Completed";
+  return "Cancelled";
 };

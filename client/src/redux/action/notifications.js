@@ -17,11 +17,13 @@ export const getAllNotifications = () => async (dispatch) => {
   }
 };
 
-export const getAllReceivedNotifications = (id, role) => async (dispatch) => {
+export const getAllReceivedNotifications = (role) => async (dispatch) => {
   try {
-    const { data } = (await (role === "admin"))
-      ? api.getNotificationByAdmin()
-      : api.getNotificationsByUser();
+    const { data } =
+      role === "admin"
+        ? await api.getNotificationByAdmin()
+        : await api.getNotificationsByUser();
+
     dispatch({
       type:
         role === "admin"

@@ -11,12 +11,13 @@ import {
   updateDeliveryStatus,
   getActiveDelivery,
 } from "../controllers/deliveryController.js";
+import { employeeMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/get-all/:userId", getAllDelivery);
 router.get("/get-active/:userId", getActiveDelivery);
-router.get("/get-completed/:userId", getCompletedDeliveries);
+router.get("/get-completed", employeeMiddleware, getCompletedDeliveries);
 router.post("/create-one", addDeliveryItem);
 router.patch("/update-single/:id", updateDeliveryItem);
 router.patch("/update-status/:id", updateDeliveryStatus);

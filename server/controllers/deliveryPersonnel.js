@@ -173,30 +173,43 @@ export const getDeliveryPersonnels = async (req, res) => {
 // Update a delivery personnel
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-  const { name, country_code, phone } = req.body;
-
-  if (!validateObjectId(_id, res, "Delivery Personnel")) return;
-
-  if (!name || !country_code || !phone) {
+  console.log(req.body);
+  if (!mongoose.Types.ObjectId.isValid(_id))
+    return res.status(404).send("No Delivery Personnel with that id");
+  if (!req.body)
     return res
       .status(400)
       .json({ success: false, message: "All fields are required" });
-  }
 
   try {
     const updatedDelBoy = await deliveryBoy.findByIdAndUpdate(
       _id,
-      { name, country_code, phone },
-      { new: true }
+      {
+        $set: {
+          ...req.body,
+        },
+      },
+      {
+        new: true,
+        timestamps: { createdAt: false, updatedAt: true },
+      }
     );
-
-    res.status(200).json({
-      success: true,
-      message: "Delivery Personnel Updated",
-      result: updatedDelBoy,
-    });
+    if (updatedDelBoy) {
+      return res.status(200).json({
+        success: true,
+        message: "Delivery Personnel Updated",
+        result: updatedDelBoy,
+      });
+    } else {
+      return res
+        .status(500)
+        .json({ success: false, message: "Delivery Personnel not updated" });
+    }
   } catch (err) {
-    handleError(res, err, "Delivery Personnel not updated");
+    console.log("Error from DeliveryPersonnel Controller : ", err.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -220,6 +233,7 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
 // Delete a delivery personnel by ID
 export const deleteDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
+  
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {

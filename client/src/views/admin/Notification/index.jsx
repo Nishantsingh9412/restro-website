@@ -44,16 +44,12 @@ const NotificationItem = ({ notification }) => {
 export default function AdminNotifications() {
   const dispatch = useDispatch();
   const notifications = useSelector(
-    (state) => state.notificationReducer.adminNotifications || []
+    (state) => state.notificationReducer.adminNotifications
   );
 
   // Fetch notifications when the component mounts
   useEffect(() => {
-    const localData = JSON.parse(localStorage.getItem("ProfileData"));
-    const userId = localData?.result?._id;
-    if (userId) {
-      dispatch(getAllReceivedNotifications(userId, "admin"));
-    }
+    dispatch(getAllReceivedNotifications("admin"));
   }, [dispatch]);
 
   // Memoize notifications to avoid unnecessary re-renders

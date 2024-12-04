@@ -50,6 +50,28 @@ const completeOrderSchema = new Schema(
       enum: ["pickup", "delivery"], // Allowed delivery methods
       default: "pickup", // Default delivery method
     },
+    dropLocation: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      },
+    },
+    dropLocationName: {
+      type: String,
+      required: true,
+    },
+    lat: {
+      type: Number,
+      required: true,
+    },
+    lng: {
+      type: Number,
+      required: true,
+    },
     address: {
       type: String,
       required: true,

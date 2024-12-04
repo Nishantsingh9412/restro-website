@@ -144,7 +144,7 @@ export const getActiveDelivery = async (req, res) => {
 
 // Get completed deliveries for a user
 export const getCompletedDeliveries = async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user.id;
 
   if (!validateId(userId, res, "Invalid delivery Item ID")) return;
 
@@ -365,14 +365,15 @@ export const deleteDeliveryItem = async (req, res) => {
 
   try {
     const deletedDeliveryItem = await Delivery.findByIdAndDelete(_id);
-
     if (!deletedDeliveryItem) {
       return sendErrorResponse(res, 400, "Failed to delete Delivery Item");
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Deleted Delivery Item" });
+    return res.status(200).json({
+      success: true,
+      result: deletedDeliveryItem,
+      message: "Deleted Delivery Item",
+    });
   } catch (err) {
     console.log("Error from deleteDeliveryItem Controller : ", err.message);
     return sendErrorResponse(res, 500, "Internal Server Error");

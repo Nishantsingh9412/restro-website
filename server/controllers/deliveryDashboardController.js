@@ -1,365 +1,243 @@
 import Delivery from "../models/delivery.js";
 import mongoose from "mongoose";
 
-// Controller function to get delivery dashboard data
-// export const getDeliveryDashboardData = async (req, res) => {
-//   try {
-//     const { delId } = req.params;
-
-//     // Validate delivery boy ID
-//     if (!mongoose.Types.ObjectId.isValid(delId)) {
-//       return res.status(404).send("Delivery boy not found");
-//     }
-
-//     // Get today's start date and other date ranges
-//     const todayStart = new Date().setHours(0, 0, 0, 0);
-//     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-//     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-//     const lastYear = new Date(
-//       new Date().setFullYear(new Date().getFullYear() - 1)
-//     );
-
-//     // Define common query for deliveries assigned to the user
-//     const deliveryQuery = { assignedTo: delId };
-
-//     // Fetch necessary delivery data using Promise.all for parallel execution
-//     const [
-//       allCompleted,
-//       todayAssignedDeliveries,
-//       todayCompletedDeliveries,
-//       todayAvailableDeliveries,
-//       totalAssignedDeliveries,
-//       totalCompletedDeliveries,
-//       totalAvailableDeliveries,
-//       totalDeliveriesCompletedToday,
-//       totalDeliveryCompletedPastMonth,
-//       totalDeliveryCompletedPastYear,
-//       longestTimeTaken,
-//       smallestTimeTaken,
-//       longestDeliveryDistance,
-//       shortestDeliveryDistance,
-//     ] = await Promise.all([
-//       Delivery.find({ ...deliveryQuery, currentStatus: "Completed" }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         createdAt: { $gte: todayStart },
-//       }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         createdAt: { $gte: todayStart },
-//       }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         currentStatus: "Available",
-//         createdAt: { $gte: todayStart },
-//       }),
-//       Delivery.countDocuments(deliveryQuery),
-//       Delivery.countDocuments({ ...deliveryQuery, currentStatus: "Completed" }),
-//       Delivery.countDocuments({ ...deliveryQuery, currentStatus: "Available" }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         completedAt: { $gte: todayStart },
-//       }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         completedAt: { $gte: thirtyDaysAgo },
-//       }),
-//       Delivery.countDocuments({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         completedAt: { $gte: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000) },
-//       }),
-//       Delivery.findOne({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         estimatedTime: { $gt: 0 },
-//       })
-//         .sort({ estimatedTime: -1 })
-//         .select("estimatedTime"),
-//       Delivery.findOne({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         estimatedTime: { $gt: 0 },
-//       })
-//         .sort({ estimatedTime: 1 })
-//         .select("estimatedTime"),
-//       Delivery.findOne({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         distance: { $gt: 0 },
-//       })
-//         .sort({ distance: -1 })
-//         .select("distance"),
-//       Delivery.findOne({
-//         ...deliveryQuery,
-//         currentStatus: "Completed",
-//         distance: { $gt: 0 },
-//       })
-//         .sort({ distance: 1 })
-//         .select("distance"),
-//     ]);
-
-//     // Calculate active deliveries for today and in total
-//     const todayActiveDeliveries =
-//       todayAssignedDeliveries -
-//       todayCompletedDeliveries -
-//       todayAvailableDeliveries;
-//     const totalActiveDeliveries =
-//       totalAssignedDeliveries -
-//       totalCompletedDeliveries -
-//       totalAvailableDeliveries;
-
-//     // Helper function to group deliveries by day, month
-//     const groupByDate = (deliveries, days, dateField) => {
-//       const pastDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-//       return deliveries
-//         .filter((delivery) => new Date(delivery[dateField]) >= pastDate)
-//         .reduce((acc, delivery) => {
-//           const completedAt = new Date(delivery[dateField]);
-//           const year = completedAt.getFullYear();
-//           const month = completedAt.getMonth() + 1;
-//           const day = completedAt.getDate();
-//           const key = `${year}-${month}-${day}`;
-
-//           acc[key] = acc[key] || { _id: { year, month, day }, count: 0 };
-//           acc[key].count++;
-
-//           return acc;
-//         }, {});
-//     };
-
-//     // Group deliveries by day for the past week and month
-//     const totalDeliveryCompletedPastWeekPerDay = fillMissingDays(
-//       Object.values(groupByDate(allCompleted, 7, "completedAt")),
-//       7
-//     );
-
-//     const totalDeliveryCompletedPastMonthPerDay = fillMissingDays(
-//       Object.values(groupByDate(allCompleted, 30, "completedAt")),
-//       30
-//     );
-
-//     // Group deliveries by month for the past year
-//     const totalDeliveryCompletedPastYearPerMonth = fillMissingMonths(
-//       Object.values(groupByDate(allCompleted, 365, "completedAt"))
-//     );
-
-//     // Calculate averages for time taken and delivery distance
-//     const averageTimeTaken =
-//       allCompleted.length > 0
-//         ? allCompleted.reduce(
-//             (sum, delivery) => sum + delivery.estimatedTime,
-//             0
-//           ) / allCompleted.length
-//         : 0;
-
-//     const averageDeliveryDistance =
-//       allCompleted.length > 0
-//         ? allCompleted.reduce((sum, delivery) => sum + delivery.distance, 0) /
-//           allCompleted.length
-//         : 0;
-
-//     // Send the response with all calculated data
-//     res.status(200).json({
-//       success: true,
-//       result: {
-//         todayAssignedDeliveries,
-//         todayCompletedDeliveries,
-//         todayAvailableDeliveries,
-//         todayActiveDeliveries,
-//         totalAssignedDeliveries,
-//         totalCompletedDeliveries,
-//         totalAvailableDeliveries,
-//         totalActiveDeliveries,
-//         totalDeliveriesCompletedToday,
-//         totalDeliveryCompletedPastMonth,
-//         totalDeliveryCompletedPastYear,
-//         totalDeliveryCompletedPastWeekPerDay,
-//         totalDeliveryCompletedPastMonthPerDay,
-//         totalDeliveryCompletedPastYearPerMonth,
-//         averageTimeTaken,
-//         longestTimeTaken: longestTimeTaken?.estimatedTime || 0,
-//         smallestTimeTaken: smallestTimeTaken?.estimatedTime || 0,
-//         averageDeliveryDistance,
-//         longestDeliveryDistance: longestDeliveryDistance?.distance || 0,
-//         shortestDeliveryDistance: shortestDeliveryDistance?.distance || 0,
-//       },
-//     });
-//   } catch (err) {
-//     console.error(
-//       "Error from getDeliveryDashboardData Controller: ",
-//       err.message
-//     );
-//     return res
-//       .status(500)
-//       .json({ success: false, message: "Internal Server Error" });
-//   }
-// };
 export const getDeliveryDashboardData = async (req, res) => {
   try {
     const { delId } = req.params;
+    // console.log(delId);
 
-    // Validate delivery boy ID
-    if (!mongoose.Types.ObjectId.isValid(delId)) {
+    if (!mongoose.Types.ObjectId.isValid(delId))
       return res.status(404).send("Delivery boy not found");
-    }
 
-    const todayStart = new Date().setHours(0, 0, 0, 0);
+    const allCompleted = await Delivery.find({
+      assignedTo: delId,
+      currentStatus: "Completed",
+    });
+
+    const todayAssignedDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    });
+    const todayCompletedDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    });
+    const todayAvailableDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Available",
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    });
+    const todayActiveDeliveries =
+      todayAssignedDeliveries -
+      todayCompletedDeliveries -
+      todayAvailableDeliveries;
+    const totalAssignedDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+    });
+    const totalCompletedDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+    });
+    const totalAvailableDeliveries = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Available",
+    });
+    const totalActiveDeliveries =
+      totalAssignedDeliveries -
+      totalCompletedDeliveries -
+      totalAvailableDeliveries;
+    const totalDeliveriesCompletedToday = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      completedAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    });
+    const totalDeliveryCompletedPastweek = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      completedAt: { $gte: new Date(new Date() - 7 * 24 * 60 * 60 * 1000) },
+    });
+
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const lastYear = new Date(
-      new Date().setFullYear(new Date().getFullYear() - 1)
+
+    // Manually group by year, month, and day
+    const PastWeekGroupedByDay = allCompleted
+      .filter((delivery) => new Date(delivery.completedAt) >= sevenDaysAgo)
+      .reduce((acc, delivery) => {
+        const completedAt = new Date(delivery.completedAt);
+        const year = completedAt.getFullYear();
+        const month = completedAt.getMonth() + 1; // Months are 0-indexed in JavaScript
+        const day = completedAt.getDate();
+
+        // Create a unique key for year, month, day
+        const key = `${year}-${month}-${day}`;
+
+        // If the key already exists, increment the count
+        if (acc[key]) {
+          acc[key].count++;
+        } else {
+          acc[key] = {
+            _id: { year, month, day },
+            count: 1,
+          };
+        }
+
+        return acc;
+      }, {});
+
+    // Use the provided function to fill missing days and get the result
+    const totalDeliveryCompletedPastWeekPerDay = fillMissingDays(
+      Object.values(PastWeekGroupedByDay),
+      7
     );
 
-    // Use aggregation to collect all the data in one go
-    const [deliveryStats] = await Delivery.aggregate([
-      {
-        $match: { assignedTo: new mongoose.Types.ObjectId(delId) },
-      },
-      {
-        $facet: {
-          todayStats: [
-            { $match: { createdAt: { $gte: todayStart } } },
-            {
-              $group: {
-                _id: null,
-                todayAssigned: { $sum: 1 },
-                todayCompleted: {
-                  $sum: {
-                    $cond: [{ $eq: ["$currentStatus", "Completed"] }, 1, 0],
-                  },
-                },
-                todayAvailable: {
-                  $sum: {
-                    $cond: [{ $eq: ["$currentStatus", "Available"] }, 1, 0],
-                  },
-                },
-              },
-            },
-          ],
-          totalStats: [
-            {
-              $group: {
-                _id: null,
-                totalAssigned: { $sum: 1 },
-                totalCompleted: {
-                  $sum: {
-                    $cond: [{ $eq: ["$currentStatus", "Completed"] }, 1, 0],
-                  },
-                },
-                totalAvailable: {
-                  $sum: {
-                    $cond: [{ $eq: ["$currentStatus", "Available"] }, 1, 0],
-                  },
-                },
-              },
-            },
-          ],
-          deliveryTimes: [
-            { $match: { currentStatus: "Completed" } },
-            {
-              $group: {
-                _id: null,
-                longestTime: { $max: "$estimatedTime" },
-                shortestTime: { $min: "$estimatedTime" },
-                averageTime: { $avg: "$estimatedTime" },
-              },
-            },
-          ],
-          deliveryDistances: [
-            { $match: { currentStatus: "Completed" } },
-            {
-              $group: {
-                _id: null,
-                longestDistance: { $max: "$distance" },
-                shortestDistance: { $min: "$distance" },
-                averageDistance: { $avg: "$distance" },
-              },
-            },
-          ],
-          pastWeekDeliveries: [
-            { $match: { completedAt: { $gte: sevenDaysAgo } } },
-            {
-              $group: {
-                _id: {
-                  year: { $year: "$completedAt" },
-                  month: { $month: "$completedAt" },
-                  day: { $dayOfMonth: "$completedAt" },
-                },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-          pastMonthDeliveries: [
-            { $match: { completedAt: { $gte: thirtyDaysAgo } } },
-            {
-              $group: {
-                _id: {
-                  year: { $year: "$completedAt" },
-                  month: { $month: "$completedAt" },
-                  day: { $dayOfMonth: "$completedAt" },
-                },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-          pastYearDeliveries: [
-            { $match: { completedAt: { $gte: lastYear } } },
-            {
-              $group: {
-                _id: {
-                  year: { $year: "$completedAt" },
-                  month: { $month: "$completedAt" },
-                },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-        },
-      },
-    ]);
+    // Group by year, month, and day
+    const groupedByDayForMonth = allCompleted
+      .filter(
+        (delivery) =>
+          new Date(delivery.completedAt) >=
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      )
+      .reduce((acc, delivery) => {
+        const completedAt = new Date(delivery.completedAt);
+        const year = completedAt.getFullYear();
+        const month = completedAt.getMonth() + 1; // JavaScript months are 0-indexed
+        const day = completedAt.getDate();
 
-    const todayStats = deliveryStats.todayStats[0] || {};
-    const totalStats = deliveryStats.totalStats[0] || {};
-    const deliveryTimes = deliveryStats.deliveryTimes[0] || {};
-    const deliveryDistances = deliveryStats.deliveryDistances[0] || {};
+        const key = `${year}-${month}-${day}`;
+
+        if (acc[key]) {
+          acc[key].count++;
+        } else {
+          acc[key] = {
+            _id: { year, month, day },
+            count: 1,
+          };
+        }
+
+        return acc;
+      }, {});
+
+    const totalDeliveryCompletedPastMonthPerDay = fillMissingDays(
+      Object.values(groupedByDayForMonth),
+      30
+    );
+
+    // Group by year and month
+    const groupedByMonthForYear = allCompleted
+      .filter(
+        (delivery) =>
+          new Date(delivery.completedAt) >=
+          new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+      )
+      .reduce((acc, delivery) => {
+        const completedAt = new Date(delivery.completedAt);
+        const year = completedAt.getFullYear();
+        const month = completedAt.getMonth() + 1; // JavaScript months are 0-indexed
+
+        const key = `${year}-${month}`;
+
+        if (acc[key]) {
+          acc[key].count++;
+        } else {
+          acc[key] = {
+            _id: { year, month },
+            count: 1,
+          };
+        }
+
+        return acc;
+      }, {});
+
+    const totalDeliveryCompletedPastYearPerMonth = fillMissingMonths(
+      Object.values(groupedByMonthForYear)
+    );
+
+    const totalDeliveryCompletedPastMonth = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      completedAt: { $gte: new Date(new Date() - 30 * 24 * 60 * 60 * 1000) },
+    });
+
+    const totalDeliveryCompletedPastYear = await Delivery.countDocuments({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      completedAt: { $gte: new Date(new Date() - 365 * 24 * 60 * 60 * 1000) },
+    });
+
+    const longestTimeTaken = await Delivery.findOne({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      estimatedTime: { $gt: 0 },
+    })
+      .sort({ estimatedTime: -1 })
+      .select("estimatedTime");
+
+    const smallestTimeTaken = await Delivery.findOne({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      estimatedTime: { $gt: 0 },
+    })
+      .sort({ estimatedTime: 1 })
+      .select("estimatedTime");
+
+    const longestDeliveryDistance = await Delivery.findOne({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      distance: { $gt: 0 },
+    })
+      .sort({ distance: -1 })
+      .select("distance");
+
+    const shortestDeliveryDistance = await Delivery.findOne({
+      assignedTo: delId,
+      currentStatus: "Completed",
+      distance: { $gt: 0 },
+    })
+      .sort({ distance: 1 })
+      .select("distance");
 
     res.status(200).json({
       success: true,
       result: {
-        todayAssignedDeliveries: todayStats.todayAssigned || 0,
-        todayCompletedDeliveries: todayStats.todayCompleted || 0,
-        todayAvailableDeliveries: todayStats.todayAvailable || 0,
-        todayActiveDeliveries:
-          (todayStats.todayAssigned || 0) -
-          (todayStats.todayCompleted || 0) -
-          (todayStats.todayAvailable || 0),
-        totalAssignedDeliveries: totalStats.totalAssigned || 0,
-        totalCompletedDeliveries: totalStats.totalCompleted || 0,
-        totalAvailableDeliveries: totalStats.totalAvailable || 0,
-        totalActiveDeliveries:
-          (totalStats.totalAssigned || 0) -
-          (totalStats.totalCompleted || 0) -
-          (totalStats.totalAvailable || 0),
-        totalDeliveryCompletedPastWeekPerDay: deliveryStats.pastWeekDeliveries,
-        totalDeliveryCompletedPastMonthPerDay:
-          deliveryStats.pastMonthDeliveries,
-        totalDeliveryCompletedPastYearPerMonth:
-          deliveryStats.pastYearDeliveries,
-        averageTimeTaken: deliveryTimes.averageTime || 0,
-        longestTimeTaken: deliveryTimes.longestTime || 0,
-        shortestTimeTaken: deliveryTimes.shortestTime || 0,
-        averageDeliveryDistance: deliveryDistances.averageDistance || 0,
-        longestDeliveryDistance: deliveryDistances.longestDistance || 0,
-        shortestDeliveryDistance: deliveryDistances.shortestDistance || 0,
+        todayAssignedDeliveries,
+        todayCompletedDeliveries,
+        todayAvailableDeliveries,
+        todayActiveDeliveries,
+        totalAssignedDeliveries,
+        totalCompletedDeliveries,
+        totalAvailableDeliveries,
+        totalActiveDeliveries,
+        totalDeliveriesCompletedToday,
+        totalDeliveryCompletedPastweek,
+        totalDeliveryCompletedPastMonth,
+        totalDeliveryCompletedPastYear,
+        totalDeliveryCompletedPastWeekPerDay,
+        totalDeliveryCompletedPastMonthPerDay,
+        totalDeliveryCompletedPastYearPerMonth,
+        averageTimeTaken:
+          allCompleted.length > 0
+            ? allCompleted.reduce(
+                (sum, delivery) => sum + delivery.estimatedTime,
+                0
+              ) / allCompleted.length
+            : 0,
+        longestTimeTaken: longestTimeTaken?.estimatedTime || 0,
+        smallestTimeTaken: smallestTimeTaken?.estimatedTime || 0,
+        averageDeliveryDistance:
+          allCompleted.length > 0
+            ? allCompleted.reduce(
+                (sum, delivery) => sum + delivery.distance,
+                0
+              ) / allCompleted.length
+            : 0,
+        longestDeliveryDistance: longestDeliveryDistance?.distance || 0,
+        shortestDeliveryDistance: shortestDeliveryDistance?.distance || 0,
       },
     });
   } catch (err) {
-    console.error(
-      "Error from getDeliveryDashboardData Controller: ",
+    console.log(
+      "Error from getDeliveryDashboardData Controller : ",
       err.message
     );
     return res
@@ -368,7 +246,6 @@ export const getDeliveryDashboardData = async (req, res) => {
   }
 };
 
-// Helper function to fill missing days in the data
 const fillMissingDays = (data, days) => {
   const result = [];
   const now = new Date();
@@ -392,7 +269,6 @@ const fillMissingDays = (data, days) => {
   return result.reverse(); // Reverse to make the order from past to present
 };
 
-// Helper function to fill missing months in the data
 const fillMissingMonths = (data) => {
   const result = [];
   const now = new Date();
@@ -412,5 +288,4 @@ const fillMissingMonths = (data) => {
   return result.reverse(); // Reverse to make the order from past to present
 };
 
-// Uncomment the following line to test the function with a sample delivery boy ID
 // getDeliveryDashboardData({ params: { delId: "668925f9b9e4798fc9ed3a87" } });

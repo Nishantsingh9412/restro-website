@@ -1,39 +1,45 @@
-import { Box, Button, Flex, Grid, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  Spinner,
+} from "@chakra-ui/react";
 import DeliveryCard from "./components/DeliveryCard";
 import ActiveDelivery from "./components/ActiveDelivery";
 import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   acceptDeliveryAction,
   deleteSingleDeliveryAction,
   completeDeliveryAction,
   cancelDeliveryAction,
   udpateDeliveryStatusAction,
+  getActiveDeliveryAction,
+  getAllAvailabelDeliveryAction,
 } from "../../../redux/action/delivery";
-import { getSingleDelBoyAction } from "../../../redux/action/delboy";
 
 export default function AvailableDeliveries() {
-  const auth = useSelector((state) => state.authReducer.data);
+  const auth = useSelector((state) => state.admin.data);
   const availableDeliveries = useSelector(
-    (state) => state.deliveryReducer.deliveries
+    (state) => state.deliveryReducer.deliveries || []
   );
+  const [loading, setLoading] = useState(true);
   const activeDelivery = useSelector(
     (state) => state.deliveryReducer.activeDelivery
   );
   const dispatch = useDispatch();
-  // For getting delivery boy data Start
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const localId = localData?.result?._id;
-
   useEffect(() => {
-    dispatch(getSingleDelBoyAction(localId));
+    Promise.all([
+      dispatch(getAllAvailabelDeliveryAction(localId)),
+      dispatch(getActiveDeliveryAction(localId)),
+    ]).then(() => setLoading(false));
   }, []);
-
-  const logged_in_del_boy = useSelector(
-    (state) => state.delBoyReducer.selectedDelBoy
-  );
-  console.log(logged_in_del_boy);
 
   // For Getting Delivery Boy Data End
 
@@ -58,6 +64,7 @@ export default function AvailableDeliveries() {
     }).then((result) => {
       if (result.isConfirmed) handleUpdateStatus(id, status);
     });
+
   const showDeliveryCompleted = () =>
     Swal.fire({
       title: "Delivery Completed",
@@ -91,6 +98,7 @@ export default function AvailableDeliveries() {
     });
 
   const handleReject = (id) => {
+    console.log(id);
     dispatch(deleteSingleDeliveryAction(id));
   };
 
@@ -111,9 +119,15 @@ export default function AvailableDeliveries() {
     );
   };
 
-  const handleCancel = () => {
-    dispatch(cancelDeliveryAction());
+  const handleCancel = (id) => {
+    dispatch(cancelDeliveryAction(id, localId || auth?._id));
   };
+  if (loading)
+    return (
+      <Flex justifyContent="center" alignItems="center" height="50vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
 
   if (activeDelivery)
     return (
@@ -148,7 +162,7 @@ export default function AvailableDeliveries() {
               lg: "1fr 1fr 1fr",
             }}
           >
-            {availableDeliveries.map((delivery, i) => (
+            {availableDeliveries?.map((delivery, i) => (
               <DeliveryCard
                 data={delivery}
                 key={i}

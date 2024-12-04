@@ -41,7 +41,7 @@ export default function AllotDeliveryBoyModal({
 
   // Handle submission of the selected delivery guy
   const handleSubmit = () => {
-    onSubmit(online.find((item) => item._id === selected));
+    onSubmit(online.find((item) => item?._id === selected));
     setIsOpen(false);
   };
 

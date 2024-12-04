@@ -1,20 +1,34 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, Spinner } from "@chakra-ui/react";
 import { getCompletedDeliveries } from "../../../api/index";
 import { formatDistanceToNow } from "date-fns";
 import { GiPathDistance } from "react-icons/gi";
 import { MdOutlineTimer } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { getCompletedDeliveriesAction } from "../../../redux/action/delivery";
+
 export default function DeliveryHistory() {
+  const dispatch = useDispatch();
   const deliveries = useSelector(
     (state) => state.deliveryReducer?.completedDeliveries
   );
+  const [loading, setLoading] = useState(true);
+
+  // Fetch completed deliveries on component mount
+  useEffect(() => {
+    dispatch(getCompletedDeliveriesAction()).finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
       <Heading mt={20} mb={5} fontSize={20}>
         Delivery History
       </Heading>
-      {deliveries?.length ? (
+      {loading ? (
+        <Flex justifyContent="center" alignItems="center" height="50vh">
+          <Spinner size="xl" />
+        </Flex>
+      ) : deliveries?.length ? (
         <Flex flexDirection={"column"} borderRadius={20} bg={"#fff"}>
           {deliveries
             .sort((a, b) => b.completedAt - a.completedAt)

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet-fullscreen";
-import { Text, Heading, Button } from "@chakra-ui/react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
@@ -26,45 +25,35 @@ const containerStyle = {
 
 const RoutingMachine = ({ waypoints }) => {
   const map = useMap();
+  const routingControlRef = useRef(null);
 
   useEffect(() => {
     if (!map) return;
 
-    const fullScreenControl = L.control
-      .fullscreen({
-        position: "topright",
-        title: {
-          false: "View Fullscreen",
-          true: "Exit Fullscreen",
-        },
-      })
-      .addTo(map);
+    // Remove previous routing control if it exists
+    if (routingControlRef.current) {
+      map.removeControl(routingControlRef.current);
+      routingControlRef.current = null;
+    }
 
-    const routingControl = L.Routing.control({
+    // Initialize routing control
+    routingControlRef.current = L.Routing.control({
       waypoints: waypoints.map((point) => L.latLng(point.lat, point.lng)),
-      lineOptions: {
-        styles: [{ color: "#4a90e2", weight: 6 }],
-      },
-      createMarker: function (i, waypoint, n) {
-        return L.marker(waypoint.latLng).bindPopup(
+      lineOptions: { styles: [{ color: "#4a90e2", weight: 6 }] },
+      createMarker: (i, waypoint, n) =>
+        L.marker(waypoint.latLng).bindPopup(
           i === 0 ? "You" : i === n - 1 ? "Deliver" : "Pickup"
-        );
-      },
+        ),
       addWaypoints: false,
       draggableWaypoints: false,
       routeWhileDragging: false,
     }).addTo(map);
 
+    // Cleanup on unmount
     return () => {
-      try {
-        if (routingControl) {
-          routingControl.getPlan().setWaypoints([]);
-          map.removeControl(routingControl);
-        }
-        if (fullScreenControl) map.removeControl(fullScreenControl);
-        // map.remove()
-      } catch (err) {
-        console.error(err);
+      if (routingControlRef.current) {
+        map?.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
       }
     };
   }, [map, waypoints]);
@@ -80,35 +69,25 @@ const RecenterControl = ({ center }) => {
 
     const recenterControl = L.control({ position: "bottomright" });
 
-    recenterControl.onAdd = function () {
+    recenterControl.onAdd = () => {
       const button = L.DomUtil.create("button", "leaflet-bar");
       button.title = "Recenter Map";
 
-      // Add React Icon to the button
       const icon = document.createElement("div");
-      icon.style.width = "30px";
-      icon.style.height = "30px";
-      icon.style.background = "#fff"; // Customize background color if needed
-      icon.style.border = "none";
-      icon.style.borderRadius = "4px";
-      icon.style.cursor = "pointer";
-      icon.style.padding = "5px";
+      icon.style.cssText = `
+        width: 30px; height: 30px; background: #fff; border: none;
+        border-radius: 4px; cursor: pointer; padding: 5px;
+      `;
       icon.innerHTML = `<img src="https://static.thenounproject.com/png/2819186-200.png" alt="Recenter" class="react-icon" />`;
       button.appendChild(icon);
-      button.onclick = function () {
-        map.setView(center, 16);
-      };
+      button.onclick = () => map.setView(center, 16);
       return button;
     };
 
     recenterControl.addTo(map);
 
     return () => {
-      try {
-        map.removeControl(recenterControl);
-      } catch (err) {
-        console.error(err);
-      }
+      map.removeControl(recenterControl);
     };
   }, [map, center]);
 
@@ -133,8 +112,6 @@ const DeliveryMap = ({ origin, destination, waypoints = [], center }) => {
         <RoutingMachine waypoints={allPoints} />
         <RecenterControl center={center} />
       </MapContainer>
-
-      <script>L.map('map').setBearing(rotation);</script>
     </div>
   );
 };

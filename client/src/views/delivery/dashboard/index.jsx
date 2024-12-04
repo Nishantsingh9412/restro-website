@@ -192,7 +192,7 @@ export default function Dashboard() {
                 </Flex>
               }
               footerText="Know more"
-              footerLink="/delivery/available-deliveries"
+              footerLink="/employee/delivery/available-deliveries"
               color="green"
             />
             <DashboardCard
@@ -231,7 +231,7 @@ export default function Dashboard() {
                 </Flex>
               }
               footerText="Know more"
-              footerLink="/delivery/history"
+              footerLink="/employee/delivery/history"
               color="blue"
             />
           </Grid>

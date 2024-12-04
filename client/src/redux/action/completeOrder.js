@@ -1,51 +1,38 @@
 import * as api from "../../api/index.js";
 
-// Helper function to handle API calls
 const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
   try {
-    // Execute the API call
     const { data } = await apiCall();
-    // Dispatch the action with the result data
     dispatch({ type: actionType, data: data?.result });
-    // Return success message
     return { success: true, message: successMessage };
   } catch (err) {
-    // Log the error
-    console.error(`Error from ${actionType}: ${err.message}`, err.stack);
-    // Return error message
-    return {
-      success: false,
-      message: err?.response?.data?.message || "An unexpected error occurred",
-    };
+    console.log(`Error from ${actionType} Action: ${err.message}`, err.stack);
+    return { success: false, message: err?.response?.data?.message };
   }
 };
-
 export const allotDeliveryBoyAction =
-  (orderId, deliveryBoy, supplier) => async (dispatch) => {
-    // try {
-    //   await api.allotDeliveryBoyAPI(orderId, deliveryBoy._id, supplier);
-    //   dispatch({
-    //     type: "ALLOT_DELIVERY_BOY",
-    //     data: {
-    //       orderId: orderId,
-    //       assignedTo: { name: deliveryBoy.name, _id: deliveryBoy._id },
-    //     },
-    //   });
-    //   return { success: true, message: "Delivery boy allocated successfully" };
-    // } catch (err) {
-    //   console.log("Error from courseFilter Action: " + err.message, err.stack);
-    //   return { success: false, message: err?.response?.data?.message };
-    // }
-
-    return handleApiCall(
-      () => api.allotDeliveryBoyAPI(orderId, deliveryBoy._id, supplier),
-      dispatch,
-      "ALLOT_DELIVERY_BOY",
-      "Delivery Allotted Successfully"
-    );
+  ({ orderId, deliveryBoy }) =>
+  async (dispatch) => {
+    console.log("Allot Delivery", orderId, deliveryBoy._id);
+    try {
+      await api.allotDeliveryBoyAPI(orderId, deliveryBoy?._id);
+      dispatch({
+        type: "ALLOT_DELIVERY_BOY",
+        data: {
+          orderId: orderId,
+          assignedTo: { name: deliveryBoy.name, _id: deliveryBoy?._id },
+        },
+      });
+      return { success: true, message: "Delivery boy allocated successfully" };
+    } catch (err) {
+      console.log(
+        "Error from ALLOT_DELIVERY_BOY Action: " + err.message,
+        err.stack
+      );
+      return { success: false, message: err?.response?.data?.message };
+    }
   };
 
-// Action to post a complete order
 export const postCompleteOrderAction = (orderData) => async (dispatch) => {
   return handleApiCall(
     () => api.addCompleteOrderAPI(orderData),
@@ -55,7 +42,6 @@ export const postCompleteOrderAction = (orderData) => async (dispatch) => {
   );
 };
 
-// Action to get all complete orders
 export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
   return handleApiCall(
     () => api.getAllCompleteOrdersAPI(localstorageId),
@@ -65,7 +51,6 @@ export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
   );
 };
 
-// Action to get a single complete order by ID
 export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
   return handleApiCall(
     () => api.getSingleCompleteOrderAPI(id),
@@ -75,7 +60,6 @@ export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
   );
 };
 
-// Action to update a complete order by ID
 export const updateCompleteOrderAction =
   (id, orderData) => async (dispatch) => {
     return handleApiCall(
@@ -86,7 +70,6 @@ export const updateCompleteOrderAction =
     );
   };
 
-// Action to delete a complete order by ID
 export const deleteCompleteOrderAction = (id) => async (dispatch) => {
   return handleApiCall(
     () => api.deleteSingleCompleteOrderAPI(id),

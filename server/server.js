@@ -80,6 +80,7 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 
 // Employee routes
+app.use("/delivery", deliveryRoutes);
 app.use("/common", commonRoutes);
 app.use("/waiter", waiterRoutes);
 app.use("/bartender", bartenderRoutes);
