@@ -1,7 +1,10 @@
 /* eslint-disable react/prop-types */
 import { Box, VStack, Flex, Text, HStack, IconButton } from "@chakra-ui/react";
 import { IoMdTrash } from "react-icons/io";
-import { IoPencil } from "react-icons/io5";
+import { IoEyeOff, IoLocate, IoPencil } from "react-icons/io5";
+import { MdOfflinePin } from "react-icons/md";
+
+import { CgUnavailable } from "react-icons/cg";
 
 // DeliveryBoyCard component to display delivery boy details
 const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
@@ -23,7 +26,7 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
           </Text>
           <HStack spacing="2">
             {/* Edit button */}
-            <IconButton
+            {/* <IconButton
               icon={<IoPencil />}
               aria-label="Edit"
               colorScheme="yellow"
@@ -31,16 +34,34 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
               onClick={() => handleEdit(boy)}
             />
             {/* Delete button */}
-            <IconButton
+            {/* <IconButton
               icon={<IoMdTrash />}
               aria-label="Delete"
               colorScheme="red"
               size="sm"
               onClick={(e) => handleDeleteDelboy(e, boy._id)} // Handle delete action
-            />
+            /> */}
+            {/* Show offline icon when delivery boy is offline */}
+            {!boy?.is_online ? (
+              <IconButton
+                icon={<CgUnavailable />}
+                aria-label="Offline"
+                colorScheme="gray"
+                size="xl"
+                isDisabled
+                title="Offline"
+              />
+            ) : (
+              <IconButton
+                icon={<IoLocate />}
+                aria-label="Location Track"
+                colorScheme="blue"
+                size="sm"
+                onClick={() => window.open(boy?.liveLocationURL, "_blank")} // Redirect to the live location URL
+              />
+            )}
           </HStack>
         </Flex>
-        {/* Display delivery boy's phone number */}
         <Text>Phone: {boy?.phone}</Text>
         {/* Display delivery boy's country code */}
         <Text>Country Code: {boy?.country_code}</Text>

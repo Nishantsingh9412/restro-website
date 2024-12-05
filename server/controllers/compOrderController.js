@@ -149,15 +149,15 @@ export const getCompleteOrders = async (req, res) => {
     // Add assigned delivery boy information to each order
     const finalOrders = await Promise.all(
       completeOrders.map(async (order) => {
-        const assigned = await delivery
-          .findOne({ orderId: order?.orderId })
-          .select("assignedTo");
-        if (assigned) {
-          const assignedTo = await deliveryBoyModel
-            .findById(assigned.assignedTo)
-            .select("name");
-          return { ...(order._doc || order), assignedTo };
-        } else return order._doc || order;
+      const assigned = await delivery
+        .findOne({ orderId: order?.orderId })
+        .select("assignedTo completedAt");
+      if (assigned) {
+        const assignedTo = await deliveryBoyModel
+        .findById(assigned.assignedTo)
+        .select("name");
+        return { ...(order._doc || order), assignedTo, completedAt: assigned.completedAt };
+      } else return order._doc || order;
       })
     );
 
@@ -250,8 +250,6 @@ export const allotOrderDelivery = async (req, res) => {
       restaurantName: foundSupplier.name,
     });
 
-    console.log("Delivery : ", delivery);
-
     if (!delivery) {
       return res
         .status(400)
@@ -267,7 +265,6 @@ export const allotOrderDelivery = async (req, res) => {
 
       if (noti) {
         await notifyUser(deliveryBoyId, noti);
-        console.log(noti);
       }
     }
     res.status(200).json({ success: true, message: "Order Allotted" });

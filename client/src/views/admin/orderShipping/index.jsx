@@ -142,10 +142,10 @@ const OrderShipping = () => {
     >
       <ToastContainer />
       <Flex mb="4" alignItems="center">
-        <Heading size="lg">Order Shipping</Heading>
+        <Heading size="lg">Delivery Partners</Heading>
         <Spacer />
         <HStack spacing="4">
-          <Button colorScheme="cyan" onClick={onOpen}>
+          {/* <Button colorScheme="cyan" onClick={onOpen}>
             Allot Delivery Boy
           </Button>
           <Button colorScheme="teal" onClick={handleAddDeliveryBoy}>
@@ -153,7 +153,7 @@ const OrderShipping = () => {
           </Button>
           <Button colorScheme="red" onClick={() => setFilteredDelBoys([])}>
             Clear Filter
-          </Button>
+          </Button> */}
         </HStack>
       </Flex>
 

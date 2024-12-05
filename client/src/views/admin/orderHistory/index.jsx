@@ -89,6 +89,8 @@ const OrderHistory = () => {
                 noteFromCustomer,
                 totalPrice,
                 orderItems,
+                assignedTo,
+                completedAt,
               }) => (
                 <Box
                   key={_id}
@@ -101,23 +103,33 @@ const OrderHistory = () => {
                   transition="transform 0.2s"
                   _hover={{ transform: "scale(1.02)" }}
                 >
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb="4"
-                  >
-                    <Heading as="h2" size="md">
-                      Order #{orderId}
+                  {completedAt ? (
+                    <Heading as="h2" size="md" bg="green.100" mb={4} p={2}>
+                      Completed
                     </Heading>
-                    <IconButton
-                      onClick={() => handleAllotDeliveryBoy(orderId)}
-                      aria-label="Allot Delivery Boy"
-                      title="Allot Delivery Boy"
-                      icon={<MdLocalShipping />}
-                      variant="outline"
-                      colorScheme="blue"
-                    />
-                  </Flex>
+                  ) : assignedTo ? (
+                    <Heading as="h2" size="md" bg="blue.100" mb={4} p={2}>
+                      Assigned to {assignedTo.name}
+                    </Heading>
+                  ) : (
+                    <Flex
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb="4"
+                    >
+                      <Heading as="h2" size="md">
+                        Order #{orderId}
+                      </Heading>
+                      <IconButton
+                        onClick={() => handleAllotDeliveryBoy(orderId)}
+                        aria-label="Allot Delivery Boy"
+                        title="Allot Delivery Boy"
+                        icon={<MdLocalShipping />}
+                        variant="outline"
+                        colorScheme="blue"
+                      />
+                    </Flex>
+                  )}
                   <Divider mb="4" />
                   <Stack spacing="3">
                     <Text>

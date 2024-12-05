@@ -50,7 +50,6 @@ const OrderSummary = ({ goToPreviousStep }) => {
         navigate("/admin/order-history");
       } else {
         toast.error(res.message);
-
       }
     });
   };
@@ -73,7 +72,10 @@ const OrderSummary = ({ goToPreviousStep }) => {
           p={4}
         >
           {Object.entries(addressData)
-            .filter(([key]) => key !== "dropLocation")
+            .filter(
+              ([key]) =>
+                !["dropLocation", "created_by", "lat", "lng"].includes(key)
+            )
             .map(([key, value]) => (
               <Text mb={2} key={key}>
                 <strong>

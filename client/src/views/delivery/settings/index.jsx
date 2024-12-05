@@ -14,8 +14,6 @@ export default function DeliverySettings() {
     isLiveLocationModal: false,
   });
 
-  console.log(settings);
-
   useEffect(() => {
     setSettings(singleUserData);
   }, [singleUserData]);
