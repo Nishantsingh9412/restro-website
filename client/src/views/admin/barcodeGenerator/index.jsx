@@ -3,10 +3,6 @@ import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import { nanoid } from "nanoid";
 import bwipjs from "bwip-js";
-
-// import * as bwipjs from 'bwip-js';
-
-import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import {
   Table,
@@ -27,14 +23,10 @@ import {
   ModalCloseButton,
   Text,
   useDisclosure,
-  IconButton,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
   Input,
   Select,
-  Option,
   Flex,
 } from "@chakra-ui/react";
 import { IoMdEye, IoMdTrash } from "react-icons/io";
@@ -46,39 +38,40 @@ import {
 } from "../../../redux/action/QRItems.js";
 import { BiBarcodeReader } from "react-icons/bi";
 
+import "react-toastify/dist/ReactToastify.css";
+
 const BarcodeGenerator = () => {
-  const OverlayOne = () => (
-    <ModalOverlay
-    // bg='blackAlpha.800'
-    // backdropFilter='blur(10px) hue-rotate(90deg)'
-    />
-  );
+  // Modal overlay component
+  const OverlayOne = () => <ModalOverlay />;
 
   const dispatch = useDispatch();
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [overlay, setOverlay] = useState(<OverlayOne />);
 
+  // State variables
   const [itemDataArray, setItemDataArray] = useState([]);
-  const [EyeIconSelectedId, setEyeIconSelectedId] = useState(null);
-  const [PencilIconSelectedId, setPencilIconSelectedId] = useState(null);
   const [itemName, setItemName] = useState("");
   const [unit, setUnit] = useState("");
-
   const [item_count, setItem_count] = useState(0);
   const [available, setAvailable] = useState(0);
   const [minimum, setMinimum] = useState(0);
   const [usageRateValue, setUsageRateValue] = useState(0);
-
   const [usageRateUnit, setUsageRateUnit] = useState("");
   const [lastReplenished, setLastReplenished] = useState("");
 
-  // Remove this code
-  const [input, setInput] = useState("");
-  const handleInputChange = (e) => setInput(e.target.value);
-  const isError = input === "";
-  // End of this code
+  // Fetch all items on component mount
+  useEffect(() => {
+    dispatch(getALlItemsActionQR());
+  }, [dispatch]);
 
+  // Update item data array when QRItemsReducerData changes
+  const ItemDataReducerQR = useSelector((state) => state.QRItemsReducer);
+  const QRItemsReducerData = ItemDataReducerQR?.items;
+  useEffect(() => {
+    setItemDataArray(QRItemsReducerData);
+  }, [QRItemsReducerData]);
+
+  // Handle form submission to add a new item
   const handleSubmit = (e) => {
     e.preventDefault();
     const newItemDataQR = {
@@ -110,7 +103,9 @@ const BarcodeGenerator = () => {
     });
   };
 
+  // Handle item deletion confirmation
   const handleConfirmDelete = (deleteId) => {
+    // Uncomment and implement delete logic here
     // const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId)).then((res) => {
     //   if (res.success) {
     //     dispatch(GetAllItemsAction());
@@ -129,6 +124,7 @@ const BarcodeGenerator = () => {
     // );
   };
 
+  // Handle item deletion
   const handleDeleteItem = (id) => {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -158,15 +154,7 @@ const BarcodeGenerator = () => {
     });
   };
 
-  useEffect(() => {
-    dispatch(getALlItemsActionQR());
-  }, []);
-
-  const ItemDataReducerQR = useSelector((state) => state.QRItemsReducer);
-  const QRItemsReducerData = ItemDataReducerQR?.items;
-  // console.log("This is ItemDataReducer : \n", ItemDataReducerQR);
-  // console.log("This is ItemData : \n", QRItemsReducerData);
-
+  // Handle auto-fill form values
   const handleAutoAddVals = () => {
     setItemName("Rice");
     setUnit("KG");
@@ -178,9 +166,10 @@ const BarcodeGenerator = () => {
     setLastReplenished("2021-07-01");
   };
 
+  // Handle barcode generation
   const handleGenerateBarcode = (item) => {
     try {
-      let canvas = bwipjs.toCanvas("mycanvas", {
+      bwipjs.toCanvas("mycanvas", {
         bcid: "code128", // Barcode type
         text: item.qr_code, // Text to encode
         scale: 3, // 3x scaling factor
@@ -189,13 +178,9 @@ const BarcodeGenerator = () => {
         textxalign: "center", // Always good to set this
       });
     } catch (e) {
-      // console.log("Error in generating barcode");
+      console.error("Error in generating barcode", e);
     }
   };
-
-  useEffect(() => {
-    setItemDataArray(QRItemsReducerData);
-  }, [QRItemsReducerData]);
 
   return (
     <div style={{ marginTop: "5vw" }}>
@@ -220,7 +205,7 @@ const BarcodeGenerator = () => {
             <Tr>
               <Th>Item Name</Th>
               <Th>Unit</Th>
-              <Th> Item Quantity </Th>
+              <Th>Item Quantity</Th>
               <Th isNumeric>Available</Th>
               <Th isNumeric>Minimum</Th>
               <Th isNumeric>Usage Rate</Th>
@@ -230,39 +215,25 @@ const BarcodeGenerator = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {itemDataArray?.map((item, index) => {
-              return (
-                <Tr key={index}>
-                  <Td>{item.item_name}</Td>
-                  <Td>{item.item_unit}</Td>
-                  <Td isNumeric>{item.item_count}</Td>
-                  <Td isNumeric>{item.available_quantity}</Td>
-                  <Td isNumeric>{item.minimum_quantity}</Td>
-                  <Td isNumeric>
-                    {item.usage_rate_value}
-                    {item.usage_rate_unit}
-                  </Td>
-                  <Td isNumeric>{item.updatedAt.split("T")[0]}</Td>
-                  <Td isNumeric>{item.expiry_date.split("T")[0]}</Td>
-                  <Td onClick={() => handleGenerateBarcode(item)}>
-                    <BiBarcodeReader />
-                  </Td>
-                </Tr>
-              );
-            })}
+            {itemDataArray?.map((item, index) => (
+              <Tr key={index}>
+                <Td>{item.item_name}</Td>
+                <Td>{item.item_unit}</Td>
+                <Td isNumeric>{item.item_count}</Td>
+                <Td isNumeric>{item.available_quantity}</Td>
+                <Td isNumeric>{item.minimum_quantity}</Td>
+                <Td isNumeric>
+                  {item.usage_rate_value}
+                  {item.usage_rate_unit}
+                </Td>
+                <Td isNumeric>{item?.updatedAt?.split("T")[0]}</Td>
+                <Td isNumeric>{item?.expiry_date?.split("T")[0]}</Td>
+                <Td onClick={() => handleGenerateBarcode(item)}>
+                  <BiBarcodeReader />
+                </Td>
+              </Tr>
+            ))}
           </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>Item Name</Th>
-              <Th>Unit</Th>
-              <Th> Item Quantity </Th>
-              <Th isNumeric>Available</Th>
-              <Th isNumeric>Minimum</Th>
-              <Th isNumeric>Usage Rate</Th>
-              <Th isNumeric>Last Replenished</Th>
-              <Th>Action</Th>
-            </Tr>
-          </Tfoot>
         </Table>
         <Box marginTop={"50px"}>
           <canvas id="mycanvas"></canvas>
@@ -271,41 +242,99 @@ const BarcodeGenerator = () => {
       {/* Table End */}
 
       {/* Add Modal Start */}
-      <>
-        <Modal isCentered isOpen={isOpen} onClose={onClose}>
-          {overlay}
-          <ModalContent>
-            <ModalHeader>Add Item</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Text>Custom backdrop filters!</Text>
-              <Button onClick={handleAutoAddVals}>Auto Add Values</Button>
-              {/* Form Start */}
-              <Box
-                maxW="sm"
-                m="auto"
-                p="4"
-                borderWidth="1px"
-                borderRadius="lg"
-                background={"whiteAlpha.100"}
-              >
-                <form onSubmit={handleSubmit}>
-                  <FormControl id="itemName" isRequired>
-                    <FormLabel>Item Name</FormLabel>
-                    <Input
-                      type="text"
-                      value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
-                    />
-                  </FormControl>
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
+        {overlay}
+        <ModalContent>
+          <ModalHeader>Add Item</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Custom backdrop filters!</Text>
+            <Button onClick={handleAutoAddVals}>Auto Add Values</Button>
+            {/* Form Start */}
+            <Box
+              maxW="sm"
+              m="auto"
+              p="4"
+              borderWidth="1px"
+              borderRadius="lg"
+              background={"whiteAlpha.100"}
+            >
+              <form onSubmit={handleSubmit}>
+                <FormControl id="itemName" isRequired>
+                  <FormLabel>Item Name</FormLabel>
+                  <Input
+                    type="text"
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                  />
+                </FormControl>
 
-                  <FormControl id="unit" isRequired>
-                    <FormLabel>Unit</FormLabel>
-                    {/* <Input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} /> */}
+                <FormControl id="unit" isRequired>
+                  <FormLabel>Unit</FormLabel>
+                  <Select
+                    placeholder="Select Unit"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                  >
+                    <option value="Grams">Grams</option>
+                    <option value="KG">KG</option>
+                    <option value="Litre">Litre</option>
+                    <option value="Piece">Piece</option>
+                    <option value="Gallon">Gallon</option>
+                    <option value="Dozen">Dozen</option>
+                  </Select>
+                </FormControl>
+
+                <FormControl id="itemCount" isRequired>
+                  <FormLabel>Item Count</FormLabel>
+                  <Input
+                    type="number"
+                    step={"any"}
+                    value={item_count}
+                    onChange={(e) => setItem_count(Number(e.target.value))}
+                  />
+                </FormControl>
+
+                <FormControl id="available" isRequired>
+                  <FormLabel>Available</FormLabel>
+                  <Input
+                    type="number"
+                    step={"any"}
+                    value={available}
+                    onChange={(e) => setAvailable(Number(e.target.value))}
+                  />
+                </FormControl>
+
+                <FormControl id="minimum" isRequired>
+                  <FormLabel>Minimum</FormLabel>
+                  <Input
+                    type="number"
+                    step={"any"}
+                    value={minimum}
+                    onChange={(e) => setMinimum(Number(e.target.value))}
+                  />
+                </FormControl>
+
+                <FormControl id="usageRate" isRequired>
+                  <FormLabel>Usage Rate</FormLabel>
+                  <Flex>
+                    <Input
+                      flex="1"
+                      mr="2"
+                      type="number"
+                      step={"any"}
+                      value={usageRateValue}
+                      onChange={(e) =>
+                        setUsageRateValue(Number(e.target.value))
+                      }
+                      placeholder="Value"
+                    />
                     <Select
+                      flex="1"
+                      ml="2"
                       placeholder="Select Unit"
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
+                      value={usageRateUnit}
+                      onChange={(e) => setUsageRateUnit(e.target.value)}
                     >
                       <option value="Grams">Grams</option>
                       <option value="KG">KG</option>
@@ -314,96 +343,31 @@ const BarcodeGenerator = () => {
                       <option value="Gallon">Gallon</option>
                       <option value="Dozen">Dozen</option>
                     </Select>
-                  </FormControl>
+                  </Flex>
+                </FormControl>
 
-                  <FormControl id="itemCount" isRequired>
-                    <FormLabel>Item Count</FormLabel>
-                    <Input
-                      type="number"
-                      step={"any"}
-                      value={item_count}
-                      onChange={(e) => setItem_count(Number(e.target.value))}
-                    />
-                  </FormControl>
+                <FormControl id="lastReplenished" isRequired>
+                  <FormLabel>Last Replenished</FormLabel>
+                  <Input
+                    type="date"
+                    value={lastReplenished}
+                    onChange={(e) => setLastReplenished(e.target.value)}
+                  />
+                </FormControl>
 
-                  <FormControl id="available" isRequired>
-                    <FormLabel>Available</FormLabel>
-                    <Input
-                      type="number"
-                      step={"any"}
-                      value={available}
-                      onChange={(e) => setAvailable(Number(e.target.value))}
-                    />
-                  </FormControl>
-
-                  <FormControl id="minimum" isRequired>
-                    <FormLabel>Minimum</FormLabel>
-                    <Input
-                      type="number"
-                      step={"any"}
-                      value={minimum}
-                      onChange={(e) => setMinimum(Number(e.target.value))}
-                    />
-                  </FormControl>
-
-                  <FormControl id="usageRate" isRequired>
-                    <FormLabel>Usage Rate</FormLabel>
-                    <Flex>
-                      <Input
-                        flex="1"
-                        mr="2"
-                        type="number"
-                        step={"any"}
-                        value={usageRateValue}
-                        onChange={(e) =>
-                          setUsageRateValue(Number(e.target.value))
-                        }
-                        placeholder="Value"
-                      />
-                      <Select
-                        flex="1"
-                        ml="2"
-                        placeholder="Select Unit"
-                        value={usageRateUnit}
-                        onChange={(e) => setUsageRateUnit(e.target.value)}
-                      >
-                        <option value="Grams">Grams</option>
-                        <option value="KG">KG</option>
-                        <option value="Litre">Litre</option>
-                        <option value="Piece">Piece</option>
-                        <option value="Gallon">Gallon</option>
-                        <option value="Dozen">Dozen</option>
-                      </Select>
-                    </Flex>
-                  </FormControl>
-
-                  <FormControl id="lastReplenished" isRequired>
-                    <FormLabel>Last Replenished</FormLabel>
-                    <Input
-                      type="date"
-                      value={lastReplenished}
-                      onChange={(e) => setLastReplenished(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <Button mt="4" colorScheme="blue" type="submit">
-                    Add Item
-                  </Button>
-                </form>
-              </Box>
-              {/* Form End */}
-            </ModalBody>
-            <ModalFooter>
-              <Button onClick={onClose}>Close</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </>
+                <Button mt="4" colorScheme="blue" type="submit">
+                  Add Item
+                </Button>
+              </form>
+            </Box>
+            {/* Form End */}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       {/* Add Modal End */}
-
-      {/* Edit Modal Start */}
-
-      {/* Edit Item Modal End  */}
     </div>
   );
 };

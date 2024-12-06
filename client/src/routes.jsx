@@ -40,6 +40,8 @@ import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
 import DeliverySettings from "./views/delivery/settings";
 import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
+import BarcodeGenerator from "./views/admin/barcodeGenerator/index";
+import { BiBarcodeReader } from "react-icons/bi";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -135,7 +137,7 @@ const adminRoutes = [
       //   icon: (
       //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
       //   ),
-      //   component: BarcodeGenerator,
+      //   component: <BarcodeGenerator />,
       // },
     ],
   },

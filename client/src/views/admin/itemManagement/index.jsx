@@ -2,6 +2,15 @@
 import { useEffect, useState } from "react";
 import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+} from "@chakra-ui/react";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import bwipjs from "bwip-js";
@@ -33,6 +42,8 @@ import {
 import ViewCode from "./components/ViewCode";
 import ViewAnalytics from "./components/ViewAnalytics";
 import ItemManagementModal from "./components/itemModal";
+import BarCodePrinter from "./components/BarCodePrinter";
+import BarcodeScanner from "./components/BarCodeScan";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -48,6 +59,20 @@ export default function ItemManagement() {
     isOpen: isOpenAnalytics,
     onOpen: onOpenAnalytics,
     onClose: onCloseAnalytics,
+  } = useDisclosure();
+
+  // Entry Modal
+  const {
+    isOpen: isEntryModalOpen,
+    onOpen: handleEntryModalOpen,
+    onClose: handleEntryModalClose,
+  } = useDisclosure();
+
+  //Barcode Scanner Modal
+  const {
+    isOpen: isScannerModalOpen,
+    onOpen: handleScannerModalOpen,
+    onClose: handleScannerModalClose,
   } = useDisclosure();
 
   // State variables
@@ -190,6 +215,12 @@ export default function ItemManagement() {
     setSelectedItemData(null);
   };
 
+  //Handle after scanning the barcode
+  const handleAfterScanned = () => {
+    handleEntryModalOpen();
+    setActionType("add");
+  };
+
   // Fetch all items on component mount
   useEffect(() => {
     dispatch(getAllItemsAction(userId));
@@ -215,19 +246,33 @@ export default function ItemManagement() {
       <Box overflowX="auto">
         <Box px={{ base: 4, md: 8 }} py={6}>
           <ToastContainer />
-          <Button
-            leftIcon={<FiPlusCircle />}
-            colorScheme="teal"
-            variant="solid"
-            onClick={() => {
-              onOpen();
-              setActionType("add");
-            }}
-            mb={2}
-            w={{ base: "100%", md: "auto" }}
-          >
-            Add Item
-          </Button>
+          <Flex justify="space-between" mb={2}>
+            <Button
+              leftIcon={<FiPlusCircle />}
+              colorScheme="teal"
+              variant="solid"
+              onClick={() => {
+                handleEntryModalOpen();
+                setActionType("add");
+              }}
+              w={{ base: "100%", md: "auto" }}
+            >
+              Add Item
+            </Button>
+
+            <Button
+              leftIcon={<FiPlusCircle />}
+              colorScheme="teal"
+              variant="solid"
+              p={4}
+              onClick={() => {
+                toast.info("Feature Coming Soon! ");
+              }}
+              w={{ base: "100%", md: "auto" }}
+            >
+              Use Items
+            </Button>
+          </Flex>
 
           <Box overflowX="auto">
             {/* Table Header */}
@@ -277,6 +322,7 @@ export default function ItemManagement() {
                   <GridItem>{item.available_quantity ?? "-"}</GridItem>
                   <GridItem>{item.minimum_quantity ?? "-"}</GridItem>
                   <GridItem>
+                    <BarCodePrinter barCodeValue={item?.bar_code} />
                     {item.existing_barcode_no || item.bar_code || "--"}
                   </GridItem>
                   <GridItem>
@@ -445,6 +491,7 @@ export default function ItemManagement() {
           ))}
         </Box>
       </Box>
+
       <ItemManagementModal
         isOpen={isOpen}
         onClose={handleOnClose}
@@ -452,6 +499,46 @@ export default function ItemManagement() {
         handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
         itemData={actionType === "edit" ? selectedItemData : null}
       />
+
+      <BarcodeScanner
+        isOpen={isScannerModalOpen}
+        onClose={handleScannerModalClose}
+        handleAfterScanned={handleAfterScanned}
+      />
+
+      {/* Modal of button */}
+      <Modal isOpen={isEntryModalOpen} onClose={handleEntryModalClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Select Input Method</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex justifyContent="space-around">
+              <Button
+                colorScheme="teal"
+                onClick={() => {
+                  /* Handle manual input */
+                  onOpen();
+                  handleEntryModalClose();
+                }}
+              >
+                Manual Entry
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={() => {
+                  /* Handle scan input */
+                  handleScannerModalOpen();
+                  handleEntryModalClose();
+                }}
+              >
+                Scan Entry
+              </Button>
+            </Flex>
+          </ModalBody>
+          <ModalFooter></ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <canvas id="mycanvas" style={{ display: "none" }}></canvas>
 
