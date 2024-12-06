@@ -43,10 +43,10 @@ dotenv.config(); // Load environment variables from .env file
 
 //For Production
 // Origin Cors
-// const corsOptions = {
-//   origin: "http://212.132.99.95", // Allow requests from your external server IP
-//   optionsSuccessStatus: 200, // Some legacy browsers choke on 204
-// };
+const corsOptions = {
+  origin: "http://212.132.99.95", // Allow requests from your external server IP
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+};
 
 // Middleware setup
 app.use(express.json({ limit: "30mb", extended: true })); // Parse incoming requests with JSON payloads

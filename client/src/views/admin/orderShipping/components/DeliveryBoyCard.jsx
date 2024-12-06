@@ -41,8 +41,9 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
               size="sm"
               onClick={(e) => handleDeleteDelboy(e, boy._id)} // Handle delete action
             /> */}
-            {/* Show offline icon when delivery boy is offline */}
-            {!boy?.is_online ? (
+            /* Show offline icon when delivery boy is offline and no location
+            shared */
+            {!boy?.liveLocationURL ? (
               <IconButton
                 icon={<CgUnavailable />}
                 aria-label="Offline"

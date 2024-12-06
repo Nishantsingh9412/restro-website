@@ -104,7 +104,14 @@ const OrderHistory = () => {
                   _hover={{ transform: "scale(1.02)" }}
                 >
                   {completedAt ? (
-                    <Heading as="h2" size="md" bg="green.100" mb={4} p={2}>
+                    <Heading
+                      as="h2"
+                      size="md"
+                      bg="green.100"
+                      textAlign={"center"}
+                      mb={4}
+                      p={2}
+                    >
                       Completed
                     </Heading>
                   ) : assignedTo ? (
