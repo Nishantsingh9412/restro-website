@@ -44,6 +44,7 @@ import ViewAnalytics from "./components/ViewAnalytics";
 import ItemManagementModal from "./components/itemModal";
 import BarCodePrinter from "./components/BarCodePrinter";
 import BarcodeScanner from "./components/BarCodeScan";
+import ItemUseModal from "./components/ItemUseModal";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -61,11 +62,11 @@ export default function ItemManagement() {
     onClose: onCloseAnalytics,
   } = useDisclosure();
 
-  // Entry Modal
+  // Mode Modal
   const {
-    isOpen: isEntryModalOpen,
-    onOpen: handleEntryModalOpen,
-    onClose: handleEntryModalClose,
+    isOpen: isModeModalOpen,
+    onOpen: handleModeModalOpen,
+    onClose: handleModeModalClose,
   } = useDisclosure();
 
   //Barcode Scanner Modal
@@ -73,6 +74,13 @@ export default function ItemManagement() {
     isOpen: isScannerModalOpen,
     onOpen: handleScannerModalOpen,
     onClose: handleScannerModalClose,
+  } = useDisclosure();
+
+  // Item use modal state
+  const {
+    isOpen: isItemUseModalOpen,
+    onOpen: handleItemUseModalOpen,
+    onClose: handleItemUseModalClose,
   } = useDisclosure();
 
   // State variables
@@ -143,6 +151,7 @@ export default function ItemManagement() {
       ).then((res) => {
         if (res.success) {
           onClose();
+          handleItemUseModalClose();
           return res.message;
         } else {
           throw new Error("Error Adding Item");
@@ -216,9 +225,24 @@ export default function ItemManagement() {
   };
 
   //Handle after scanning the barcode
-  const handleAfterScanned = () => {
-    handleEntryModalOpen();
-    setActionType("add");
+  const handleAfterScanned = (value) => {
+    // Check whether the item is exist or not in our item list
+    const isExist = ItemData.find((item) => item.bar_code === value);
+    console.log("isExist", isExist);
+    if (isExist) {
+      // If item is exist then open the edit modal
+      setActionType("edit");
+      setSelectedItemId(isExist._id);
+      setSelectedItemData(isExist);
+      actionType == "use" ? handleItemUseModalOpen() : onOpen();
+      toast.info("Item already exists, you can edit it");
+    } else {
+      // If item is not exist then open the add modal
+      onOpen();
+      setActionType("add");
+      setSelectedItemData({ bar_code: value });
+      toast.info("Item does not exist, you can add it");
+    }
   };
 
   // Fetch all items on component mount
@@ -252,10 +276,11 @@ export default function ItemManagement() {
               colorScheme="teal"
               variant="solid"
               onClick={() => {
-                handleEntryModalOpen();
                 setActionType("add");
+                handleModeModalOpen();
               }}
               w={{ base: "100%", md: "auto" }}
+              mx={2}
             >
               Add Item
             </Button>
@@ -266,9 +291,11 @@ export default function ItemManagement() {
               variant="solid"
               p={4}
               onClick={() => {
-                toast.info("Feature Coming Soon! ");
+                setActionType("use");
+                handleModeModalOpen();
               }}
               w={{ base: "100%", md: "auto" }}
+              mx={2}
             >
               Use Items
             </Button>
@@ -322,7 +349,7 @@ export default function ItemManagement() {
                   <GridItem>{item.available_quantity ?? "-"}</GridItem>
                   <GridItem>{item.minimum_quantity ?? "-"}</GridItem>
                   <GridItem>
-                    <BarCodePrinter barCodeValue={item?.bar_code} />
+                    <BarCodePrinter barCodeValue={item?.bar_code} /> <br />
                     {item.existing_barcode_no || item.bar_code || "--"}
                   </GridItem>
                   <GridItem>
@@ -393,7 +420,7 @@ export default function ItemManagement() {
         </Box>
 
         {/* Mobile View */}
-        <Box display={{ base: "block", lg: "none" }} mt="40px">
+        <Box display={{ base: "block", lg: "none" }} mt="10px">
           {itemDataArray?.map((item, index) => (
             <Box
               key={index}
@@ -417,7 +444,7 @@ export default function ItemManagement() {
               </Box>
               <Box>
                 <strong>Barcode No.:</strong>{" "}
-                {item.existing_barcode_no ? item.existing_barcode_no : "--"}
+                {item.existing_barcode_no || item.bar_code || "--"}
               </Box>
               <Box>
                 <strong>Last Replenished:</strong>{" "}
@@ -484,6 +511,11 @@ export default function ItemManagement() {
                       setAnalyticsId(item._id);
                       onOpenAnalytics();
                     }}
+                    mr={2}
+                  />
+                  <BarCodePrinter
+                    barCodeValue={item?.bar_code}
+                    isMobile={true}
                   />
                 </Flex>
               </Box>
@@ -492,25 +524,11 @@ export default function ItemManagement() {
         </Box>
       </Box>
 
-      <ItemManagementModal
-        isOpen={isOpen}
-        onClose={handleOnClose}
-        actionType={actionType}
-        handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
-        itemData={actionType === "edit" ? selectedItemData : null}
-      />
-
-      <BarcodeScanner
-        isOpen={isScannerModalOpen}
-        onClose={handleScannerModalClose}
-        handleAfterScanned={handleAfterScanned}
-      />
-
       {/* Modal of button */}
-      <Modal isOpen={isEntryModalOpen} onClose={handleEntryModalClose}>
+      <Modal isOpen={isModeModalOpen} onClose={handleModeModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Select Input Method</ModalHeader>
+          <ModalHeader>Select {actionType} method</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex justifyContent="space-around">
@@ -518,21 +536,21 @@ export default function ItemManagement() {
                 colorScheme="teal"
                 onClick={() => {
                   /* Handle manual input */
-                  onOpen();
-                  handleEntryModalClose();
+                  actionType === "use" ? handleItemUseModalOpen() : onOpen();
+                  handleModeModalClose();
                 }}
               >
-                Manual Entry
+                Manual Mode
               </Button>
               <Button
                 colorScheme="blue"
                 onClick={() => {
                   /* Handle scan input */
                   handleScannerModalOpen();
-                  handleEntryModalClose();
+                  handleModeModalClose();
                 }}
               >
-                Scan Entry
+                Scan Mode
               </Button>
             </Flex>
           </ModalBody>
@@ -541,6 +559,20 @@ export default function ItemManagement() {
       </Modal>
 
       <canvas id="mycanvas" style={{ display: "none" }}></canvas>
+
+      <ItemManagementModal
+        isOpen={isOpen}
+        onClose={handleOnClose}
+        actionType={actionType}
+        handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
+        itemData={actionType === "edit" ? selectedItemData : selectedItemData}
+      />
+
+      <BarcodeScanner
+        isOpen={isScannerModalOpen}
+        onClose={handleScannerModalClose}
+        handleAfterScanned={handleAfterScanned}
+      />
 
       <ViewCode
         isOpen={isOpenBarCode}
@@ -555,6 +587,15 @@ export default function ItemManagement() {
         onOpen={onOpenAnalytics}
         onClose={onCloseAnalytics}
         AnalyticsSelectedId={analyticsId}
+      />
+
+      {/* Item Use Modal */}
+      <ItemUseModal
+        isOpen={isItemUseModalOpen}
+        onOpen={handleItemUseModalOpen}
+        onClose={handleItemUseModalClose}
+        itemData={selectedItemData}
+        handleUpdate={handleUpdate}
       />
     </div>
   );

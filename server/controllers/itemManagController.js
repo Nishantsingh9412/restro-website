@@ -9,7 +9,7 @@ const itemSchema = Joi.object({
   available_quantity: Joi.number().required(),
   minimum_quantity: Joi.number().required(),
   bar_code: Joi.string().required(),
-  expiry_date: Joi.date().required(),
+  expiry_date: Joi.date().required().allow(null, ""),
   created_by: Joi.string().required(),
   existing_barcode_no: Joi.string().optional().allow(null, ""),
   // usage_rate_unit: Joi.string().optional(),

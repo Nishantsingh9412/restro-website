@@ -42,9 +42,10 @@ const itemManageMentSchema = new Schema(
     // Expiry date field with validation
     expiry_date: {
       type: Date,
+      required: false,
       validate: {
         validator: function (v) {
-          return v > Date.now(); // Expiry date should be in the future
+          return !v || v > Date.now(); // Expiry date should be in the future if provided
         },
         message: (props) =>
           `Expiry date (${props.value}) should be in the future`,

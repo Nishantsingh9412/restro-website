@@ -58,8 +58,11 @@ export default function ItemManagementModal({
         minimum_quantity: minimum_quantity || 0,
         bar_code: bar_code || "",
         existing_barcode_no: existing_barcode_no || "",
-        expiry_date: expiry_date.split("T")[0] || "",
+        expiry_date: expiry_date?.split("T")[0] || "",
       }));
+    } else {
+      //Add barcode value if exists
+      setFormData((prev) => ({ ...prev, bar_code: itemData?.bar_code || "" }));
     }
   }, [actionType, itemData]);
 
@@ -106,7 +109,7 @@ export default function ItemManagementModal({
   // Handle form submission
   const handleSave = () => {
     //The nanoid() function generate a unique id for the barcode
-    if (actionType === "add") {
+    if (actionType === "add" && !formData.bar_code) {
       formData.bar_code = nanoid(13);
     }
 
@@ -198,7 +201,7 @@ export default function ItemManagementModal({
                 true
               )}
               {renderInput("Expiry Date", "expiry_date", "date")}
-              {renderInput("Existing Barcode No", "existing_barcode_no")}
+              {renderInput("Existing Barcode No", "bar_code")}
             </GridItem>
           </Grid>
         </ModalBody>

@@ -4,7 +4,7 @@ import printJS from "print-js";
 import { MdLocalPrintshop } from "react-icons/md";
 import { IconButton } from "@chakra-ui/react";
 
-const BarCodePrinter = ({ barCodeValue }) => {
+const BarCodePrinter = ({ barCodeValue, isMobile = false }) => {
   const barcodeCanvasRef = useRef(null);
 
   // Generate the barcode using bwip-js when the barCodeValue changes
@@ -50,9 +50,7 @@ const BarCodePrinter = ({ barCodeValue }) => {
       <IconButton
         aria-label="Generate Barcode"
         colorScheme="pink"
-        size="sm"
-        padding="0"
-        margin="0"
+        size={isMobile ? "md" : "sm"}
         marginRight="4px"
         icon={<MdLocalPrintshop />}
         onClick={handlePrint}
