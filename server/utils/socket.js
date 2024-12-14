@@ -1,5 +1,5 @@
 import { io, onlineUsers } from "../server.js";
-
+import DeliveryBoy from "../models/deliveryBoyModel.js";
 // Emits a notification to a specific user
 export const notifyUser = async (id, message) => {
   const user = onlineUsers.get(id);
@@ -40,4 +40,24 @@ export const hideDeliveryOffer = async (offerId) => {
         deliveryId: offerId,
       });
   });
+};
+
+export const sendLiveLocation = async (adminId, delEmpId, locationData) => {
+  try {
+    const admin = onlineUsers.get(adminId);
+    if (admin) {
+      io.to(admin.socketId).emit("liveLocation", {
+        delEmpId,
+        locationData,
+      });
+      await DeliveryBoy.findByIdAndUpdate(delEmpId, {
+        lastLocation: {
+          lat: locationData.latitude,
+          lng: locationData.longitude,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error sending live location:", error);
+  }
 };

@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import path from "path";
 import http from "http";
 import { Server } from "socket.io";
-import passportSetup from "./controllers/passport.js";
 
 // Route imports
 import itemRoutes from "./routes/item.js";
@@ -28,7 +27,6 @@ import deliveryPersonnelRoutes from "./routes/deliveryPersonnelRoutes.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
 import bartenderRoutes from "./routes/employees/bartenderRoutes.js";
 import chefRoutes from "./routes/employees/chefRoutes.js";
 import commonRoutes from "./routes/employees/commonRoutes.js";
@@ -36,6 +34,7 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
+import { sendLiveLocation } from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -143,6 +142,13 @@ io.on("connection", (socket) => {
         Array.from(onlineUsers.keys())
       );
     }
+  });
+
+  // Listen for send location from the delivery employee
+  socket.on("sendLocation", (data) => {
+    console.log("Location received:", data);
+    const { delEmpId, adminId, location } = data;
+    sendLiveLocation(adminId, delEmpId, location);
   });
 
   // Handle user disconnect

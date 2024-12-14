@@ -10,9 +10,15 @@ const deliveryBoySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  liveLocationURL: {
-    type: String,
-    default: null,
+  lastLocation: {
+    lat: {
+      type: Number,
+      default: null,
+    },
+    lng: {
+      type: Number,
+      default: null,
+    },
   },
 });
 

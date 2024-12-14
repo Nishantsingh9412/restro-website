@@ -30,8 +30,8 @@ import {
   clearError,
   updateOdometerReading,
 } from "../../redux/action/Employees/employee.js";
-import { set } from "date-fns";
-
+import { socket } from "../../api/socket";
+import { clearEmpData } from "../../redux/action/user.js";
 // Modal component for displaying different modals
 const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
@@ -58,8 +58,7 @@ export default function EmployeeNavbarLinks() {
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const empData = useSelector((state) => state?.userReducer?.data);
   const error = useSelector((state) => state?.employee?.error);
-  const empStatus = useSelector((state) => state?.employee?.status);
-
+  const [onlineStatus, setOnlineStatus] = useState(empData?.is_online || false);
   const [location, setLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,10 +72,109 @@ export default function EmployeeNavbarLinks() {
   const [isOdometerModalOpen, setIsOdometerModalOpen] = useState(false);
   const [odometerReading, setOdometerReading] = useState("");
   const [capturedOdometerPhoto, setCapturedOdometerPhoto] = useState(null);
+  const [locationInterval, setLocationInterval] = useState(null);
+
+  // Calculate distance between two coordinates
+  const getDistance = (prev, curr) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Earth's radius in km
+    const dLat = toRad(curr.latitude - prev.latitude);
+    const dLon = toRad(curr.longitude - prev.longitude);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(prev.latitude)) *
+        Math.cos(toRad(curr.latitude)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c * 1000; // Distance in meters
+  };
+
+  // Send location to server
+  const sendLocation = (location) => {
+    socket.emit("sendLocation", {
+      delEmpId: empData?._id,
+      adminId: empData?.created_by,
+      location,
+    });
+  };
+  //generate random  latitude and longitude
+  const randomLocation = () => {
+    const latitude = (Math.random() * (25.1 - 25) + 25).toFixed(7);
+    const longitude = (Math.random() * (85.2 - 85) + 85).toFixed(7);
+    return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+  };
+
+  // Send live location to server
+  // Function to send live location to the server
+  const sendLiveLocation = useCallback(() => {
+    console.log("Starting live location tracking");
+
+    // Function to update location
+    const updateLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Generate random latitude and longitude
+          const { latitude, longitude } = position.coords;
+
+          // Get the last known location
+          const lastLocation = location ?? {
+            latitude: empData?.lastLocation?.lat,
+            longitude: empData?.lastLocation?.lng,
+          };
+
+          // Check if the distance between the last location and the new location is greater than 50 meters
+          if (
+            !lastLocation ||
+            getDistance(lastLocation, { latitude, longitude }) > 50
+          ) {
+            // Update the location state and send the new location to the server
+            setLocation({ latitude, longitude });
+            sendLocation({ latitude, longitude });
+          }
+        },
+        (err) => {
+          // Handle geolocation errors
+          if (err.code === 1) {
+            toast({
+              title: "Permission Denied",
+              description: "Please enable location access to use this feature.",
+              status: "error",
+            });
+          } else {
+            console.error("Geolocation error:", err);
+            toast({
+              title: "Error",
+              description: "Failed to get location data",
+              status: "error",
+            });
+          }
+        },
+        { enableHighAccuracy: true }
+      );
+    };
+
+    // Initial location update
+    updateLocation();
+
+    // Set interval to update location every 10 seconds
+    if (!locationInterval) {
+      const intervalId = setInterval(updateLocation, 10000);
+      setLocationInterval(intervalId);
+    }
+
+    // Cleanup function to clear the interval
+    return () => {
+      console.log("Stopping live location tracking");
+      clearInterval(intervalId);
+    };
+  }, [location, empData]);
 
   // Handle user logout
   const handleLogout = useCallback(() => {
     dispatch(logoutUser());
+    dispatch(clearEmpData());
+    clearInterval(locationInterval);
     navigate("/");
   }, [dispatch, navigate]);
 
@@ -98,6 +196,7 @@ export default function EmployeeNavbarLinks() {
         status: "success",
       });
       setCapturedPhoto(null);
+      setOnlineStatus(true);
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: err.message, status: "error" });
@@ -117,6 +216,7 @@ export default function EmployeeNavbarLinks() {
         description: "You are now offline",
         status: "info",
       });
+      setOnlineStatus(false);
     }
     setLoading(false);
   };
@@ -131,7 +231,6 @@ export default function EmployeeNavbarLinks() {
           longitude: position.coords.longitude,
         });
         handleCameraCapture();
-        console.log(location);
         setIsCameraPreviewModalOpen(true);
       },
       () => {
@@ -279,6 +378,27 @@ export default function EmployeeNavbarLinks() {
     }
   }, [handleLogout, localData?.token]);
 
+  // Set initial online status based on employee data
+  useEffect(() => {
+    if (empData?.is_online) {
+      setOnlineStatus(true);
+    }
+  }, [empData]);
+
+  // Handle changes in online status
+  useEffect(() => {
+    if (onlineStatus && empData?.role === "Delivery Boy") {
+      sendLiveLocation();
+      console.log(empData?.role);
+    } else {
+      clearInterval(locationInterval);
+    }
+    return () => {
+      console.log("Clearing live location from useEffect", locationInterval);
+      clearInterval(locationInterval);
+    };
+  }, [onlineStatus]);
+
   // Show loading spinner if image is loading
   if (imageLoading) {
     return (
@@ -318,7 +438,7 @@ export default function EmployeeNavbarLinks() {
                 Receive Deliveries
               </Text>
               <Switch
-                isChecked={empStatus?.is_online || empData?.is_online}
+                isChecked={onlineStatus}
                 onChange={handleToggleStatus}
                 isDisabled={loading}
               />

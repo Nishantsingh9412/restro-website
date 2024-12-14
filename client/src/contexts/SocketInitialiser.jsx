@@ -7,6 +7,7 @@ import {
   getCompletedDeliveriesAction,
 } from "../redux/action/delivery";
 import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboard";
+import { setDeliveryBoyLocation } from "../redux/action/location";
 
 export default function SocketInitializer() {
   const dispatch = useDispatch();
@@ -74,16 +75,25 @@ export default function SocketInitializer() {
       }
     };
 
+    // handle updated live location
+    const handleLiveLocationUpdate = (data) => {
+      console.log("data location ", data);
+      const { delEmpId, locationData } = data;
+      dispatch(setDeliveryBoyLocation({ _id: delEmpId, location: locationData }));
+    };
+
     // Subscribe to socket events
     socket.on("notification", handleNotification);
     socket.on("delivery", handleDelivery);
     socket.on("hideDeliveryOffer", handleHideDeliveryOffer);
+    socket.on("liveLocation", handleLiveLocationUpdate);
 
     // Cleanup socket event listeners when the component unmounts
     return () => {
       socket.off("notification", handleNotification);
       socket.off("delivery", handleDelivery);
       socket.off("hideDeliveryOffer", handleHideDeliveryOffer);
+      socket.off("liveLocation", handleLiveLocationUpdate);
     };
   }, [dispatch, user?.result?._id]); // Only re-run when user._id changes
 

@@ -20,6 +20,7 @@ import adminReducer from "./action/admin";
 import waiterReducer from "./action/waiter";
 import authReducer from "./action/auth";
 import employeeReducer from "./action/Employees/employee";
+import locationReducer from "./action/location";
 
 const store = configureStore({
   reducer: {
@@ -43,6 +44,7 @@ const store = configureStore({
     notificationReducer,
     waiter: waiterReducer,
     employee: employeeReducer,
+    location: locationReducer,
   },
 });
 

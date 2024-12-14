@@ -1,13 +1,24 @@
 /* eslint-disable react/prop-types */
-import { Box, VStack, Flex, Text, HStack, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  VStack,
+  Flex,
+  Text,
+  HStack,
+  IconButton,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { IoMdTrash } from "react-icons/io";
 import { IoEyeOff, IoLocate, IoPencil } from "react-icons/io5";
 import { MdOfflinePin } from "react-icons/md";
+import MapModal from "./MapModal";
 
 import { CgUnavailable } from "react-icons/cg";
 
 // DeliveryBoyCard component to display delivery boy details
 const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
   return (
     <Box
       p="6"
@@ -43,7 +54,7 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
             /> */}
             /* Show offline icon when delivery boy is offline and no location
             shared */
-            {!boy?.liveLocationURL ? (
+            {/* {!boy?.liveLocationURL ? (
               <IconButton
                 icon={<CgUnavailable />}
                 aria-label="Offline"
@@ -52,15 +63,24 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
                 isDisabled
                 title="Offline"
               />
-            ) : (
-              <IconButton
-                icon={<IoLocate />}
-                aria-label="Location Track"
-                colorScheme="blue"
-                size="sm"
-                onClick={() => window.open(boy?.liveLocationURL, "_blank")} // Redirect to the live location URL
+            ) : ( */}
+            <IconButton
+              icon={<IoLocate />}
+              aria-label="Location Track"
+              colorScheme="blue"
+              size="sm"
+              // onClick={() => window.open(boy?.liveLocationURL, "_blank")} // Redirect to the live location URL
+              onClick={onOpen}
+            />
+            {/* Map Modal Component */}
+            {isOpen && (
+              <MapModal
+                isOpen={isOpen}
+                onClose={() => onClose()}
+                delEmpId={boy?._id}
               />
             )}
+            {/* )} */}
           </HStack>
         </Flex>
         <Text>Phone: {boy?.phone}</Text>
