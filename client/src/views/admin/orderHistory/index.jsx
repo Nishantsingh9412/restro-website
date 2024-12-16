@@ -50,6 +50,12 @@ const OrderHistory = () => {
     setIsModalOpen(true);
   }, []);
 
+  function camelCaseToSentenceCase(text) {
+    if (!text) return ""; // Handle empty or undefined strings
+    const result = text.replace(/([A-Z])/g, " $1"); // Add a space before uppercase letters
+    return result.charAt(0).toUpperCase() + result.slice(1); // Capitalize the first letter
+  }
+
   const handleModalSubmit = useCallback((data) => {
     dispatch(
       allotDeliveryBoyAction({
@@ -146,15 +152,15 @@ const OrderHistory = () => {
                       <Badge colorScheme="blue">Phone</Badge> {phoneNumber}
                     </Text>
                     <Text>
-                      <Badge colorScheme="blue">Payment</Badge> {paymentMethod}
+                      <Badge colorScheme="blue">Payment</Badge>{" "}
+                      {camelCaseToSentenceCase(paymentMethod)}
                     </Text>
                     <Text>
                       <Badge colorScheme="blue">Delivery</Badge>{" "}
-                      {deliveryMethod}
+                      {camelCaseToSentenceCase(deliveryMethod)}
                     </Text>
                     <Text>
-                      <Badge colorScheme="blue">Address</Badge> {address},{" "}
-                      {city}, {state}, {zip}
+                      <Badge colorScheme="blue">Address</Badge> {address}, {zip}
                     </Text>
                     <Text>
                       <Badge colorScheme="blue">Note</Badge> {noteFromCustomer}

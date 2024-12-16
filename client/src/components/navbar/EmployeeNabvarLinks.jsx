@@ -32,6 +32,7 @@ import {
 } from "../../redux/action/Employees/employee.js";
 import { socket } from "../../api/socket";
 import { clearEmpData } from "../../redux/action/user.js";
+import { set } from "date-fns";
 // Modal component for displaying different modals
 const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
@@ -108,7 +109,7 @@ export default function EmployeeNavbarLinks() {
   // Send live location to server
   // Function to send live location to the server
   const sendLiveLocation = useCallback(() => {
-    console.log("Starting live location tracking");
+    let intervalId = null;
 
     // Function to update location
     const updateLocation = () => {
@@ -141,7 +142,8 @@ export default function EmployeeNavbarLinks() {
           if (err.code === 1) {
             toast({
               title: "Permission Denied",
-              description: "Please enable location access to use this feature.",
+              description:
+                "Please enable location access to send live location.",
               status: "error",
             });
           } else {
@@ -151,6 +153,10 @@ export default function EmployeeNavbarLinks() {
               description: "Failed to get location data",
               status: "error",
             });
+          }
+          if (intervalId) {
+            clearInterval(intervalId);
+            return;
           }
         },
         { enableHighAccuracy: true }
@@ -162,13 +168,12 @@ export default function EmployeeNavbarLinks() {
 
     // Set interval to update location every 10 seconds
     if (!locationInterval) {
-      const intervalId = setInterval(updateLocation, 10000);
+      intervalId = setInterval(updateLocation, 10000);
       setLocationInterval(intervalId);
     }
 
     // Cleanup function to clear the interval
     return () => {
-      console.log("Stopping live location tracking");
       clearInterval(intervalId);
     };
   }, [location, empData]);
@@ -392,12 +397,10 @@ export default function EmployeeNavbarLinks() {
   useEffect(() => {
     if (onlineStatus && empData?.role === "Delivery Boy") {
       sendLiveLocation();
-      console.log(empData?.role);
     } else {
       clearInterval(locationInterval);
     }
     return () => {
-      console.log("Clearing live location from useEffect", locationInterval);
       clearInterval(locationInterval);
     };
   }, [onlineStatus]);

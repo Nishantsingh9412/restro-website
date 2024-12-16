@@ -41,6 +41,8 @@ const Address = ({ goToNextStep }) => {
       "name",
       "phoneNumber",
       "address",
+      "paymentMethod",
+      "deliveryMethod",
       "dropLocation",
       "dropLocationName",
     ];
@@ -115,12 +117,12 @@ const Address = ({ goToNextStep }) => {
         <div className="flex flex-wrap gap-3 items-center">
           <FormControl id="customer-name" isRequired>
             <FormLabel>Pickup Location</FormLabel>
-            <RadioGroup onChange={setAddressType} value={addressType} mt={4}>
+            {/* <RadioGroup onChange={setAddressType} value={addressType} mt={4}>
               <Radio value="existing" mr={4}>
                 Use Existing Address
               </Radio>
               <Radio value="new">Enter New Address</Radio>
-            </RadioGroup>
+            </RadioGroup> */}
             <FormControl id="name" isRequired mt={4}>
               <FormLabel>Name</FormLabel>
               <Input
@@ -131,71 +133,69 @@ const Address = ({ goToNextStep }) => {
               />
             </FormControl>
 
-            {addressType === "new" && (
-              <>
-                <FormControl id="address" isRequired mt={4}>
-                  <FormLabel>Address Line 1</FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="1234 Main St"
-                    value={formData.address}
-                    onChange={(e) => handleChange("address", e.target.value)}
+            <>
+              <FormControl id="address" isRequired mt={4}>
+                <FormLabel>Address Line 1</FormLabel>
+                <Input
+                  type="text"
+                  placeholder="1234 Main St"
+                  value={formData.address}
+                  onChange={(e) => handleChange("address", e.target.value)}
+                />
+              </FormControl>
+
+              <FormControl id="address2">
+                <FormLabel>Address Line 2</FormLabel>
+                <Input
+                  placeholder="Apartment, studio, or floor"
+                  value={formData.address2}
+                  onChange={(e) => handleChange("address2", e.target.value)}
+                />
+              </FormControl>
+
+              {/* <SimpleGrid columns={3} spacing={4} mt={4}>
+                <FormControl id="country" isRequired>
+                  <FormLabel>Country</FormLabel>
+                  <Select
+                    options={countriesAll}
+                    onChange={(e) => setSelectedCountry(e.iso2)}
                   />
                 </FormControl>
 
-                <FormControl id="address2">
-                  <FormLabel>Address Line 2</FormLabel>
-                  <Input
-                    placeholder="Apartment, studio, or floor"
-                    value={formData.address2}
-                    onChange={(e) => handleChange("address2", e.target.value)}
+                <FormControl id="state">
+                  <FormLabel>State</FormLabel>
+                  <Select
+                    options={statesAll}
+                    isDisabled={statesLoading}
+                    isLoading={statesLoading}
+                    onChange={(e) => {
+                      setSelectedState(e.iso2);
+                      handleChange("state", e.value);
+                    }}
                   />
                 </FormControl>
 
-                <SimpleGrid columns={3} spacing={4} mt={4}>
-                  <FormControl id="country" isRequired>
-                    <FormLabel>Country</FormLabel>
-                    <Select
-                      options={countriesAll}
-                      onChange={(e) => setSelectedCountry(e.iso2)}
-                    />
-                  </FormControl>
-
-                  <FormControl id="state">
-                    <FormLabel>State</FormLabel>
-                    <Select
-                      options={statesAll}
-                      isDisabled={statesLoading}
-                      isLoading={statesLoading}
-                      onChange={(e) => {
-                        setSelectedState(e.iso2);
-                        handleChange("state", e.value);
-                      }}
-                    />
-                  </FormControl>
-
-                  <FormControl id="city">
-                    <FormLabel>City</FormLabel>
-                    <Select
-                      options={citiesAll}
-                      isDisabled={citiesLoading}
-                      isLoading={citiesLoading}
-                      onChange={(e) => handleChange("city", e.value)}
-                    />
-                  </FormControl>
-                </SimpleGrid>
-
-                <FormControl id="zip" mt={4}>
-                  <FormLabel>Zip</FormLabel>
-                  <Input
-                    placeholder="Zip"
-                    type="number"
-                    value={formData.zip}
-                    onChange={(e) => handleChange("zip", e.target.value)}
+                <FormControl id="city">
+                  <FormLabel>City</FormLabel>
+                  <Select
+                    options={citiesAll}
+                    isDisabled={citiesLoading}
+                    isLoading={citiesLoading}
+                    onChange={(e) => handleChange("city", e.value)}
                   />
                 </FormControl>
-              </>
-            )}
+              </SimpleGrid> */}
+
+              <FormControl id="zip" mt={4}>
+                <FormLabel>Zip</FormLabel>
+                <Input
+                  placeholder="Zip"
+                  type="number"
+                  value={formData.zip}
+                  onChange={(e) => handleChange("zip", e.target.value)}
+                />
+              </FormControl>
+            </>
           </FormControl>
         </div>
         <FormControl id="phone-number" mt={4} isRequired>

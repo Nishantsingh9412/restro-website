@@ -44,10 +44,10 @@ function EmployeeShifts() {
 
   return (
     <Box p={8} mb={10}>
-      {/* Display Today Current shifts */}
-      <ShiftTable header="Today's Shifts" shiftData={todayShifts} />
       {/* Display upcoming shifts */}
       <ShiftTable header="Upcoming Shifts" shiftData={upcomingShifts} />
+      {/* Display Today Current shifts */}
+      <ShiftTable header="Today's Shifts" shiftData={todayShifts} />
       {/* Display past shifts */}
       <ShiftTable header="Past Shifts" shiftData={pastShifts} />
     </Box>

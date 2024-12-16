@@ -107,7 +107,6 @@ const ShiftScheduleComponent = () => {
 
   // Fetch data from APIs
   const fetchData = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const empRes = await dispatch(getEmployeeApi());
     const shiftRes = await dispatch(getShiftByEmpl());
     if (empRes.success) setEmployee(empRes.data);
@@ -144,9 +143,11 @@ const ShiftScheduleComponent = () => {
     handleModalClose();
     if (res.success) {
       fetchData();
-      toast.success("Shift added successfully");
+      toast.success(
+        _id ? "Shift updated successfully" : "Shift added successfully"
+      );
     } else {
-      toast.error("Failed to add shift");
+      toast.error(res.message);
     }
   };
 
@@ -286,6 +287,9 @@ const ShiftScheduleComponent = () => {
                           new Date(sh.date).toLocaleDateString() ===
                           day.toLocaleDateString()
                       );
+                      const isDateValid =
+                        new Date(day) >
+                        new Date(new Date().setDate(new Date().getDate() + 1));
                       return (
                         <Td
                           key={idx}
@@ -312,35 +316,47 @@ const ShiftScheduleComponent = () => {
                               &nbsp; &nbsp;
                               <EditIcon
                                 mb={"4px"}
-                                cursor={"pointer"}
+                                cursor={isDateValid ? "pointer" : "not-allowed"}
                                 onClick={() => {
-                                  const fromTime = new Date(shift.from)
-                                    .toISOString()
-                                    .slice(11, 16); // Extract time in "HH:MM" format
-                                  const toTime = new Date(shift.to)
-                                    .toISOString()
-                                    .slice(11, 16); // Extract time in "HH:MM" format
-                                  setShiftData({
-                                    _id: shift._id,
-                                    from: fromTime,
-                                    to: toTime,
-                                    note: shift.note,
-                                    employeeId: emp._id,
-                                    date: day.toISOString().split("T")[0],
-                                  });
-                                  onModalOpen();
+                                  if (isDateValid) {
+                                    const fromTime = new Date(shift.from)
+                                      .toISOString()
+                                      .slice(11, 16); // Extract time in "HH:MM" format
+                                    const toTime = new Date(shift.to)
+                                      .toISOString()
+                                      .slice(11, 16); // Extract time in "HH:MM" format
+                                    setShiftData({
+                                      _id: shift._id,
+                                      from: fromTime,
+                                      to: toTime,
+                                      note: shift.note,
+                                      employeeId: emp._id,
+                                      date: day.toISOString().split("T")[0],
+                                    });
+                                    onModalOpen();
+                                  } else {
+                                    toast.error(
+                                      "Cannot edit shift for past dates or within 24 hours."
+                                    );
+                                  }
                                 }}
                               />
                             </>
                           ) : (
                             <AddIcon
-                              cursor={"pointer"}
+                              cursor={isDateValid ? "pointer" : "not-allowed"}
                               onClick={() => {
-                                setShiftData({
-                                  employeeId: emp._id,
-                                  date: day.toISOString().split("T")[0],
-                                });
-                                onModalOpen();
+                                if (isDateValid) {
+                                  setShiftData({
+                                    employeeId: emp._id,
+                                    date: day.toISOString().split("T")[0],
+                                  });
+                                  onModalOpen();
+                                } else {
+                                  toast.error(
+                                    "Cannot add shift for past dates or within 24 hours."
+                                  );
+                                }
                               }}
                             />
                           )}

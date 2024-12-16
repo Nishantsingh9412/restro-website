@@ -61,10 +61,19 @@ const ShiftSchema = new mongoose.Schema(
 
 // Pre-save hook to validate and calculate the duration
 ShiftSchema.pre("save", function (next) {
+  const now = new Date();
+  const twentyFourHoursLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+  // Ensure the "from" time is at least 24 hours in the future
+  if (this.from < twentyFourHoursLater) {
+    return next(new Error('The "from" time must be at least 24 hours in the future.'));
+  }
+
   // Ensure the "from" time is before the "to" time
   if (this.from >= this.to) {
     return next(new Error('The "from" time must be before the "to" time.'));
   }
+
   // Calculate the duration in hours
   this.duration = (this.to - this.from) / (1000 * 60 * 60);
   next();

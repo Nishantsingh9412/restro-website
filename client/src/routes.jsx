@@ -475,6 +475,21 @@ export const deliveryRoutes = [
         component: <AvailableDeliveries />,
       },
       {
+        name: "Available Work",
+        layout: "/employee",
+        path: "/delivery/available-work",
+        type: "link",
+        icon: (
+          <Icon
+            as={MdOutlineDeliveryDining}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <EmployeeShifts />,
+      },
+      {
         name: "Notifications",
         layout: "/employee",
         path: "/delivery/notifications",
@@ -499,24 +514,24 @@ export const deliveryRoutes = [
         ),
         component: <DeliveryHistory />,
       },
-      {
-        name: "Settings",
-        layout: "/employee",
-        path: "/delivery/settings",
-        type: "link",
-        icon: (
-          <Icon as={MdSettings} color="inherit" width="15px" height="15px" />
-        ),
-        component: <DeliverySettings />,
-      },
-      {
-        name: "Test Map",
-        layout: "/employee",
-        path: "/delivery/test-map",
-        type: "link",
-        icon: <Icon as={MdMap} color="inherit" width="15px" height="15px" />,
-        component: <TestMap />,
-      },
+      //  {
+      //     name: "Settings",
+      //     layout: "/employee",
+      //     path: "/delivery/settings",
+      //     type: "link",
+      //     icon: (
+      //       <Icon as={MdSettings} color="inherit" width="15px" height="15px" />
+      //     ),
+      //     component: <DeliverySettings />,
+      //   },
+      // {
+      //   name: "Test Map",
+      //   layout: "/employee",
+      //   path: "/delivery/test-map",
+      //   type: "link",
+      //   icon: <Icon as={MdMap} color="inherit" width="15px" height="15px" />,
+      //   component: <TestMap />,
+      // },
     ],
   },
 ];

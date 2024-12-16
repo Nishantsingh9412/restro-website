@@ -50,7 +50,7 @@ const ShiftTable = ({ shiftData, header }) => {
         <Thead bg="blue.100">
           <Tr>
             <Th>Date</Th>
-            <Th>Duration</Th>
+            <Th>Hours</Th>
             <Th>Shift Start</Th>
             <Th>Shift End</Th>
             <Th>Actions</Th>
