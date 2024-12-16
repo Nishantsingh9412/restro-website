@@ -43,14 +43,18 @@ dotenv.config(); // Load environment variables from .env file
 //For Production
 // Origin Cors
 const corsOptions = {
-  origin: "http://212.132.99.95", // Allow requests from your external server IP
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  origin: [
+    "http://xn--trgastro-65a.de",
+    "http://212.132.99.95",
+    "http://shinehub.de",
+  ], // Allow requests from your external server IP
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204s
 };
 
 // Middleware setup
 app.use(express.json({ limit: "30mb", extended: true })); // Parse incoming requests with JSON payloads
 app.use(express.urlencoded({ limit: "30mb", extended: true })); // Parse URL-encoded data
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
 
 // Static file serving (for image uploads)
 app.use("/uploads", express.static("uploads"));
