@@ -39,6 +39,8 @@ export default function ItemManagementModal({
   };
   const [formData, setFormData] = useState(initialItemState);
 
+  console.log("itemData", itemData);
+
   // Populate form for edit mode
   useEffect(() => {
     if (actionType !== "add" && itemData) {

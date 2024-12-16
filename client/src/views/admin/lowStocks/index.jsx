@@ -24,7 +24,7 @@ const LowStockCard = () => {
 
   // Helper to check if stock is low
   const isLowStock = (item) => {
-    const percentage = (item.minimum_quantity / item.available_quantity) * 100;
+    const percentage = (item.available_quantity / item.minimum_quantity) * 100;
     return percentage <= 30; // Define your own threshold logic
   };
 

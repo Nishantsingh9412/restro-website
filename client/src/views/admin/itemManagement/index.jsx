@@ -1,6 +1,5 @@
 // Import necessary libraries and components
 import { useEffect, useState } from "react";
-import { FiPlusCircle } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import {
   Modal,
@@ -25,7 +24,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 
-import { IoMdTrash } from "react-icons/io";
+import { IoMdQrScanner, IoMdTrash } from "react-icons/io";
 import { IoPencil } from "react-icons/io5";
 import { BiBarcodeReader } from "react-icons/bi";
 import { IoMdAnalytics } from "react-icons/io";
@@ -50,7 +49,11 @@ export default function ItemManagement() {
   const dispatch = useDispatch();
 
   // Manage modal states
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isAddItemModalOpen,
+    onOpen: handleAddItemModalOpen,
+    onClose: handleAddItemModalClose,
+  } = useDisclosure();
   const {
     isOpen: isOpenBarCode,
     onOpen: onOpenBarCode,
@@ -94,12 +97,9 @@ export default function ItemManagement() {
   const [loading, setLoading] = useState(true);
 
   // Get item data from Redux store
-  const ItemDataReducer = useSelector((state) => state.itemsReducer);
-  const ItemData = ItemDataReducer?.items;
-
+  const ItemData = useSelector((state) => state.itemsReducer.items);
   // Get user ID from local storage
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const userId = localData?.result?._id;
+  const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
 
   // Generate barcode for an item
   const handleGenerateBarcode = (item) => {
@@ -121,83 +121,42 @@ export default function ItemManagement() {
   };
 
   // Handle item submission
-  const handleSubmit = (formData) => {
+  const handleSubmit = async (formData) => {
     formData.created_by = userId;
     try {
-      const AddItemPromise = dispatch(addItemAction(formData)).then((res) => {
-        if (res.success) {
-          onClose();
-          return res.message;
-        } else {
-          throw new Error("Error Adding Item");
-        }
-      });
-      toast.promise(AddItemPromise, {
-        pending: "Processing Addition of Item...",
-        success: "Item Added Successfully",
-        error: "Error in Adding Item",
-      });
+      const res = await dispatch(addItemAction(formData));
+      if (res.success) {
+        handleOnItemModalClose();
+        toast.success("Item Added Successfully");
+      } else {
+        throw new Error("Error Adding Item");
+      }
     } catch (e) {
-      console.log("Error in adding item", e);
+      toast.error("Error in Adding Item");
+      console.error(e);
     }
   };
 
-  // Handle item update
-  const handleUpdate = (formData) => {
+  const handleUpdate = async (formData) => {
     formData.created_by = userId;
     try {
-      const EditItemPromise = dispatch(
+      const res = await dispatch(
         updateSingleItemAction(selectedItemId, formData)
-      ).then((res) => {
-        if (res.success) {
-          onClose();
-          handleItemUseModalClose();
-          return res.message;
-        } else {
-          throw new Error("Error Adding Item");
-        }
-      });
-      toast.promise(EditItemPromise, {
-        pending: "Processing Update of Item...",
-        success: "Item Updated Successfully",
-        error: "Error in Updating Item",
-      });
-    } catch {
-      // console.log("Error in updating item");
+      );
+      if (res.success) {
+        handleOnItemModalClose();
+        toast.success("Item Updated Successfully");
+      } else {
+        throw new Error("Error Updating Item");
+      }
+    } catch (e) {
+      toast.error("Error in Updating Item");
+      console.error(e);
     }
   };
 
   // Confirm item deletion
-  const handleConfirmDelete = (deleteId) => {
-    const deleteItemPromise = dispatch(deleteSingleItemAction(deleteId)).then(
-      (res) => {
-        if (res.success) {
-          dispatch(getAllItemsAction(userId));
-          return res.message;
-        } else {
-          throw new Error("Error Deleting Item");
-        }
-      }
-    );
-    toast.promise(deleteItemPromise, {
-      pending: "Deleting Item...",
-      success: "Item Deleted Successfully",
-      error: "Error in Deleting Item",
-    });
-  };
-
-  // Handle item deletion
   const handleDeleteItem = (id) => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-    .swal-bg {
-        background-color: #F3F2EE !important;
-    }
-    .swal-border {
-        border: 5px solid #fff !important;
-    }`;
-    document.head.appendChild(style);
-
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -206,52 +165,68 @@ export default function ItemManagement() {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      customClass: {
-        popup: "swal-bg swal-border",
-      },
     }).then((result) => {
       if (result.isConfirmed) {
-        handleConfirmDelete(id);
+        const deleteItemPromise = dispatch(deleteSingleItemAction(id)).then(
+          (res) => {
+            if (res.success) {
+              dispatch(getAllItemsAction(userId));
+              return res.message;
+            } else {
+              throw new Error("Error Deleting Item");
+            }
+          }
+        );
+        toast.promise(deleteItemPromise, {
+          pending: "Deleting Item...",
+          success: "Item Deleted Successfully",
+          error: "Error in Deleting Item",
+        });
       }
     });
   };
+  const handleAddMode = () => {
+    setActionType("add");
+    handleAddItemModalOpen();
+  };
 
-  // Handle modal close
-  const handleOnClose = () => {
-    onClose();
+  const handleUpdateMode = () => {
+    setActionType("edit");
+    handleAddItemModalOpen();
+  };
+
+  const handleEditItem = (item) => {
+    setActionType("edit");
+    setSelectedItemId(item?._id);
+    setSelectedItemData(item);
+    handleAddItemModalOpen();
+  };
+
+  const handleOnItemModalClose = () => {
+    handleAddItemModalClose();
+    handleItemUseModalClose();
     setActionType(null);
     setSelectedItemId(null);
     setSelectedItemData(null);
   };
 
-  //Handle after scanning the barcode
   const handleAfterScanned = (value) => {
-    // Check whether the item is exist or not in our item list
-    const isExist = ItemData.find((item) => item.bar_code === value);
-    console.log("isExist", isExist);
-    if (isExist) {
-      // If item is exist then open the edit modal
-      setActionType("edit");
-      setSelectedItemId(isExist._id);
-      setSelectedItemData(isExist);
-      actionType == "use" ? handleItemUseModalOpen() : onOpen();
-      toast.info("Item already exists, you can edit it");
-    } else {
-      // If item is not exist then open the add modal
-      onOpen();
-      setActionType("add");
-      setSelectedItemData({ bar_code: value });
-      toast.info("Item does not exist, you can add it");
-    }
+    const item = ItemData.find((item) => item.bar_code === value);
+    setSelectedItemData(item ? item : { bar_code: value });
+    setSelectedItemId(item?._id);
+    toast.info(
+      item
+        ? "Item already exists, you can edit it"
+        : "Item does not exist, you can add it"
+    );
+    handleModeModalOpen();
   };
 
-  // Fetch all items on component mount
   useEffect(() => {
     dispatch(getAllItemsAction(userId));
     setLoading(false);
-  }, []);
+  }, [dispatch, userId]);
 
-  // Update item data array when ItemData changes
   useEffect(() => {
     setItemDataArray(ItemData);
   }, [ItemData]);
@@ -271,7 +246,7 @@ export default function ItemManagement() {
         <Box px={{ base: 4, md: 8 }} py={6}>
           <ToastContainer />
           <Flex justify="space-between" mb={2}>
-            <Button
+            {/* <Button
               leftIcon={<FiPlusCircle />}
               colorScheme="teal"
               variant="solid"
@@ -298,6 +273,18 @@ export default function ItemManagement() {
               mx={2}
             >
               Use Items
+            </Button> */}
+
+            <Button
+              leftIcon={<IoMdQrScanner />}
+              colorScheme="teal"
+              variant="solid"
+              p={4}
+              onClick={handleScannerModalOpen}
+              w={{ base: "100%", md: "auto" }}
+              mx={2}
+            >
+              Open Scanner
             </Button>
           </Flex>
 
@@ -378,12 +365,7 @@ export default function ItemManagement() {
                         colorScheme="yellow"
                         size="sm"
                         icon={<IoPencil />}
-                        onClick={() => {
-                          onOpen();
-                          setActionType("edit");
-                          setSelectedItemId(item._id);
-                          setSelectedItemData(item);
-                        }}
+                        onClick={() => handleEditItem(item)}
                       />
                     </GridItem>
 
@@ -475,7 +457,7 @@ export default function ItemManagement() {
                     onClick={() => {
                       setSelectedItemData(item._id);
                       setActionType("edit");
-                      onOpen();
+                      handleAddItemModalOpen();
                     }}
                     mr={2}
                   />
@@ -523,80 +505,84 @@ export default function ItemManagement() {
           ))}
         </Box>
       </Box>
-
       {/* Modal of button */}
       <Modal isOpen={isModeModalOpen} onClose={handleModeModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Select {actionType} method</ModalHeader>
+          <ModalHeader>Select method</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex justifyContent="space-around">
               <Button
                 colorScheme="teal"
                 onClick={() => {
-                  /* Handle manual input */
-                  actionType === "use" ? handleItemUseModalOpen() : onOpen();
+                  /* Handle add item */
+                  !selectedItemId ? handleAddMode() : handleUpdateMode();
                   handleModeModalClose();
                 }}
               >
-                Manual Mode
+                {!selectedItemId ? "Add Item" : "Update Item"}
               </Button>
               <Button
                 colorScheme="blue"
                 onClick={() => {
                   /* Handle scan input */
-                  handleScannerModalOpen();
+                  handleItemUseModalOpen();
                   handleModeModalClose();
                 }}
               >
-                Scan Mode
+                Use Item
               </Button>
             </Flex>
           </ModalBody>
           <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
-
       <canvas id="mycanvas" style={{ display: "none" }}></canvas>
 
-      <ItemManagementModal
-        isOpen={isOpen}
-        onClose={handleOnClose}
-        actionType={actionType}
-        handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
-        itemData={actionType === "edit" ? selectedItemData : selectedItemData}
-      />
-
-      <BarcodeScanner
-        isOpen={isScannerModalOpen}
-        onClose={handleScannerModalClose}
-        handleAfterScanned={handleAfterScanned}
-      />
-
-      <ViewCode
-        isOpen={isOpenBarCode}
-        onOpen={onOpenBarCode}
-        onClose={onCloseBarCode}
-        barCodeData={barCodeData}
-        barcodeDataUrl={barcodeDataUrl}
-      />
-
-      <ViewAnalytics
-        isOpen={isOpenAnalytics}
-        onOpen={onOpenAnalytics}
-        onClose={onCloseAnalytics}
-        AnalyticsSelectedId={analyticsId}
-      />
-
-      {/* Item Use Modal */}
-      <ItemUseModal
-        isOpen={isItemUseModalOpen}
-        onOpen={handleItemUseModalOpen}
-        onClose={handleItemUseModalClose}
-        itemData={selectedItemData}
-        handleUpdate={handleUpdate}
-      />
+      {isAddItemModalOpen && (
+        <ItemManagementModal
+          isOpen={isAddItemModalOpen}
+          onClose={handleOnItemModalClose}
+          actionType={actionType}
+          handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
+          itemData={actionType === "edit" ? selectedItemData : selectedItemData}
+        />
+      )}
+      {isScannerModalOpen && (
+        <BarcodeScanner
+          isOpen={isScannerModalOpen}
+          onClose={handleScannerModalClose}
+          handleAfterScanned={handleAfterScanned}
+          handleAfterManually={handleModeModalOpen}
+        />
+      )}
+      {isOpenBarCode && (
+        <ViewCode
+          isOpen={isOpenBarCode}
+          onOpen={onOpenBarCode}
+          onClose={onCloseBarCode}
+          barCodeData={barCodeData}
+          barcodeDataUrl={barcodeDataUrl}
+        />
+      )}
+      {isOpenAnalytics && (
+        <ViewAnalytics
+          isOpen={isOpenAnalytics}
+          onOpen={onOpenAnalytics}
+          onClose={onCloseAnalytics}
+          AnalyticsSelectedId={analyticsId}
+        />
+      )}
+      {isItemUseModalOpen && (
+        <ItemUseModal
+          isOpen={isItemUseModalOpen}
+          onClose={handleOnItemModalClose}
+          itemData={selectedItemData}
+          handleUpdate={handleUpdate}
+          itemsList={!selectedItemId ? itemDataArray : null}
+        />
+      )}
     </div>
   );
 }

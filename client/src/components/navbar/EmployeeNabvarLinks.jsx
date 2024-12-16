@@ -114,7 +114,10 @@ export default function EmployeeNavbarLinks() {
     const updateLocation = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Generate random latitude and longitude
+          // Generate random latitude and longitude for testing purpose
+          // const { latitude, longitude } = randomLocation();
+
+          // Get the current location coordinates
           const { latitude, longitude } = position.coords;
 
           // Get the last known location

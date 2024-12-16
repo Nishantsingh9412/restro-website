@@ -30,8 +30,8 @@ export const getLowStockItems = async (req, res) => {
         {
           $expr: {
             $lte: [
-              "$minimum_quantity",
-              { $multiply: [0.3, "$available_quantity"] },
+              "$available_quantity",
+              { $multiply: [0.3, "$minimum_quantity"] },
             ],
           }, // Check if available_quantity is less than 70% of minimum_quantity
         },

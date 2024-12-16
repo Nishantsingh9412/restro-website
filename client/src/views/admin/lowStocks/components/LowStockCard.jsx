@@ -5,7 +5,7 @@ import { LuSoup } from "react-icons/lu";
 // Helper function to calculate stock percentage
 const calculatePercentage = (minQty, availableQty) => {
   if (availableQty === 0) return 0;
-  return ((minQty / availableQty) * 100).toFixed(2);
+  return ((availableQty / minQty) * 100).toFixed(2);
 };
 
 // Component to render a single low stock item
@@ -100,7 +100,7 @@ const LowStockItem = ({ item, index, isLow }) => {
       >
         <Stack direction={"row"} spacing={1}>
           <Text fontSize={"sm"} color={"#4a5568"}>
-            {`${item.minimum_quantity} / ${item.available_quantity}`}
+            {`${item.available_quantity} / ${item.minimum_quantity}`}
           </Text>
           <Text fontSize={"sm"} color={"#a0aec0"} fontWeight={"500"}>
             Total Amount
