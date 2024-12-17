@@ -7,19 +7,26 @@ const initialState = {
 
 // Helper function to update a delivery in the deliveries array
 const updateDelivery = (deliveries, updatedDelivery) =>
-  deliveries.map((del) => (del._id === updatedDelivery._id ? updatedDelivery : del));
+  deliveries.map((del) =>
+    del._id === updatedDelivery._id ? updatedDelivery : del
+  );
 
 // Delivery reducer function
 const deliveryReducer = (state = initialState, action) => {
   switch (action.type) {
     // Handle accepting a delivery
     case "ACCEPT_DELIVERY": {
-      const found = state.deliveries.find((item) => item._id === action.data._id);
+      const found = state.deliveries.find(
+        (item) => item._id === action.data._id
+      );
       if (!found) return state;
       const updatedStatus = {
         ...found,
         currentStatus: "Accepted",
-        statusHistory: [...found.statusHistory, { status: "Accepted", updatedAt: new Date() }],
+        statusHistory: [
+          ...found.statusHistory,
+          { status: "Accepted", updatedAt: new Date() },
+        ],
       };
       return {
         ...state,
@@ -33,8 +40,11 @@ const deliveryReducer = (state = initialState, action) => {
     case "DELETE_SINGLE_DELIVERY":
       return {
         ...state,
-        deliveries: state.deliveries.filter((item) => item._id !== action.data._id),
-        activeDelivery: action.type === "CANCEL_DELIVERY" ? null : state.activeDelivery,
+        deliveries: state.deliveries.filter(
+          (item) => item._id !== action.data._id
+        ),
+        activeDelivery:
+          action.type === "CANCEL_DELIVERY" ? null : state.activeDelivery,
       };
 
     // Handle completing a delivery or adding a completed delivery
@@ -42,7 +52,9 @@ const deliveryReducer = (state = initialState, action) => {
     case "ADD_COMPLETED_DELIVERY":
       return {
         ...state,
-        deliveries: state.deliveries.filter((item) => item._id !== action.data._id),
+        deliveries: state.deliveries.filter(
+          (item) => item._id !== action.data._id
+        ),
         activeDelivery: null,
         completedDeliveries: [action.data, ...state.completedDeliveries],
       };
@@ -53,7 +65,10 @@ const deliveryReducer = (state = initialState, action) => {
       return {
         ...state,
         deliveries: updateDelivery(state.deliveries, action.data),
-        activeDelivery: action.type === "UPDATE_DELIVERY_STATUS" ? action.data : state.activeDelivery,
+        activeDelivery:
+          action.type === "UPDATE_DELIVERY_STATUS"
+            ? action.data
+            : state.activeDelivery,
       };
 
     // Handle adding a new delivery
@@ -75,6 +90,9 @@ const deliveryReducer = (state = initialState, action) => {
 
     // Handle getting a single delivery
     case "GET_SINGLE_DELIVERY":
+      return { ...state, activeDelivery: action.data };
+
+    case "SET_ACTIVE_DELIVERY":
       return { ...state, activeDelivery: action.data };
 
     // Default case to return the current state

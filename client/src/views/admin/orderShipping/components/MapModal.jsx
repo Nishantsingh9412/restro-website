@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -7,78 +7,162 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  IconButton,
 } from "@chakra-ui/react";
-import tt from "@tomtom-international/web-sdk-maps";
-import "@tomtom-international/web-sdk-maps/dist/maps.css";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { useSelector } from "react-redux";
+import { IoLocate } from "react-icons/io5";
+import { getActiveDelivery } from "../../../../api";
 
-const MapModal = ({ isOpen, onClose, delEmpId }) => {
+const MergedMapModal = ({ isOpen, onClose, delEmpId, lastLocation }) => {
+  // Refs to store map instance, live marker, and routing control
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const markerRef = useRef(null);
-  const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
+  const liveMarkerRef = useRef(null);
+  const routingControlRef = useRef(null);
 
+  // State to store distance traveled and active delivery details
+  const [distanceTraveled, setDistanceTraveled] = useState(0);
+  const [activeDelivery, setActiveDelivery] = useState(null);
+
+  // Selector to get delivery boy's location from Redux store
   const deliveryBoyLocation = useSelector((state) =>
     state.location.deliveryBoyLocations.find((emp) => emp._id === delEmpId)
   );
 
-  const locationData = useMemo(
-    () =>
-      deliveryBoyLocation?.location || {
-        latitude: 22.5678,
-        longitude: 88.372,
-      },
-    [deliveryBoyLocation]
-  );
+  // Memoized values for origin, destination, and waypoints
+  const [origin, destination, waypoints] = useMemo(() => {
+    return [
+      activeDelivery?.dropLocation,
+      activeDelivery?.deliveryLocation,
+      activeDelivery?.waypoints || [],
+    ];
+  }, [activeDelivery]);
 
+  // Memoized value for live location
+  const liveLocation = useMemo(() => {
+    if (deliveryBoyLocation) {
+      return {
+        lat: deliveryBoyLocation.location.latitude,
+        lng: deliveryBoyLocation.location.longitude,
+      };
+    }
+    return {
+      lat: lastLocation?.lat ?? 22.5678,
+      lng: lastLocation?.lng ?? 88.372,
+    };
+  }, [deliveryBoyLocation, lastLocation]);
+
+  // Function to fetch active delivery details
+  const fetchActiveDelivery = async () => {
+    try {
+      const { data } = await getActiveDelivery(delEmpId);
+      if (data) {
+        setActiveDelivery(data?.result);
+      } else {
+        console.error("Failed to fetch active delivery", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching active delivery:", error);
+    }
+  };
+
+  // Effect to fetch active delivery when delEmpId changes
+  useEffect(() => {
+    if (delEmpId) {
+      fetchActiveDelivery();
+    }
+  }, [delEmpId]);
+
+  // Effect to initialize and clean up the map
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
-        if (mapRef.current && !mapInstance.current) {
-          mapInstance.current = tt.map({
-            key: TOMTOM_API_KEY,
-            container: mapRef.current,
-            center: [locationData.longitude, locationData.latitude],
-            zoom: 16,
-          });
-
-          markerRef.current = new tt.Marker()
-            .setLngLat([locationData.longitude, locationData.latitude])
-            .addTo(mapInstance.current);
-        }
-      }, 1000); // Brief delay to allow for DOM update
+      activeDelivery ? initializeMap() : setTimeout(initializeMap, 500);
     }
+    function initializeMap() {
+      if (!mapInstance.current && mapRef.current) {
+        mapInstance.current = L.map(mapRef.current).setView(
+          [liveLocation.lat, liveLocation.lng],
+          13
+        );
 
+        // Add Tile Layer (OpenStreetMap)
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(mapInstance.current);
+
+        // Add live tracking marker
+        liveMarkerRef.current = L.marker([
+          liveLocation.lat,
+          liveLocation.lng,
+        ]).addTo(mapInstance.current);
+
+        initializeRoute();
+      }
+    }
+    // Cleanup map on modal close
     return () => {
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
-        markerRef.current = null;
+        liveMarkerRef.current = null;
+        routingControlRef.current = null;
+        setDistanceTraveled(0);
       }
     };
-  }, [isOpen]);
+  }, [isOpen, activeDelivery]);
 
+  // Effect to update live location dynamically
   useEffect(() => {
-    console.log(mapRef, mapInstance);
-    if (mapInstance.current && locationData) {
-      const { latitude, longitude } = locationData;
-      mapInstance.current.setCenter([longitude, latitude]);
+    if (mapInstance.current && liveLocation) {
+      liveMarkerRef.current?.setLatLng([liveLocation.lat, liveLocation.lng]);
+      mapInstance.current.setView([liveLocation.lat, liveLocation.lng], 13);
 
-      if (markerRef.current) {
-        markerRef.current.setLngLat([longitude, latitude]);
-      } else {
-        markerRef.current = new tt.Marker()
-          .setLngLat([longitude, latitude])
-          .addTo(mapInstance.current);
+      // Calculate distance traveled
+      if (origin) {
+        const distance = mapInstance.current.distance(
+          [origin.lat, origin.lng],
+          [liveLocation.lat, liveLocation.lng]
+        );
+        setDistanceTraveled((prev) => prev + distance);
       }
     }
-  }, [locationData]);
+  }, [liveLocation]);
+
+  // Function to initialize route guidance
+  const initializeRoute = () => {
+    if (routingControlRef.current || !origin || !destination) return;
+    const routePoints = [origin, ...waypoints, destination];
+
+    routingControlRef.current = L.Routing.control({
+      waypoints: routePoints.map((point) => L.latLng(point.lat, point.lng)),
+      lineOptions: { styles: [{ color: "#4a90e2", weight: 5 }] },
+      createMarker: (i, waypoint, n) =>
+        L.marker(waypoint.latLng).bindPopup(
+          i === 0 ? "Origin" : i === n - 1 ? "Destination" : `Stop ${i}`
+        ),
+      addWaypoints: false,
+      draggableWaypoints: false,
+      routeWhileDragging: false,
+    }).addTo(mapInstance.current);
+  };
+
+  // Function to center the map on the live location
+  const handleCenterMap = () => {
+    if (mapInstance.current && liveLocation) {
+      mapInstance.current.setView([liveLocation.lat, liveLocation.lng], 15);
+    }
+  };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="5xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Live Location - Delivery Boy</ModalHeader>
+        <ModalHeader>Live Tracking & Route Guidance</ModalHeader>
         <ModalBody>
           <div
             ref={mapRef}
@@ -87,11 +171,37 @@ const MapModal = ({ isOpen, onClose, delEmpId }) => {
               height: "400px",
               borderRadius: "8px",
               overflow: "hidden",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             }}
           />
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <IconButton
+              onClick={handleCenterMap}
+              bg={"blue.300"}
+              _hover={{ bg: "blue.400" }}
+              icon={<IoLocate />}
+            >
+              Current Location
+            </IconButton>
+            <p style={{ fontSize: "16px", fontWeight: "bold" }}>
+              Distance Traveled: {(distanceTraveled / 1000).toFixed(2)} km
+            </p>
+          </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="ghost" onClick={onClose}>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            bg={"blue.200"}
+            _hover={{ bg: "blue.400" }}
+          >
             Close
           </Button>
         </ModalFooter>
@@ -100,4 +210,4 @@ const MapModal = ({ isOpen, onClose, delEmpId }) => {
   );
 };
 
-export default MapModal;
+export default MergedMapModal;
