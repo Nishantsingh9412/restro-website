@@ -54,7 +54,7 @@ const corsOptions = {
 // Middleware setup
 app.use(express.json({ limit: "30mb", extended: true })); // Parse incoming requests with JSON payloads
 app.use(express.urlencoded({ limit: "30mb", extended: true })); // Parse URL-encoded data
-app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
+app.use(cors()); // Enable Cross-Origin Resource Sharing
 
 // Static file serving (for image uploads)
 app.use("/uploads", express.static("uploads"));

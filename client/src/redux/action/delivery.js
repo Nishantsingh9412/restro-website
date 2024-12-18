@@ -3,7 +3,7 @@ import * as api from "../../api/index.js";
 const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
   try {
     const { data } = await apiCall();
-    dispatch({ type: actionType, data: data?.result || { _id: data?.id } });
+    dispatch({ type: actionType, data: data?.result });
     return { success: true, message: successMessage };
   } catch (err) {
     console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);

@@ -76,8 +76,9 @@ const DeliveryBoyCard = ({ boy, handleDeleteDelboy, handleEdit }) => {
             {isOpen && (
               <MapModal
                 isOpen={isOpen}
-                onClose={() => onClose()}
+                onClose={onClose}
                 delEmpId={boy?._id}
+                lastLocation={boy?.lastLocation}
               />
             )}
             {/* )} */}

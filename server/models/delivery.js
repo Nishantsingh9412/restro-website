@@ -107,7 +107,7 @@ const deliverySchema = new mongoose.Schema(
     // Current status of the delivery
     currentStatus: {
       type: String,
-      enum: ["Available", "Accepted", "Picked up", "Completed"],
+      enum: ["Available", "Accepted", "Picked up", "Completed", "Canceled"],
       default: "Available",
     },
     // History of status changes
