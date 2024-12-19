@@ -16,6 +16,7 @@ API.interceptors.request.use(
     }
 
     // console.log("Request:", req); // For debugging: remove in production
+    req.headers["Content-Type"] = "application/json";
     return req;
   },
   (error) => {

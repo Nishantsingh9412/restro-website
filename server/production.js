@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
-import http from "http";
+import https from "https";
+import fs from "fs";
 import { Server } from "socket.io";
 
 // Route imports
@@ -40,21 +41,35 @@ import { sendLiveLocation } from "./utils/socket.js";
 const app = express();
 dotenv.config(); // Load environment variables from .env file
 
+// SSL Certificate
+const privateKey = fs.readFileSync(
+  "/etc/letsencrypt/live/shinehub.de/privkey.pem"
+);
+const certificate = fs.readFileSync(
+  "/etc/letsencrypt/live/shinehub.de/fullchain.pem"
+);
+
+const credentials = { key: privateKey, cert: certificate };
+
 //For Production
 // Origin Cors
 const corsOptions = {
   origin: [
+    "http://localhost:5173",
     "https://xn--trgastro-65a.de",
     "https://212.132.99.95",
     "https://shinehub.de",
   ], // Allow requests from your external server IP
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204s
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200,
 };
 
 // Middleware setup
 app.use(express.json({ limit: "30mb", extended: true })); // Parse incoming requests with JSON payloads
 app.use(express.urlencoded({ limit: "30mb", extended: true })); // Parse URL-encoded data
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+//TODO: Enable CORS for production
+app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
 
 // Static file serving (for image uploads)
 app.use("/uploads", express.static("uploads"));
@@ -116,8 +131,8 @@ const PORT = process.env.PORT || 8000;
 const DATABASE_URL = process.env.CONNECTION_URL;
 
 // socket setup
-const httpServer = http.createServer(app);
-const io = new Server(httpServer, {
+const httpsServer = https.createServer(credentials, app);
+const io = new Server(httpsServer, {
   cors: {
     origin: "*", // Replace with your frontend domain in production
     methods: ["GET", "POST"],
@@ -180,7 +195,7 @@ mongoose
   .then(() => {
     // Start the server after successful DB connection
     // app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
-    httpServer.listen(PORT, () =>
+    httpsServer.listen(PORT, () =>
       console.log(`Server running on port: ${PORT}`)
     );
   })
