@@ -6,7 +6,7 @@
 //         dispatch({ type: 'SET_ADDRESS', data: data?.result });
 //         return { success: true, message: 'address set successfully' };
 //     } catch (err) {
-//         console.log("Error from courseFilter Action: " + err.message, err.stack);
+//         // console.log("Error from courseFilter Action: " + err.message, err.stack);
 //         return { success: false, message: err?.response?.data?.message };
 //     }
 // }
@@ -17,7 +17,7 @@
 //         dispatch({type: 'GET_ADDRESS', data: data?.result});
 //         return {success: true, message: 'address fetched successfully'};
 //     }catch(err){
-//         console.log("Error from courseFilter Action: " + err.message, err.stack);
+//         // console.log("Error from courseFilter Action: " + err.message, err.stack);
 //         return { success: false, message: err?.response?.data?.message };
 //     }
 // }
@@ -28,7 +28,7 @@
 //         dispatch({ type: 'UPDATE_ADDRESS', data: data?.result });
 //         return { success: true, message: 'address updated successfully' };
 //     } catch (err) {
-//         console.log("Error from courseFilter Action: " + err.message, err.stack);
+//         // console.log("Error from courseFilter Action: " + err.message, err.stack);
 //         return { success: false, message: err?.response?.data?.message };
 //     }
 // }

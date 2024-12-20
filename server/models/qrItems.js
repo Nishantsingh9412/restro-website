@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
-const QrItemsManagementSchema = mongoose.Schema({
+const QrItemsManagementSchema = mongoose.Schema(
+  {
     item_name: { type: String, required: true },
     item_unit: { type: String, required: true },
     item_count: { type: Number, required: true },
@@ -10,7 +11,8 @@ const QrItemsManagementSchema = mongoose.Schema({
     usage_rate_value: { type: Number, required: true },
     usage_rate_unit: { type: String, required: true },
     // Last_Replenished : { type: Date, required: true },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-
-export default mongoose.model('QRItemManagement', QrItemsManagementSchema)
+export default mongoose.model("QRItemManagement", QrItemsManagementSchema);

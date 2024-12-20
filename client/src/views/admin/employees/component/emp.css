@@ -1,0 +1,38 @@
+.action_link {
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.action_link:hover {
+  font-size: 20px;
+}
+
+.action_link.delete {
+  color: coral;
+}
+
+.action_link.delete:hover {
+  color: red;
+}
+
+.action_link.edit {
+  color: darkcyan;
+}
+
+.action_link.edit:hover {
+  color: blue;
+}
+
+.action_link.view {
+  color: lightgreen;
+}
+
+.action_link.view:hover {
+  color: green;
+}
+
+.tabl_cell {
+  border: 1px solid #e0e0e0;
+  font-weight: 800;
+  font-size: 14px;
+}

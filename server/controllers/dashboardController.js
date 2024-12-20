@@ -1,170 +1,183 @@
 import ItemManagement from "../models/itemManage.js";
-import supplier from "../models/supplier.js";
+import Supplier from "../models/supplier.js";
 
-export const totalStocksController = async (req, res) => {
-    try {
-        const totalStocks = await ItemManagement.aggregate([
-            {
-                $group: {
-                    _id: null,
-                    totalQuantity: { $sum: "$available_quantity" }
-                }
-            }
-        ]);
-        const totalQuantity = totalStocks.length > 0 ? totalStocks[0].totalQuantity : 0;
-        res.status(200).json({
-            success: true,
-            message: "Total Stocks",
-            result: totalQuantity
-        })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal Server Error" })
-    }
-}
-
-export const lowStocksCount = async (req, res) => {
-    try {
-        const lowStockItems = await ItemManagement
-            .find(
-                {
-                    $expr: {
-                        $gte:
-                            ["$minimum_quantity", {
-                                $multiply:
-                                    [0.7, "$available_quantity"]
-                            }]
-                    }
-                }
-            );
-        res.status(200).json({
-            success: true,
-            message: "Low Stocks",
-            result: lowStockItems.length
-        })
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Internal Server Error" })
-    }
-}
-
-// export const expiryAlert = async (req, res) => {
-//     try {
-//         // Get the current date
-//         const today = new Date();
-//         // Normalize today's date to only include the date part
-//         const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-//         console.log('Current Date:', normalizedToday);
-//         // Fetch items with expiry dates less than the current date (normalized)
-//         const expiryItems = await ItemManagement.find({
-//             expiry_date: { $lt: normalizedToday }
-//         });
-
-//         console.log('Current Date:', normalizedToday.toISOString().split('T')[0]); // Format date for readability
-//         console.log('Expired Items:', expiryItems);
-
-//         // Respond with success and the number of expired items
-//         res.status(200).json({
-//             success: true,
-//             message: 'Expired Items',
-//             result: expiryItems.length,
-//             data: expiryItems // Optionally include data for debugging
-//         });
-//     } catch (error) {
-//         console.error('Error fetching expired items:', error.message);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Internal Server Error',
-//             error: error.message // Optionally include error message for debugging
-//         });
-//     }
-// };
-
-export const getExpiredItemsController = async (req, res) => {
-    try {
-        const expiryItems = await ItemManagement.find({ expiry_date: { $lt: new Date() } });
-        const totalExpiredIems = {
-            total: expiryItems.length,
-            items: expiryItems
-        }
-        res.status(200).json({ success: true, message: "Expired Items", result: totalExpiredIems });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
+// Centralized error handler function
+const handleError = (res, error, message = "Internal Server Error") => {
+  res.status(500).json({ success: false, message, error });
 };
 
+// Controller to get total stocks
+export const totalStocksController = async (req, res) => {
+  try {
+    // Aggregate total available quantity from all items
+    const [totalStock] = await ItemManagement.aggregate([
+      { $group: { _id: null, totalQuantity: { $sum: "$available_quantity" } } },
+    ]);
+
+    // Set totalQuantity to 0 if no stock data
+    const totalQuantity = totalStock?.totalQuantity || 0;
+
+    res.status(200).json({
+      success: true,
+      message: "Total Stocks",
+      result: totalQuantity,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// Controller to get count of low stock items
+export const lowStocksCount = async (req, res) => {
+  try {
+    // Count items where available quantity is 70% or below the minimum required quantity
+    const lowStockCount = await ItemManagement.countDocuments({
+      $expr: {
+        $lt: ["$minimum_quantity", { $multiply: [0.7, "$available_quantity"] }],
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Low Stocks",
+      result: lowStockCount,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// Controller to get expired items
+export const getExpiredItemsController = async (req, res) => {
+  try {
+    // Find items where expiry date is less than the current date
+    const expiryItems = await ItemManagement.find(
+      { expiry_date: { $lt: new Date() } },
+      "name expiry_date" // Select only necessary fields
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Expired Items",
+      result: {
+        total: expiryItems.length,
+        items: expiryItems,
+      },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// Controller to get suppliers by location
 export const getSupplierByLocationController = async (req, res) => {
-    try {
-        const locationCounts = await supplier.aggregate([
-            {
-                $match: {
-                    "location": { $ne: "" } // Exclude documents where location is an empty string
-                }
-            },
-            {
-                $group: {
-                    _id: "$location", // Grouping by location
-                    count: { $sum: 1 } // Counting suppliers in each location
-                }
-            }
-        ]);
+  try {
+    // Group suppliers by location and count occurrences
+    const locationCounts = await Supplier.aggregate([
+      { $match: { location: { $ne: "" } } },
+      { $group: { _id: "$location", count: { $sum: 1 } } },
+    ]);
 
-        // console.log('Location Counts:', locationCounts);
-        const totalSuppliers = locationCounts.reduce((acc, curr) => acc + curr.count, 0);
-        let locationPercentages = locationCounts.map(location => ({
-            location: location._id,
-            percentage: ((location.count / totalSuppliers) * 100) // Calculate raw percentage
-        }));
-        locationPercentages.sort((a, b) => b.percentage - a.percentage); // Sort by percentage in descending order
-
-        // Keep top 3 locations as is and merge the rest into "Others"
-        if (locationPercentages.length > 3) {
-            const topLocations = locationPercentages.slice(0, 3).map(location => ({
-                location: location.location,
-                percentage: parseFloat(location.percentage).toFixed(1) + '%' // Ensure it's a number before formatting
-            }));
-            const othersPercentage = locationPercentages.slice(3)
-                .reduce((acc, curr) => acc + curr.percentage, 0);
-            topLocations.push({
-                location: "Others",
-                percentage: parseFloat(othersPercentage).toFixed(1) + '%' // Ensure it's a number before formatting
-            });
-            locationPercentages = topLocations;
-        } else {
-            // If there are 3 or less locations, just format their percentages
-            locationPercentages = locationPercentages.map(location => ({
-                ...location,
-                percentage: parseFloat(location.percentage).toFixed(1) + '%' // Ensure it's a number before formatting
-            }));
-        }
-
-        res.status(200).json({ success: true, message: "Top Suppliers by Location", result: locationPercentages });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+    if (!locationCounts.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No suppliers found by location",
+      });
     }
-}
 
+    const totalSuppliers = locationCounts.reduce(
+      (acc, { count }) => acc + count,
+      0
+    );
+
+    // Calculate percentage for each location
+    let locationPercentages = locationCounts.map(({ _id, count }) => ({
+      location: _id,
+      percentage: ((count / totalSuppliers) * 100).toFixed(1) + "%",
+    }));
+
+    // Handle 'Others' case for locations beyond the top 3
+    if (locationPercentages.length > 3) {
+      const othersPercentage = locationPercentages
+        .slice(3)
+        .reduce((acc, { percentage }) => acc + parseFloat(percentage), 0)
+        .toFixed(1);
+      locationPercentages = [
+        ...locationPercentages.slice(0, 3),
+        { location: "Others", percentage: othersPercentage + "%" },
+      ];
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Top Suppliers by Location",
+      result: locationPercentages,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// Controller to get contact information of suppliers
 export const contactInfo = async (req, res) => {
-    try {
-        const contactInfo = await supplier.find({ phone: { $ne: "" } }).sort({ createdAt: -1 });
-        res.status(200).json({
-            success: true,
-            message: "Total Contacts",
-            result: contactInfo
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Internal Server Error" })
-    }
-}
+  try {
+    // Find suppliers with non-empty phone numbers and sort by creation date
+    const contactInfo = await Supplier.find(
+      { phone: { $ne: "" } },
+      "name phone pic" // Select only necessary fields
+    ).sort({ createdAt: -1 });
 
+    if (!contactInfo.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No contact information available",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Total Contacts",
+      result: contactInfo,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// Controller to search contacts by name
 export const searchContacts = async (req, res) => {
+  try {
     const { nameSearched } = req.query;
-    const searchedContact = await supplier.find({
-        name: { $regex: nameSearched, $options: 'i' },
-        phone: { $nin: [null, ""] }
+    //TODO - Uncomment the below code to validate the nameSearched query parameter
+    // if (!nameSearched?.trim()) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Name is required for searching",
+    //   });
+    // }
+
+    // Search for contacts by name using a case-insensitive regex
+    const searchedContact = await Supplier.find(
+      {
+        name: { $regex: nameSearched, $options: "i" },
+        phone: { $nin: [null, ""] },
+      },
+      "name phone" // Select only necessary fields
+    );
+
+    if (!searchedContact.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No contacts found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Searched Contacts",
+      result: searchedContact,
     });
-    console.log(searchedContact);
-    return res.status(200).json({
-        success: true,
-        message: "Searched Contacts",
-        result: searchedContact
-    });
-}
+  } catch (error) {
+    handleError(res, error);
+  }
+};

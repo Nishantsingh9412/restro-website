@@ -1,15 +1,29 @@
 import mongoose from "mongoose";
 
-const authDelivSchema = mongoose.Schema({
-    name: { type: String, required: true },
-    country_code: { type: String, required: true },
-    phone: { type: String, required: true },
-    created_by: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Auth',
-        required: true
-    },
-    // uniqueId: { type: String, required: true }
-}, { timestamps: true });
+const { Schema, model } = mongoose;
 
-export default mongoose.model('AuthDeliv', authDelivSchema)
+// // Define the schema for AuthDeliv
+// const authDelivSchema = new Schema(
+//   {
+//     name: { type: String, required: true },
+//     country_code: { type: String, required: true },
+//     phone: { type: String, required: true },
+//     isOnline: {
+//       type: Boolean,
+//       default: false,
+//     },
+//     liveLocationURL: {
+//       type: String,
+//       default: "",
+//     },
+//     created_by: {
+//       type: Schema.Types.ObjectId,
+//       ref: "Auth",
+//       required: true,
+//     },
+//   },
+//   { timestamps: true }
+// );
+
+// // Export the model
+// export default model("AuthDeliv", authDelivSchema);

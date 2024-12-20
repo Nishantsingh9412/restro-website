@@ -1,121 +1,153 @@
 import mongoose from "mongoose";
-import supplier from "../models/supplier.js"
+import supplier from "../models/supplier.js";
+import Joi from "joi";
 
-export const AddSupplier = async (req, res) => {
-    try {
-        const { name, pic, Items, phone, email, countryCode, location, created_by } = req.body;
-        if (!name || !Items) {
-            return res.status(400).json({ success: false, message: 'All fields are required' })
-        } else {
-            const newSupplier = await supplier.create({
-                name,
-                pic,
-                Items,
-                countryCode,
-                phone,
-                email,
-                location,
-                created_by
-            })
-            if (!newSupplier) {
-                return res.status(400).json({ success: false, message: 'error in creating supplier' })
-            } else {
-                return res.status(200).json({ success: true, message: 'Supplier created successfully', result: newSupplier })
-            }
-        }
-    } catch (error) {
-        console.log('Error in AddSupplier', error.message)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
+// Helper function to handle error responses
+const handleErrorResponse = (res, status, message) => {
+  return res.status(status).json({ success: false, message });
+};
+
+// Helper function to handle success responses
+const handleSuccessResponse = (res, status, message, result = null) => {
+  return res.status(status).json({ success: true, message, result });
+};
+
+// Joi validation schemas
+const supplierSchema = Joi.object({
+  name: Joi.string().required(),
+  pic: Joi.string().uri().optional(),
+  items: Joi.array().items(Joi.string()).required(),
+  phone: Joi.string().optional(),
+  email: Joi.string().email().optional(),
+  countryCode: Joi.string().optional(),
+  location: Joi.string().optional(),
+  created_by: Joi.string().required(),
+});
+
+// Controller to add a new supplier
+export const addSupplier = async (req, res) => {
+  try {
+    const { error, value } = supplierSchema.validate(req.body);
+    if (error) {
+      return handleErrorResponse(res, 400, error.details[0].message);
     }
-}
 
+    const newSupplier = await supplier.create(value);
+
+    if (!newSupplier) {
+      return handleErrorResponse(res, 400, "Error in creating supplier");
+    }
+
+    return handleSuccessResponse(
+      res,
+      200,
+      "Supplier created successfully",
+      newSupplier
+    );
+  } catch (error) {
+    console.log("Error in AddSupplier", error.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Controller to get all suppliers created by a specific user
 export const getSupplier = async (req, res) => {
-    const { id: _id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-        return res.status(400).json({ success: false, message: 'Invalid User Id' })
-    }
-    try {
-        const allSuppliers = await supplier.find({ created_by: _id });
-        if (allSuppliers) {
-            return res.status(200).json({ success: true, message: 'All Suppliers', result: allSuppliers })
-        } else {
-            return res.status(400).json({ success: false, message: 'No Suppliers Found' })
-        }
-    } catch (err) {
-        console.log('Error in getSupplier', err.message)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
-}
+  const { id: _id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return handleErrorResponse(res, 400, "Invalid User Id");
+  }
+
+  try {
+    const allSuppliers = await supplier.find({ created_by: _id });
+
+    if (!allSuppliers.length) {
+      return handleErrorResponse(res, 200, "No Suppliers Found");
+    }
+
+    return handleSuccessResponse(res, 200, "All Suppliers", allSuppliers);
+  } catch (err) {
+    console.log("Error in getSupplier", err.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Controller to get a single supplier by ID
 export const getSingleSupplier = async (req, res) => {
-    const { id: _id } = req.params;
-    try {
-        if (!mongoose.Types.ObjectId.isValid(_id)) {
-            return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
-        } else {
-            const getSingleSupplier = await supplier.findById(_id);
-            if (getSingleSupplier) {
-                return res.status(200).json({
-                    success: true,
-                    message: 'Single Supplier',
-                    result: getSingleSupplier
-                })
-            } else {
-                return res.status(400).json({ success: false, message: 'No Supplier Found' })
-            }
-        }
-    } catch (error) {
-        console.log('Error in getSingleSupplier', error.message)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
-}
+  const { id: _id } = req.params;
 
-export const UpdateSupplier = async (req, res) => {
-    const { id: _id } = req.params;
-    const { name, pic, Items, phone, email, countryCode, location } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-        return res.status(400).json({ success: false, message: "Invalid Supplier Id" })
-    }
-    try {
-        const updateSupplier = await supplier.findByIdAndUpdate(_id, {
-            $set: {
-                'name': name,
-                'pic': pic,
-                'Items': Items,
-                'countryCode': countryCode,
-                'phone': phone,
-                'email': email,
-                'location': location
-            }
-        }, { new: true })
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return handleErrorResponse(res, 400, "Invalid Supplier Id");
+  }
 
-        if (updateSupplier) {
-            return res.status(200).json({ success: true, message: 'Supplier Updated Successfully', result: updateSupplier })
-        } else {
-            return res.status(400).json({ success: false, message: 'Error in Updating Supplier' })
-        }
-    } catch (error) {
-        console.log('Error in UpdateSupplier', error.message)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
+  try {
+    const singleSupplier = await supplier.findById(_id);
+
+    if (!singleSupplier) {
+      return handleErrorResponse(res, 400, "No Supplier Found");
     }
 
+    return handleSuccessResponse(res, 200, "Single Supplier", singleSupplier);
+  } catch (error) {
+    console.log("Error in getSingleSupplier", error.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};
 
-}
+// Controller to update a supplier by ID
+export const updateSupplier = async (req, res) => {
+  const { id: _id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return handleErrorResponse(res, 400, "Invalid Supplier Id");
+  }
+
+  const { error, value } = supplierSchema.validate(req.body, {
+    allowUnknown: true,
+  });
+  if (error) {
+    return handleErrorResponse(res, 400, error.details[0].message);
+  }
+
+  try {
+    const updatedSupplier = await supplier.findByIdAndUpdate(_id, value, {
+      new: true,
+    });
+
+    if (!updatedSupplier) {
+      return handleErrorResponse(res, 400, "Error in Updating Supplier");
+    }
+
+    return handleSuccessResponse(
+      res,
+      200,
+      "Supplier Updated Successfully",
+      updatedSupplier
+    );
+  } catch (error) {
+    console.log("Error in UpdateSupplier", error.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Controller to delete a supplier by ID
 export const deleteSupplier = async (req, res) => {
-    const { id: _id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(_id)) {
-        return res.status(400).json({ success: false, message: 'Invalid Supplier Id' })
+  const { id: _id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return handleErrorResponse(res, 400, "Invalid Supplier Id");
+  }
+
+  try {
+    const removedSupplier = await supplier.findByIdAndDelete(_id);
+
+    if (!removedSupplier) {
+      return handleErrorResponse(res, 400, "Error in Deleting Supplier");
     }
-    try {
-        const removeSupplier = await supplier.findByIdAndDelete(_id);
-        if (removeSupplier) {
-            return res.status(200).json({ success: true, message: 'Supplier Deleted Successfully' })
-        } else {
-            return res.status(400).json({ success: false, message: 'Error in Deleting Supplier' })
-        }
-    } catch (error) {
-        console.log('Error in deleteSupplier', error.message)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
-}
+
+    return handleSuccessResponse(res, 200, "Supplier Deleted Successfully");
+  } catch (error) {
+    console.log("Error in deleteSupplier", error.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};

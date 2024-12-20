@@ -1,99 +1,65 @@
 import * as api from '../../api/index.js';
 
-export const AddOrderItemAction = (ItemData) => async (dispatch) => {
+const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     try {
-        const { data } = await api.AddOrderItem(ItemData);
-        dispatch({ type: 'ADD_ORDER_ITEM', data: data?.result });
-        return { success: true, message: 'Order Item Added Successfully' };
+        const { data } = await apiCall;
+        if (data && data.result) {
+            dispatch({ type: actionType, data: data.result });
+            return { success: true, message: successMessage, data: data.result };
+        } else {
+            throw new Error('No data returned from API');
+        }
     } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.error(`Error in ${actionType}: ${err.message}`, err.stack);
         return { success: false, message: err.message };
     }
-}
+};
+
+export const AddOrderItemAction = (ItemData) => async (dispatch) => {
+    return handleApiCall(api.AddOrderItem(ItemData), dispatch, 'ADD_ORDER_ITEM', 'Order Item Added Successfully');
+};
 
 export const GetSingleItemOrderAction = (id) => async (dispatch) => {
-    try {
-        const { data } = await api.GetSingleItemOrder(id);
-        dispatch({ type: 'GET_SINGLE_ORDER_ITEM', data: data?.result });
-        return { success: true, message: 'Order Item fetched Successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.GetSingleItemOrder(id), dispatch, 'GET_SINGLE_ORDER_ITEM', 'Order Item fetched Successfully');
+};
 
 export const getAllOrderItemsAction = (localStorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.getAllOrderItems(localStorageId);
-        dispatch({ type: 'GET_ALL_ORDER_ITEMS', data: data?.result });
-        return { success: true, message: 'Order Items fetched Successfully', data: data?.result };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.getAllOrderItems(localStorageId), dispatch, 'GET_ALL_ORDER_ITEMS', 'Order Items fetched Successfully');
+};
 
 export const getDrinksOnlyAction = (localStorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.getDrinksOnly(localStorageId);
-        dispatch({ type: 'GET_DRINKS_ONLY', data: data?.result });
-        return { success: true, message: 'Drinks fetched Successfully', data: data?.result };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.getDrinksOnly(localStorageId), dispatch, 'GET_DRINKS_ONLY', 'Drinks fetched Successfully');
+};
 
 export const updateSingleItemOrderAction = (id, updatedData) => async (dispatch) => {
-    try {
-        const { data } = await api.UpdateSingleItemOrder(id, updatedData);
-        dispatch({ type: 'UPDATE_SINGLE_ORDER_ITEM', data: data?.result });
-        return { success: true, message: 'Order Item Updated Successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.UpdateSingleItemOrder(id, updatedData), dispatch, 'UPDATE_SINGLE_ORDER_ITEM', 'Order Item Updated Successfully');
+};
 
 export const deleteSingleItemOrderAction = (id) => async (dispatch) => {
     try {
         await api.deleteSingleItemOrder(id);
+        dispatch({ type: 'DELETE_SINGLE_ORDER_ITEM', id });
         return { success: true, message: 'Order Item Deleted Successfully' };
     } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.error(`Error in DELETE_SINGLE_ORDER_ITEM: ${err.message}`, err.stack);
         return { success: false, message: err.message };
     }
-}
+};
 
 export const searchOrderItemAction = (orderNameData, localStorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.searchOrderItem(orderNameData, localStorageId);
-        dispatch({ type: 'SEARCH_ORDER_ITEM', data: data?.result });
-        return { success: true, message: 'Order Item Searched Successfully', data: data?.result };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.searchOrderItem(orderNameData, localStorageId), dispatch, 'SEARCH_ORDER_ITEM', 'Order Item Searched Successfully');
+};
 
 export const searchDrinksOnlyAction = (drinksData, localStorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.searchDrinksOnly(drinksData, localStorageId);
-        dispatch({ type: 'SEARCH_DRINKS_ONLY', data: data?.result });
-        return { success: true, message: 'Drinks Searched Successfully', data: data?.result };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err.message };
-    }
-}
+    return handleApiCall(api.searchDrinksOnly(drinksData, localStorageId), dispatch, 'SEARCH_DRINKS_ONLY', 'Drinks Searched Successfully');
+};
 
 export const ResetOrderItemAction = () => async (dispatch) => {
     try {
         dispatch({ type: 'RESET_ORDER_ITEM_TEMP' });
         return { success: true, message: 'Order Item Reset Successfully' };
     } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
+        console.error(`Error in RESET_ORDER_ITEM_TEMP: ${err.message}`, err.stack);
         return { success: false, message: err.message };
     }
-}
-
+};

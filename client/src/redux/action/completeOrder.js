@@ -1,56 +1,80 @@
-import * as api from '../../api/index.js';
+import * as api from "../../api/index.js";
+
+const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
+  try {
+    const { data } = await apiCall();
+    dispatch({ type: actionType, data: data?.result });
+    return { success: true, message: successMessage };
+  } catch (err) {
+    console.log(`Error from ${actionType} Action: ${err.message}`, err.stack);
+    return { success: false, message: err?.response?.data?.message };
+  }
+};
+export const allotDeliveryBoyAction =
+  ({ orderId, deliveryBoy }) =>
+  async (dispatch) => {
+    console.log("Allot Delivery", orderId, deliveryBoy._id);
+    try {
+      await api.allotDeliveryBoyAPI(orderId, deliveryBoy?._id);
+      dispatch({
+        type: "ALLOT_DELIVERY_BOY",
+        data: {
+          orderId: orderId,
+          assignedTo: { name: deliveryBoy.name, _id: deliveryBoy?._id },
+        },
+      });
+      return { success: true, message: "Delivery boy allocated successfully" };
+    } catch (err) {
+      console.log(
+        "Error from ALLOT_DELIVERY_BOY Action: " + err.message,
+        err.stack
+      );
+      return { success: false, message: err?.response?.data?.message };
+    }
+  };
 
 export const postCompleteOrderAction = (orderData) => async (dispatch) => {
-    try {
-        const { data } = await api.addCompleteOrderAPI(orderData);
-        dispatch({ type: 'POST_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'Order placed successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.addCompleteOrderAPI(orderData),
+    dispatch,
+    "POST_COMPLETE_ORDER",
+    "Order placed successfully"
+  );
+};
 
 export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
-    try {
-        const { data } = await api.getAllCompleteOrdersAPI(localstorageId);
-        dispatch({ type: 'GET_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order fetched successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.getAllCompleteOrdersAPI(localstorageId),
+    dispatch,
+    "GET_COMPLETE_ORDER",
+    "Order fetched successfully"
+  );
+};
 
 export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
-    try {
-        const { data } = await api.getSingleCompleteOrderAPI(id);
-        dispatch({ type: 'GET_SINGLE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order fetched successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.getSingleCompleteOrderAPI(id),
+    dispatch,
+    "GET_SINGLE_COMPLETE_ORDER",
+    "Order fetched successfully"
+  );
+};
 
-export const updateCompleteOrderAction = (id, orderData) => async (dispatch) => {
-    try {
-        const { data } = await api.updateSingleCompleteOrderAPI(id, orderData);
-        dispatch({ type: 'UPDATE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order updated successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+export const updateCompleteOrderAction =
+  (id, orderData) => async (dispatch) => {
+    return handleApiCall(
+      () => api.updateSingleCompleteOrderAPI(id, orderData),
+      dispatch,
+      "UPDATE_COMPLETE_ORDER",
+      "Order updated successfully"
+    );
+  };
 
 export const deleteCompleteOrderAction = (id) => async (dispatch) => {
-    try {
-        const { data } = await api.deleteSingleCompleteOrderAPI(id);
-        dispatch({ type: 'DELETE_COMPLETE_ORDER', data: data?.result });
-        return { success: true, message: 'order deleted successfully' };
-    } catch (err) {
-        console.log("Error from courseFilter Action: " + err.message, err.stack);
-        return { success: false, message: err?.response?.data?.message };
-    }
-}
+  return handleApiCall(
+    () => api.deleteSingleCompleteOrderAPI(id),
+    dispatch,
+    "DELETE_COMPLETE_ORDER",
+    "Order deleted successfully"
+  );
+};

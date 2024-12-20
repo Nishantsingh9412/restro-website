@@ -1,55 +1,62 @@
-import * as api from '../../api/index.js';
+import * as api from "../../api/index.js";
 
-export const AddItemAction = (ItemData) => async (dispatch) => {
-    try {
-        const { data } = await api.AddItem(ItemData);
-        dispatch({ type: 'ADD_ITEM',data:data.result });
-        return { success: true, message: 'Item Added Successfully' };
-    } catch (err) {
-        console.log("Error from AddItem Action: " + err.message, err.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-} 
+// Helper function to handle errors
+const handleError = (err, actionName) => {
+  // console.log(`Error from ${actionName}: ${err.message}`, err.stack);
+  return { success: false, message: "Something went wrong" };
+};
 
-export const GetAllItemsAction = (localStorageId) => async (dispatch) => {
-    try{
-        const {data} = await api.GetAllItems(localStorageId);
-        dispatch({ type: 'GET_ALL_ITEMS', data:data.result});
-        return { success: true, message: 'Items Fetched Successfully' };
-    }catch(err){
-        console.log("Error from GetAllItems Action : " + err.message, err.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to add a new item
+export const addItemAction = (itemData) => async (dispatch) => {
+  try {
+    const { data } = await api.AddItem(itemData);
+    dispatch({ type: "ADD_ITEM", data: data.result });
+    return { success: true, message: "Item Added Successfully" };
+  } catch (err) {
+    return handleError(err, "AddItemAction");
+  }
+};
 
-export const GetSingleItemAction = (id) => async(dispatch) => {
-    try{
-        const {data} = await api.GetSingleItem(id);
-        dispatch({ type: 'GET_SINGLE_ITEM', data:data.result});
-        return { success: true, message: 'Item Fetched Successfully' };
-    }catch(err){
-        console.log("Error from GetSingleItem Action : " + err.message, err.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to fetch all items
+export const getAllItemsAction = (localStorageId) => async (dispatch) => {
+  try {
+    const { data } = await api.GetAllItems(localStorageId);
+    dispatch({ type: "GET_ALL_ITEMS", data: data.result });
+    return { success: true, message: "Items Fetched Successfully" };
+  } catch (err) {
+    return handleError(err, "GetAllItemsAction");
+  }
+};
 
-export const updateSingleItemAction = (id,updatedData) => async(dispatch) => {
-    try{
-        const {data} = await api.updateSingleItem(id,updatedData);
-        dispatch({type: 'UPDATE_SINGLE_ITEM', data:data.result});
-        return { success: true, message: 'Item Updated Successfully' };
-    }catch(err){
-        console.log("Error from updateSingleItem Action: " + err.message, err.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to fetch a single item by ID
+export const getSingleItemAction = (id) => async (dispatch) => {
+  try {
+    const { data } = await api.GetSingleItem(id);
+    dispatch({ type: "GET_SINGLE_ITEM", data: data.result });
+    return { success: true, message: "Item Fetched Successfully" };
+  } catch (err) {
+    return handleError(err, "GetSingleItemAction");
+  }
+};
 
-export const deleteSingleItemAction = (id) => async(dispatch) => {
-    try{
-        await api.deleteSingleItem(id);
-        return { success: true, message: 'Item Deleted Successfully' };
-    }catch(err){
-        console.log("Error from deleteSingleItem Action: " + err.message, err.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to update a single item by ID
+export const updateSingleItemAction = (id, updatedData) => async (dispatch) => {
+  try {
+    const { data } = await api.updateSingleItem(id, updatedData);
+    dispatch({ type: "UPDATE_SINGLE_ITEM", data: data.result });
+    return { success: true, message: "Item Updated Successfully" };
+  } catch (err) {
+    return handleError(err, "UpdateSingleItemAction");
+  }
+};
+
+// Action to delete a single item by ID
+export const deleteSingleItemAction = (id) => async (dispatch) => {
+  try {
+    await api.deleteSingleItem(id);
+    dispatch({ type: "DELETE_SINGLE_ITEM", id });
+    return { success: true, message: "Item Deleted Successfully" };
+  } catch (err) {
+    return handleError(err, "DeleteSingleItemAction");
+  }
+};

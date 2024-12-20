@@ -1,56 +1,91 @@
-import * as api from '../../api/index.js';
+import * as api from "../../api/index.js";
 
-export const AddDelboyAction = (newDelboy) => async (dispatch) => { 
-    try{
-        const {data} = await api.addDeliveryPersonnel(newDelboy);
-        dispatch({type:'ADD_DELBOY', data:data?.result});
-        return {success:true, message:'Delivery boy added successfully'};
-    }catch(err){
-        console.log("Error from AddDelboy Action: " + err?.message, err?.stack);
-        return { success: false, message:err?.response?.data?.message || 'something went wrong'};
-    }
-}
+// Helper function to handle API calls
+const handleApiCall = async (apiFunc, dispatch, actionType, successMessage) => {
+  try {
+    // Execute the API function and destructure the data from the response
+    const { data } = await apiFunc();
+    // Dispatch the action with the data
+    dispatch({ type: actionType, data: data?.result });
+    // Return success message
+    return { success: true, message: successMessage };
+  } catch (err) {
+    // Log the error message and stack trace
+    // console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
+    // Return error message
+    return {
+      success: false,
+      message: err?.response?.data?.message || "Something went wrong",
+    };
+  }
+};
 
-export const getAllDelboyzAction = () => async(dispatch) => {
-    try{
-        const {data} = await api.getAllDeliveryPersonnels();
-        dispatch({type:'GET_ALL_DELBOY', data:data?.result});
-        return {success:true, message:'All Delivery Personnel Fetched Successfully'};
-    }catch(err){
-        console.log("Error from getAllItems Action: " + err?.message, err?.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to add a new delivery personnel
+export const addDelboyAction = (newDelboy) => async (dispatch) => {
+  return handleApiCall(
+    () => api.addDeliveryPersonnel(newDelboy),
+    dispatch,
+    "ADD_DELBOY",
+    "Delivery boy added successfully"
+  );
+};
 
-export const getSingleDelBoyAction = (id) => async(dispatch) => {
-    try{
-        const {data} = await api.getSingleDeliveryPersonnel(id);
-        dispatch({type:'GET_SINGLE_DELBOY', data:data?.result});
-        return {success:true, message:'Delivery Personnel Fetched Successfully'};
-    }catch(err){
-        console.log("Error from getSingleDelBoy Action: " + err?.message, err?.stack);
-        return { success: false, message: 'something went wrong' };   
-    }
-}
+// Action to get all delivery personnel
+export const getAllDelboyzAction = () => async (dispatch) => {
+  return handleApiCall(
+    api.getAllDeliveryPersonnels,
+    dispatch,
+    "GET_ALL_DELBOY",
+    "All Delivery Personnel Fetched Successfully"
+  );
+};
 
-export const updateSingleDelBoyAction = (id,updateData) => async(dispatch) => {
-    try{
-        const {data} = await api.updateSingleDeliveryPersonnel(id,updateData);
-        dispatch({type:'UPDATE_SINGLE_DELBOY',data:data?.result});
-        return {success:true, message:'Delivery Personnel Updated Successfully'};
-    }catch(err){
-        console.log("Error from updateSingleItem Action: " + err?.message, err?.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// const getSingleDelBoyUser = (id) => async (dispatch) => {
+//   return handleApiCall(
+//     () => api.getSingleDeliveryPersonnel(id),
+//     dispatch,
+//     "GET_DELBOY_USER",
+//     "Delivery Personnel Fetched Successfully"
+//   );
+// };
 
-export const deleteSingleDelBoyAction = (id) => async(dispatch) => {
-    try{
-        const {data} = await api.deleteSingleDeliveryPersonnel(id);
-        dispatch({type:'DELETE_SINGLE_DELBOY', data:data?.result});
-        return {success:true, message:'Delivery Personnel Deleted Successfully'};
-    }catch(err){
-        console.log("Error from deleteSingleItem Action: " + err?.message, err?.stack);
-        return { success: false, message: 'something went wrong' };
-    }
-}
+// Action to get a single delivery personnel by ID
+export const getSingleDelBoyAction = (id) => async (dispatch) => {
+  return handleApiCall(
+    () => api.getSingleDeliveryPersonnel(id),
+    dispatch,
+    "GET_SINGLE_DELBOY",
+    "Delivery Personnel Fetched Successfully"
+  );
+};
+
+// Action to update a single delivery personnel by ID
+export const updateSingleDelBoyAction =
+  (id, updateData) => async (dispatch) => {
+    return handleApiCall(
+      () => api.updateSingleDeliveryPersonnel(id, updateData),
+      dispatch,
+      "UPDATE_SINGLE_DELBOY",
+      "Delivery Personnel Updated Successfully"
+    );
+  };
+
+// Action to delete a single delivery personnel by ID
+export const deleteSingleDelBoyAction = (id) => async (dispatch) => {
+  return handleApiCall(
+    () => api.deleteSingleDeliveryPersonnel(id),
+    dispatch,
+    "DELETE_SINGLE_DELBOY",
+    "Delivery Personnel Deleted Successfully"
+  );
+};
+
+// Action to change the status of a delivery personnel
+export const changeDelBoyStatusAction = (id, status) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryPersonnelStatus(id, status),
+    dispatch,
+    status === "Completed" ? "ADD_COMPLETED_DELBOY" : "UPDATE_DELBOY_STATUS",
+    "Delivery Personnel status updated successfully"
+  );
+};

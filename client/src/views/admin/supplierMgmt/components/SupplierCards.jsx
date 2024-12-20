@@ -1,242 +1,220 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { LuSoup } from 'react-icons/lu'
-import { RxDotsVertical, RxPencil1 } from "react-icons/rx";
+/* eslint-disable react/prop-types */
+import React, { useState, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import {
-    Box,
-    Flex,
-    useDisclosure,
-    Text,
-    Image,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    Portal,
-} from '@chakra-ui/react'
-import Swal from 'sweetalert2'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+  Box,
+  Flex,
+  Text,
+  Image,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
+  useDisclosure,
+  Button,
+  Stack,
+  Badge,
+} from "@chakra-ui/react";
+import { RxDotsVertical } from "react-icons/rx";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import ViewSupplier from './ViewSupplier'
-import EditSupplier from './EditSupplier';
-import { DeleteSupplierAction, GetAllSuppliersAction } from '../../../../redux/action/supplier.js';
+import ViewSupplier from "./ViewSupplier";
+import EditSupplier from "./SupplierModal.jsx";
+import {
+  deleteSupplierAction,
+  getAllSuppliersAction,
+} from "../../../../redux/action/supplier.js";
 
+const SupplierCards = ({ data: allSuppliers, localStorageId }) => {
+  const dispatch = useDispatch();
+  const [selectedId, setSelectedId] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenEdit,
+    onOpen: onOpenEdit,
+    onClose: onCloseEdit,
+  } = useDisclosure();
 
-const SupplierCards = (props) => {
+  // Handle edit supplier action
+  const handleEditSupplier = useCallback(
+    (e, id) => {
+      e.preventDefault();
+      setSelectedId(id);
+      onOpenEdit();
+    },
+    [onOpenEdit]
+  );
 
-    const dispatch = useDispatch();
-    const [selectedId, setSelectedId] = useState(null);
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const {
-        isOpen: isOpenEdit,
-        onOpen: onOpenEdit,
-        onClose: onCloseEdit
-    } = useDisclosure()
-
-
-    const allSuppliers = props.data;
-    const selectedSupplier = props.selectedSupplier;
-
-    console.log(allSuppliers)
-    console.log("selectedSupplier \n");
-    console.log(selectedSupplier)
-
-
-    const handleEditSupplier = (e, id) => {
-        e.preventDefault();
-        setSelectedId(id)
-        onOpenEdit();
-    }
-
-    const handleConfirmDeleteSupplier = (deleteId) => {
-        const deleteItemPromise = dispatch(DeleteSupplierAction(deleteId)).then((res) => {
-            if (res.success) {
-                dispatch(GetAllSuppliersAction());
-                return res.message;
-            } else {
-                throw new Error('Error Deleting Item')
-            }
-        })
-        toast.promise(
-            deleteItemPromise,
-            {
-                pending: 'Deleting Item...',
-                success: 'Item Deleted Successfully',
-                error: 'Error in Deleting Item'
-            }
-        );
-    }
-
-
-    const handleDeleteSupplier = (e, id) => {
-        e.preventDefault();
-        const style = document.createElement('style');
-        style.innerHTML = `
-        .swal-bg {
-            background-color: #F3F2EE !important;
+  // Handle confirm delete supplier action
+  const handleConfirmDeleteSupplier = useCallback(
+    (deleteId) => {
+      const deleteItemPromise = dispatch(deleteSupplierAction(deleteId)).then(
+        (res) => {
+          if (res.success) {
+            dispatch(getAllSuppliersAction(localStorageId));
+            return res.message;
+          } else {
+            throw new Error("Error Deleting Item");
+          }
         }
-        .swal-border {
-            border: 5px solid #fff !important;
-        }`;
-        document.head.appendChild(style);
+      );
+      toast.promise(deleteItemPromise, {
+        pending: "Deleting Item...",
+        success: "Item Deleted Successfully",
+        error: "Error in Deleting Item",
+      });
+    },
+    [dispatch]
+  );
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            customClass: {
-                popup: 'swal-bg swal-border'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleConfirmDeleteSupplier(id);
-            }
-        });
-    }
+  // Handle delete supplier action with confirmation
+  const handleDeleteSupplier = useCallback(
+    (e, id) => {
+      e.preventDefault();
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        customClass: {
+          popup: "swal-bg swal-border",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          handleConfirmDeleteSupplier(id);
+        }
+      });
+    },
+    [handleConfirmDeleteSupplier]
+  );
 
-    return (
-        <div>
-            <h3
-                style={{
-                    marginLeft: '10px',
-                    fontWeight: '900',
-                    marginTop: '80px',
-                    color: '#049CFD'
-                }}
+  return (
+    <Box p={2}>
+      {/* Title */}
+      <Text ml={2} fontWeight="900" color="#049CFD" fontSize="2xl">
+        List Of All Suppliers
+      </Text>
+      <Flex flexWrap="wrap" p={2}>
+        {allSuppliers && allSuppliers.length > 0 ? (
+          allSuppliers.map((supplier, index) => (
+            <Box
+              key={supplier._id}
+              width="270px"
+              bg="white"
+              boxShadow="lg"
+              borderRadius="lg"
+              overflow="hidden"
+              m={3}
+              transition="all 0.3s ease"
+              _hover={{ transform: "scale(1.05)", boxShadow: "xl" }}
             >
-                List Of All Suppliers
-            </h3>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    padding: '10px',
-                    marginLeft: '10px',
+              {/* Header Section */}
+              <Flex
+                justifyContent="space-between"
+                alignItems="center"
+                p={4}
+                bg={index % 2 === 0 ? "blue.50" : "green.50"}
+                borderBottomWidth="1px"
+                borderColor="gray.200"
+              >
+                <Box>
+                  <Text fontWeight="bold" fontSize="lg" color="gray.700">
+                    {supplier.name}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">
+                    Updated on {supplier.updatedAt.split("T")[0]}
+                  </Text>
+                </Box>
+                <Image
+                  borderRadius="full"
+                  boxSize="50px"
+                  src={supplier.pic}
+                  alt={supplier.name}
+                />
+              </Flex>
+              <Flex justifyContent={"space-between"}>
+                {/* Items Section */}
+                <Box p={4}>
+                  <Stack spacing={2}>
+                    {supplier.items.slice(0, 3).map((item, index) => (
+                      <Text key={index} fontSize="sm" color="gray.600" as="li">
+                        {item}
+                      </Text>
+                    ))}
+                    {supplier.items.length > 3 && (
+                      <Badge colorScheme="blue" fontSize="0.8em" p={1}>
+                        +{supplier.items.length - 3} more items
+                      </Badge>
+                    )}
+                  </Stack>
 
-                }}
-            >
-                {allSuppliers.map((supplier, index) => (
-                    <Box
-                        key={index}
-                        minWidth={'340px'}
-                        marginLeft={'25px'}
-                        marginTop={'25px'}
-                        maxW={'300px'}
-                        bg={'#f3f2ee'}
-                        boxShadow={'2px 2px 2px #b39b9b'}
-                        border={'5px solid #fff'}
-                        borderRadius={'3xl'}
-                        fontWeight={'bold'}
-                        padding={'20px'}
-                        color={index & 1 ? '#ee2d4f' : '#ee7213'}
-                    >
-                        <>
-                            <Flex justifyContent="space-between">
-                                <Box>
-                                    <h4 style={{ fontWeight: '600' }}>{supplier.name}</h4>
-                                    <Text >Last Updated {supplier.updatedAt.split('T')[0]} </Text>
-                                </Box>
-                                <Box
-                                    justifyContent={'end'}
-                                >
-                                    <Image
-                                        borderRadius='full'
-                                        boxSize='60px'
-                                        src={supplier.pic}
-                                        alt='Dan Abramov'
-                                    />
-                                </Box>
-                            </Flex>
-                            <Box>
-                                <ol style={{
-                                    marginLeft: '15px',
-                                    marginTop: '5px',
-                                    fontWeight: '900'
-                                }}>
-                                    {supplier.Items.slice(0, 3).map((singleItem, index) => (
-                                        <li key={index}> {singleItem} </li>
-                                    ))}
-                                    <button
-                                        style={{
-                                            marginLeft: '0',
-                                            marginTop: '10px',
-                                            fontWeight: 'bold'
-                                        }}
-                                        onClick={
-                                            () => {
-                                                onOpen()
-                                                setSelectedId(supplier._id)
-                                            }
-                                        }
-                                    >
-                                        More Details...
-                                    </button>
-                                    <>
-                                        <Menu
+                  <Button
+                    mt={3}
+                    size="sm"
+                    variant="solid"
+                    colorScheme="blue"
+                    onClick={() => {
+                      onOpen();
+                      setSelectedId(supplier._id);
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </Box>
+                {/* Action Menu */}
+                <Box position="relative" textAlign="right" p={4}>
+                  <Menu>
+                    <MenuButton>
+                      <RxDotsVertical />
+                    </MenuButton>
+                    <Portal>
+                      <MenuList>
+                        <MenuItem
+                          onClick={(e) => handleEditSupplier(e, supplier._id)}
+                        >
+                          Edit
+                        </MenuItem>
+                        <MenuItem
+                          onClick={(e) => handleDeleteSupplier(e, supplier._id)}
+                        >
+                          Delete
+                        </MenuItem>
+                      </MenuList>
+                    </Portal>
+                  </Menu>
+                </Box>
+              </Flex>
+            </Box>
+          ))
+        ) : (
+          <Text m={3} fontWeight="600" color="gray.500" fontSize="lg">
+            No suppliers available.
+          </Text>
+        )}
+      </Flex>
 
+      {/* Modals for Viewing and Editing */}
+      <ViewSupplier
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+        selectedId={selectedId}
+      />
+      <EditSupplier
+        isOpen={isOpenEdit}
+        onOpen={onOpenEdit}
+        onClose={onCloseEdit}
+        selectedId={selectedId}
+        isEdit={true}
+      />
+    </Box>
+  );
+};
 
-                                        >
-                                            <MenuButton
-                                                style={{ marginLeft: '7rem' }}
-                                            >
-                                                <RxDotsVertical />
-                                            </MenuButton>
-                                            <Portal>
-                                                <MenuList
-                                                    style={{ minWidth: '7rem' }}
-                                                    background={'rgb(243, 242, 238)'}
-                                                    color={index & 1 ? '#ee2d4f' : '#ee7213'}
-                                                >
-                                                    <MenuItem
-                                                        onClick={(e) =>
-                                                            handleEditSupplier(e, supplier._id)
-                                                        }
-                                                    > Edit </MenuItem>
-                                                    <MenuItem
-                                                        onClick={(e) =>
-                                                            handleDeleteSupplier(e, supplier._id)
-                                                        }
-                                                    > Delete </MenuItem>
-                                                </MenuList>
-                                            </Portal>
-                                        </Menu>
-                                    </>
-                                </ol>
-                            </Box>
-
-                        </>
-                    </Box>
-                ))}
-            </div>
-
-
-            {/* View Modal Starts */}
-            <ViewSupplier
-                isOpen={isOpen}
-                onOpen={onOpen}
-                onClose={onClose}
-                selectedId={selectedId}
-            />
-            {/* View Modal Ends */}
-
-
-            {/* Edit Modal Starts */}
-            <EditSupplier
-                isOpen={isOpenEdit}
-                onOpen={onOpenEdit}
-                onClose={onCloseEdit}
-                selectedId={selectedId}
-            />
-
-            {/* Edit Modal Ends */}
-        </div>
-    )
-}
-
-export default SupplierCards
+export default React.memo(SupplierCards);
