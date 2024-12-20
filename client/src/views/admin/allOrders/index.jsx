@@ -35,6 +35,7 @@ import CartDrawer from "./components/CartDrawer";
 import ItemModal from "./components/ItemModal";
 import DineInDrawer from "./components/DineInDrawer";
 import TakeawayDrawer from "./components/TakeAwayDrawer";
+import RestaurantModal from "../../../components/restaurant/restaurantModal";
 
 export default function AllOrders() {
   // Chakra UI hooks for modal and drawer states
@@ -65,6 +66,12 @@ export default function AllOrders() {
     onClose: onCloseTakeAway,
   } = useDisclosure();
 
+  const {
+    isOpen: isRestaurantModalOpen,
+    onOpen: onRestaurantModalOpen,
+    onClose: onRestaurantModalClose,
+  } = useDisclosure();
+
   // Redux hooks
   const dispatch = useDispatch();
   const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
@@ -81,6 +88,12 @@ export default function AllOrders() {
     searchResults: [],
     searchPerformed: false,
   });
+  // Selector to get the length of all order items
+  const AllOrderItemsLength = useSelector(
+    (state) => state.OrderItemReducer?.length
+  );
+  // Get admin data from Redux store
+  const adminData = useSelector((state) => state?.userReducer?.data);
 
   const [allOrderTotal, setAllOrderTotal] = useState(0);
   const [allItemsData, setAllItemsData] = useState([]);
@@ -89,11 +102,7 @@ export default function AllOrders() {
   const [editItem, setEditItem] = useState(null);
   const [editDrink, setEditDrink] = useState(null);
   const [IsCartClicked, setIsCartClicked] = useState(false);
-
-  // Selector to get the length of all order items
-  const AllOrderItemsLength = useSelector(
-    (state) => state.OrderItemReducer?.length
-  );
+  const [isVerified, setIsVerified] = useState(true);
 
   // Function to handle search
   const handleSearch = useCallback(
@@ -118,7 +127,16 @@ export default function AllOrders() {
     [dispatch, searchState, searchStateDrinks, userId]
   );
 
+  const handleVerifyRestaurant = () => {
+    onRestaurantModalOpen();
+    setIsVerified(true);
+  };
+
   const handleCartClick = (type) => {
+    if (!adminData?.isVerified) {
+      setIsVerified(false);
+      return;
+    }
     if (type === 1) {
       onOpenDineIn();
     } else if (type === 2) {
@@ -411,108 +429,137 @@ export default function AllOrders() {
 
   // Main component render
   return (
-    <div
-      style={{ marginTop: "4vw", padding: "2rem", backgroundColor: "#f7f7f7" }}
-    >
-      <ToastContainer />
-      <Box display="flex" justifyContent="space-between" mb="2rem">
-        <Button
-          leftIcon={<FiPlusCircle />}
-          colorScheme="teal"
-          onClick={onOpenItem}
+    <>
+      {!isVerified && (
+        <Box
+          bg="red"
+          color="white"
+          p="0.5rem"
+          textAlign="center"
+          fontSize={"18"}
+          animation="blinking 1s ease 2"
         >
-          Add Items
-        </Button>
-        <Box position="relative">
+          Your restaurant is not verified. Please verify to begin checkout.
           <Button
-            leftIcon={<FaCartShopping />}
-            colorScheme="teal"
-            // onClick={onOpenCart}
-            onClick={() => setIsCartClicked(!IsCartClicked)}
+            ml="1rem"
+            colorScheme="yellow"
+            onClick={handleVerifyRestaurant}
           >
-            Cart
+            Verify Now
           </Button>
-          <Badge
-            position="absolute"
-            top="-2"
-            right="-2"
-            colorScheme="teal"
-            borderRadius="full"
-          >
-            {AllOrderItemsLength}
-          </Badge>
         </Box>
-        {IsCartClicked && (
-          <Box>
+      )}
+      <Box mt="2vw" p="2rem" bg="#f7f7f7">
+        <ToastContainer />
+        <Box display="flex" justifyContent="space-between" mb="2rem">
+          <Button
+            leftIcon={<FiPlusCircle />}
+            colorScheme="teal"
+            onClick={onOpenItem}
+          >
+            Add Items
+          </Button>
+          <Box position="relative">
             <Button
-              onClick={() => handleCartClick(1)}
-              colorScheme="yellow"
-              variant="solid"
-              mr={2}
+              leftIcon={<FaCartShopping />}
+              colorScheme="teal"
+              onClick={() => setIsCartClicked(!IsCartClicked)}
             >
-              Dine-In
+              Cart
             </Button>
-            <Button
-              onClick={() => handleCartClick(2)}
-              colorScheme="orange"
-              variant="solid"
-              mr={2}
+            <Badge
+              position="absolute"
+              top="-2"
+              right="-2"
+              colorScheme="teal"
+              borderRadius="full"
             >
-              Deliver
-            </Button>{" "}
-            <Button
-              onClick={() => handleCartClick(3)}
-              colorScheme="red"
-              variant="solid"
-            >
-              TakeAway
-            </Button>
+              {AllOrderItemsLength}
+            </Badge>
           </Box>
-        )}
-        <Button
-          leftIcon={<FiPlusCircle />}
-          colorScheme="teal"
-          onClick={onOpenDrinks}
-        >
-          Add Drinks
-        </Button>
+          {IsCartClicked && (
+            <Box>
+              <Button
+                onClick={() => handleCartClick(1)}
+                colorScheme="yellow"
+                variant="solid"
+                mr={2}
+              >
+                Dine-In
+              </Button>
+              <Button
+                onClick={() => handleCartClick(2)}
+                colorScheme="orange"
+                variant="solid"
+                mr={2}
+              >
+                Deliver
+              </Button>
+              <Button
+                onClick={() => handleCartClick(3)}
+                colorScheme="red"
+                variant="solid"
+              >
+                TakeAway
+              </Button>
+            </Box>
+          )}
+          <Button
+            leftIcon={<FiPlusCircle />}
+            colorScheme="teal"
+            onClick={onOpenDrinks}
+          >
+            Add Drinks
+          </Button>
+        </Box>
+        {/* Food Modal */}
+        <ItemModal
+          isOpen={isOpenItem}
+          onClose={handleClose}
+          isDrink={false}
+          onSubmitData={handleSubmitItemOrder}
+          data={editItem}
+        />
+        {/* Drink Modal */}
+        <ItemModal
+          isOpen={isOpenDrinks}
+          onClose={handleClose}
+          isDrink={true}
+          onSubmitData={handleSubmitItemOrder}
+          data={editDrink}
+        />
+        <Box display="flex" gap="2rem">
+          {[
+            { data: allItemsData, isDrink: false },
+            { data: drinksData, isDrink: true },
+          ].map((section, index) => (
+            <Box key={index} flex="1">
+              {renderSearchBox(section.isDrink)}
+              {renderSearchResults(section.data, section.isDrink)}
+            </Box>
+          ))}
+        </Box>
+        <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
+        <DineInDrawer isOpen={isOpenDineIn} onClose={onCloseDineIn} />
+        <TakeawayDrawer isOpen={isOpenTakeAway} onClose={onCloseTakeAway} />
+
+        {/* Restaurant Modal */}
+        <RestaurantModal
+          isOpen={isRestaurantModalOpen}
+          onClose={onRestaurantModalClose}
+        />
       </Box>
-      <ItemModal
-        isOpen={isOpenItem}
-        onClose={handleClose}
-        isDrink={false}
-        onSubmitData={handleSubmitItemOrder}
-        data={editItem}
-      />
-      <ItemModal
-        isOpen={isOpenDrinks}
-        onClose={handleClose}
-        isDrink={true}
-        onSubmitData={handleSubmitItemOrder}
-        data={editDrink}
-      />
-      <Box display="flex" gap="2rem">
-        {[
-          { data: allItemsData, isDrink: false },
-          { data: drinksData, isDrink: true },
-        ].map((section, index) => (
-          <Box key={index} flex="1">
-            {renderSearchBox(section.isDrink)}
-            {renderSearchResults(section.data, section.isDrink)}
-          </Box>
-        ))}
-      </Box>
-      <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
-      <DineInDrawer
-        isOpen={isOpenDineIn}
-        onOpen={onOpenDineIn}
-        onClose={onCloseDineIn}
-      />
-      <TakeawayDrawer
-        isOpen={isOpenTakeAway}
-        onOpen={onOpenTakeAway}
-        onClose={onCloseTakeAway}
-      />
-    </div>
+
+      {/* CSS */}
+      <style>
+        {`
+          @keyframes blinking {
+            0% { background-color: red; }
+            50% { background-color: darkred; }
+            100% { background-color: red; }
+          }
+        `}
+      </style>
+    </>
   );
 }

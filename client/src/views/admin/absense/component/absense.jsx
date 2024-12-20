@@ -324,6 +324,11 @@ export default function AbsenseComponent() {
                         day.date
                       ).toLocaleDateString();
 
+                      // Check if the date is valid to add/edit absence
+                      const isDateValid =
+                        new Date(day?.date) >
+                        new Date(new Date().setDate(new Date().getDate() + 1));
+
                       // Find absences that cover this particular day
                       const absences = emp.absences.filter((absence) => {
                         const startDate = new Date(
@@ -384,7 +389,16 @@ export default function AbsenseComponent() {
                                   )}`}
                                   &nbsp; &nbsp;
                                   <EditIcon
+                                    cursor={
+                                      isDateValid ? "pointer" : "not-allowed"
+                                    }
                                     onClick={() => {
+                                      if (!isDateValid) {
+                                        toast.warning(
+                                          "You can't edit absence for past dates"
+                                        );
+                                        return;
+                                      }
                                       setSelectedEmployeeId(emp._id);
                                       setEditAbsenceId(absence._id);
                                       setSelectedAbsence({
@@ -398,7 +412,6 @@ export default function AbsenseComponent() {
                                     sx={{
                                       marginRight: "10px",
                                       color: "black",
-                                      cursor: "pointer",
                                     }}
                                   />
                                 </Box>
@@ -406,35 +419,41 @@ export default function AbsenseComponent() {
                             </Box>
                           ) : (
                             <AddIcon
+                              cursor={isDateValid ? "pointer" : "not-allowed"}
                               onClick={() => {
-                                const date = new Date(day.date);
+                                if (isDateValid) {
+                                  const date = new Date(day.date);
 
-                                const year = date.getFullYear(); // Get the full year (e.g., 2024)
-                                const month = String(
-                                  date.getMonth() + 1
-                                ).padStart(2, "0"); // Get month (0-11) and pad to 2 digits
-                                const days = String(date.getDate()).padStart(
-                                  2,
-                                  "0"
-                                ); // Get day of the month (1-31) and pad to 2 digits
+                                  const year = date.getFullYear(); // Get the full year (e.g., 2024)
+                                  const month = String(
+                                    date.getMonth() + 1
+                                  ).padStart(2, "0"); // Get month (0-11) and pad to 2 digits
+                                  const days = String(date.getDate()).padStart(
+                                    2,
+                                    "0"
+                                  ); // Get day of the month (1-31) and pad to 2 digits
 
-                                // Format as "yyyy-MM-dd"
-                                const formattedDate = `${year}-${month}-${days}`;
+                                  // Format as "yyyy-MM-dd"
+                                  const formattedDate = `${year}-${month}-${days}`;
 
-                                // console.log("date", formattedDate);
-                                setActionType("add");
-                                setSelectedEmployeeId(emp._id);
-                                setSelectedAbsence({
-                                  emp_name: emp.name,
-                                  startDate: formattedDate,
-                                });
-                                onOpen();
+                                  // console.log("date", formattedDate);
+                                  setActionType("add");
+                                  setSelectedEmployeeId(emp._id);
+                                  setSelectedAbsence({
+                                    emp_name: emp.name,
+                                    startDate: formattedDate,
+                                  });
+                                  onOpen();
+                                } else {
+                                  toast.warning(
+                                    "You can't add absence for past dates"
+                                  );
+                                }
                               }}
                               className="add_icon_hover"
                               sx={{
                                 marginRight: "10px",
                                 color: "black",
-                                cursor: "pointer",
                               }}
                             />
                           )}

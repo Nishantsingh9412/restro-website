@@ -24,7 +24,8 @@ export const updateProfilePicAction = createAsyncThunk(
   "user/updateProfilePic",
   async (formData, { rejectWithValue }) => {
     try {
-      if (formData.role === "admin") {
+      const role = formData.get("role");
+      if (role === "admin") {
         const { data } = await api.updateAdminProfilePic(formData);
         return data.result;
       } else {

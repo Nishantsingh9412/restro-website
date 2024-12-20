@@ -4,18 +4,34 @@ import Notification from "../../models/notification.js";
 import fs from "fs";
 import path from "path";
 import Joi from "joi";
+import Restaurant from "../../models/restaurantModel.js";
 
 const schema = Joi.object({
   is_online: Joi.boolean().required(),
   latitude: Joi.number().required(),
   longitude: Joi.number().required(),
   live_photo: Joi.string().optional(),
+  adminId: Joi.string().required(),
 });
 
 // Define restaurant's fixed coordinates
-const RESTAURANT_COORDINATES = {
-  latitude: 25.6183987, // Replace with actual restaurant latitude
-  longitude: 85.1550559, // Replace with actual restaurant longitude
+// const RESTAURANT_COORDINATES = {
+//   latitude: 25.6183987, // Replace with actual restaurant latitude
+//   longitude: 85.1550559, // Replace with actual restaurant longitude
+// };
+
+// Helper Function to get the restaurant's coordinates
+const getRestaurantCoordinates = async (adminId) => {
+  try {
+    const restaurant = await Restaurant.findOne({ adminId });
+    if (!restaurant) {
+      return null;
+    }
+    return restaurant.coordinates;
+  } catch (error) {
+    console.error("Error getting restaurant coordinates:", error);
+    return null;
+  }
 };
 
 // Helper function to calculate distance between two coordinates using the Haversine formula
@@ -36,9 +52,10 @@ const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
 // Update the status of employee to online or offline based on location
 export const updateEmployeeOnlineStatus = async (req, res) => {
   const id = req.user.id;
-  const { is_online, latitude, longitude } = req.body;
+  const { is_online, latitude, longitude, adminId } = req.body;
   const live_photo = req.file ? req.file.filename : null;
   const status = is_online === "true" ? true : false;
+  // Check if employee ID is provided
   if (!id) return res.status(400).json({ message: "Employee ID is required" });
 
   if (status === false) {
@@ -76,11 +93,17 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
     const employee = await Employee.findById(id);
     if (!employee)
       return res.status(404).json({ message: "Employee not found" });
-
-    if (status === true) {
+    // Get restaurant coordinates
+    const restaurantCoordinates = await getRestaurantCoordinates(adminId);
+    // Check if restaurant coordinates are available
+    if (!restaurantCoordinates) {
+      return res.status(404).json({ message: "Restaurant not available" });
+    }
+    // Calculate distance between employee and restaurant
+    if (status === true && restaurantCoordinates) {
       const distance = getDistanceFromLatLonInMeters(
-        RESTAURANT_COORDINATES.latitude,
-        RESTAURANT_COORDINATES.longitude,
+        restaurantCoordinates?.lat,
+        restaurantCoordinates?.lng,
         latitude,
         longitude
       );
@@ -91,9 +114,8 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
         });
       }
     }
-
+    // Update employee status and live photo
     employee.is_online = status;
-
     if (employee.live_photo) {
       const oldLivePhotoPath = path.join("uploads/", employee.live_photo);
       if (fs.existsSync(oldLivePhotoPath)) {
@@ -102,7 +124,7 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
         });
       }
     }
-
+    // Save new live photo
     employee.live_photo = live_photo;
     await employee.save();
     res.status(200).json({

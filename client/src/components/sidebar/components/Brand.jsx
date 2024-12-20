@@ -22,10 +22,8 @@ export function SidebarBrand() {
   // Redux dispatch function
   const dispatch = useDispatch();
   // Retrieve local profile data from localStorage
-  const localData = useMemo(
-    () => JSON.parse(localStorage.getItem("ProfileData")),
-    []
-  );
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+
   const role = localData?.result?.role;
   // Retrieve user profile data from Redux store
   const userProfileData = useSelector((state) => state?.userReducer?.data);

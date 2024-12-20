@@ -22,6 +22,11 @@ const adminSchema = new Schema(
       required: true,
       unique: true,
     },
+    //ID is verified or not
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     // Profile picture field, has a default value
     profile_picture: {
       type: String,

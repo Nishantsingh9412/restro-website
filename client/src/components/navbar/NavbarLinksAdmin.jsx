@@ -9,6 +9,7 @@ import {
   MenuList,
   Text,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
 import { SearchBar } from "./searchBar/SearchBar.jsx";
@@ -18,11 +19,17 @@ import { FaEthereum } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../redux/action/auth.js";
+import RestaurantModal from "../restaurant/restaurantModal.jsx";
 // import { logoutUser } from "../../redux/action/user.js";
 
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {
+    isOpen: isRestaurantModalOpen,
+    onOpen: onRestaurantModalOpen,
+    onClose: onRestaurantModalClose,
+  } = useDisclosure();
 
   // Fetching local data from local storage and handling potential parsing errors
   const localData = (() => {
@@ -75,108 +82,130 @@ export default function HeaderLinks({ secondary }) {
   }, [dispatch, localData, navigate]); // Added localData to dependencies
 
   return (
-    <Flex
-      w={{ sm: "100%", md: "auto" }}
-      alignItems="center"
-      flexDirection="row"
-      flexWrap={secondary ? { base: "wrap", md: "nowrap" } : "unset"}
-      p="10px"
-      borderRadius="30px"
-      boxShadow={shadow}
-    >
-      {/* Search Bar Component */}
-      <SearchBar
-        mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-        me="10px"
-        borderRadius="30px"
-      />
-      {/* Ethereum Info Box */}
+    <>
       <Flex
-        bg={ethBg}
-        display={secondary ? "flex" : "none"}
+        w={{ sm: "100%", md: "auto" }}
+        alignItems="center"
+        flexDirection="row"
+        flexWrap={secondary ? { base: "wrap", md: "nowrap" } : "unset"}
+        p="10px"
         borderRadius="30px"
-        ms="auto"
-        p="6px"
-        align="center"
-        me="6px"
+        boxShadow={shadow}
       >
-        <Flex
-          align="center"
-          justify="center"
-          bg={ethBox}
-          h="29px"
-          w="29px"
+        {/* Search Bar Component */}
+        <SearchBar
+          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
+          me="10px"
           borderRadius="30px"
-          me="7px"
-        >
-          <Icon color={ethColor} w="9px" h="14px" as={FaEthereum} />
-        </Flex>
-        <Text
-          w="max-content"
-          color={ethColor}
-          fontSize="sm"
-          fontWeight="700"
+        />
+        {/* Ethereum Info Box */}
+        <Flex
+          bg={ethBg}
+          display={secondary ? "flex" : "none"}
+          borderRadius="30px"
+          ms="auto"
+          p="6px"
+          align="center"
           me="6px"
         >
-          1,924
-          <Text as="span" display={{ base: "none", md: "unset" }}>
-            {" "}
-            ETH
-          </Text>
-        </Text>
-      </Flex>
-
-      {/* User Menu */}
-      <Menu>
-        <MenuButton p="0px">
-          <Avatar
-            _hover={{ cursor: "pointer" }}
-            color="white"
-            name={singleUserData?.username || "User"}
-            bg="#11047A"
-            size="sm"
-            w="40px"
-            h="40px"
-          />
-        </MenuButton>
-        <MenuList
-          boxShadow={shadow}
-          p="0px"
-          mt="10px"
-          borderRadius="20px"
-          bg={menuBg}
-          border="none"
-        >
-          <Flex w="100%" mb="0px">
-            <Text
-              ps="20px"
-              pt="16px"
-              pb="10px"
-              w="100%"
-              borderBottom="1px solid"
-              borderColor={borderColor}
-              fontSize="sm"
-              fontWeight="700"
-              color={"black"}
-            >
-              👋&nbsp; Hey, {singleUserData?.username || "User"}
+          <Flex
+            align="center"
+            justify="center"
+            bg={ethBox}
+            h="29px"
+            w="29px"
+            borderRadius="30px"
+            me="7px"
+          >
+            <Icon color={ethColor} w="9px" h="14px" as={FaEthereum} />
+          </Flex>
+          <Text
+            w="max-content"
+            color={ethColor}
+            fontSize="sm"
+            fontWeight="700"
+            me="6px"
+          >
+            1,924
+            <Text as="span" display={{ base: "none", md: "unset" }}>
+              {" "}
+              ETH
             </Text>
-          </Flex>
-          <Flex flexDirection="column" p="10px">
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              color="red.400"
-              borderRadius="8px"
-              px="14px"
-              onClick={handleLogout}
-            >
-              <Text fontSize="sm">Log out</Text>
-            </MenuItem>
-          </Flex>
-        </MenuList>
-      </Menu>
-    </Flex>
+          </Text>
+        </Flex>
+
+        {/* User Menu */}
+        <Menu>
+          <MenuButton p="0px">
+            <Avatar
+              _hover={{ cursor: "pointer" }}
+              color="white"
+              name={singleUserData?.username || "User"}
+              bg="#11047A"
+              size="sm"
+              w="40px"
+              h="40px"
+            />
+          </MenuButton>
+          <MenuList
+            boxShadow={shadow}
+            p="0px"
+            mt="10px"
+            borderRadius="20px"
+            bg={menuBg}
+            border="none"
+          >
+            <Flex w="100%" mb="0px">
+              <Text
+                ps="20px"
+                pt="16px"
+                pb="10px"
+                w="100%"
+                borderBottom="1px solid"
+                borderColor={borderColor}
+                fontSize="sm"
+                fontWeight="700"
+                color={"black"}
+              >
+                👋&nbsp; Hey, {singleUserData?.username || "User"}
+              </Text>
+            </Flex>
+            <Flex flexDirection="column" p="10px">
+              {!singleUserData?.isVerified && (
+                <MenuItem
+                  _hover={{ bg: "none" }}
+                  _focus={{ bg: "none" }}
+                  color="blue.400"
+                  borderRadius="8px"
+                  px="14px"
+                  onClick={onRestaurantModalOpen}
+                >
+                  <Text fontSize="sm">Verify Restaurant</Text>
+                </MenuItem>
+              )}
+              <MenuItem
+                _hover={{ bg: "none" }}
+                _focus={{ bg: "none" }}
+                color="red.400"
+                borderRadius="8px"
+                px="14px"
+                onClick={handleLogout}
+              >
+                <Text fontSize="sm">Log out</Text>
+              </MenuItem>
+            </Flex>
+          </MenuList>
+        </Menu>
+      </Flex>
+      {/* // Restaurant Modal */}
+      {isRestaurantModalOpen && (
+        <RestaurantModal
+          isOpen={isRestaurantModalOpen}
+          onClose={onRestaurantModalClose}
+          onSubmit={(data) => console.log(data)}
+        />
+      )}
+    </>
   );
 }
 

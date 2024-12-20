@@ -25,7 +25,7 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
   const initialItemState = {
     item_name: "",
     item_unit: "",
-    available_quantity: 0,
+    available_quantity: "",
     minimum_quantity: 0,
     bar_code: "",
     existing_barcode_no: "",
@@ -181,11 +181,7 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
           </FormControl>
           <FormControl id="available_quantity">
             <FormLabel>Available Quantity</FormLabel>
-            <Input
-              type="number"
-              value={formData.available_quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
+            <Input type="number" value={formData.available_quantity} disabled />
           </FormControl>
           <FormControl id="quantity">
             <FormLabel>Used Quantity</FormLabel>

@@ -78,14 +78,14 @@ const LowStockItem = ({ item, index, isLow }) => {
       {/* Stock status indicator */}
       <Flex justifyContent={"end"} marginTop={"20px"} marginBottom={"15px"}>
         <Flex alignItems={"center"}>
-          <Circle
+          {/* <Circle
             size="10px"
             marginRight={"5px"}
             bg={isLow ? "red.500" : "green.500"}
           />
           <Text fontSize={"sm"} color={isLow ? "red.500" : "green.500"}>
             {isLow ? "Low Stock" : "In Stock"}
-          </Text>
+          </Text> */}
         </Flex>
       </Flex>
 

@@ -1,4 +1,3 @@
-//TODO:Delete after project completion
 import express from "express";
 import {
   getAllAdmins,
@@ -8,6 +7,10 @@ import {
 } from "../controllers/adminController.js";
 import { adminMiddleware } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/fileupload.js";
+import {
+  addRestaurantByAdmin,
+  updateRestaurantByAdmin,
+} from "../controllers/restaurantController.js";
 
 const router = express.Router();
 
@@ -27,5 +30,11 @@ router.patch(
   upload.single("profile_picture"),
   updateAdminProfilePic
 );
+
+// add restaurant details
+router.post("/add-restaurant", adminMiddleware, addRestaurantByAdmin);
+
+// update restaurant details
+router.patch("/update-restaurant", adminMiddleware, updateRestaurantByAdmin);
 
 export default router;

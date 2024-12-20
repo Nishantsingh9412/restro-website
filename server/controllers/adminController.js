@@ -116,3 +116,28 @@ export const updateAdminProfilePic = async (req, res) => {
   }
 };
 
+export const verifyAdminProfile = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    // If ID is not valid, return 400 status
+    return res.status(400).json({ success: false, message: "Invalid User ID" });
+  }
+  try {
+    // Find admin by ID
+    const admin = await Admin.findById(_id).select("-password -__v ");
+    if (!admin) {
+      // If admin not found, return 404 status
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    admin.isVerified = true;
+    const updatedAdmin = await admin.save();
+    // Return updated admin data with 200 status
+    return res.status(200).json({ success: true, result: updatedAdmin });
+  } catch (error) {
+    // Handle any server errors
+    console.log("Error from Admin Controller : ", error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong", error: error });
+  }
+};

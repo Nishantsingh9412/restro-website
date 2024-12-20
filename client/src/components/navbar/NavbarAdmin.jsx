@@ -16,6 +16,7 @@ import AdminNavbarLinks from "./NavbarLinksAdmin";
 import { SidebarResponsive } from "../sidebar/Sidebar";
 import routes from "../../routes.jsx";
 import profileImg from "../../assets/img/profile/profile.png";
+import { useSelector } from "react-redux";
 
 export default function AdminNavbar({
   secondary,
@@ -26,6 +27,7 @@ export default function AdminNavbar({
   fixed,
 }) {
   const [scrolled, setScrolled] = useState(false);
+  const adminData = useSelector((state) => state.userReducer.data);
 
   const changeNavbar = useCallback(() => {
     setScrolled(window.scrollY > 1);
@@ -78,10 +80,14 @@ export default function AdminNavbar({
         w="100%"
       >
         <Flex alignItems="center" gap="10px">
-          <Img src={profileImg} w="50px" h="50px" />
+          <Img
+            src={adminData?.profile_picture ?? profileImg}
+            w="50px"
+            h="50px"
+          />
           <Box>
             <Text>Hey</Text>
-            <Text>{"User"}</Text>
+            <Text>{adminData?.username ?? "User"}</Text>
           </Box>
         </Flex>
         <SidebarResponsive routes={routes} />

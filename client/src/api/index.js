@@ -1,22 +1,30 @@
 import axios from "axios";
 const baseURL = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 
-const API = axios.create({ baseURL: baseURL });
+const API = axios.create({ baseURL });
 
-// Add an interceptor to attach the authorization token to each request
 API.interceptors.request.use(
   (req) => {
-    // Check if user profile exists in localStorage
-    const profile = localStorage.getItem("ProfileData");
-    // console.log(profile);
-    if (profile) {
-      // Parse the profile JSON and attach the token to Authorization header
-      const token = JSON.parse(profile).token;
-      req.headers.Authorization = `Bearer ${token}`;
-    }
+    try {
+      const profile = localStorage.getItem("ProfileData");
+      if (profile) {
+        const { token } = JSON.parse(profile);
+        if (token) {
+          req.headers.Authorization = `Bearer ${token}`;
+        } else {
+          console.warn("Token is missing in ProfileData.");
+        }
+      } else {
+        console.warn("ProfileData not found in localStorage.");
+      }
 
-    // console.log("Request:", req); // For debugging: remove in production
-    req.headers["Content-Type"] = "application/json";
+      // Automatically handle FormData and JSON
+      if (!(req.data instanceof FormData)) {
+        req.headers["Content-Type"] = "application/json";
+      }
+    } catch (error) {
+      console.error("Error processing request interceptor:", error);
+    }
     return req;
   },
   (error) => {
@@ -25,6 +33,19 @@ API.interceptors.request.use(
   }
 );
 
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.error("Unauthorized: Clearing localStorage and redirecting.");
+      localStorage.removeItem("ProfileData");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default API;
 // Authentication APIs
 // Signup
 export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
@@ -40,6 +61,9 @@ export const getAdminData = () => API.get(`/admin/get-admin`);
 // Update Admin Profile Pic
 export const updateAdminProfilePic = (updatedData) =>
   API.patch(`/admin/update-profile-pic`, updatedData);
+// Add Restaurant Details
+export const addRestaurantDetails = (newRestaurant) =>
+  API.post("/admin/add-restaurant", newRestaurant);
 
 //common apis
 // Get Employee

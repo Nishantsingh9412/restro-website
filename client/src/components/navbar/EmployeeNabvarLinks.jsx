@@ -192,6 +192,7 @@ export default function EmployeeNavbarLinks() {
     formData.append("is_online", true);
     formData.append("latitude", location?.latitude);
     formData.append("longitude", location?.longitude);
+    formData.append("adminId", empData?.created_by);
     formData.append("live_photo", capturedPhoto, "photo.jpg");
 
     try {
