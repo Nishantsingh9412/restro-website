@@ -34,6 +34,17 @@ const schema = Joi.object({
   is_online: Joi.boolean().optional(),
 });
 
+const ROLE_CASES = {
+  "Delivery Boy": DeliveryBoy,
+  Waiter: Waiter,
+  Chef: Chef,
+  Manager: Manager,
+  "Bar Tender": Bartender,
+  "Kitchen Staff": Staff,
+  Helper: HelperEmployee,
+  Custom: Employee,
+};
+
 const handleError = (res, error, message = "Internal Server Error") => {
   console.error(message, error.message);
   return res.status(500).json({ success: false, message });
@@ -77,29 +88,19 @@ export const addEmployee = async (req, res) => {
 };
 
 // Helper function to create employee based on role
+// const createEmployee = (role, empData) => {
+//   switch (role) {
+
+
 const createEmployee = (role, empData) => {
-  switch (role) {
-    case "Delivery Boy":
-      return DeliveryBoy.create(empData);
-    case "Waiter":
-      return Waiter.create(empData);
-    //TODO: Add other roles here
-    case "Chef":
-      return Chef.create(empData);
-    case "Manager":
-      return Manager.create(empData);
-    case "Bar Tender":
-      return Bartender.create(empData);
-    case "Kitchen Staff":
-      return Staff.create(empData);
-    case "Helper":
-      return HelperEmployee.create(empData);
-    case "Custom":
-      return Employee.create(empData);
-    default:
-      return Employee.create(empData);
-  }
+  const EmployeeModel = ROLE_CASES[role] || Employee;
+  return EmployeeModel.create(empData);
 };
+//       return Employee.create(empData);
+//     default:
+//       return Employee.create(empData);
+//   }
+// };
 
 // Get employees by restaurant based on userId or id
 export const getEmployeesByRestaurant = async (req, res) => {
@@ -148,15 +149,38 @@ export const getEmployeeById = async (req, res) => {
 export const updateEmployee = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!id) {
+    const updateData = req.body;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res
         .status(400)
-        .json({ success: false, message: "Employee ID parameter is required" });
+        .json({ success: false, message: "Invalid Employee ID" });
     }
 
-    const employee = await Employee.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    // Check if role is being updated
+    const existingEmployee = await Employee.findById(id);
+    if (!existingEmployee) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employee not found" });
+    }
+
+    if (updateData.role && updateData.role !== existingEmployee.role) {
+      // Remove the old employee document
+      await Employee.findByIdAndDelete(id);
+
+      // Create a new employee document in the new role
+      const newEmployee = await createEmployee(updateData.role, {
+        ...existingEmployee.toObject(),
+        ...updateData, // Override with updated fields
+        __t: undefined, // Remove the discriminator key
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Employee role updated successfully",
+        result: newEmployee,
+      });
+    }
 
     return res.status(200).json({
       success: true,

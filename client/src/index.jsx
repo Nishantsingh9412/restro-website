@@ -15,6 +15,7 @@ import EmployeeLayout from "./layouts/employee";
 import RtlLayout from "./layouts/rtl";
 import SignIn from "./views/auth/signIn";
 import SignUp from "./views/auth/signup";
+import ForgotPassword from "./views/auth/forgotPassword";
 import adminRoutes, {
   staffRoutes,
   deliveryRoutes,
@@ -61,6 +62,10 @@ root.render(
               <Route path="/rtl/*" element={<RtlLayout />} />
               <Route path="/" element={<SignIn />} />
               <Route path="/auth/sign-up" element={<SignUp />} />
+              <Route
+                path="/auth/forgot-password"
+                element={<ForgotPassword />}
+              />
               <Route path="/admin/*" element={<AdminLayout />}>
                 {renderRoutes(adminRoutes)}
               </Route>

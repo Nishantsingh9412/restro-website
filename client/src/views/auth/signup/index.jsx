@@ -121,8 +121,9 @@ function SignUp() {
 
     dispatch(signUpAdmin(formData)).then((res) => {
       setLoading(false);
+      console.log(res);
       if (!res.payload.success) {
-        toast.error(res.message);
+        toast.error(res.payload);
       } else {
         navigate("/admin/dashboards/default");
       }

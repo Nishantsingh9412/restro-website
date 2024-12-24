@@ -96,10 +96,11 @@ function SignIn() {
     dispatch(loginAdmin(loginData))
       .then((res) => {
         setLoading(false);
+
         if (res.payload.success) {
           navigate("/admin/dashboards/default");
         } else {
-          toast.error(res.error.message);
+          toast.error(res.payload);
         }
       })
       .catch((err) => {
@@ -124,7 +125,6 @@ function SignIn() {
     };
 
     dispatch(loginEmployee(loginData)).then((res) => {
-      console.log(res.payload);
       setLoading(false);
       if (res.payload.success) {
         const empRole = res?.payload?.result?.role;
@@ -363,7 +363,7 @@ function SignIn() {
     </Flex>
   );
 
-  if (loading) return renderLoader();
+  // if (loading) return renderLoader();
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
