@@ -8,7 +8,7 @@ import {
   deleteEmployeeAbsence,
   // getCurrentMonthShifts
 } from "../controllers/absenceController.js";
-import { adminMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.get("/get-todays-leave/:userId", getTodaysLeaveByUserId);
 
 router.get(
   "/get-all-employee-leave",
-  adminMiddleware,
+  accessMiddleware(),
   getEmployeesWithAbsencesByUser
 );
 

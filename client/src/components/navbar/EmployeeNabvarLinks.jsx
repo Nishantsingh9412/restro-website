@@ -32,7 +32,6 @@ import {
 } from "../../redux/action/Employees/employee.js";
 import { socket } from "../../api/socket";
 import { clearEmpData } from "../../redux/action/user.js";
-import { set } from "date-fns";
 // Modal component for displaying different modals
 const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
@@ -442,7 +441,7 @@ export default function EmployeeNavbarLinks() {
             </Text>
             <MenuItem>
               <Text fontSize="sm" mr={10}>
-                Receive Deliveries
+                Go Online
               </Text>
               <Switch
                 isChecked={onlineStatus}

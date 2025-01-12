@@ -15,12 +15,18 @@ import {
   RadioGroup,
   HStack,
   Radio,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Checkbox,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import React from "react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 // Date conversion utilities
 const formatDateForInput = (isoDate) => {
@@ -83,6 +89,7 @@ export default function EmployeeModal({
         dateOfJoining: formatDateForInput(employeeData.dateOfJoining),
         endOfEmployment: formatDateForInput(employeeData.endOfEmployment),
       });
+      setSelectedPermissions(employeeData.permissions.map((role) => role.id));
     }
   }, [actionType, employeeData]);
 
@@ -149,9 +156,17 @@ export default function EmployeeModal({
   const handleSave = () => {
     if (!validate()) return;
 
-    // Convert date fields back to ISO format
+    const selectedPermissionsAccess = Permissions.filter((role) =>
+      selectedPermissions.includes(role.id)
+    ).map((role) => ({
+      id: role.id,
+      label: role.label.split(" ").join("-"),
+    }));
+
+    // Convert date fields back to ISO format and submit the form data
     const dataToSubmit = {
       ...formData,
+      permissions: selectedPermissionsAccess,
       birthday: formatInputToISO(formData.birthday),
       dateOfJoining: formatInputToISO(formData.dateOfJoining),
       endOfEmployment: formatInputToISO(formData.endOfEmployment),
@@ -164,8 +179,16 @@ export default function EmployeeModal({
   // Handle modal close action
   const handleClose = () => {
     setFormData(initialFormState);
+    setSelectedPermissions([]);
     onClose();
   };
+
+  const Permissions = [
+    { id: 1, label: "Inventory Management" },
+    { id: 2, label: "Employee Management" },
+    { id: 3, label: "Food And Drinks" },
+    { id: 4, label: "Delivery Tracking" },
+  ];
 
   const autoFillform = () => {
     setFormData({
@@ -197,7 +220,7 @@ export default function EmployeeModal({
     name,
     type = "text",
     isSelect = false,
-    options = [],
+    Permissions = [],
     isRequired = false
   ) => (
     <>
@@ -211,7 +234,7 @@ export default function EmployeeModal({
           onChange={handleInputChange}
           value={getNestedValue(formData, name) || ""}
         >
-          {options.map((option) => (
+          {Permissions.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -234,6 +257,18 @@ export default function EmployeeModal({
   });
 
   // Render the modal
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+
+  const isChecked = (id) => selectedPermissions.includes(id);
+
+  const handleToggle = (id) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(id)
+        ? prev.filter((optionId) => optionId !== id)
+        : [...prev, id]
+    );
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
       <ModalOverlay />
@@ -261,6 +296,7 @@ export default function EmployeeModal({
                     boxShadow: "0 0 0 1px #ee7213",
                   },
                 }}
+                style={{ width: "100%" }}
               />
               {renderInput("Street", "address.street")}
               {renderInput("City", "address.city")}
@@ -338,6 +374,27 @@ export default function EmployeeModal({
               {renderInput("Notes", "notes")}
             </GridItem>
           </Grid>
+
+          <Menu closeOnSelect={false}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              Select Role Access
+            </MenuButton>
+            <MenuList>
+              {Permissions.map((option) => (
+                <MenuItem key={option.id}>
+                  <Checkbox
+                    isChecked={isChecked(option.id)}
+                    onChange={() => handleToggle(option.id)}
+                  >
+                    {option.label}
+                  </Checkbox>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+          {/* <Box mt={4}>
+                      Selected Permissions: {selectedPermissions.join(", ") || "None"}
+                    </Box> */}
         </ModalBody>
         <ModalFooter>
           {actionType !== "view" ? (

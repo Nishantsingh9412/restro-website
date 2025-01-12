@@ -2,16 +2,16 @@
 // import { updateUserProfilePic } from "../controllers/user.js";
 // import { upload } from "../middleware/fileupload.js";
 // import {
-//   adminMiddleware,
-//   employeeMiddleware,
+//   accessMiddleware(),
+//   accessMiddleware(),
 // } from "../middleware/authMiddleware.js";
 
 // const router = express.Router();
 
-// // router.get("/get-user", adminMiddleware, getLoggedInUserData); // get user by id
+// // router.get("/get-user", accessMiddleware(), getLoggedInUserData); // get user by id
 // // router.patch(
 // //   "/profile-pic-update",
-// //   adminMiddleware,
+// //   accessMiddleware(),
 // //   upload.single("profile_picture"),
 // //   updateUserProfilePic
 // // );

@@ -82,8 +82,8 @@ export const updateEmployeeOnlineStatus = (updatedData) =>
 export const AddItem = (newItem) =>
   API.post("/item-management/additem", newItem);
 // Get All Items
-export const GetAllItems = (localStorageId) =>
-  API.get(`/item-management/get-all-items/${localStorageId}`);
+export const GetAllItems = () =>
+  API.get(`/item-management/get-all-items`);
 // Get Single Item
 export const GetSingleItem = (id) => API.get(`/item-management/get-item/${id}`);
 // Update Item

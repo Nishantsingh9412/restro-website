@@ -32,8 +32,10 @@ const schema = Joi.object({
   notes: Joi.string().optional(),
   created_by: Joi.string().required(),
   is_online: Joi.boolean().optional(),
+  permissions: Joi.array().optional(),
 });
 
+// Mapping roles to their respective models
 const ROLE_CASES = {
   "Delivery Boy": DeliveryBoy,
   Waiter: Waiter,
@@ -45,6 +47,7 @@ const ROLE_CASES = {
   Custom: Employee,
 };
 
+// Handle errors and send response
 const handleError = (res, error, message = "Internal Server Error") => {
   console.error(message, error.message);
   return res.status(500).json({ success: false, message });
@@ -52,6 +55,8 @@ const handleError = (res, error, message = "Internal Server Error") => {
 
 // Add a new employee to the database
 export const addEmployee = async (req, res) => {
+  const { role, id, created_by } = req.user;
+
   // Validate request body against schema
   const { error } = schema.validate(req.body);
   if (error) {
@@ -60,8 +65,14 @@ export const addEmployee = async (req, res) => {
       .json({ success: false, message: error.details[0].message });
   }
 
+  // Extract the required fields from the request body
   const empData = req.body;
-  const { email, phone, role } = empData;
+  const { email, phone } = empData;
+
+  // Set the created_by field based on the user's role
+  empData.created_by = role === "admin" ? id : created_by;
+
+  console.log(empData);
 
   // Check if an employee with the same email or phone already exists
   const existingEmployee = await Employee.findOne({
@@ -76,7 +87,7 @@ export const addEmployee = async (req, res) => {
 
   try {
     // Create a new employee based on the role
-    const newEmployee = await createEmployee(role, empData);
+    const newEmployee = await createEmployee(empData);
     return res.status(200).json({
       success: true,
       message: "Employee created successfully",
@@ -87,58 +98,78 @@ export const addEmployee = async (req, res) => {
   }
 };
 
-// Helper function to create employee based on role
-// const createEmployee = (role, empData) => {
-//   switch (role) {
-
-
-const createEmployee = (role, empData) => {
-  const EmployeeModel = ROLE_CASES[role] || Employee;
+// Create a new employee based on the role
+const createEmployee = (empData) => {
+  const EmployeeModel = ROLE_CASES[empData?.role] || Employee;
   return EmployeeModel.create(empData);
 };
-//       return Employee.create(empData);
-//     default:
-//       return Employee.create(empData);
-//   }
-// };
 
 // Get employees by restaurant based on userId or id
-export const getEmployeesByRestaurant = async (req, res) => {
-  const id = req.user.id;
+export const getAllEmployees = async (req, res) => {
+  const { id, role } = req.user;
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ success: false, message: "Invalid User ID" });
   }
-  const query = { created_by: id };
   try {
-    const employees = await Employee.find(query);
+    const query =
+      role === "admin"
+        ? { created_by: id }
+        : { created_by: req.user.created_by };
+
+    const allEmployees = await Employee.find(query);
+
+    if (allEmployees.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No Employees Found" });
+    }
+
+    // Filter out the admin from the list of employees
+    const result =
+      role === "admin"
+        ? allEmployees
+        : allEmployees.filter((employee) => employee.id !== id);
+
+    // Return the list of employees
     return res.status(200).json({
       success: true,
-      message: "Employees retrieved successfully",
-      result: employees,
+      message: "All Employees",
+      result,
     });
   } catch (error) {
     return handleError(res, error, "Error in getEmployeesByRestaurant");
   }
 };
 
+// Get employee by ID
 export const getEmployeeById = async (req, res) => {
-  const id = req.params.id;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  const { id: _id } = req.params;
+  const { id: userId, role } = req.user;
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid Employee ID" });
   }
   try {
-    const employee = await Employee.findById(id);
-    if (!employee) {
+    const filter = {
+      _id,
+      created_by: role === "admin" ? userId : req.user.created_by,
+    };
+
+    // Find the employee by ID
+    const singleEmployee = await Employee.findOne(filter);
+
+    if (!singleEmployee) {
       return res
         .status(404)
-        .json({ success: false, message: "Employee not found" });
+        .json({ success: false, message: "Employee Not Found" });
     }
+
     return res.status(200).json({
       success: true,
-      message: "Employee retrieved successfully",
-      result: employee,
+      message: "Single Employee",
+      result: singleEmployee,
     });
   } catch (error) {
     return handleError(res, error, "Error in getEmployeeById");
@@ -147,17 +178,23 @@ export const getEmployeeById = async (req, res) => {
 
 // Update an existing employee's details
 export const updateEmployee = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Employee ID" });
-    }
+  const { id: _id } = req.params;
+  const { id: userId, role } = req.user;
+  const updateData = req.body;
 
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
+
+  try {
+    const filter = {
+      _id,
+      created_by: role === "admin" ? userId : req.user.created_by,
+    };
     // Check if role is being updated
-    const existingEmployee = await Employee.findById(id);
+    const existingEmployee = await Employee.findOne(filter);
     if (!existingEmployee) {
       return res
         .status(404)
@@ -166,7 +203,7 @@ export const updateEmployee = async (req, res) => {
 
     if (updateData.role && updateData.role !== existingEmployee.role) {
       // Remove the old employee document
-      await Employee.findByIdAndDelete(id);
+      await Employee.findByIdAndDelete(_id);
 
       // Create a new employee document in the new role
       const newEmployee = await createEmployee(updateData.role, {
@@ -182,31 +219,43 @@ export const updateEmployee = async (req, res) => {
       });
     }
 
+    // Update the existing employee document
+    const employee = await Employee.findByIdAndUpdate(_id, updateData, {
+      new: true,
+    });
+
     return res.status(200).json({
       success: true,
       message: "Employee updated successfully",
       result: employee,
     });
   } catch (error) {
-    return handleError(res, error, "Error in updateEmployee");
+    return handleError(res, error, "Error in Update Employee");
   }
 };
 
 // Delete an employee from the database
 export const deleteEmployee = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Employee ID parameter is required" });
-    }
+  const { id: _id } = req.params;
+  const { id: userId, role } = req.user;
 
-    const employee = await Employee.findByIdAndDelete(id);
-    if (!employee) {
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
+
+  try {
+    const filter = {
+      _id,
+      created_by: role === "admin" ? userId : req.user.created_by,
+    };
+    const deletedEmployee = await Employee.findOneAndDelete(filter);
+
+    if (!deletedEmployee) {
       return res
         .status(404)
-        .json({ success: false, message: "Employee not found" });
+        .json({ success: false, message: "Error Deleting Employee" });
     }
     return res
       .status(200)
@@ -215,6 +264,7 @@ export const deleteEmployee = async (req, res) => {
     return handleError(res, error, "Error in deleteEmployee");
   }
 };
+
 // Get employees who have birthdays today (based on German timezone)
 export const getTodaysBirthday = async (req, res) => {
   try {
@@ -275,15 +325,18 @@ export const getUpcomingEmployeeBirthday = async (req, res) => {
 
 // Get all delivery employees
 export const getDeliveryEmployees = async (req, res) => {
-  const id = req.user.id;
+  const { id, role, created_by } = req.user;
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ success: false, message: "Invalid User ID" });
   }
   try {
-    const deliveryEmployees = await Employee.find({
-      created_by: id,
-      role: "Delivery Boy",
-    });
+    const filter =
+      role === "admin"
+        ? { created_by: id, role: "Delivery Boy" }
+        : { created_by: created_by, role: "Delivery Boy" };
+
+    const deliveryEmployees = await Employee.find(filter);
 
     if (!deliveryEmployees) {
       return res.status(404).json({

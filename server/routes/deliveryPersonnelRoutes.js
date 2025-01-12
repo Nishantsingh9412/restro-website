@@ -10,17 +10,14 @@ import {
   updateDeliveryBoyOdometerReading,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
-import {
-  employeeMiddleware,
-  adminMiddleware,
-} from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/get-all", getDeliveryPersonnels);
 router.get(
   "/get-by-supplier",
-  adminMiddleware,
+  accessMiddleware("Delivery-Tracking"),
   getOnlineDeliveryPersonnelsBySupplier
 );
 router.post("/create-one", createDeliveryPersonnel);
@@ -31,7 +28,7 @@ router.delete("/delete-single/:id", deleteDeliveryPersonnel);
 
 router.put(
   "/update-odometer",
-  employeeMiddleware,
+  accessMiddleware(),
   upload.single("odometer_photo"),
   updateDeliveryBoyOdometerReading
 );

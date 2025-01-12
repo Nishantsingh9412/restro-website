@@ -1,50 +1,57 @@
 import jwt from "jsonwebtoken";
 import Admin from "../models/adminModel.js";
+import Employee from "../models/employeeModel.js";
 
-// Helper function to verify token and set req.user
-const verifyToken = async (req, res, roleCheck) => {
-  // Get token from Authorization header
+const verifyTokenAndAccess = async (req, res, requiredPermission = null) => {
   const token = req.header("Authorization")?.split(" ")[1];
   if (!token) {
-    // If no token, send 401 Unauthorized response
-    res.status(401).send({ error: "Access denied. No token provided." });
-    return false;
+    return res.status(401).send({ error: "Access denied. No token provided." });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res
+      .status(500)
+      .send({ error: "Internal server error. JWT secret is not set." });
   }
 
   try {
-    // Verify token using JWT secret
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userModel = decoded.role === "admin" ? Admin : Employee;
+    const user = await userModel.findById(decoded.id);
 
-    // Optional role check for admin
-    if (roleCheck) {
-      // Find admin by decoded token id
-      const admin = await Admin.findById(decoded.id);
-      if (!admin) {
-        // If admin not found, send 404 Not Found response
-        res.status(404).send({ error: "Unauthorized access" });
-        return false;
-      }
+    if (!user) {
+      return res
+        .status(404)
+        .send({ error: `Unauthorized access. ${decoded.role} not found.` });
     }
 
-    // Set decoded token to req.user
-    req.user = decoded;
+    if (
+      decoded.role === "employee" &&
+      requiredPermission &&
+      !user.permissions?.some(
+        (permission) => permission.label === requiredPermission
+      )
+    ) {
+      return res.status(403).send({
+        error: `Access denied. You lack the permission for ${requiredPermission}.`,
+      });
+    }
+
+    req.user = user;
     return true;
-  } catch (ex) {
-    // If token is invalid, send 400 Bad Request response
-    res.status(400).send({ error: "Invalid token." });
-    console.log(ex);
-    return false;
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send({ error: "Invalid token." });
   }
 };
-
-// Middleware for admin
-export const adminMiddleware = async (req, res, next) => {
-  // Verify token with role check for admin
-  if (await verifyToken(req, res, true)) next();
-};
-
-// Middleware for employee
-export const employeeMiddleware = async (req, res, next) => {
-  // Verify token with role check for employee
-  if (await verifyToken(req, res, false)) next();
+export const accessMiddleware = (requiredPermission = null) => {
+  return async (req, res, next) => {
+    const result = await verifyTokenAndAccess(req, res, requiredPermission);
+    if (result === true) {
+      next();
+    } else {
+      // Ensure the response is ended to prevent further processing
+      res.end();
+    }
+  };
 };

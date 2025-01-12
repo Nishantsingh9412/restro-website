@@ -4,14 +4,11 @@ import {
   MdShoppingBag,
   MdRestaurant,
   MdHistory,
-  MdEvent,
   MdChevronRight,
   MdLocalShipping,
   MdVideoLibrary,
   MdDashboard,
-  MdSettings,
   MdOutlineDeliveryDining,
-  MdMap,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
@@ -46,6 +43,43 @@ import { BiBarcodeReader } from "react-icons/bi";
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
 // import SignUpCentered from "./views/auth/signup";
+
+const commonRoutes = [
+  {
+    name: "Item Management",
+    layout: "/employee",
+    path: "/item-management",
+    icon: (
+      <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
+    ),
+    // type: 'link',
+    // component: () => <></>,
+    component: <ItemManagement />,
+  },
+  {
+    name: "Employees",
+    layout: "/employee",
+    path: "/employees",
+    icon: <Icon as={MdHistory} width="20px" height="20px" color="inherit" />,
+    component: <Employee />,
+  },
+  {
+    name: "Delivery Tracking",
+    layout: "/employee",
+    path: "/delivery-tracking",
+    icon: (
+      <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+    ),
+    component: <OrderShipping />,
+  },
+  {
+    name: "Foods and Drinks",
+    layout: "/employee",
+    path: "/orders",
+    icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
+    component: <AllOrders />,
+  },
+];
 
 const adminRoutes = [
   {
@@ -532,6 +566,7 @@ export const deliveryRoutes = [
       //   icon: <Icon as={MdMap} color="inherit" width="15px" height="15px" />,
       //   component: <TestMap />,
       // },
+      ...commonRoutes,
     ],
   },
 ];
@@ -573,6 +608,7 @@ export const waiterRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -614,6 +650,7 @@ export const chefRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -655,6 +692,7 @@ export const managerRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -696,6 +734,7 @@ export const bartenderRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -738,6 +777,7 @@ export const staffRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -779,6 +819,7 @@ export const helperRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];

@@ -7,7 +7,7 @@ import {
   deleteCompleteOrder,
   allotOrderDelivery,
 } from "../controllers/compOrderController.js";
-import { adminMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/create", createCompleteOrder);
 
 // allot order to delivery boy
-router.post("/allot-delivery/:id", adminMiddleware, allotOrderDelivery);
+router.post("/allot-delivery/:id", accessMiddleware(), allotOrderDelivery);
 
 // get all complete orders
 router.get("/get-all/:id", getCompleteOrders);

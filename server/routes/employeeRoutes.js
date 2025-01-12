@@ -1,5 +1,5 @@
 import express from "express";
-import { adminMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 import {
   assignTask,
@@ -16,7 +16,7 @@ import {
   deleteEmployee,
   getTodaysBirthday,
   getDeliveryEmployees,
-  getEmployeesByRestaurant,
+  getAllEmployees,
   getUpcomingEmployeeBirthday,
   getEmployeeById,
 } from "../controllers/employeeController.js";
@@ -30,17 +30,37 @@ router.get("/all-employees", AllEmployees);
 router.delete("/delete-single-task/:id", deleteSingleTask);
 router.patch("/update-task/:id", updateSingleTask);
 
-router.post("/add-employee", adminMiddleware, addEmployee);
+router.post(
+  "/add-employee",
+  accessMiddleware("Employee-Management"),
+  addEmployee
+);
 
-router.get("/get-employee/:id", adminMiddleware, getEmployeeById);
+router.get(
+  "/get-employee/:id",
+  accessMiddleware("Employee-Management"),
+  getEmployeeById
+);
 
-router.get("/get-all-employee", adminMiddleware, getEmployeesByRestaurant);
+router.get(
+  "/get-all-employee",
+  accessMiddleware("Employee-Management"),
+  getAllEmployees
+);
 
-router.get("/get-delivery-employees", adminMiddleware, getDeliveryEmployees);
+router.get("/get-delivery-employees", accessMiddleware(), getDeliveryEmployees);
 
-router.put("/update-employee/:id", updateEmployee);
+router.put(
+  "/update-employee/:id",
+  accessMiddleware("Employee-Management"),
+  updateEmployee
+);
 
-router.delete("/delete-employee/:id", deleteEmployee);
+router.delete(
+  "/delete-employee/:id",
+  accessMiddleware("Employee-Management"),
+  deleteEmployee
+);
 
 router.get("/get-todays-employee-birthday", getTodaysBirthday);
 

@@ -5,7 +5,7 @@ import {
   getAdmin,
   updateAdminProfilePic,
 } from "../controllers/adminController.js";
-import { adminMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/fileupload.js";
 import {
   addRestaurantByAdmin,
@@ -21,20 +21,20 @@ router.get("/get-all-admins", getAllAdmins);
 router.delete("/delete-admin/:id", deleteAdmin);
 
 // get logged in admin data
-router.get("/get-admin", adminMiddleware, getAdmin);
+router.get("/get-admin", accessMiddleware(), getAdmin);
 
 // update admin profile picture
 router.patch(
   "/update-profile-pic",
-  adminMiddleware,
+  accessMiddleware(),
   upload.single("profile_picture"),
   updateAdminProfilePic
 );
 
 // add restaurant details
-router.post("/add-restaurant", adminMiddleware, addRestaurantByAdmin);
+router.post("/add-restaurant", accessMiddleware(), addRestaurantByAdmin);
 
 // update restaurant details
-router.patch("/update-restaurant", adminMiddleware, updateRestaurantByAdmin);
+router.patch("/update-restaurant", accessMiddleware(), updateRestaurantByAdmin);
 
 export default router;
