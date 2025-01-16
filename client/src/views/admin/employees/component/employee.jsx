@@ -27,8 +27,11 @@ import { IoMdEye } from "react-icons/io";
 import { IoPencilOutline } from "react-icons/io5";
 import EmployeeModal from "./employeeModal";
 import { Spinner, Center } from "@chakra-ui/react";
+import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
+import { useToast } from "../../../../contexts/ToastContext";
 
 export default function EmployeeComponent() {
+  const showToast = useToast();
   const dispatch = useDispatch();
   const [employees, setEmployees] = useState([]);
   const [employeeId, setEmployeeId] = useState("");
@@ -36,6 +39,7 @@ export default function EmployeeComponent() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null); // To hold employee data for view/edit
   const [isLoading, setIsLoading] = useState(true);
+  const [isPermitted, setIsPermitted] = useState(true);
 
   // Fetch employees on component mount
   useEffect(() => {
@@ -45,7 +49,13 @@ export default function EmployeeComponent() {
   // Function to fetch employees from the API
   const getEmployees = async () => {
     const res = await dispatch(getEmployeeApi());
+    showToast(res.message, res.success ? "success" : "error");
     if (res.success) setEmployees(res.data);
+    else {
+      if(res.status === 403){
+        setIsPermitted(false);
+      }
+    }
   };
 
   // Function to fetch employee details for viewing/editing
@@ -134,6 +144,11 @@ export default function EmployeeComponent() {
     setEmployeeId(""); // Reset employeeId for adding
     setSelectedEmployee(null); // Clear selected employee data
   };
+
+  // If user is not permitted to access the page
+  if(!isPermitted){
+    return <ForbiddenPage isPermitted={isPermitted} />;
+  }
 
   // Show loading spinner while data is being fetched
   if (isLoading) {

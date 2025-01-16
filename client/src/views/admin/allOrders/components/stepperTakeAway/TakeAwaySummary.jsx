@@ -30,6 +30,7 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   const takeAwayData = useSelector((state) => state.takeAwayForm);
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localData?.result?._id;
+  const role = localData?.result?.role;
 
   const allOrderItems = useSelector((state) => state?.OrderItemReducer);
   const cartItems = allOrderItems?.items;
@@ -50,7 +51,8 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());
-        navigate("/admin/order-history");
+        navigate(role === "admin" ? "/admin/order-history" : "/employee/order-history");
+        toast.success(res.message);
       } else toast.error(res.message);
       // console.log(res);
     });

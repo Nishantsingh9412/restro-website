@@ -11,6 +11,7 @@ import stepperFormReducer from "./reducers/stepperReducer";
 import compOrderReducer from "./reducers/compOrderReducer";
 import dineInOrderReducer from "./reducers/dineInOrderReducer";
 import dineInStepperReducer from "./reducers/dineInStepperReducer";
+import takeAwayOrderReducer from "./reducers/takeAwayOrderReducer";
 import takeAwayStepperReducer from "./reducers/takeAwayStepperReducer";
 import deliveryDashboardReducer from "./reducers/deliveryDashboardReducer";
 import deliveryReducer from "./reducers/deliveryReducer";
@@ -37,6 +38,7 @@ const store = configureStore({
     form: stepperFormReducer,
     compOrder: compOrderReducer,
     dineInOrder: dineInOrderReducer,
+    takeAwayOrder: takeAwayOrderReducer,
     dineInForm: dineInStepperReducer,
     takeAwayForm: takeAwayStepperReducer,
     deliveryReducer,

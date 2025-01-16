@@ -21,6 +21,12 @@ const orderItemsSubDocsSchema = new Schema({
 });
 
 const takeAwaySchema = new Schema({
+  orderId: {
+    type: String,
+    required: true,
+    unique: true, // Order ID must be unique
+    trim: true, // Trim whitespace
+  },
   customerName: {
     type: String,
     required: true,

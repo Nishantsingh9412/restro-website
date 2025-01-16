@@ -25,6 +25,7 @@ const validateDineInOrder = (data) => {
 
 // Controller function to create a new dine-in order
 export const createDineInOrder = async (req, res) => {
+  const { id: _id, role, created_by: adminID } = req.user;
   try {
     // Validate the request body
     validateDineInOrder(req.body);
@@ -63,7 +64,7 @@ export const createDineInOrder = async (req, res) => {
       specialRequests,
       orderItems: formattedOrderItems,
       totalPrice,
-      created_by,
+      created_by: role === "admin" ? _id : adminID,
       orderId,
     });
 
@@ -81,7 +82,7 @@ export const createDineInOrder = async (req, res) => {
 
 // Controller function to get dine-in orders by user ID
 export const getDineInOrders = async (req, res) => {
-  const { id: _id } = req.params;
+  const { id: _id, role, created_by } = req.user;
 
   // Check if the provided ID is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(_id)) {
@@ -89,11 +90,19 @@ export const getDineInOrders = async (req, res) => {
   }
 
   try {
-    // Find dine-in orders created by the user and populate order items
-    const dineInOrders = await DineInOrder.find({ created_by: _id })
+    // Find dine-in orders by user ID and populate order items
+    const dineInOrders = await DineInOrder.find({
+      created_by: role === "admin" ? _id : created_by,
+    })
       .populate("orderItems.item")
       .sort({ createdAt: -1 });
-    console.log(dineInOrders);
+
+    // Check if any orders were found
+    if (!dineInOrders || dineInOrders.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No orders found" });
+    }
 
     // Respond with success message and the retrieved orders
     return res.status(200).json({
@@ -121,7 +130,6 @@ export const getDineInOrderById = async (req, res) => {
     const dineInOrder = await DineInOrder.findById(_id).populate(
       "orderItems.item"
     );
-    console.log(dineInOrder);
 
     // Respond with success message and the retrieved order
     return res.status(200).json({
@@ -138,6 +146,7 @@ export const getDineInOrderById = async (req, res) => {
 // Controller function to update a dine-in order by order ID
 export const updateDineInOrder = async (req, res) => {
   const { id: _id } = req.params;
+  const { id: userId, role, created_by: adminID } = req.user;
 
   try {
     // Validate the request body
@@ -173,6 +182,7 @@ export const updateDineInOrder = async (req, res) => {
         specialRequests,
         orderItems: formattedOrderItems,
         totalPrice,
+        created_by: role === "admin" ? userId : adminID,
       },
       { new: true }
     );
@@ -192,6 +202,7 @@ export const updateDineInOrder = async (req, res) => {
 // Controller function to delete a dine-in order by order ID
 export const deleteDineInOrder = async (req, res) => {
   const { id: _id } = req.params;
+  const { id: userId, role, created_by: adminID } = req.user;
 
   // Check if the provided ID is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(_id)) {
@@ -200,7 +211,10 @@ export const deleteDineInOrder = async (req, res) => {
 
   try {
     // Find and delete the dine-in order by ID
-    const deletedDineInOrder = await DineInOrder.findByIdAndDelete(_id);
+    const deletedDineInOrder = await DineInOrder.findOneAndDelete({
+      _id,
+      created_by: role === "admin" ? userId : adminID,
+    });
 
     // Respond with success message and the deleted order
     return res.status(200).json({

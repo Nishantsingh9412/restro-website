@@ -1,4 +1,3 @@
-import { CheckCircleIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -12,66 +11,60 @@ import {
   Text,
   Center,
 } from "@chakra-ui/react";
-import { getDeliveryPersonnelsBySupplier } from "../../../../api/index";
+import PropTypes from "prop-types";
+import { getDeliveryPersonnelsBySupplier } from "../../../../api/index"; // Update the API function accordingly
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
+import { useToast } from "../../../../contexts/ToastContext";
 
-// Dummy data for testing purposes
-const dummy = Array.from({ length: 4 }, (_, i) => ({
-  name: "Delivery guy",
-  _id: i,
-  completedCount: i,
-}));
-
-export default function AllotDeliveryBoyModal({
+export default function AllotPersonnelModal({
   isOpen,
   setIsOpen,
   onSubmit,
-  supplierId,
+  personnelType,
 }) {
-  const [online, setOnline] = useState([]);
+  const showToast = useToast();
+
+  const [personnels, setPersonnels] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Handle selection of a delivery guy
   const handleSelect = (id) => {
     setSelected(id);
   };
 
-  // Handle submission of the selected delivery guy
   const handleSubmit = () => {
-    onSubmit(online.find((item) => item?._id === selected));
+    onSubmit(personnels.find((item) => item?._id === selected));
     setIsOpen(false);
   };
 
-  // Fetch online delivery guys based on supplierId
-  const getOnlineDeliveryGuys = async () => {
-    try {
-      if (!supplierId) return;
-      setIsLoading(true);
-      const onlineRes = await getDeliveryPersonnelsBySupplier(supplierId);
-      setOnline(onlineRes?.data?.result.length ? onlineRes.data.result : []);
-    } catch (err) {
-      console.error("Error in getting online delivery guys", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Effect to fetch delivery guys when modal is opened
   useEffect(() => {
+    const getPersonnels = async () => {
+      try {
+        // if (!supplierId) return;
+        setIsLoading(true);
+        const res = await getDeliveryPersonnelsBySupplier(personnelType);
+        setPersonnels(res?.data?.result.length ? res.data.result : []);
+      } catch (err) {
+        showToast(err?.response?.data?.error, "error");
+        console.error(`Error in getting ${personnelType}`, err.response);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (isOpen) {
-      getOnlineDeliveryGuys();
+      getPersonnels();
     }
     setSelected(null);
-  }, [isOpen]);
+  }, [isOpen, personnelType, showToast]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Allot Delivery Guys</ModalHeader>
+        <ModalHeader>Allot {personnelType}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {isLoading ? (
@@ -79,27 +72,27 @@ export default function AllotDeliveryBoyModal({
               <CircleLoader />
               Loading...
             </Center>
-          ) : online.length ? (
+          ) : personnels.length ? (
             <Flex
               flexDirection={"column"}
               gap={5}
               maxH={"400px"}
               overflowY={"auto"}
             >
-              {online.map((o) => (
-                <Flex key={o._id} gap={5} alignItems={"center"}>
+              {personnels.map((p) => (
+                <Flex key={p._id} gap={5} alignItems={"center"}>
                   <Button
-                    onClick={() => handleSelect(o._id)}
-                    colorScheme={selected === o._id ? "green" : "gray"}
+                    onClick={() => handleSelect(p._id)}
+                    colorScheme={selected === p._id ? "green" : "gray"}
                     width={"fit-content"}
                     leftIcon={
-                      selected === o._id ? <FiCheckCircle /> : <FiCircle />
+                      selected === p._id ? <FiCheckCircle /> : <FiCircle />
                     }
                   >
-                    {o.name}
+                    {p.name}
                   </Button>
-                  <Text color={selected === o._id ? "green" : "#ccc"}>
-                    Completed: {o.completedCount}
+                  <Text color={selected === p._id ? "green" : "#ccc"}>
+                    Completed: {p.completedCount}
                   </Text>
                 </Flex>
               ))}
@@ -112,7 +105,7 @@ export default function AllotDeliveryBoyModal({
               textAlign={"center"}
               color={"#999"}
             >
-              No delivery guy is online at this moment
+              No {personnelType} is available at this moment
             </Text>
           )}
         </ModalBody>
@@ -135,3 +128,11 @@ export default function AllotDeliveryBoyModal({
     </Modal>
   );
 }
+
+AllotPersonnelModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  setIsOpen: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  supplierId: PropTypes.string.isRequired,
+  personnelType: PropTypes.string.isRequired,
+};

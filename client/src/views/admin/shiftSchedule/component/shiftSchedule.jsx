@@ -25,7 +25,6 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { AddIcon, EditIcon } from "@chakra-ui/icons";
-import { toast } from "react-toastify";
 import { Spinner } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { getEmployeeApi } from "../../../../redux/action/employee";
@@ -34,7 +33,7 @@ import {
   getShiftByEmpl,
   postShiftApi,
 } from "../../../../redux/action/shift";
-
+import { useToast } from "../../../../contexts/ToastContext";
 // Define view modes and time slots
 const views = ["Daily", "Weekly", "Monthly"];
 const times = Array.from(
@@ -104,6 +103,7 @@ const ShiftScheduleComponent = () => {
   const [viewIndex, setViewIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [shiftData, setShiftData] = useState(initialFormState);
+  const showToast = useToast();
 
   // Fetch data from APIs
   const fetchData = async () => {
@@ -132,31 +132,40 @@ const ShiftScheduleComponent = () => {
     const timeDifference = (toTime - fromTime) / (1000 * 60 * 60); // Difference in hours
 
     if (timeDifference < 1) {
-      return toast.error("The shift duration must be at least 1 hour.");
+      // return toast.error("The shift duration must be at least 1 hour.");
+      showToast("The shift duration must be at least 1 hour.", "error");
     }
     const { date, employeeId, from, to, _id } = shiftData;
     if (!date || !employeeId || !from || !to)
-      return toast.error("All fields are required");
+      // return toast.error("All fields are required");
+     return showToast("All fields are required", "error");
 
     const res = await dispatch(postShiftApi(shiftData, _id));
 
     handleModalClose();
     if (res.success) {
       fetchData();
-      toast.success(
-        _id ? "Shift updated successfully" : "Shift added successfully"
+      // toast.success(
+      //   _id ? "Shift updated successfully" : "Shift added successfully"
+      // );
+      showToast(
+        _id ? "Shift updated successfully" : "Shift added successfully",
+        "success"
       );
     } else {
-      toast.error(res.message);
+      // toast.error(res.message);
+      showToast(res.message, "error");
     }
   };
 
   // Handle shift delete action
   const handleDeleteShift = async () => {
-    if (!shiftData._id) return toast.error("Shift not found");
+    // if (!shiftData._id) return toast.error("Shift not found");
+    if (!shiftData._id) return showToast("Shift not found", "error");
     const res = await dispatch(deleteShiftApi({ _id: shiftData._id }));
     handleModalClose();
-    res.success && toast.success("Shift deleted successfully") && fetchData();
+    // res.success && toast.success("Shift deleted successfully") && fetchData();
+    res.success && showToast("Shift deleted successfully", "success") && fetchData();
   };
 
   // Get days to display based on the current view mode and date
@@ -335,9 +344,10 @@ const ShiftScheduleComponent = () => {
                                     });
                                     onModalOpen();
                                   } else {
-                                    toast.error(
-                                      "Cannot edit shift for past dates or within 24 hours."
-                                    );
+                                    // toast.error(
+                                    //   "Cannot edit shift for past dates or within 24 hours."
+                                    // );
+                                    showToast("Cannot edit shift for past dates or within 24 hours.", "error");
                                   }
                                 }}
                               />
@@ -353,9 +363,10 @@ const ShiftScheduleComponent = () => {
                                   });
                                   onModalOpen();
                                 } else {
-                                  toast.error(
-                                    "Cannot add shift for past dates or within 24 hours."
-                                  );
+                                  // toast.error(
+                                  //   "Cannot add shift for past dates or within 24 hours."
+                                  // );
+                                  showToast("Cannot add shift for past dates or within 24 hours.", "error");
                                 }
                               }}
                             />

@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import Select from "react-select";
 import {
   Box,
@@ -10,7 +12,6 @@ import {
   Stack,
   Textarea,
   Button,
-  SimpleGrid,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,14 +47,26 @@ const Address = ({ goToNextStep }) => {
       "dropLocation",
       "dropLocationName",
     ];
+
     for (const field of requiredFields) {
-      if (!formData[field]) {
+      if (!formData[field] || formData[field].trim() === "") {
         toast.error(
           `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`
         );
         return false;
       }
     }
+
+    if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return false;
+    }
+
+    if (formData.zip && !/^\d{5}(-\d{4})?$/.test(formData.zip)) {
+      toast.error("Please enter a valid zip code");
+      return false;
+    }
+
     return true;
   };
 
@@ -98,7 +111,7 @@ const Address = ({ goToNextStep }) => {
         setCitiesLoading
       );
     }
-  }, [selectedState]);
+  }, [selectedCountry, selectedState]);
 
   const handleAddressSubmit = (e) => {
     e.preventDefault();
@@ -251,8 +264,8 @@ const Address = ({ goToNextStep }) => {
           {isOpen && (
             <MapInput
               data={{
-                dropLocation: formData.dropLocation,
-                dropLocationName: formData.dropLocationName,
+                dropLocation: formData.dropLocation || {},
+                dropLocationName: formData.dropLocationName|| "",
               }}
               isOpen={isOpen}
               onClose={onClose}
@@ -285,6 +298,9 @@ const Address = ({ goToNextStep }) => {
       </form>
     </Box>
   );
+};
+Address.propTypes = {
+  goToNextStep: PropTypes.func.isRequired,
 };
 
 export default Address;

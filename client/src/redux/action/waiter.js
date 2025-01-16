@@ -8,7 +8,7 @@ export const getWaiterDashboardDataAction = createAsyncThunk(
       const { data } = await api.getWaiterDashboardData();
       return data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.error);
     }
   }
 );

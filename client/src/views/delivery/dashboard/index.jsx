@@ -18,7 +18,8 @@ import { RiPinDistanceFill } from "react-icons/ri";
 import CompletedDeliveriesChart from "./components/CompletedDeliveriesChart";
 import { getDeliveryDashboardDataAction } from "../../../redux/action/deliveryDashboard";
 import { BiPlus, BiRefresh } from "react-icons/bi";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { useToast } from "../../../contexts/ToastContext";
 import PropTypes from "prop-types";
 
 // Card component with optional footerLink and footerText
@@ -89,6 +90,7 @@ export default function Dashboard() {
   // Get delivery dashboard data from Redux store
   const data = useSelector((state) => state.deliveryDashboardReducer.data);
   const dispatch = useDispatch();
+  const showToast = useToast();
 
   // Handle data refresh
   const handleRefresh = useCallback(() => {
@@ -98,14 +100,16 @@ export default function Dashboard() {
         .then(() => setUtils({ isLoading: false, isError: false }))
         .catch(() => setUtils({ isLoading: false, isError: true }));
     } else {
-      toast.error("User not found! Please login again.");
+      // toast.error("User not found! Please login again.");
+      showToast("User not found! Please login again.", "error");
       setUtils({ isLoading: false, isError: true });
     }
-  }, [dispatch, user]);
+  }, [dispatch, showToast, user.result._id]);
 
   // Handle create deliveries
   const handleCreateDeliveries = () => {
-    toast.info("Feature coming soon!");
+    // toast.info("Feature coming soon!");
+    showToast("Feature coming soon!", "info");
   };
 
   // Fetch data on component mount

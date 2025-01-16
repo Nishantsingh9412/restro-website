@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +30,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { loginAdmin, loginEmployee } from "../../../redux/action/auth.js";
+import { useToast } from "../../../contexts/ToastContext.jsx";
 
 function SignIn() {
   // Define color modes for different elements
@@ -49,6 +51,7 @@ function SignIn() {
     memberId: "",
   });
   const [loading, setLoading] = useState(false);
+  const showToast = useToast();
 
   // Redux dispatch and navigation hooks
   const dispatch = useDispatch();
@@ -100,7 +103,8 @@ function SignIn() {
         if (res.payload.success) {
           navigate("/admin/dashboards/default");
         } else {
-          toast.error(res.payload);
+          // toast.error(res.payload);
+          showToast(res.payload, "error");
         }
       })
       .catch((err) => {
@@ -130,7 +134,8 @@ function SignIn() {
         const empRole = res?.payload?.result?.role;
         handleRouteByRole(empRole);
       } else {
-        toast.error(res.payload);
+        // toast.error(res.payload);
+        showToast(res.payload, "error");
       }
     });
   };

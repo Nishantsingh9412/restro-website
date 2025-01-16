@@ -22,6 +22,12 @@ const orderItemsSubDocsSchema = new Schema({
 });
 // Schema for dine-in orders
 const dineInOrderSchema = new Schema({
+  orderId: {
+    type: String,
+    required: true,
+    unique: true, // Order ID must be unique
+    trim: true, // Trim whitespace
+  },
   tableNumber: {
     type: Number,
     required: true,

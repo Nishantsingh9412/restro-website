@@ -27,6 +27,7 @@ import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import React from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import { useSelector } from "react-redux";
 
 // Date conversion utilities
 const formatDateForInput = (isoDate) => {
@@ -76,6 +77,9 @@ export default function EmployeeModal({
     notes: "",
     is_online: false,
   };
+
+  // Get the logged in user's role
+  const userRole = JSON.parse(localStorage.getItem("ProfileData"))?.result?.role;
 
   // State to manage form data
   const [formData, setFormData] = useState(initialFormState);
@@ -255,6 +259,7 @@ export default function EmployeeModal({
   const CustomInput = React.forwardRef(({ inputProps, ...props }, ref) => {
     return <Input ref={ref} {...inputProps} {...props} />;
   });
+  CustomInput.displayName = "CustomInput";
 
   // Render the modal
   const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -375,23 +380,23 @@ export default function EmployeeModal({
             </GridItem>
           </Grid>
 
-          <Menu closeOnSelect={false}>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              Select Role Access
-            </MenuButton>
-            <MenuList>
-              {Permissions.map((option) => (
-                <MenuItem key={option.id}>
-                  <Checkbox
-                    isChecked={isChecked(option.id)}
-                    onChange={() => handleToggle(option.id)}
-                  >
-                    {option.label}
-                  </Checkbox>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+        {userRole === "admin" && <Menu closeOnSelect={false}>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Select Role Access
+          </MenuButton>
+          <MenuList>
+            {Permissions.map((option) => (
+              <MenuItem key={option.id}>
+                <Checkbox
+                  isChecked={isChecked(option.id)}
+                  onChange={() => handleToggle(option.id)}
+                >
+                  {option.label}
+                </Checkbox>
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>}
           {/* <Box mt={4}>
                       Selected Permissions: {selectedPermissions.join(", ") || "None"}
                     </Box> */}

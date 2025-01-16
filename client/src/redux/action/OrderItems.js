@@ -10,8 +10,9 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
             throw new Error('No data returned from API');
         }
     } catch (err) {
-        console.error(`Error in ${actionType}: ${err.message}`, err.stack);
-        return { success: false, message: err.message };
+        // console.log(err);
+        // console.error(`Error in ${actionType}: ${err.message}`, err.stack);
+        return { success: false, message: err.response.data.error, status: err.response.status };
     }
 };
 

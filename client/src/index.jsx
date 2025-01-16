@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./assets/css/App.css";
+import "./assets/css/toast.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
@@ -27,6 +28,7 @@ import adminRoutes, {
 } from "./routes";
 import {} from "./routes";
 import SocketInitializer from "./contexts/SocketInitialiser";
+import { ToastProvider } from "./contexts/ToastContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -53,6 +55,7 @@ root.render(
   <ChakraProvider theme={theme}>
     <Provider store={store}>
       <React.StrictMode>
+        <ToastProvider>
         <SocketInitializer />
         <ThemeEditorProvider>
           <Router>
@@ -82,6 +85,7 @@ root.render(
             <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
           </Router>
         </ThemeEditorProvider>
+        </ToastProvider>
       </React.StrictMode>
     </Provider>
   </ChakraProvider>

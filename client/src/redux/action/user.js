@@ -14,7 +14,7 @@ export const getLoggedInUserData = createAsyncThunk(
         return data.result;
       }
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.error);
     }
   }
 );
@@ -33,7 +33,7 @@ export const updateProfilePicAction = createAsyncThunk(
         return data.result;
       }
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.error);
     }
   }
 );

@@ -6,8 +6,8 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     dispatch({ type: actionType, data: data?.result });
     return { success: true, message: successMessage };
   } catch (err) {
-    console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
-    return { success: false, message: "something went wrong" };
+    // console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
+    return { success: false, message:err.response.data.error || "something went wrong" };
   }
 };
 
@@ -86,7 +86,7 @@ export const getActiveDeliveryAction = (id) => async (dispatch) => {
   );
 };
 
-export const getCompletedDeliveriesAction = (userId) => async (dispatch) => {
+export const getCompletedDeliveriesAction = () => async (dispatch) => {
   return handleApiCall(
     () => api.getCompletedDeliveries(),
     dispatch,

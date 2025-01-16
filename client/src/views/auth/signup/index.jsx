@@ -22,6 +22,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { signUpAdmin } from "../../../redux/action/auth.js";
+import { useToast } from "../../../contexts/ToastContext.jsx";
 
 function SignUp() {
   // Chakra color mode
@@ -42,6 +43,7 @@ function SignUp() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const showToast = useToast();
 
   // Check if user is already logged in
   useEffect(() => {
@@ -123,7 +125,8 @@ function SignUp() {
       setLoading(false);
       console.log(res);
       if (!res.payload.success) {
-        toast.error(res.payload);
+        // toast.error(res.payload);
+        showToast(res.payload, "error");
       } else {
         navigate("/admin/dashboards/default");
       }

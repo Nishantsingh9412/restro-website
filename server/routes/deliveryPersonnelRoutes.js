@@ -4,7 +4,7 @@ import {
   deleteDeliveryPersonnel,
   getDeliveryPersonnelSingle,
   getDeliveryPersonnels,
-  getOnlineDeliveryPersonnelsBySupplier,
+  getOnlineEmployeesByRole,
   updateDeliveryPersonnel,
   updateDeliveryPersonnelOnlineStatus,
   updateDeliveryBoyOdometerReading,
@@ -17,8 +17,8 @@ const router = express.Router();
 router.get("/get-all", getDeliveryPersonnels);
 router.get(
   "/get-by-supplier",
-  accessMiddleware("Delivery-Tracking"),
-  getOnlineDeliveryPersonnelsBySupplier
+  accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
+  getOnlineEmployeesByRole
 );
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);

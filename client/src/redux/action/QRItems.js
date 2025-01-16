@@ -7,7 +7,7 @@ export const postQRItemAction = (newItem) => async (dispatch) => {
     return { success: true, message: "QR Item Added Successfully" };
   } catch (err) {
     // console.log("Error from courseFilter Action: " + err.message, err.stack);
-    return { success: false, message: err.message };
+    return { success: false, message:err.response.data.error || "something went wrong",  status: err.response.status };
   }
 };
 
@@ -45,7 +45,7 @@ export const updateSingleItemActionQR =
     }
   };
 
-export const deleteSingleQRItemAction = (id) => async (dispatch) => {
+export const deleteSingleQRItemAction = (id) => async () => {
   try {
     await api.deleteSingleQRItem(id);
     return { success: true, message: "QR Item Deleted Successfully" };

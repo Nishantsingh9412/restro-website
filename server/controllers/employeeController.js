@@ -193,14 +193,22 @@ export const updateEmployee = async (req, res) => {
       _id,
       created_by: role === "admin" ? userId : req.user.created_by,
     };
-    // Check if role is being updated
+    
+   // Check if the employee exists
     const existingEmployee = await Employee.findOne(filter);
     if (!existingEmployee) {
       return res
         .status(404)
         .json({ success: false, message: "Employee not found" });
     }
-
+    
+    // Check Permission being updated by the admin or not
+    if (role !== "admin" && updateData.permissions) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Permission Denied" });
+    }
+  // Check if role is being updated
     if (updateData.role && updateData.role !== existingEmployee.role) {
       // Remove the old employee document
       await Employee.findByIdAndDelete(_id);

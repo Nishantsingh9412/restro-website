@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -15,7 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { MdRestaurant, MdOutlineTimer } from "react-icons/md";
 import { FaAngleRight } from "react-icons/fa6";
 import { BiRefresh } from "react-icons/bi";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { useToast } from "../../../contexts/ToastContext";
 import PropTypes from "prop-types";
 import WaiterPerformanceChart from "./components/WaiterChart"; // hypothetical component
 import { getWaiterDashboardDataAction } from "../../../redux/action/waiter";
@@ -85,6 +87,7 @@ export default function WaiterDashboard() {
   const user = JSON.parse(localStorage.getItem("ProfileData"));
   const data = useSelector((state) => state.waiter.data);
   const dispatch = useDispatch();
+  const showToasts = useToast();
 
   const handleRefresh = useCallback(() => {
     if (user?.result?._id) {
@@ -93,7 +96,8 @@ export default function WaiterDashboard() {
         .then(() => setUtils({ isLoading: false, isError: false }))
         .catch(() => setUtils({ isLoading: false, isError: true }));
     } else {
-      toast.error("User not found! Please login again.");
+      // toast.error("User not found! Please login again.");
+      showToasts("User not found! Please login again.", "error");
       setUtils({ isLoading: false, isError: true });
     }
   }, [dispatch, user]);

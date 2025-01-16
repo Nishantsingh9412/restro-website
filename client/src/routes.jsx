@@ -23,7 +23,6 @@ import LowStocks from "./views/admin/lowStocks";
 import SupplierManagement from "./views/admin/supplierMgmt";
 import AllOrders from "./views/admin/allOrders";
 import OrderHistory from "./views/admin/orderHistory";
-import EmployeeManagement from "./views/admin/employeeManagement";
 import OrderShipping from "./views/admin/orderShipping";
 import Dashboard from "./views/admin/dashboard";
 import ShiftSchedule from "./views/admin/shiftSchedule";
@@ -32,13 +31,9 @@ import Employee from "./views/admin/employees";
 import AvailableDeliveries from "./views/delivery/availableDeliveries"; // Adjust the path as necessary
 import Notifications from "./views/delivery/notifications"; // Adjust the path as necessary
 import DeliveryHistory from "./views/delivery/history"; // Adjust the path as necessary
-import TestMap from "./views/delivery/testMap"; // Adjust the path as necessary
 import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
-import DeliverySettings from "./views/delivery/settings";
 import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
-import BarcodeGenerator from "./views/admin/barcodeGenerator/index";
-import { BiBarcodeReader } from "react-icons/bi";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -78,6 +73,15 @@ const commonRoutes = [
     path: "/orders",
     icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
     component: <AllOrders />,
+  },
+  {
+    name: "Order History",
+    layout: "/employee",
+    path: "/order-history",
+    icon: (
+      <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+    ),
+    component: <OrderHistory />,
   },
 ];
 

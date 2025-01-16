@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "../../api/index.js";
 
 export const getAdminData = createAsyncThunk(
@@ -8,7 +8,7 @@ export const getAdminData = createAsyncThunk(
       const { data } = await api.getAdminData();
       return data.result;
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.error);
     }
   }
 );
@@ -20,7 +20,7 @@ export const updateAdminProfilePic = createAsyncThunk(
       const { data } = await api.updateAdminProfilePic(formData);
       return data.result;
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.error);
     }
   }
 );

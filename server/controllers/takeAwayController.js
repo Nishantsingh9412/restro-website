@@ -38,7 +38,7 @@ export const createTakeAwayOrder = async (req, res) => {
       customerName,
       orderItems: formattedOrderItems,
       totalPrice,
-      created_by,
+      created_by: req.user.role === "admin" ? created_by : req.user.id,
     });
 
     res.status(201).json({
@@ -53,7 +53,7 @@ export const createTakeAwayOrder = async (req, res) => {
 
 // Controller function to get all take-away orders
 export const getTakeAwayOrders = async (req, res) => {
-  const { id: _id } = req.params;
+  const { id: _id, role, created_by } = req.user;
 
   // Check if the provided ID is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(_id)) {
@@ -61,7 +61,7 @@ export const getTakeAwayOrders = async (req, res) => {
   }
   try {
     const allTakeAwayOrders = await TakeAwayOrder.find({
-      created_by: _id,
+      created_by: role === "admin" ? _id : created_by,
     })
       .populate("orderItems.item")
       .sort({ createdAt: -1 });
@@ -116,7 +116,10 @@ export const updateTakeAwayOrder = async (req, res) => {
   try {
     const updatedTakeAwayOrder = await TakeAwayOrder.findByIdAndUpdate(
       _id,
-      req.body,
+      {
+        ...req.body,
+        created_by: req.user.role === "admin" ? req.body.created_by : req.user.id,
+      },
       { new: true }
     );
     res.status(200).json({

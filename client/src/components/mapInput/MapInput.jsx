@@ -8,7 +8,6 @@ import {
   ModalCloseButton,
   ModalBody,
   Button,
-  useDisclosure,
   Input,
   List,
   ListItem,

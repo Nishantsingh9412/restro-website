@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -19,7 +20,7 @@ import {
 import { ChevronRightIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
 import { updateSingleDelBoyAction } from "../../../../redux/action/delboy";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/ToastContext";
 
 export default function LiveLocationModal({
   isOpen,
@@ -30,6 +31,7 @@ export default function LiveLocationModal({
   const [liveLocationURL, setLiveLocationURL] = useState(prevURL);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const showToast = useToast();
 
   useEffect(() => {
     // Reset the URL every time the modal opens or the URL changes
@@ -38,7 +40,11 @@ export default function LiveLocationModal({
 
   const handleSubmit = () => {
     if (!deliveryBoyId) {
-      toast.error("Something went wrong! Delivery person is not authorized!");
+      // toast.error("Something went wrong! Delivery person is not authorized!");
+      showToast(
+        "Something went wrong! Delivery person is not authorized!",
+        "error"
+      );
       return;
     }
 
@@ -59,12 +65,17 @@ export default function LiveLocationModal({
         })
       );
       // On success
-      toast.success("Live location updated successfully!");
+      // toast.success("Live location updated successfully!");
+      showToast("Live location updated successfully!", "success");
       setIsOpen(false); // Close the modal
     } catch (error) {
       // On failure
       console.error("Error updating live location:", error);
-      toast.error("Something went wrong! Unable to update live location.");
+      // toast.error("Something went wrong! Unable to update live location.");
+      showToast(
+        "Something went wrong! Unable to update live location.",
+        "error"
+      );
     } finally {
       setIsLoading(false); // Ensure loading state is reset
     }
@@ -108,15 +119,17 @@ export default function LiveLocationModal({
             </ListItem>
             <ListItem>
               <ListIcon as={ChevronRightIcon} color="blue.500" />
-              Select "Location sharing" from the menu.
+              Select &quot;Location sharing&quot; from the menu.
             </ListItem>
             <ListItem>
               <ListIcon as={ChevronRightIcon} color="blue.500" />
-              Choose "Share your real-time location" and copy the provided URL.
+              Choose &quot;Share your real-time location&quot; and copy the
+              provided URL.
             </ListItem>
             <ListItem>
               <ListIcon as={ChevronRightIcon} color="blue.500" />
-              Paste the copied URL in the field above and click "Save".
+              Paste the copied URL in the field above and click
+              &quot;Save&quot;.
             </ListItem>
           </List>
         </ModalBody>

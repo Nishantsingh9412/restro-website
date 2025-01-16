@@ -9,11 +9,11 @@ export const getAllNotifications = () => async (dispatch) => {
       message: "All Notifications Fetched Successfully",
     };
   } catch (err) {
-    console.log(
-      "Error from getAllNotifications Action: " + err?.message,
-      err?.stack
-    );
-    return { success: false, message: "something went wrong" };
+    // console.log(
+    //   "Error from getAllNotifications Action: " + err?.message,
+    //   err?.stack
+    // );
+    return { success: false, message:err.response.data.error || "something went wrong",  status: err.response.status };
   }
 };
 

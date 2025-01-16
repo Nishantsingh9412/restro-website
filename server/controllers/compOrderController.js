@@ -41,6 +41,7 @@ const getCoordinates = async (address) => {
 
 // Controller to create a complete order
 export const createCompleteOrder = async (req, res) => {
+  const { id, role, created_by: empID } = req.user;
   try {
     const {
       name,
@@ -111,7 +112,7 @@ export const createCompleteOrder = async (req, res) => {
       noteFromCustomer,
       orderItems: formattedOrderItems,
       totalPrice,
-      created_by,
+      created_by: role === "admin" ? created_by : empID,
       orderId,
     });
 
@@ -128,6 +129,7 @@ export const createCompleteOrder = async (req, res) => {
     }
   } catch (err) {
     console.log("Error from Order Controller : ", err.message);
+    console.log(err);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
@@ -136,28 +138,32 @@ export const createCompleteOrder = async (req, res) => {
 
 // Controller to get all complete orders by user ID
 export const getCompleteOrders = async (req, res) => {
-  const { id: _id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
+  const { id, role, created_by } = req.user;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ success: false, message: "Invalid Id" });
   }
   try {
     const completeOrders = await completeOrder
-      .find({ created_by: _id })
+      .find({ created_by: role === "admin" ? id : created_by })
       .populate("orderItems.item")
       .sort({ createdAt: -1 });
 
     // Add assigned delivery boy information to each order
     const finalOrders = await Promise.all(
       completeOrders.map(async (order) => {
-      const assigned = await delivery
-        .findOne({ orderId: order?.orderId })
-        .select("assignedTo completedAt");
-      if (assigned) {
-        const assignedTo = await deliveryBoyModel
-        .findById(assigned.assignedTo)
-        .select("name");
-        return { ...(order._doc || order), assignedTo, completedAt: assigned.completedAt };
-      } else return order._doc || order;
+        const assigned = await delivery
+          .findOne({ orderId: order?.orderId })
+          .select("assignedTo completedAt");
+        if (assigned) {
+          const assignedTo = await deliveryBoyModel
+            .findById(assigned.assignedTo)
+            .select("name");
+          return {
+            ...(order._doc || order),
+            assignedTo,
+            completedAt: assigned.completedAt,
+          };
+        } else return order._doc || order;
       })
     );
 
@@ -196,8 +202,9 @@ const getRouteData = async (start, end) => {
 
 // Controller to allot order delivery to a delivery boy
 export const allotOrderDelivery = async (req, res) => {
-  const { id } = req.params;
-  const supplier = req.user.id;
+  const { id, role, created_by } = req.user;
+  const { id: _id } = req.params;
+  const supplier = role === "admin" ? id : created_by;
   const { deliveryBoyId } = req.body;
   try {
     if (!supplier || !deliveryBoyId) {
@@ -207,7 +214,7 @@ export const allotOrderDelivery = async (req, res) => {
       });
     }
 
-    const order = await completeOrder.findOne({ orderId: id });
+    const order = await completeOrder.findOne({ orderId: _id });
     if (!order)
       return res
         .status(404)
@@ -227,7 +234,7 @@ export const allotOrderDelivery = async (req, res) => {
     const defaultCountry = "India";
 
     const delivery = await Delivery.create({
-      orderId: id,
+      orderId: _id,
       supplier,
       assignedTo: deliveryBoyId,
       dropLocation: order.dropLocation,
@@ -260,7 +267,7 @@ export const allotOrderDelivery = async (req, res) => {
         sender: supplier,
         receiver: deliveryBoyId,
         heading: "Delivery Task Received",
-        body: `You have received a delivery task for order ${id}`,
+        body: `You have received a delivery task for order ${_id}`,
       });
 
       if (noti) {
@@ -304,6 +311,7 @@ export const getCompleteOrderById = async (req, res) => {
 // Controller to update a complete order by ID
 export const updateCompleteOrder = async (req, res) => {
   const { id: _id } = req.params;
+  const { id, role, created_by: empID } = req.user;
   const {
     name,
     phoneNumber,
@@ -338,7 +346,7 @@ export const updateCompleteOrder = async (req, res) => {
         noteFromCustomer,
         orderItems,
         totalPrice,
-        created_by,
+        created_by: role === "admin" ? created_by : empID,
       },
       { new: true }
     );

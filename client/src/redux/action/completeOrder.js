@@ -6,8 +6,8 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     dispatch({ type: actionType, data: data?.result });
     return { success: true, message: successMessage };
   } catch (err) {
-    console.log(`Error from ${actionType} Action: ${err.message}`, err.stack);
-    return { success: false, message: err?.response?.data?.message };
+    // console.log(`Error from ${actionType} Action: ${err.message}`, err.stack);
+    return { success: false, message: err?.response?.data?.error, status: err?.response?.status };
   }
 };
 export const allotDeliveryBoyAction =
