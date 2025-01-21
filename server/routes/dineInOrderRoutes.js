@@ -5,6 +5,7 @@ import {
   getDineInOrderById,
   updateDineInOrder,
   deleteDineInOrder,
+  deleteAllDineInOrders,
 } from "../controllers/dineInOrderController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -26,5 +27,8 @@ router.put("/update-dine-order/:id", dineInAccess, updateDineInOrder);
 
 // delete a dine in order
 router.delete("/delete-dine-order/:id", dineInAccess, deleteDineInOrder);
+
+// delete all dine in order
+router.delete("/delete-all-dine-orders", deleteAllDineInOrders);
 
 export default router;

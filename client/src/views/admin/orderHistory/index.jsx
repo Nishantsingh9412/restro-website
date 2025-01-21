@@ -33,6 +33,7 @@ import AllotDeliveryBoyModal from "./components/AllotDeliveryModal.jsx";
 import DineInOrder from "./components/DineInOrder.jsx";
 import TakeAwayOrder from "./components/TakeAwayOrder.jsx";
 import DeliveryOrders from "./components/DeliveryOrders.jsx";
+import { set } from "date-fns";
 
 const OrderHistory = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ const OrderHistory = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState("");
+  const [selectedPersonnel, setSelectedPersonnel] = useState("");
 
   const compOrderData = useSelector((state) => state?.compOrder?.data);
   const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
@@ -55,33 +57,21 @@ const OrderHistory = () => {
   );
   const localUserId = localUserData?.result?._id;
 
-  const fetchCompleteOrders = useCallback(() => {
-    dispatch(getDineInOrderAction())
-      .then((res) => {
+  const fetchCompleteOrders = useCallback(async () => {
+    try {
+      const dineInRes = await dispatch(getDineInOrderAction());
+      const completeRes = await dispatch(getCompleteOrderAction());
+      const takeAwayRes = await dispatch(getTakeAwayOrderAction());
+
+      [dineInRes, completeRes, takeAwayRes].forEach((res) => {
         if (!res?.success) {
           showToast(res?.message, "error");
           if (res.status === 403) setIsPermitted(false);
         }
-      })
-      .finally(() => {
-        setLoading(false);
       });
-    dispatch(getCompleteOrderAction())
-      .then((res) => {
-        if (!res?.success) {
-          showToast(res?.message, "error");
-          if (res.status === 403) setIsPermitted(false);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-    dispatch(getTakeAwayOrderAction()).then((res) => {
-      if (!res?.success) {
-        showToast(res?.message, "error");
-        if (res.status === 403) setIsPermitted(false);
-      }
-    });
+    } finally {
+      setLoading(false);
+    }
   }, [dispatch, showToast]);
 
   useEffect(() => {
@@ -89,9 +79,11 @@ const OrderHistory = () => {
     // dispatch(singleUserDataAction(localUserId));
   }, [fetchCompleteOrders]);
 
-  const handleAllotDeliveryBoy = useCallback((orderId) => {
+  const handleAllotDeliveryBoy = useCallback((orderId, personnelType) => {
     // console.log("Allot Delivery Boy Pending .........");
+    console.log(orderId, personnelType);
     setSelectedOrderId(orderId);
+    setSelectedPersonnel(personnelType);
     setIsModalOpen(true);
   }, []);
 
@@ -168,7 +160,11 @@ const OrderHistory = () => {
                 </Heading>
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
                   {takeAwayOrderData?.map((order) => (
-                    <TakeAwayOrder key={order._id} orderData={order} />
+                    <TakeAwayOrder
+                      key={order._id}
+                      orderData={order}
+                      handleAllotWaiter={handleAllotDeliveryBoy}
+                    />
                   ))}
                 </SimpleGrid>
               </Box>

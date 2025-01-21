@@ -118,7 +118,8 @@ export const updateTakeAwayOrder = async (req, res) => {
       _id,
       {
         ...req.body,
-        created_by: req.user.role === "admin" ? req.body.created_by : req.user.id,
+        created_by:
+          req.user.role === "admin" ? req.body.created_by : req.user.id,
       },
       { new: true }
     );
@@ -152,4 +153,16 @@ export const deleteTakeAwayOrder = async (req, res) => {
 // Helper function to validate required fields
 const validateFields = (fields) => {
   return fields.every((field) => field !== null && field !== "");
+};
+
+//Delete all take-away orders
+export const deleteAllTakeAwayOrders = async (req, res) => {
+  try {
+    await TakeAwayOrder.deleteMany({});
+    res
+      .status(200)
+      .json({ success: true, message: "All Take Away Orders Deleted" });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
 };

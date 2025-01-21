@@ -5,6 +5,7 @@ import {
   getTakeAwayOrderById,
   updateTakeAwayOrder,
   deleteTakeAwayOrder,
+  deleteAllTakeAwayOrders,
 } from "../controllers/takeAwayController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -28,4 +29,6 @@ router.patch("/update-take-away/:id", takeAwayAccess, updateTakeAwayOrder);
 // Delete a take-away order
 router.delete("/delete-take-away/:id", takeAwayAccess, deleteTakeAwayOrder);
 
+// Delete all the take-away orders
+router.delete("/delete-all-take-away", deleteAllTakeAwayOrders);
 export default router;

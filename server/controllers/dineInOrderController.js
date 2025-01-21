@@ -227,3 +227,20 @@ export const deleteDineInOrder = async (req, res) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 };
+
+//delelte all dine in orders
+export const deleteAllDineInOrders = async (req, res) => {
+  console.log("Deleted");
+  try {
+    const deletedDineInOrders = await DineInOrder.deleteMany();
+    return res.status(200).json({
+      success: true,
+      message: "All Dine-in Orders Deleted",
+      result: deletedDineInOrders,
+    });
+  } catch (err) {
+    // Handle database errors
+    return res.status(400).json({ success: false, message: err.message });
+  }
+};
+//delelte all dine in orders

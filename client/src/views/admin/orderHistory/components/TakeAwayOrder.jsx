@@ -31,7 +31,7 @@ const TakeAwayOrder = ({ orderData, handleAllotWaiter }) => {
           Order #{orderId}
         </Heading>
         <IconButton
-          onClick={() => handleAllotWaiter(orderId)}
+          onClick={() => handleAllotWaiter(orderId, "Waiter")}
           aria-label="Allot Delivery Boy"
           title="Allot Delivery Boy"
           icon={<MdLocalShipping />}

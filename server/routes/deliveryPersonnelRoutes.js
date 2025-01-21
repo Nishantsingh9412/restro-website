@@ -4,7 +4,7 @@ import {
   deleteDeliveryPersonnel,
   getDeliveryPersonnelSingle,
   getDeliveryPersonnels,
-  getOnlineEmployeesByRole,
+  // getOnlineEmployeesByRole,
   updateDeliveryPersonnel,
   updateDeliveryPersonnelOnlineStatus,
   updateDeliveryBoyOdometerReading,
@@ -18,7 +18,7 @@ router.get("/get-all", getDeliveryPersonnels);
 router.get(
   "/get-by-supplier",
   accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
-  getOnlineEmployeesByRole
+  getDeliveryPersonnels
 );
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);
