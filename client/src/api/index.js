@@ -168,10 +168,9 @@ export const searchDrinksOnly = (drinksData, localStorageId) =>
     `/orders/search-drinks-only/${localStorageId}?orderName=${drinksData}`
   );
 // Allot order to personnels (Delivery, Waiter, Chef)
-export const getPersonnelsBySupplier = (order, personnelsType) =>{
-  return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`)
-}
-
+export const getPersonnelsBySupplier = (order, personnelsType) => {
+  return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`);
+};
 // QR Item Management APIs
 // Add Item Using QR
 export const postItemUsingQR = (newItem) =>
@@ -259,6 +258,20 @@ export const updateSingleDineInOrderAPI = (id, updatedData) =>
 // Delete Dine-In Order
 export const deleteSingleDineInOrderAPI = (id) =>
   API.delete(`/dine-in-order/delete/${id}`);
+// Allot Dine-In Order to Waiter
+export const allotDineInOrderToWaiter = (orderId, waiterId) =>
+  API.post(`/dine-in/assign-to-waiter/${orderId}`, {
+    waiterId: waiterId,
+  });
+// Allot Dine-In Order to Chef
+export const allotDineInOrderToChef = (orderId, chefId) =>
+  API.post(`/dine-in/assign-to-chef/${orderId}`, {
+    chefId: chefId,
+  });
+
+// Update Dine-In Order Status
+export const updateDineInOrderStatus = (orderId, updatedData) =>
+  API.patch(`/dine-in/update-order-status/${orderId}`, updatedData);
 
 // Take Away Order Management APIs
 // Add Take Away Order
@@ -276,6 +289,16 @@ export const updateSingleTakeAwayOrderAPI = (id, updatedData) =>
 // Delete Take Away Order
 export const deleteSingleTakeAwayOrderAPI = (id) =>
   API.delete(`/take-away/delete/${id}`);
+
+// Allot Take-Away Order to Chef
+export const allotTakeAwayOrderToChef = (orderId, chefId) =>
+  API.post(`/take-away/assign-to-chef/${orderId}`, {
+    chefId: chefId,
+  });
+
+// Update Take-Away Order Status
+export const updateTakeAwayOrderStatus = (orderId, updatedData) =>
+  API.patch(`/take-away/update-order-status/${orderId}`, updatedData);
 
 // Dashboard APIs
 // Total Stocks API
@@ -325,6 +348,9 @@ export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
 export const getemployeedata = () => API.get(`/employee/get-all-employee`);
+// Get Online Employees by role
+export const getOnlineEmployeesByRole = (role) =>
+  API.get(`/employee/get-online-employees/${role}`);
 // Add Employee Data
 export const postemployeedata = (data) =>
   API.post("/employee/add-employee", data);

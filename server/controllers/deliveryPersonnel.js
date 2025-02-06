@@ -173,7 +173,7 @@ export const getDeliveryPersonnels = async (req, res) => {
 // Update a delivery personnel
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-  console.log(req.body);
+   
   if (!mongoose.Types.ObjectId.isValid(_id))
     return res.status(404).send("No Delivery Personnel with that id");
   if (!req.body)
@@ -233,7 +233,7 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
 // Delete a delivery personnel by ID
 export const deleteDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-  
+
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {

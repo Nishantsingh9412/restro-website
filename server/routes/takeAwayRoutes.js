@@ -6,6 +6,8 @@ import {
   updateTakeAwayOrder,
   deleteTakeAwayOrder,
   deleteAllTakeAwayOrders,
+  assignTakeAwayOrderToChef,
+  updateTakeAwayCurrentStatus,
 } from "../controllers/takeAwayController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -31,4 +33,20 @@ router.delete("/delete-take-away/:id", takeAwayAccess, deleteTakeAwayOrder);
 
 // Delete all the take-away orders
 router.delete("/delete-all-take-away", deleteAllTakeAwayOrders);
+
+// Assign a take-away order to a chef
+router.post(
+  "/assign-to-chef/:orderId",
+  takeAwayAccess,
+  assignTakeAwayOrderToChef
+);
+
+// Update the status of a take-away order
+router.patch(
+  "/update-order-status/:orderId",
+  accessMiddleware(),
+  updateTakeAwayCurrentStatus
+);
+
+// Export the router
 export default router;

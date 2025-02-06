@@ -1,6 +1,7 @@
 import Joi from "joi";
 import mongoose from "mongoose";
 import TakeAwayOrder from "../models/takeAwayOrder.js";
+import Chef from "../models/employees/chefModel.js";
 
 // Define the schema for validating take-away orders
 const takeAwayOrderSchema = Joi.object({
@@ -33,8 +34,13 @@ export const createTakeAwayOrder = async (req, res) => {
       total: item.priceVal * item.quantity,
     }));
 
+    const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
+      1000000 + Math.random() * 9000000
+    )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+
     // Create a new take-away order in the database
     const newTakeAwayOrder = await TakeAwayOrder.create({
+      orderId,
       customerName,
       orderItems: formattedOrderItems,
       totalPrice,
@@ -47,6 +53,7 @@ export const createTakeAwayOrder = async (req, res) => {
       result: newTakeAwayOrder,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -64,6 +71,7 @@ export const getTakeAwayOrders = async (req, res) => {
       created_by: role === "admin" ? _id : created_by,
     })
       .populate("orderItems.item")
+      .populate("assignedChef", "name")
       .sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
@@ -165,4 +173,95 @@ export const deleteAllTakeAwayOrders = async (req, res) => {
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
+};
+
+// Assign take away order to chef
+export const assignTakeAwayOrderToChef = async (req, res) => {
+  try {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { chefId } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(chefId)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+
+    const order = await TakeAwayOrder.findOne({ orderId: orderId });
+    const chef = await Chef.findById(chefId);
+
+    if (!order || !chef) {
+      return res.status(404).json({ message: "Order or Chef not found" });
+    }
+
+    order.assignedChef = chefId;
+    order.currentStatus = "Assigned";
+    await updateStatusHistory(order, user, "Assigned");
+    await order.save();
+
+    chef.assignedOrders.push(order._id);
+    await chef.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order assigned to chef",
+      result: order,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Update take away order status
+export const updateTakeAwayCurrentStatus = async (req, res) => {
+  try {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    if (mongoose.Types.ObjectId.isValid(user.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    // find take away order by order id
+    const order = await TakeAwayOrder.findOne({ orderId: orderId });
+    // check if order exists
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    // update status history
+    await updateStatusHistory(order, user, status);
+    order.currentStatus = status;
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated",
+      result: order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Update status history
+const updateStatusHistory = async (order, user, status) => {
+  const validStatuses = [
+    "Available",
+    "Assigned",
+    "Accepted",
+    "Ready",
+    "Preparing",
+    "Cancelled",
+    "Completed",
+  ];
+  if (!validStatuses.includes(status)) {
+    throw new Error("Invalid status update");
+  }
+
+  order.statusHistory.push({
+    status,
+    updatedBy: user.id,
+    updatedByModel: user.role,
+    updatedAt: new Date(),
+  });
+  await order.save();
 };

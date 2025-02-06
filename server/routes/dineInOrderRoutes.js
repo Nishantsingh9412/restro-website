@@ -6,6 +6,9 @@ import {
   updateDineInOrder,
   deleteDineInOrder,
   deleteAllDineInOrders,
+  assignDineInOrderToChef,
+  assignDineInOrderToWaiter,
+  updateDineInCurrentStatus,
 } from "../controllers/dineInOrderController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -30,5 +33,22 @@ router.delete("/delete-dine-order/:id", dineInAccess, deleteDineInOrder);
 
 // delete all dine in order
 router.delete("/delete-all-dine-orders", deleteAllDineInOrders);
+
+// assign dine in order to chef
+router.post("/assign-to-chef/:orderId", dineInAccess, assignDineInOrderToChef);
+
+// assign dine in order to waiter
+router.post(
+  "/assign-to-waiter/:orderId",
+  dineInAccess,
+  assignDineInOrderToWaiter
+);
+
+// update dine in order status
+router.patch(
+  "/update-order-status/:orderId",
+  accessMiddleware(),
+  updateDineInCurrentStatus
+);
 
 export default router;

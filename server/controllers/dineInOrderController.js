@@ -1,6 +1,8 @@
 import Joi from "joi";
 import mongoose from "mongoose";
 import DineInOrder from "../models/dineInOrder.js";
+import Waiter from "../models/employees/waiterModel.js";
+import Chef from "../models/employees/chefModel.js";
 
 // Define the schema for validating dine-in orders
 const dineInOrderSchema = Joi.object({
@@ -95,12 +97,14 @@ export const getDineInOrders = async (req, res) => {
       created_by: role === "admin" ? _id : created_by,
     })
       .populate("orderItems.item")
+      .populate("assignedWaiter", "name")
+      .populate("assignedChef", "name")
       .sort({ createdAt: -1 });
 
     // Check if any orders were found
     if (!dineInOrders || dineInOrders.length === 0) {
       return res
-        .status(404)
+        .status(200)
         .json({ success: false, message: "No orders found" });
     }
 
@@ -243,4 +247,132 @@ export const deleteAllDineInOrders = async (req, res) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 };
-//delelte all dine in orders
+
+// Assign dine in order to waiter
+export const assignDineInOrderToWaiter = async (req, res) => {
+  try {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { waiterId } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(waiterId)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+
+    const order = await DineInOrder.findOne({ orderId: orderId });
+    const waiter = await Waiter.findById(waiterId);
+
+    if (!order || !waiter) {
+      return res.status(404).json({ message: "Order or Waiter not found" });
+    }
+
+    order.assignedWaiter = waiterId;
+    order.currentStatus = "Assigned";
+    await updateStatusHistory(order, user, "Assigned");
+    await order.save();
+
+    waiter.assignedOrders.push(order._id);
+    await waiter.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order assigned to waiter",
+      result: order,
+    });
+  } catch (error) {
+    console.log("errors are", error);
+
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+// Assign dine in order to chef
+export const assignDineInOrderToChef = async (req, res) => {
+  try {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { chefId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(chefId)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+
+    const order = await DineInOrder.findOne({ orderId: orderId });
+    const chef = await Chef.findById(chefId);
+
+    if (!order || !chef) {
+      return res.status(404).json({ message: "Order or Chef not found" });
+    }
+
+    order.assignedChef = chefId;
+    order.currentStatus = "Assigned to Chef";
+    await updateStatusHistory(order, user, "Assigned to Chef");
+    await order.save();
+
+    chef.assignedOrders.push(order._id);
+    await chef.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order assigned to chef",
+      result: order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Update dine in order status
+export const updateDineInCurrentStatus = async (req, res) => {
+  try {
+    const user = req.user;
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    if (mongoose.Types.ObjectId.isValid(user.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    // find dine in order by order id
+    const order = await DineInOrder.findOne({ orderId: orderId });
+    // check if order exists
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    // update status history
+    await updateStatusHistory(order, user, status);
+    order.currentStatus = status;
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated",
+      result: order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Update status history
+const updateStatusHistory = async (order, user, status) => {
+  const validStatuses = [
+    "Available",
+    "Assigned",
+    "Accepted",
+    "Assigned to Chef",
+    "Ready",
+    "Preparing",
+    "Served",
+    "Cancelled",
+    "Completed",
+  ];
+  if (!validStatuses.includes(status)) {
+    throw new Error("Invalid status update");
+  }
+
+  order.statusHistory.push({
+    status,
+    updatedBy: user.id,
+    updatedByModel: user.role,
+    updatedAt: new Date(),
+  });
+  await order.save();
+};

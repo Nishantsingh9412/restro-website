@@ -11,8 +11,16 @@ import {
 } from "@chakra-ui/react";
 import { MdLocalShipping } from "react-icons/md";
 
-const TakeAwayOrder = ({ orderData, handleAllotWaiter }) => {
-  const { _id, orderId, customerName, orderItems, totalPrice } = orderData;
+const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
+  const {
+    _id,
+    orderId,
+    customerName,
+    orderItems,
+    totalPrice,
+    assignedChef,
+    completedAt,
+  } = orderData;
 
   return (
     <Box
@@ -26,19 +34,36 @@ const TakeAwayOrder = ({ orderData, handleAllotWaiter }) => {
       transition="transform 0.2s"
       _hover={{ transform: "scale(1.02)" }}
     >
-      <Flex justifyContent="space-between" alignItems="center" mb="4">
-        <Heading as="h2" size="md" mb={4}>
-          Order #{orderId}
+      {completedAt ? (
+        <Heading
+          as="h2"
+          size="md"
+          bg="green.100"
+          textAlign={"center"}
+          mb={4}
+          p={2}
+        >
+          Completed
         </Heading>
-        <IconButton
-          onClick={() => handleAllotWaiter(orderId, "Waiter")}
-          aria-label="Allot Delivery Boy"
-          title="Allot Delivery Boy"
-          icon={<MdLocalShipping />}
-          variant="outline"
-          colorScheme="blue"
-        />
-      </Flex>
+      ) : assignedChef ? (
+        <Heading as="h2" size="md" bg="blue.100" mb={4} p={2}>
+          Assigned to {assignedChef?.name}
+        </Heading>
+      ) : (
+        <Flex justifyContent="space-between" alignItems="center" mb="4">
+          <Heading as="h2" size="md" mb={4}>
+            Order #{orderId}
+          </Heading>
+          <IconButton
+            onClick={handleAllotChef}
+            aria-label="Allot Chef"
+            title="Allot Chef"
+            icon={<MdLocalShipping />}
+            variant="outline"
+            colorScheme="blue"
+          />
+        </Flex>
+      )}
       <Text>
         <Badge colorScheme="blue">Customer</Badge> {customerName || "N/A"}
       </Text>

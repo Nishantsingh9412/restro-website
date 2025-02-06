@@ -5,12 +5,12 @@ const initialState = {
 
 const takeAwayOrderReducer = (state = initialState, action) => {
   switch (action.type) {
-    case "ALLOT_WAITER_TAKE_AWAY":
+    case "ALLOT_CHEF_TAKE_AWAY":
       return {
         ...state,
         data: state.data.map((item) =>
           item.orderId === action.data.orderId
-            ? { ...item, assignedTo: action.data.assignedTo }
+            ? { ...item, assignedChef: action.data.assignedChef }
             : item
         ),
       };

@@ -12,43 +12,45 @@ import {
   Center,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { getDeliveryPersonnelsBySupplier } from "../../../../api/index"; // Update the API function accordingly
+import { getOnlineEmployeesByRole } from "../../../../api/index"; // Update the API function accordingly
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
 import { useToast } from "../../../../contexts/ToastContext";
 
-export default function AllotPersonnelModal({
-  isOpen,
-  setIsOpen,
-  onSubmit,
-  personnelType,
-}) {
+export default function AllotDeliveryModal({ isOpen, setIsOpen, onSubmit }) {
   const showToast = useToast();
 
   const [personnels, setPersonnels] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const handleSelect = (id) => {
-    setSelected(id);
+    setSelected((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((item) => item !== id)
+        : [...prevSelected, id]
+    );
   };
 
   const handleSubmit = () => {
-    onSubmit(personnels.find((item) => item?._id === selected));
+    onSubmit(personnels.filter((item) => selected.includes(item._id)));
     setIsOpen(false);
+  };
+
+  const handleSelectAll = () => {
+    setSelected(personnels.map((p) => p._id));
   };
 
   useEffect(() => {
     const getPersonnels = async () => {
       try {
-        // if (!supplierId) return;
         setIsLoading(true);
-        const res = await getDeliveryPersonnelsBySupplier(personnelType);
+        const res = await getOnlineEmployeesByRole("Delivery Boy");
         setPersonnels(res?.data?.result.length ? res.data.result : []);
       } catch (err) {
         showToast(err?.response?.data?.error, "error");
-        console.error(`Error in getting ${personnelType}`, err.response);
+        console.error("Error in getting delivery boys", err.response);
       } finally {
         setIsLoading(false);
       }
@@ -57,14 +59,14 @@ export default function AllotPersonnelModal({
     if (isOpen) {
       getPersonnels();
     }
-    setSelected(null);
-  }, [isOpen, personnelType, showToast]);
+    setSelected([]);
+  }, [isOpen, showToast]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Allot {personnelType}</ModalHeader>
+        <ModalHeader>Allot Delivery Boys</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {isLoading ? (
@@ -83,15 +85,19 @@ export default function AllotPersonnelModal({
                 <Flex key={p._id} gap={5} alignItems={"center"}>
                   <Button
                     onClick={() => handleSelect(p._id)}
-                    colorScheme={selected === p._id ? "green" : "gray"}
+                    colorScheme={selected.includes(p._id) ? "green" : "gray"}
                     width={"fit-content"}
                     leftIcon={
-                      selected === p._id ? <FiCheckCircle /> : <FiCircle />
+                      selected.includes(p._id) ? (
+                        <FiCheckCircle />
+                      ) : (
+                        <FiCircle />
+                      )
                     }
                   >
                     {p.name}
                   </Button>
-                  <Text color={selected === p._id ? "green" : "#ccc"}>
+                  <Text color={selected.includes(p._id) ? "green" : "#ccc"}>
                     Completed: {p.completedCount}
                   </Text>
                 </Flex>
@@ -105,7 +111,7 @@ export default function AllotPersonnelModal({
               textAlign={"center"}
               color={"#999"}
             >
-              No {personnelType} is available at this moment
+              No delivery boys are available at this moment
             </Text>
           )}
         </ModalBody>
@@ -116,12 +122,20 @@ export default function AllotPersonnelModal({
           </Button>
           <Button
             colorScheme="blue"
-            disabled={!selected}
+            disabled={!selected.length}
             onClick={handleSubmit}
-            pointerEvents={selected ? "auto" : "none"}
-            bg={selected ? "blue.500" : "gray.300"}
+            pointerEvents={selected.length ? "auto" : "none"}
+            bg={selected.length ? "blue.500" : "gray.300"}
           >
             Allot
+          </Button>
+          <Button
+            colorScheme="teal"
+            ml={3}
+            onClick={handleSelectAll}
+            disabled={!personnels.length}
+          >
+            Allot All
           </Button>
         </ModalFooter>
       </ModalContent>
@@ -129,10 +143,8 @@ export default function AllotPersonnelModal({
   );
 }
 
-AllotPersonnelModal.propTypes = {
+AllotDeliveryModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   setIsOpen: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  supplierId: PropTypes.string.isRequired,
-  personnelType: PropTypes.string.isRequired,
 };

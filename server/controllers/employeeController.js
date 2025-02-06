@@ -9,6 +9,7 @@ import Staff from "../models/employees/staffModel.js";
 import Manager from "../models/employees/managerModel.js";
 import Chef from "../models/employees/chefModel.js";
 import HelperEmployee from "../models/employees/helperEmpModel.js";
+import { onlineUsers } from "../server.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -35,8 +36,8 @@ const schema = Joi.object({
   permissions: Joi.array().optional(),
 });
 
-// Mapping roles to their respective models
-const ROLE_CASES = {
+// Mapping roles to their respective CASES
+export const ROLE_CASES = {
   "Delivery Boy": DeliveryBoy,
   Waiter: Waiter,
   Chef: Chef,
@@ -176,6 +177,41 @@ export const getEmployeeById = async (req, res) => {
   }
 };
 
+// Get online employees by role
+export const getOnlineEmployeesByRole = async (req, res) => {
+  try {
+    let { id: userId, role } = req.user;
+    const { type } = req.params;
+    userId = role === "admin" ? userId : req.user.created_by;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    if (!ROLE_CASES[type]) {
+      return res.status(400).json({ message: "Invalid type parameter" });
+    }
+
+    const onlineEmployees = Array.from(onlineUsers.keys());
+    const Model = ROLE_CASES[type];
+
+    console.log(onlineEmployees, Model);
+
+    const onlineRoleEmployees = await Model.find({
+      _id: { $in: onlineEmployees },
+      created_by: userId,
+      is_online: true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Online ${type}s`,
+      result: onlineRoleEmployees,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in GetOnlineEmployeesByRole");
+  }
+};
+
 // Update an existing employee's details
 export const updateEmployee = async (req, res) => {
   const { id: _id } = req.params;
@@ -193,28 +229,39 @@ export const updateEmployee = async (req, res) => {
       _id,
       created_by: role === "admin" ? userId : req.user.created_by,
     };
-    
-   // Check if the employee exists
+
+    // Check if the employee exists
     const existingEmployee = await Employee.findOne(filter);
     if (!existingEmployee) {
       return res
         .status(404)
         .json({ success: false, message: "Employee not found" });
     }
-    
+
+    console.log(updateData.permissions, existingEmployee.permissions);
+
     // Check Permission being updated by the admin or not
-    if (role !== "admin" && updateData.permissions) {
+    if (
+      role !== "admin" &&
+      updateData.permissions &&
+      !updateData.permissions.every((perm) =>
+        existingEmployee.permissions.some(
+          (existingPerm) => existingPerm.id === perm.id
+        )
+      )
+    ) {
       return res
         .status(403)
         .json({ success: false, message: "Permission Denied" });
     }
-  // Check if role is being updated
+    // Check if role is being updated
+
     if (updateData.role && updateData.role !== existingEmployee.role) {
       // Remove the old employee document
       await Employee.findByIdAndDelete(_id);
 
       // Create a new employee document in the new role
-      const newEmployee = await createEmployee(updateData.role, {
+      const newEmployee = await createEmployee({
         ...existingEmployee.toObject(),
         ...updateData, // Override with updated fields
         __t: undefined, // Remove the discriminator key
@@ -238,6 +285,7 @@ export const updateEmployee = async (req, res) => {
       result: employee,
     });
   } catch (error) {
+    console.log(error);
     return handleError(res, error, "Error in Update Employee");
   }
 };

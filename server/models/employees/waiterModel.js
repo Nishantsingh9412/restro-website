@@ -8,6 +8,12 @@ const waiterSchema = new mongoose.Schema({
   experience: {
     type: Number,
   },
+  assignedOrders: [
+    {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "DineInOrder",
+    },
+  ],
 });
 
 export default Employee.discriminator("Waiter", waiterSchema);

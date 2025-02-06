@@ -40,18 +40,19 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   const handleCompleteOrder = (e) => {
     e.preventDefault();
 
-    const dineInOrderData = {
+    const takeAwayOrderData = {
       ...takeAwayData,
       orderItems: cartItems,
       totalPrice: totalAmount,
       created_by: userId,
     };
-
-    dispatch(postTakeAwayOrderAction(dineInOrderData)).then((res) => {
+    dispatch(postTakeAwayOrderAction(takeAwayOrderData)).then((res) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());
-        navigate(role === "admin" ? "/admin/order-history" : "/employee/order-history");
+        navigate(
+          role === "admin" ? "/admin/order-history" : "/employee/order-history"
+        );
         toast.success(res.message);
       } else toast.error(res.message);
       // console.log(res);

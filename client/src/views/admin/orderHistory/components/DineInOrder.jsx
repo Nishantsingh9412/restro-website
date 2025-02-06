@@ -13,11 +13,11 @@ import {
 } from "@chakra-ui/react";
 import { MdLocalShipping } from "react-icons/md";
 
-const DineInOrder = ({ orderData, handleAllotChef }) => {
+const DineInOrder = ({ orderData, handleAllotWaiter }) => {
   const {
     _id,
     completedAt,
-    assignedTo,
+    assignedWaiter,
     orderId,
     customerName,
     phoneNumber,
@@ -52,9 +52,9 @@ const DineInOrder = ({ orderData, handleAllotChef }) => {
         >
           Completed
         </Heading>
-      ) : assignedTo ? (
+      ) : assignedWaiter ? (
         <Heading as="h2" size="md" bg="blue.100" mb={4} p={2}>
-          Assigned to {assignedTo.name}
+          Assigned to {assignedWaiter?.name}
         </Heading>
       ) : (
         <Flex justifyContent="space-between" alignItems="center" mb="4">
@@ -62,9 +62,9 @@ const DineInOrder = ({ orderData, handleAllotChef }) => {
             Order #{orderId}
           </Heading>
           <IconButton
-            onClick={() => handleAllotChef(orderId)}
-            aria-label="Allot Delivery Boy"
-            title="Allot Delivery Boy"
+            onClick={handleAllotWaiter}
+            aria-label="Allot Waiter"
+            title="Allot Waiter"
             icon={<MdLocalShipping />}
             variant="outline"
             colorScheme="blue"

@@ -20,6 +20,37 @@ const orderItemsSubDocsSchema = new Schema({
   },
 });
 
+//Status History Schema
+const statusHistorySchema = new Schema({
+  status: {
+    type: String,
+    required: true,
+    enum: [
+      "Available",
+      "Assigned",
+      "Accepted",
+      "Preparing",
+      "Ready",
+      "Completed",
+      "Cancelled",
+    ], // Possible statuses
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: "updatedByModel",
+  },
+  updatedByModel: {
+    type: String,
+    required: true,
+    enum: ["admin", "Waiter", "Chef", "Delivery Boy", "Manager"], // Models that can update the status
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now, // Default to current date and time
+  },
+});
+
 const takeAwaySchema = new Schema({
   orderId: {
     type: String,
@@ -50,6 +81,29 @@ const takeAwaySchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
     required: true,
+  },
+  assignedChef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Chef",
+    required: false,
+  },
+  currentStatus: {
+    type: String,
+    enum: [
+      "Available",
+      "Assigned",
+      "Accepted",
+      "Preparing",
+      "Ready",
+      "Completed",
+      "Cancelled",
+    ],
+    default: "Available",
+  },
+  statusHistory: [statusHistorySchema],
+  completedAt: {
+    type: Date,
+    default: null,
   },
 });
 

@@ -8,6 +8,7 @@ import {
   updateDeliveryPersonnel,
   updateDeliveryPersonnelOnlineStatus,
   updateDeliveryBoyOdometerReading,
+  getOnlineDeliveryPersonnelsBySupplier,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
@@ -16,9 +17,9 @@ const router = express.Router();
 
 router.get("/get-all", getDeliveryPersonnels);
 router.get(
-  "/get-by-supplier",
+  "/get-by-supplier/:type",
   accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
-  getDeliveryPersonnels
+  getOnlineDeliveryPersonnelsBySupplier
 );
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);

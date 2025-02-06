@@ -49,7 +49,10 @@ const Address = ({ goToNextStep }) => {
     ];
 
     for (const field of requiredFields) {
-      if (!formData[field] || formData[field].trim() === "") {
+      if (
+        !formData[field] ||
+        (typeof formData[field] === "string" && formData[field].trim() === "")
+      ) {
         toast.error(
           `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`
         );
@@ -63,7 +66,7 @@ const Address = ({ goToNextStep }) => {
     }
 
     if (formData.zip && !/^\d{5}(-\d{4})?$/.test(formData.zip)) {
-      toast.error("Please enter a valid zip code");
+      toast.error("Please enter a valid 5 digit zip code");
       return false;
     }
 
@@ -265,7 +268,7 @@ const Address = ({ goToNextStep }) => {
             <MapInput
               data={{
                 dropLocation: formData.dropLocation || {},
-                dropLocationName: formData.dropLocationName|| "",
+                dropLocationName: formData.dropLocationName || "",
               }}
               isOpen={isOpen}
               onClose={onClose}

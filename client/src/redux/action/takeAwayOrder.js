@@ -15,10 +15,34 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     // Return error message
     return {
       success: false,
-      message:err.response.data.error || "something went wrong",  status: err.response.status
+      message: err.response.data.error || "something went wrong",
+      status: err.response.status,
     };
   }
 };
+
+// Action to allot order to chef
+export const allotTakeAwayOrderToChefAction =
+  ({ orderId, chef }) =>
+  async (dispatch) => {
+    try {
+      await api.allotTakeAwayOrderToChef(orderId, chef._id);
+      dispatch({
+        type: "ALLOT_CHEF_TAKE_AWAY",
+        data: {
+          orderId: orderId,
+          assignedTo: { name: chef.name, _id: chef?._id },
+        },
+      });
+      return { success: true, message: "Order allotted successfully" };
+    } catch (err) {
+      console.error(
+        "Error from ALLOT_TAKE_AWAY_ORDER Action: " + err.message,
+        err.stack
+      );
+      return { success: false, message: err?.response?.data?.message };
+    }
+  };
 
 // Action to post new take-away order
 export const postTakeAwayOrderAction = (orderData) => async (dispatch) => {

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 const { Schema, model } = mongoose;
 
 // Subdocument schema for order items
@@ -18,6 +17,39 @@ const orderItemsSubDocsSchema = new Schema({
     type: Number,
     required: true,
     min: [0, "Total must be a positive number"], // Total must be a positive number
+  },
+});
+
+//Status History Schema
+const statusHistorySchema = new Schema({
+  status: {
+    type: String,
+    required: true,
+    enum: [
+      "Available",
+      "Assigned",
+      "Accepted",
+      "Assigned to Chef",
+      "Preparing",
+      "Ready",
+      "Served",
+      "Cancelled",
+      "Completed",
+    ], // Possible statuses
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: "updatedByModel",
+  },
+  updatedByModel: {
+    type: String,
+    required: true,
+    enum: ["admin", "Waiter", "Chef", "Delivery Boy", "Manager"], // Models that can update the status
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now, // Default to current date and time
   },
 });
 // Schema for dine-in orders
@@ -71,6 +103,36 @@ const dineInOrderSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin", // Reference to the Admin model
     required: true,
+  },
+  assignedWaiter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Waiter", // Reference to the Waiter model
+    default: null,
+  },
+  assignedChef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Chef",
+    default: null,
+  },
+  currentStatus: {
+    type: String,
+    enum: [
+      "Available",
+      "Assigned",
+      "Accepted",
+      "Assigned to Chef",
+      "Preparing",
+      "Ready",
+      "Served",
+      "Cancelled",
+      "Completed",
+    ], // Possible statuses
+    default: "Available",
+  },
+  statusHistory: [statusHistorySchema],
+  completedAt: {
+    type: Date,
+    default: null,
   },
 });
 

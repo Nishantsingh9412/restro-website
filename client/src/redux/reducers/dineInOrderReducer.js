@@ -6,12 +6,21 @@ const initialState = {
 // Dine-In Order Reducer
 const dineInOrderReducer = (state = initialState, action) => {
   switch (action.type) {
+    case "ALLOT_WAITER_DINE_IN":
+      return {
+        ...state,
+        data: state.data.map((item) =>
+          item.orderId === action.data.orderId
+            ? { ...item, assignedWaiter: action.data.assignedWaiter }
+            : item
+        ),
+      };
     case "ALLOT_CHEF_DINE_IN":
       return {
         ...state,
         data: state.data.map((item) =>
           item.orderId === action.data.orderId
-            ? { ...item, assignedTo: action.data.assignedTo }
+            ? { ...item, assignedChef: action.data.assignedChef }
             : item
         ),
       };
