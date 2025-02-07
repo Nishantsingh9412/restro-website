@@ -31,7 +31,7 @@ export const allotTakeAwayOrderToChefAction =
         type: "ALLOT_CHEF_TAKE_AWAY",
         data: {
           orderId: orderId,
-          assignedTo: { name: chef.name, _id: chef?._id },
+          assignedChef: { name: chef.name, _id: chef?._id },
         },
       });
       return { success: true, message: "Order allotted successfully" };

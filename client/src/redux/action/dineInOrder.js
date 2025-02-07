@@ -30,7 +30,7 @@ export const allotDineInOrderToWaiterAction =
         type: "ALLOT_WAITER_DINE_IN",
         data: {
           orderId: orderId,
-          assignedTo: { name: waiter.name, _id: waiter?._id },
+          assignedWaiter: { name: waiter.name, _id: waiter?._id },
         },
       });
       return { success: true, message: "Order allotted successfully" };
@@ -53,7 +53,7 @@ export const allotDineInOrderToChefAction =
         type: "ALLOT_CHEF_DINE_IN",
         data: {
           orderId: orderId,
-          assignedTo: { name: chef.name, _id: chef?._id },
+          assignedChef: { name: chef.name, _id: chef?._id },
         },
       });
       return { success: true, message: "Order allotted successfully" };
