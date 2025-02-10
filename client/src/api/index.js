@@ -438,3 +438,15 @@ export const getDeliveryDashboardData = (userId) =>
 // Update Odometer Reading
 export const updateOdometerReading = (updatedData) =>
   API.put(`/delivery-person/update-odometer`, updatedData);
+
+//Employees
+
+// Waiter
+// Get Waiter Dashboard Data
+export const getWaiterDashboardData = () =>
+  API.get("/waiter/get-dashboard-data");
+//Get Waiter All Orders
+export const getWaiterAllOrders = () => API.get("/waiter/get-all-orders");
+
+// Get Waiter Active Orders
+export const getWaiterActiveOrder = () => API.get("/waiter/get-active-order");

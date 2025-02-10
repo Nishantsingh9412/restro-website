@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
+import PropTypes from "prop-types";
 import {
   eachDayOfInterval,
   subDays,
@@ -9,13 +10,13 @@ import {
   subMonths,
 } from "date-fns";
 
-export default function WaiterPerformanceChart({
+export default function CompletedOrderChart({
   weeklyOrders,
   monthlyOrders,
   yearlyOrders,
-  totalTipsWeek,
-  totalTipsMonth,
-  totalTipsYear,
+  // totalTipsWeek,
+  // totalTipsMonth,
+  // totalTipsYear,
 }) {
   const [weeklyData, setWeeklyData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
@@ -63,7 +64,10 @@ export default function WaiterPerformanceChart({
       zoom: { enabled: true },
     },
     xaxis: { type: "datetime" },
-    yaxis: { title: { text: "Orders Served" } },
+    yaxis: {
+      title: { text: "Orders Served" },
+      tickAmount: 3,
+    },
     stroke: { curve: "smooth" },
     markers: { size: 4 },
     tooltip: { x: { format: "dd MMM yyyy" } },
@@ -80,37 +84,34 @@ export default function WaiterPerformanceChart({
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[
-              { name: "Orders Served", data: weeklyData },
-            ]}
+            series={[{ name: "Orders Served", data: weeklyData }]}
             type="area"
             height={350}
           />
-          <div>Total Tips Collected: ${totalTipsWeek.toFixed(2)}</div>
         </TabPanel>
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[
-              { name: "Orders Served", data: monthlyData },
-            ]}
+            series={[{ name: "Orders Served", data: monthlyData }]}
             type="area"
             height={350}
           />
-          <div>Total Tips Collected: ${totalTipsMonth.toFixed(2)}</div>
         </TabPanel>
         <TabPanel>
           <Chart
             options={chartOptions}
-            series={[
-              { name: "Orders Served", data: yearlyData },
-            ]}
+            series={[{ name: "Orders Served", data: yearlyData }]}
             type="area"
             height={350}
           />
-          <div>Total Tips Collected: ${totalTipsYear.toFixed(2)}</div>
         </TabPanel>
       </TabPanels>
     </Tabs>
   );
 }
+
+CompletedOrderChart.propTypes = {
+  weeklyOrders: PropTypes.array.isRequired,
+  monthlyOrders: PropTypes.array.isRequired,
+  yearlyOrders: PropTypes.array.isRequired,
+};

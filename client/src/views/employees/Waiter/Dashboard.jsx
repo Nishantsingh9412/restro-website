@@ -16,10 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { MdRestaurant, MdOutlineTimer } from "react-icons/md";
 import { FaAngleRight } from "react-icons/fa6";
 import { BiRefresh } from "react-icons/bi";
-// import { toast } from "react-toastify";
-import { useToast } from "../../../contexts/ToastContext";
 import PropTypes from "prop-types";
-import WaiterPerformanceChart from "./components/WaiterChart"; // hypothetical component
+import WaiterPerformanceChart from "../components/CompletedOrderChart"; // hypothetical component
 import { getWaiterDashboardDataAction } from "../../../redux/action/waiter";
 
 // Card component with optional footerLink and footerText
@@ -84,28 +82,19 @@ const LoadingOrError = ({ isLoading, isError }) => {
 
 export default function WaiterDashboard() {
   const [utils, setUtils] = useState({ isLoading: true, isError: false });
-  const user = JSON.parse(localStorage.getItem("ProfileData"));
-  const data = useSelector((state) => state.waiter.data);
+  const data = useSelector((state) => state.waiter.dashboardData);
   const dispatch = useDispatch();
-  const showToasts = useToast();
 
   const handleRefresh = useCallback(() => {
-    if (user?.result?._id) {
-      setUtils({ isLoading: true, isError: false });
-      dispatch(getWaiterDashboardDataAction())
-        .then(() => setUtils({ isLoading: false, isError: false }))
-        .catch(() => setUtils({ isLoading: false, isError: true }));
-    } else {
-      // toast.error("User not found! Please login again.");
-      showToasts("User not found! Please login again.", "error");
-      setUtils({ isLoading: false, isError: true });
-    }
-  }, [dispatch, user]);
+    setUtils({ isLoading: true, isError: false });
+    dispatch(getWaiterDashboardDataAction())
+      .then(() => setUtils({ isLoading: false, isError: false }))
+      .catch(() => setUtils({ isLoading: false, isError: true }));
+  }, [dispatch]);
 
   useEffect(() => {
     handleRefresh();
-    console.log("caliing apis");
-  }, []);
+  }, [handleRefresh]);
 
   return (
     <div>
@@ -155,13 +144,17 @@ export default function WaiterDashboard() {
                       fontSize={"xx-large"}
                       color={"green"}
                     >
-                      {data.todayCompletedOrders || 0}
+                      {data?.todayOrders["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
                     <Flex gap={3}>
+                      <Text>Available:</Text>
+                      <Text>{data?.todayOrders["Assigned"] || 0}</Text>
+                    </Flex>
+                    <Flex gap={3} color={"red"}>
                       <Text>Pending:</Text>
-                      <Text>{data.todayPendingOrders || 0}</Text>
+                      <Text>{data?.todayOrders["Accepted"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -187,13 +180,13 @@ export default function WaiterDashboard() {
                       fontSize={"xx-large"}
                       color={"blue"}
                     >
-                      {data.monthlyCompletedOrders || 0}
+                      {data?.monthlyOrders["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
-                    <Flex gap={3} color={"red"}>
-                      <Text>Pending:</Text>
-                      <Text>{data.monthlyPendingOrders || 0}</Text>
+                    <Flex gap={3} color={"blue"}>
+                      <Text>Assigned:</Text>
+                      <Text>{data?.monthlyOrders["Assigned"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -209,10 +202,10 @@ export default function WaiterDashboard() {
               Performance Overview
             </Heading>
             <WaiterPerformanceChart
-              weekly={data.weeklyOrders || []}
-              monthly={data.monthlyOrders || []}
-              yearly={data.yearlyOrders || []}
-              totalTips={data.totalTips || 0}
+              weeklyOrders={data?.weeklyOrders["Completed"] || []}
+              monthlyOrders={data?.monthlyOrders["Completed"] || []}
+              yearlyOrders={data?.yearlyOrders["Completed"] || []}
+              totalTips={data?.totalTips || 0}
             />
           </Box>
 
@@ -238,20 +231,20 @@ export default function WaiterDashboard() {
                       fontSize={"xx-large"}
                       color={"purple"}
                     >
-                      {(data.averageServingTime / 60).toFixed(1)} min
+                      {(data?.averageServingTime / 60).toFixed(1)} min
                     </Text>
                   </Flex>
                   <Flex flexDirection={"row"} justifyContent={"space-between"}>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Fastest</Text>
                       <Text>
-                        {(data.fastestServingTime / 60).toFixed(1)} min
+                        {(data?.fastestServingTime / 60).toFixed(1)} min
                       </Text>
                     </Flex>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Slowest</Text>
                       <Text>
-                        {(data.slowestServingTime / 60).toFixed(1)} min
+                        {(data?.slowestServingTime / 60).toFixed(1)} min
                       </Text>
                     </Flex>
                   </Flex>
@@ -264,7 +257,7 @@ export default function WaiterDashboard() {
               data={
                 <Flex flexDirection={"column"} gap={5}>
                   <Text fontWeight={"600"} fontSize={"xx-large"} color={"gold"}>
-                    ${data.totalTips.toFixed(2)}
+                    ${data?.totalTips.toFixed(2)}
                   </Text>
                 </Flex>
               }

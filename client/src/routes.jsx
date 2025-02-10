@@ -34,6 +34,8 @@ import DeliveryHistory from "./views/delivery/history"; // Adjust the path as ne
 import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
 import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
+import WaiterDashboard from "./views/employees/Waiter/Dashboard";
+import AvailableOrders from "./views/employees/Waiter/AvailableOrders";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -565,7 +567,7 @@ export const waiterRoutes = [
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
-    component: <DeliveryDashboard />,
+    component: <WaiterDashboard />,
     links: [
       {
         name: "Dashboard",
@@ -575,7 +577,7 @@ export const waiterRoutes = [
         icon: (
           <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
         ),
-        component: <DeliveryDashboard />,
+        component: <WaiterDashboard />,
       },
       {
         name: "Available Orders",
@@ -589,7 +591,7 @@ export const waiterRoutes = [
             height="20px"
           />
         ),
-        component: <AvailableDeliveries />,
+        component: <AvailableOrders />,
       },
       {
         name: "Available Shifts",

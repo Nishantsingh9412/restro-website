@@ -1,52 +1,47 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Grid,
-  Heading,
-  Text,
-  Spinner,
-} from "@chakra-ui/react";
-import DeliveryCard from "./components/DeliveryCard";
-import ActiveDelivery from "./components/ActiveDelivery";
+import { Flex, Grid, Heading, Text, Spinner } from "@chakra-ui/react";
+import OrderCard from "./components/OrderCard";
+import ActiveOrder from "./components/ActiveOrder";
 import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
-  acceptDeliveryAction,
-  deleteSingleDeliveryAction,
-  completeDeliveryAction,
-  cancelDeliveryAction,
-  udpateDeliveryStatusAction,
-  getActiveDeliveryAction,
-  getAllAvailabelDeliveryAction,
-} from "../../../redux/action/delivery";
+  //   acceptOrderAction,
+  //   deleteSingleOrderAction,
+  //   completeOrderAction,
+  //   cancelOrderAction,
+  //   updateOrderStatusAction,
+  getWaiterActiveOrderAction,
+  getWaiterAllOrdersAction,
+} from "../../../redux/action/waiter";
 
-export default function AvailableDeliveries() {
+export default function AvailableOrders() {
   const auth = useSelector((state) => state.admin.data);
-  const availableDeliveries = useSelector(
-    (state) => state.deliveryReducer.deliveries || []
-  );
+  const availableOrders = useSelector((state) => state.waiter.orders || []);
+  const activeOrder = useSelector((state) => state.waiter.activeOrder);
   const [loading, setLoading] = useState(true);
-  const activeDelivery = useSelector(
-    (state) => state.deliveryReducer.activeDelivery
-  );
   const dispatch = useDispatch();
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const localId = localData?.result?._id;
-  useEffect(() => {
-    Promise.all([
-      dispatch(getAllAvailabelDeliveryAction(localId)),
-      dispatch(getActiveDeliveryAction(localId)),
-    ]).then(() => setLoading(false));
-  }, []);
 
-  // For Getting Delivery Boy Data End
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          dispatch(getWaiterAllOrdersAction()),
+          dispatch(getWaiterActiveOrderAction()),
+        ]);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const showAcceptConfirmation = () =>
     Swal.fire({
-      title: "Delivery Accepted",
-      text: "Complete the order to get more delivery offers",
+      title: "Order Accepted",
+      text: "Complete the order to get more order offers",
       icon: "success",
       confirmButtonColor: "skyblue",
       timer: 2500,
@@ -65,17 +60,17 @@ export default function AvailableDeliveries() {
       if (result.isConfirmed) handleUpdateStatus(id, status);
     });
 
-  const showDeliveryCompleted = () =>
+  const showOrderCompleted = () =>
     Swal.fire({
-      title: "Delivery Completed",
-      text: "You can earn more, get more deliveries",
+      title: "Order Completed",
+      text: "You can earn more, get more orders",
       icon: "success",
       confirmButtonColor: "skyblue",
     });
 
   const showRejectConfirmation = (id) =>
     Swal.fire({
-      title: "Reject delivery offer?",
+      title: "Reject order offer?",
       text: "Are you sure you want to reject this offer?",
       icon: "question",
       confirmButtonColor: "red",
@@ -87,8 +82,8 @@ export default function AvailableDeliveries() {
 
   const showCancelConfirmation = (id) =>
     Swal.fire({
-      title: "Cancel delivery in progress?",
-      text: "Are you sure you want to cancel this delivery?",
+      title: "Cancel order in progress?",
+      text: "Are you sure you want to cancel this order?",
       icon: "warning",
       confirmButtonColor: "red",
       confirmButtonText: "Yes",
@@ -99,29 +94,30 @@ export default function AvailableDeliveries() {
 
   const handleReject = (id) => {
     console.log(id);
-    dispatch(deleteSingleDeliveryAction(id));
+    // dispatch(deleteSingleOrderAction(id));
   };
 
-  const handleCompleteDelivery = (id) => {
-    dispatch(completeDeliveryAction(id, localId || auth?._id)).then(() =>
-      showDeliveryCompleted()
-    );
+  const handleCompleteOrder = (id) => {
+    // dispatch(completeOrderAction(id, auth?._id)).then(() =>
+      showOrderCompleted()
+    // );
   };
 
   const handleUpdateStatus = (id, status) => {
-    if (status === "Completed") return handleCompleteDelivery(id);
-    dispatch(udpateDeliveryStatusAction(id, status, localId || auth?._id));
+    // if (status === "Completed") return handleCompleteOrder(id);
+    // dispatch(updateOrderStatusAction(id, status, auth?._id));
   };
 
   const handleAccept = (id) => {
-    dispatch(acceptDeliveryAction(id, localId || auth?._id)).then(() =>
+    // dispatch(acceptOrderAction(id, auth?._id)).then(() =>
       showAcceptConfirmation()
-    );
+    // );
   };
 
   const handleCancel = (id) => {
-    dispatch(cancelDeliveryAction(id, localId || auth?._id));
+    // dispatch(cancelOrderAction(id, auth?._id));
   };
+
   if (loading)
     return (
       <Flex justifyContent="center" alignItems="center" height="50vh">
@@ -129,10 +125,10 @@ export default function AvailableDeliveries() {
       </Flex>
     );
 
-  if (activeDelivery)
+  if (activeOrder && activeOrder.length > 0)
     return (
-      <ActiveDelivery
-        activeDelivery={activeDelivery}
+      <ActiveOrder
+        activeOrder={activeOrder}
         handleCancel={showCancelConfirmation}
         handleUpdateStatus={showStatusChangeConfirm}
       />
@@ -141,9 +137,9 @@ export default function AvailableDeliveries() {
     return (
       <>
         <Heading mt={20} mb={5} fontSize={20}>
-          Available Deliveries
+          Available Orders
         </Heading>
-        {availableDeliveries.length === 0 ? (
+        {availableOrders.length === 0 ? (
           <Text
             p={3}
             w={"fit-content"}
@@ -151,7 +147,7 @@ export default function AvailableDeliveries() {
             mx={"auto"}
             my={20}
           >
-            You don&apos;t have any delivery offer at this moment
+            You don&apos;t have any order offer at this moment
           </Text>
         ) : (
           <Grid
@@ -162,13 +158,14 @@ export default function AvailableDeliveries() {
               lg: "1fr 1fr 1fr",
             }}
           >
-            {availableDeliveries?.map((delivery, i) => (
-              <DeliveryCard
-                data={delivery}
+            {console.log(availableOrders, activeOrder)}
+            {availableOrders?.map((order, i) => (
+              <OrderCard
+                data={order}
                 key={i}
                 handleAccept={handleAccept}
                 handleReject={showRejectConfirmation}
-                disabled={activeDelivery ? true : false}
+                disabled={activeOrder ? true : false}
               />
             ))}
           </Grid>
