@@ -218,15 +218,39 @@ export const updateTakeAwayCurrentStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    if (mongoose.Types.ObjectId.isValid(user.id)) {
+    if (!mongoose.Types.ObjectId.isValid(user.id)) {
       return res.status(400).json({ message: "Invalid ID" });
     }
+
     // find take away order by order id
-    const order = await TakeAwayOrder.findOne({ orderId: orderId });
+    const order = await TakeAwayOrder.findOne({ orderId: orderId }).populate(
+      "orderItems.item"
+    );
     // check if order exists
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    // find chef by id
+    const chef = await Chef.findById(order.assignedChef);
+    if (!chef) {
+      return res.status(404).json({ message: "Chef not found" });
+    }
+
+    // check if status is completed
+    if (status === "Completed") {
+      order.completedAt = new Date();
+    }
+
+    // check if status is rejected
+    if (status === "Rejected") {
+      chef.assignedOrders = chef.assignedOrders.filter(
+        (orderId) => orderId.toString() !== order._id.toString()
+      );
+      order.assignedChef = null;
+      await chef.save();
+    }
+
     // update status history
     await updateStatusHistory(order, user, status);
     order.currentStatus = status;
@@ -252,6 +276,7 @@ const updateStatusHistory = async (order, user, status) => {
     "Preparing",
     "Cancelled",
     "Completed",
+    "Rejected",
   ];
   if (!validStatuses.includes(status)) {
     throw new Error("Invalid status update");

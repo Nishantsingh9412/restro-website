@@ -327,15 +327,42 @@ export const updateDineInCurrentStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    if (mongoose.Types.ObjectId.isValid(user.id)) {
+    if (!mongoose.Types.ObjectId.isValid(user.id)) {
       return res.status(400).json({ message: "Invalid ID" });
     }
     // find dine in order by order id
-    const order = await DineInOrder.findOne({ orderId: orderId });
+    const order = await DineInOrder.findOne({ orderId: orderId }).populate(
+      "orderItems.item"
+    );
     // check if order exists
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+    // check if order is completed
+    if (status === "Completed") {
+      order.completedAt = new Date();
+    }
+    // check if order is rejected
+    if (status === "Rejected") {
+      if (user.role === "Waiter") {
+        const waiter = await Waiter.findById(order.assignedWaiter);
+        if (waiter) {
+          waiter.assignedOrders = waiter.assignedOrders.filter(
+            (orderId) => orderId.toString() !== order._id.toString()
+          );
+          order.assignedWaiter = null;
+          await waiter.save();
+        }
+      } else if (user.role === "Chef") {
+        const chef = await Chef.findById(order.assignedChef);
+        chef.assignedOrders = chef.assignedOrders.filter(
+          (orderId) => orderId.toString() !== order._id.toString()
+        );
+        order.assignedChef = null;
+        await chef.save();
+      }
+    }
+
     // update status history
     await updateStatusHistory(order, user, status);
     order.currentStatus = status;
@@ -363,6 +390,7 @@ const updateStatusHistory = async (order, user, status) => {
     "Served",
     "Cancelled",
     "Completed",
+    "Rejected",
   ];
   if (!validStatuses.includes(status)) {
     throw new Error("Invalid status update");

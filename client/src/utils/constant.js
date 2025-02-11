@@ -1,0 +1,80 @@
+import Swal from "sweetalert2";
+
+const statuses = {
+  ACCEPTED: "Accepted",
+  ASSIGNED: "Assigned",
+  ASSIGNED_TO_CHEF: "Assigned to Chef",
+  COMPLETED: "Completed",
+  PREPARING: "Preparing",
+  PENDING: "Pending",
+  CANCELLED: "Cancelled",
+  REJECTED: "Rejected",
+};
+
+const orderTypes = {
+  DINE_IN: "dineIn",
+  TAKE_AWAY: "takeAway",
+  DELIVERY: "delivery",
+};
+
+const Dialog_Boxes = {
+  showAcceptConfirmation: (id, handleAccept) => {
+    Swal.fire({
+      title: "Accept Order?",
+      text: "Complete the order to get more order offers",
+      icon: "success",
+      confirmButtonColor: "skyblue",
+      confirmButtonText: "Ok",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleAccept(id);
+    });
+  },
+  showStatusChangeConfirm: (id, status, handleUpdateStatus) => {
+    Swal.fire({
+      title: "Change Status to " + status,
+      text: `Confirm that you have ${status.toLowerCase()} the order`,
+      icon: "success",
+      confirmButtonColor: "green",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleUpdateStatus(id, status);
+    });
+  },
+
+  showCancelConfirmation: (id, handleCancel) => {
+    Swal.fire({
+      title: "Cancel order in progress?",
+      text: "Are you sure you want to cancel this order?",
+      icon: "warning",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleCancel(id);
+    });
+  },
+  showRejectConfirmation: (id, handleReject) => {
+    Swal.fire({
+      title: "Reject order offer?",
+      text: "Are you sure you want to reject this offer?",
+      icon: "question",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleReject(id);
+    });
+  },
+  showOrderCompleted: () => {
+    Swal.fire({
+      title: "Order Completed",
+      text: "You can earn more, get more orders",
+      icon: "success",
+      confirmButtonColor: "skyblue",
+    });
+  },
+};
+
+export { statuses, orderTypes, Dialog_Boxes };

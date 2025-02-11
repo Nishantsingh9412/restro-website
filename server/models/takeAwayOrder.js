@@ -33,6 +33,7 @@ const statusHistorySchema = new Schema({
       "Ready",
       "Completed",
       "Cancelled",
+      "Rejected",
     ], // Possible statuses
   },
   updatedBy: {
@@ -97,6 +98,7 @@ const takeAwaySchema = new Schema({
       "Ready",
       "Completed",
       "Cancelled",
+      "Rejected",
     ],
     default: "Available",
   },

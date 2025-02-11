@@ -35,7 +35,9 @@ import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
 import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
 import WaiterDashboard from "./views/employees/Waiter/Dashboard";
-import AvailableOrders from "./views/employees/Waiter/AvailableOrders";
+import WaiterAvailableOrders from "./views/employees/Waiter/AvailableOrders";
+import ChefDashboard from "./views/employees/Chef/Dashboard";
+import ChefAvailableOrders from "./views/employees/Chef/AvailableOrders";
 
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
@@ -591,7 +593,7 @@ export const waiterRoutes = [
             height="20px"
           />
         ),
-        component: <AvailableOrders />,
+        component: <WaiterAvailableOrders />,
       },
       {
         name: "Available Shifts",
@@ -623,7 +625,7 @@ export const chefRoutes = [
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
-    component: <DeliveryDashboard />,
+    component: <ChefDashboard />,
     links: [
       {
         name: "Dashboard",
@@ -633,7 +635,7 @@ export const chefRoutes = [
         icon: (
           <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
         ),
-        component: <DeliveryDashboard />,
+        component: <ChefDashboard />,
       },
       {
         name: "Available Orders",
@@ -647,7 +649,7 @@ export const chefRoutes = [
             height="20px"
           />
         ),
-        component: <AvailableDeliveries />,
+        component: <ChefAvailableOrders />,
       },
       {
         name: "Available Shifts",

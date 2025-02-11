@@ -35,6 +35,7 @@ const statusHistorySchema = new Schema({
       "Served",
       "Cancelled",
       "Completed",
+      "Rejected",
     ], // Possible statuses
   },
   updatedBy: {
@@ -127,6 +128,7 @@ const dineInOrderSchema = new Schema(
         "Served",
         "Cancelled",
         "Completed",
+        "Rejected",
       ], // Possible statuses
       default: "Available",
     },

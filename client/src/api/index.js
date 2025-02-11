@@ -450,3 +450,11 @@ export const getWaiterAllOrders = () => API.get("/waiter/get-all-orders");
 
 // Get Waiter Active Orders
 export const getWaiterActiveOrder = () => API.get("/waiter/get-active-order");
+
+// Chef
+// Get Chef Dashboard Data
+export const getChefDashboardData = () => API.get("/chef/get-dashboard-data");
+// Get Chef All Orders
+export const getChefAllOrders = () => API.get("/chef/get-all-orders");
+// Get Chef Active Orders
+export const getChefActiveOrder = () => API.get("/chef/get-active-order");

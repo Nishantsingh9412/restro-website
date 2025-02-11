@@ -18,7 +18,7 @@ import { FaAngleRight } from "react-icons/fa6";
 import { BiRefresh } from "react-icons/bi";
 import PropTypes from "prop-types";
 import ChefPerformanceChart from "../components/CompletedOrderChart"; // hypothetical component
-import { getChefDashboardDataAction } from "../../../redux/action/chef";
+import { getChefDashboardDataAction } from "../../../redux/action/Employees/chef";
 
 // Card component with optional footerLink and footerText
 const DashboardCard = ({
@@ -144,17 +144,17 @@ export default function ChefDashboard() {
                       fontSize={"xx-large"}
                       color={"green"}
                     >
-                      {data?.todayDishes["Completed"] || 0}
+                      {data?.todayOrders["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
                     <Flex gap={3}>
                       <Text>In Progress:</Text>
-                      <Text>{data?.todayDishes["InProgress"] || 0}</Text>
+                      <Text>{data?.todayOrders["Preparing"] || 0}</Text>
                     </Flex>
                     <Flex gap={3} color={"red"}>
                       <Text>Pending:</Text>
-                      <Text>{data?.todayDishes["Pending"] || 0}</Text>
+                      <Text>{data?.todayOrders["Pending"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -180,13 +180,13 @@ export default function ChefDashboard() {
                       fontSize={"xx-large"}
                       color={"blue"}
                     >
-                      {data?.monthlyDishes["Completed"] || 0}
+                      {data?.monthlyOrders["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
                     <Flex gap={3} color={"blue"}>
                       <Text>In Progress:</Text>
-                      <Text>{data?.monthlyDishes["InProgress"] || 0}</Text>
+                      <Text>{data?.monthlyOrders["Preparing"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -202,9 +202,9 @@ export default function ChefDashboard() {
               Performance Overview
             </Heading>
             <ChefPerformanceChart
-              weeklyDishes={data?.weeklyDishes["Completed"] || []}
-              monthlyDishes={data?.monthlyDishes["Completed"] || []}
-              yearlyDishes={data?.yearlyDishes["Completed"] || []}
+              weeklyOrders={data?.weeklyOrders["Completed"] || []}
+              monthlyOrders={data?.monthlyOrders["Completed"] || []}
+              yearlyOrders={data?.yearlyOrders["Completed"] || []}
               totalTips={data?.totalTips || 0}
             />
           </Box>

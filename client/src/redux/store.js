@@ -22,6 +22,7 @@ import waiterReducer from "./action/waiter";
 import authReducer from "./action/auth";
 import employeeReducer from "./action/Employees/employee";
 import locationReducer from "./action/location";
+import chefReducer from "./action/Employees/chef";
 
 const store = configureStore({
   reducer: {
@@ -47,6 +48,7 @@ const store = configureStore({
     waiter: waiterReducer,
     employee: employeeReducer,
     location: locationReducer,
+    chef: chefReducer,
   },
 });
 

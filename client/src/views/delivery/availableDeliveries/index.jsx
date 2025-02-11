@@ -1,6 +1,4 @@
 import {
-  Box,
-  Button,
   Flex,
   Grid,
   Heading,
@@ -39,7 +37,7 @@ export default function AvailableDeliveries() {
       dispatch(getAllAvailabelDeliveryAction(localId)),
       dispatch(getActiveDeliveryAction(localId)),
     ]).then(() => setLoading(false));
-  }, []);
+  }, [dispatch, localId]);
 
   // For Getting Delivery Boy Data End
 

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "../../api/index.js";
+import { statuses } from "../../utils/constant.js";
 
 // Action to get waiter dashboard data
 export const getWaiterDashboardDataAction = createAsyncThunk(
@@ -20,6 +21,22 @@ export const getWaiterAllOrdersAction = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await api.getWaiterAllOrders();
+      return data.result;
+    } catch (err) {
+      return rejectWithValue(err.response.data.error);
+    }
+  }
+);
+
+//Update order status action
+export const updateOrderStatusActon = createAsyncThunk(
+  "waiter/updateOrderStatus",
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const updatedData = {
+        status: status,
+      };
+      const { data } = await api.updateDineInOrderStatus(orderId, updatedData);
       return data.result;
     } catch (err) {
       return rejectWithValue(err.response.data.error);
@@ -84,9 +101,40 @@ const waiterSlice = createSlice({
       })
       .addCase(getWaiterActiveOrderAction.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.activeOrder = action.payload;
+        const order = action.payload;
+        state.activeOrder = order?.length > 0 ? order[0] : null;
       })
       .addCase(getWaiterActiveOrderAction.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(updateOrderStatusActon.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateOrderStatusActon.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const { orderId, currentStatus } = action.payload;
+
+        // state.orders = state.orders.map((order) => {
+        //   if (order.orderId === orderId) {
+        //     order.currentStatus = currentStatus;
+        //   }
+        //   return order;
+        // });
+        if (
+          currentStatus === statuses.COMPLETED ||
+          currentStatus === statuses.CANCELLED
+        ) {
+          state.activeOrder = null;
+        } else if (currentStatus !== statuses.REJECTED) {
+          state.activeOrder = action.payload;
+        }
+        // remove the order from the list if it is completed or cancelled
+        state.orders = state.orders.filter(
+          (order) => order.orderId !== orderId
+        );
+      })
+      .addCase(updateOrderStatusActon.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

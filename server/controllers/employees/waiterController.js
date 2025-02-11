@@ -158,8 +158,10 @@ export const getWaiterActiveOrder = async (req, res) => {
 
     const activeOrder = await DineInOrder.find({
       assignedWaiter: waiterId,
-      currentStatus: { $in: ["Accepted"] },
-    }).sort({ createdAt: -1 });
+      currentStatus: { $in: ["Accepted", "Assigned To Chef"] },
+    })
+      .populate("orderItems.item")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -185,6 +187,7 @@ export const getWaiterAllOrders = async (req, res) => {
 
     const allOrders = await DineInOrder.find({
       assignedWaiter: waiterId,
+      currentStatus: { $ne: "Completed" },
     }).sort({ createdAt: -1 });
 
     res.status(200).json({

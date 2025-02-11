@@ -115,7 +115,7 @@ export default function Dashboard() {
   // Fetch data on component mount
   useEffect(() => {
     handleRefresh();
-  }, []);
+  }, [handleRefresh]);
 
   return (
     <div>

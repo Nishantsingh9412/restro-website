@@ -1,8 +1,8 @@
 import { Box, Button, Flex, Text, Image } from "@chakra-ui/react";
-import { GrRestaurant } from "react-icons/gr";
-import { FaPersonBooth } from "react-icons/fa";
 import PropTypes from "prop-types";
-export default function OrderCard({
+import { orderTypes } from "../../../utils/constant";
+
+export default function TakeAwayOrderCard({
   data,
   handleAccept,
   handleReject,
@@ -37,28 +37,18 @@ export default function OrderCard({
           >
             {data.currentStatus?.toUpperCase()}
           </Text>
-          <Flex gap={3}>
-            <Flex
-              alignItems="center"
-              border="1px solid #ccc"
-              p={2}
-              borderRadius={5}
-              flex={1}
-            >
-              <GrRestaurant />
-              <Text ml={3}>{data.tableNumber} No. Table</Text>
-            </Flex>
-            <Flex
-              alignItems="center"
-              border="1px solid #ccc"
-              p={2}
-              borderRadius={5}
-              flex={1}
-            >
-              <FaPersonBooth />
-              <Text ml={3}>{data.numberOfGuests} Guest.</Text>
-            </Flex>
-          </Flex>
+
+          <Box>
+            <Text fontWeight="bold">Ordered Items:</Text>
+            <Box pl={3}>
+              {data?.orderItems?.map((order, index) => (
+                <Text key={index}>
+                  {order?.item?.orderName} - {order?.quantity}
+                </Text>
+              ))}
+            </Box>
+          </Box>
+
           <Flex gap={3}>
             <Button
               p={3}
@@ -68,7 +58,7 @@ export default function OrderCard({
               color="#fff"
               _disabled={{ background: "#ccc", pointerEvents: "none" }}
               disabled={disabled}
-              onClick={() => handleAccept(data._id)}
+              onClick={() => handleAccept(data?.orderId, orderTypes.TAKE_AWAY)}
             >
               Accept
             </Button>
@@ -80,7 +70,7 @@ export default function OrderCard({
               color="#fff"
               _disabled={{ background: "#ccc", pointerEvents: "none" }}
               disabled={disabled}
-              onClick={() => handleReject(data._id)}
+              onClick={() => handleReject(data.orderId)}
             >
               Reject
             </Button>
@@ -91,7 +81,7 @@ export default function OrderCard({
   );
 }
 
-OrderCard.propTypes = {
+TakeAwayOrderCard.propTypes = {
   data: PropTypes.shape({
     customerImage: PropTypes.string,
     customerName: PropTypes.string.isRequired,
@@ -99,6 +89,13 @@ OrderCard.propTypes = {
     currentStatus: PropTypes.string,
     tableNumber: PropTypes.number.isRequired,
     numberOfGuests: PropTypes.number.isRequired,
+    orderItems: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        quantity: PropTypes.number.isRequired,
+      })
+    ).isRequired,
+    specialInstructions: PropTypes.string,
     _id: PropTypes.string.isRequired,
   }).isRequired,
   handleAccept: PropTypes.func.isRequired,
