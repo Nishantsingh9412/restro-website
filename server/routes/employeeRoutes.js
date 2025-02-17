@@ -39,7 +39,7 @@ router.get("/get-employee/:id", employeeManagementAccess, getEmployeeById);
 router.get("/get-all-employee", employeeManagementAccess, getAllEmployees);
 router.get(
   "/get-online-employees/:type",
-  foodAndDrinksAccess,
+  accessMiddleware(),
   getOnlineEmployeesByRole
 );
 router.get("/get-delivery-employees", accessMiddleware(), getDeliveryEmployees);

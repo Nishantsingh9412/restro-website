@@ -65,7 +65,7 @@ const waiterSlice = createSlice({
     status: "idle",
     error: null,
     orders: [],
-    activeOrder: null,
+    activeOrders: null,
   },
   reducers: {
     clearError: (state) => {
@@ -101,8 +101,7 @@ const waiterSlice = createSlice({
       })
       .addCase(getWaiterActiveOrderAction.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const order = action.payload;
-        state.activeOrder = order?.length > 0 ? order[0] : null;
+        state.activeOrders = action.payload;
       })
       .addCase(getWaiterActiveOrderAction.rejected, (state, action) => {
         state.status = "failed";
@@ -125,9 +124,18 @@ const waiterSlice = createSlice({
           currentStatus === statuses.COMPLETED ||
           currentStatus === statuses.CANCELLED
         ) {
-          state.activeOrder = null;
+          state.activeOrders = state.activeOrders.filter(
+            (order) => order.orderId !== orderId
+          );
         } else if (currentStatus !== statuses.REJECTED) {
-          state.activeOrder = action.payload;
+          const existingOrder = state.activeOrders.find(
+            (order) => order.orderId === orderId
+          );
+          if (existingOrder) {
+            existingOrder.currentStatus = currentStatus;
+          } else {
+            state.activeOrders.push(action.payload);
+          }
         }
         // remove the order from the list if it is completed or cancelled
         state.orders = state.orders.filter(

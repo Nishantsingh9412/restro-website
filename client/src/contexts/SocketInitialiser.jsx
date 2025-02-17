@@ -8,11 +8,12 @@ import {
 } from "../redux/action/delivery";
 import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboard";
 import { setDeliveryBoyLocation } from "../redux/action/location";
-
+import { useToast } from "./ToastContext";
 export default function SocketInitializer() {
   const dispatch = useDispatch();
   // const user = useSelector((state) => state.authReducer?.profile);
   const user = localStorage.getItem("ProfileData");
+  const toast = useToast();
   // console.log("User:", user);
 
   // useEffect(() => {
@@ -60,6 +61,7 @@ export default function SocketInitializer() {
   useEffect(() => {
     const handleNotification = (data) => {
       console.log(data);
+      toast(data?.heading, "success");
       dispatch({ type: "ADD_NOTIFICATION", data });
     };
     const handleDelivery = (data) => {
@@ -79,7 +81,9 @@ export default function SocketInitializer() {
     const handleLiveLocationUpdate = (data) => {
       console.log("data location ", data);
       const { delEmpId, locationData } = data;
-      dispatch(setDeliveryBoyLocation({ _id: delEmpId, location: locationData }));
+      dispatch(
+        setDeliveryBoyLocation({ _id: delEmpId, location: locationData })
+      );
     };
 
     // Subscribe to socket events

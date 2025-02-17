@@ -194,7 +194,6 @@ export const getOnlineEmployeesByRole = async (req, res) => {
     const onlineEmployees = Array.from(onlineUsers.keys());
     const Model = ROLE_CASES[type];
 
-    console.log(onlineEmployees, Model);
 
     const onlineRoleEmployees = await Model.find({
       _id: { $in: onlineEmployees },

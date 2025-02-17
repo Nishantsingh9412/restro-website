@@ -2,6 +2,8 @@ import Joi from "joi";
 import mongoose from "mongoose";
 import TakeAwayOrder from "../models/takeAwayOrder.js";
 import Chef from "../models/employees/chefModel.js";
+import Notification from "../models/notification.js";
+import { notifyUser } from "../utils/socket.js";
 
 // Define the schema for validating take-away orders
 const takeAwayOrderSchema = Joi.object({
@@ -200,6 +202,17 @@ export const assignTakeAwayOrderToChef = async (req, res) => {
     chef.assignedOrders.push(order._id);
     await chef.save();
 
+    const notification = await Notification.create({
+      sender: user.id,
+      receiver: chefId,
+      heading: "New Take Away Order Assigned",
+      body: `You have been assigned a new take away order with Order ID: ${order.orderId}.`,
+    });
+
+    if (notification) {
+      await notifyUser(chefId, notification);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Order assigned to chef",
@@ -255,6 +268,18 @@ export const updateTakeAwayCurrentStatus = async (req, res) => {
     await updateStatusHistory(order, user, status);
     order.currentStatus = status;
     await order.save();
+
+    // create notification
+    const notification = await Notification.create({
+      sender: user.id,
+      receiver: user.created_by,
+      heading: "Take-Away order status updated",
+      body: `Your take-away order ${orderId} status has been changed to ${status} by ${user.name}`,
+    });
+    // send notification
+    if (notification) {
+      await notifyUser(notification.receiver, notification);
+    }
 
     return res.status(200).json({
       success: true,

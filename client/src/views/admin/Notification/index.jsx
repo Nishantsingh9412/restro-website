@@ -4,6 +4,7 @@ import { Flex, Heading, Text } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
 import { getAllReceivedNotifications } from "../../../redux/action/notifications";
 import { useNavigate } from "react-router-dom";
+import { userTypes } from "../../../utils/constant";
 
 // Component to display individual notification item
 const NotificationItem = ({ notification }) => {
@@ -44,12 +45,12 @@ const NotificationItem = ({ notification }) => {
 export default function AdminNotifications() {
   const dispatch = useDispatch();
   const notifications = useSelector(
-    (state) => state.notificationReducer.adminNotifications
+    (state) => state.notificationReducer.notifications
   );
 
   // Fetch notifications when the component mounts
   useEffect(() => {
-    dispatch(getAllReceivedNotifications("admin"));
+    dispatch(getAllReceivedNotifications(userTypes.ADMIN));
   }, [dispatch]);
 
   // Memoize notifications to avoid unnecessary re-renders

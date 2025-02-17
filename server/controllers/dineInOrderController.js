@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import DineInOrder from "../models/dineInOrder.js";
 import Waiter from "../models/employees/waiterModel.js";
 import Chef from "../models/employees/chefModel.js";
+import Notification from "../models/notification.js";
+import { notifyUser } from "../utils/socket.js";
 
 // Define the schema for validating dine-in orders
 const dineInOrderSchema = Joi.object({
@@ -273,14 +275,23 @@ export const assignDineInOrderToWaiter = async (req, res) => {
     waiter.assignedOrders.push(order._id);
     await waiter.save();
 
+    const notification = await Notification.create({
+      sender: user.id,
+      receiver: waiterId,
+      heading: "New Dine-In Order Assigned",
+      body: `You have been assigned a new dine-in order with Order ID: ${order.orderId}.`,
+    });
+
+    if (notification) {
+      await notifyUser(waiterId, notification);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Order assigned to waiter",
       result: order,
     });
   } catch (error) {
-    console.log("errors are", error);
-
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -303,12 +314,23 @@ export const assignDineInOrderToChef = async (req, res) => {
     }
 
     order.assignedChef = chefId;
-    order.currentStatus = "Assigned to Chef";
-    await updateStatusHistory(order, user, "Assigned to Chef");
+    order.currentStatus = "Assigned To Chef";
+    await updateStatusHistory(order, user, "Assigned To Chef");
     await order.save();
 
     chef.assignedOrders.push(order._id);
     await chef.save();
+
+    const notification = await Notification.create({
+      sender: user.id,
+      receiver: chefId,
+      heading: "New Dine-In Order Assigned",
+      body: `You have been assigned a new dine-in order with Order ID: ${order.orderId}.`,
+    });
+
+    if (notification) {
+      await notifyUser(chefId, notification);
+    }
 
     return res.status(200).json({
       success: true,
@@ -326,7 +348,6 @@ export const updateDineInCurrentStatus = async (req, res) => {
     const user = req.user;
     const { orderId } = req.params;
     const { status } = req.body;
-
     if (!mongoose.Types.ObjectId.isValid(user.id)) {
       return res.status(400).json({ message: "Invalid ID" });
     }
@@ -368,13 +389,25 @@ export const updateDineInCurrentStatus = async (req, res) => {
     order.currentStatus = status;
     await order.save();
 
+    const notification = await Notification.create({
+      sender: user.id,
+      receiver: user.created_by,
+      heading: "Dine-In order status updated",
+      body: `Your dine-in order ${orderId} status has been changed to ${status} by ${user.name}`,
+    });
+
+    if (notification) {
+      await notifyUser(notification.receiver, notification);
+    }
+
     return res.status(200).json({
       success: true,
-      message: "Order status updated",
+      message: `Order status updated to ${order.currentStatus}`,
       result: order,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+    console.log(error);
   }
 };
 
@@ -384,7 +417,8 @@ const updateStatusHistory = async (order, user, status) => {
     "Available",
     "Assigned",
     "Accepted",
-    "Assigned to Chef",
+    "Assigned To Chef",
+    "Accepted By Chef",
     "Ready",
     "Preparing",
     "Served",

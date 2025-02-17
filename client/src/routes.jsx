@@ -29,7 +29,7 @@ import ShiftSchedule from "./views/admin/shiftSchedule";
 import Absence from "./views/admin/absense";
 import Employee from "./views/admin/employees";
 import AvailableDeliveries from "./views/delivery/availableDeliveries"; // Adjust the path as necessary
-import Notifications from "./views/delivery/notifications"; // Adjust the path as necessary
+import EmployeeNotification from "./views/employees/components/Notification";
 import DeliveryHistory from "./views/delivery/history"; // Adjust the path as necessary
 import DeliveryDashboard from "./views/delivery/dashboard/index";
 import AdminNotifications from "./views/admin/Notification";
@@ -542,7 +542,7 @@ export const deliveryRoutes = [
             height="15px"
           />
         ),
-        component: <Notifications />,
+        component: <EmployeeNotification />,
       },
       {
         name: "History",
@@ -594,6 +594,21 @@ export const waiterRoutes = [
           />
         ),
         component: <WaiterAvailableOrders />,
+      },
+      {
+        name: "Notifications",
+        layout: "/employee",
+        path: "/waiter/notifications",
+        type: "link",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <EmployeeNotification />,
       },
       {
         name: "Available Shifts",
@@ -650,6 +665,20 @@ export const chefRoutes = [
           />
         ),
         component: <ChefAvailableOrders />,
+      },
+      {
+        name: "Notifications",
+        layout: "/employee",
+        path: "/chef/notifications",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <EmployeeNotification />,
       },
       {
         name: "Available Shifts",

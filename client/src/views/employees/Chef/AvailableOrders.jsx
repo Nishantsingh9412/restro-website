@@ -32,21 +32,40 @@ export default function AvailableOrders() {
   const [activeOrder, setActiveOrder] = useState(null);
   // const toast = useToast();
 
-  const handleAccept = (id) => {
+  const handleAcceptDineIn = (id) => {
     dispatch(
       updateOrderStatusActon({
-        orderType,
+        orderType: orderTypes.DINE_IN,
+        orderId: id,
+        status: statuses.ACCEPTED_BY_CHEF,
+      })
+    );
+    console.log(statuses.ACCEPTED_BY_CHEF);
+  };
+  const handleAcceptTakeAway = (id) => {
+    dispatch(
+      updateOrderStatusActon({
+        orderType: orderTypes.TAKE_AWAY,
         orderId: id,
         status: statuses.ACCEPTED,
       })
     );
   };
 
-  const handleReject = (id) => {
-    console.log(id);
+  const handleRejectDineIn = (id) => {
     dispatch(
       updateOrderStatusActon({
-        orderType,
+        orderType: orderTypes.DINE_IN,
+        orderId: id,
+        status: statuses.REJECTED,
+      })
+    );
+  };
+
+  const handleRejectTakeAway = (id) => {
+    dispatch(
+      updateOrderStatusActon({
+        orderType: orderTypes.TAKE_AWAY,
         orderId: id,
         status: statuses.REJECTED,
       })
@@ -199,10 +218,10 @@ export default function AvailableOrders() {
                   data={order}
                   key={i}
                   handleAccept={(id) =>
-                    Dialog_Boxes.showAcceptConfirmation(id, handleAccept)
+                    Dialog_Boxes.showAcceptConfirmation(id, handleAcceptDineIn)
                   }
                   handleReject={(id) =>
-                    Dialog_Boxes.showRejectConfirmation(id, handleReject)
+                    Dialog_Boxes.showRejectConfirmation(id, handleRejectDineIn)
                   }
                   disabled={activeOrder ? true : false}
                 />
@@ -236,10 +255,16 @@ export default function AvailableOrders() {
                   data={order}
                   key={i}
                   handleAccept={(id) =>
-                    Dialog_Boxes.showAcceptConfirmation(id, handleAccept)
+                    Dialog_Boxes.showAcceptConfirmation(
+                      id,
+                      handleAcceptTakeAway
+                    )
                   }
                   handleReject={(id) =>
-                    Dialog_Boxes.showRejectConfirmation(id, handleReject)
+                    Dialog_Boxes.showRejectConfirmation(
+                      id,
+                      handleRejectTakeAway
+                    )
                   }
                   disabled={activeOrder ? true : false}
                 />

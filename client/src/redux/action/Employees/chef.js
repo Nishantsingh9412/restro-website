@@ -45,7 +45,6 @@ export const getChefActiveOrderAction = createAsyncThunk(
 export const updateOrderStatusActon = createAsyncThunk(
   "chef/updateOrderStatus",
   async ({ orderType, orderId, status }, { rejectWithValue }) => {
-    console.log(orderType, orderId, status);
     try {
       const apiCall =
         orderType === orderTypes.DINE_IN

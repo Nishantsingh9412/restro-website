@@ -12,7 +12,7 @@ import { Dialog_Boxes, statuses } from "../../../utils/constant";
 
 export default function AvailableOrders() {
   const availableOrders = useSelector((state) => state.waiter.orders || []);
-  const activeOrder = useSelector((state) => state.waiter.activeOrder);
+  const activeOrders = useSelector((state) => state.waiter.activeOrders);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
@@ -66,58 +66,64 @@ export default function AvailableOrders() {
       </Flex>
     );
 
-  if (activeOrder) {
-    return (
-      <ActiveOrder
-        activeOrder={activeOrder}
-        handleCancel={(id) =>
-          Dialog_Boxes.showCancelConfirmation(id, handleCancel)
-        }
-        handleUpdateStatus={(id, status) =>
-          Dialog_Boxes.showStatusChangeConfirm(id, status, handleUpdateStatus)
-        }
-      />
-    );
-  } else
-    return (
-      <>
-        <Heading mt={20} mb={5} fontSize={20}>
-          Available Orders
-        </Heading>
-        {availableOrders.length === 0 ? (
-          <Text
-            p={3}
-            w={"fit-content"}
-            bg={"rgba(255, 255, 255, 0.5)"}
-            mx={"auto"}
-            my={20}
-          >
-            You don&apos;t have any order offer at this moment
-          </Text>
-        ) : (
-          <Grid
-            gap={5}
-            gridTemplateColumns={{
-              base: "1fr",
-              md: "1fr 1fr",
-              lg: "1fr 1fr 1fr",
-            }}
-          >
-            {availableOrders?.map((order, i) => (
-              <OrderCard
-                data={order}
-                key={i}
-                handleAccept={(id) =>
-                  Dialog_Boxes.showAcceptConfirmation(id, handleAccept)
-                }
-                handleReject={(id) =>
-                  Dialog_Boxes.showRejectConfirmation(id, handleReject)
-                }
-                disabled={activeOrder ? true : false}
-              />
-            ))}
-          </Grid>
-        )}
-      </>
-    );
+  return (
+    <>
+      <Heading mt={20} mb={5} fontSize={20}>
+        Available Orders
+      </Heading>
+      {availableOrders.length === 0 ? (
+        <Text
+          p={3}
+          w={"fit-content"}
+          bg={"rgba(255, 255, 255, 0.5)"}
+          mx={"auto"}
+          my={20}
+        >
+          You don&apos;t have any order offer at this moment
+        </Text>
+      ) : (
+        <Grid
+          gap={5}
+          gridTemplateColumns={{
+            base: "1fr",
+            md: "1fr 1fr",
+            lg: "1fr 1fr 1fr",
+          }}
+        >
+          {availableOrders?.map((order, i) => (
+            <OrderCard
+              data={order}
+              key={i}
+              handleAccept={(id) =>
+                Dialog_Boxes.showAcceptConfirmation(id, handleAccept)
+              }
+              handleReject={(id) =>
+                Dialog_Boxes.showRejectConfirmation(id, handleReject)
+              }
+              disabled={activeOrders.some(
+                (activeOrder) => activeOrder.id === order.id
+              )}
+            />
+          ))}
+        </Grid>
+      )}
+      {activeOrders &&
+        activeOrders.map((activeOrder, i) => (
+          <ActiveOrder
+            key={i}
+            activeOrder={activeOrder}
+            handleCancel={(id) =>
+              Dialog_Boxes.showCancelConfirmation(id, handleCancel)
+            }
+            handleUpdateStatus={(id, status) =>
+              Dialog_Boxes.showStatusChangeConfirm(
+                id,
+                status,
+                handleUpdateStatus
+              )
+            }
+          />
+        ))}
+    </>
+  );
 }

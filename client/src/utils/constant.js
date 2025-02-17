@@ -3,12 +3,18 @@ import Swal from "sweetalert2";
 const statuses = {
   ACCEPTED: "Accepted",
   ASSIGNED: "Assigned",
-  ASSIGNED_TO_CHEF: "Assigned to Chef",
+  ASSIGNED_TO_CHEF: "Assigned To Chef",
+  ACCEPTED_BY_CHEF: "Accepted By Chef",
   COMPLETED: "Completed",
   PREPARING: "Preparing",
   PENDING: "Pending",
   CANCELLED: "Cancelled",
   REJECTED: "Rejected",
+};
+
+const userTypes = {
+  EMPLOYEE: "employee",
+  ADMIN: "admin",
 };
 
 const orderTypes = {
@@ -77,4 +83,4 @@ const Dialog_Boxes = {
   },
 };
 
-export { statuses, orderTypes, Dialog_Boxes };
+export { statuses, orderTypes, Dialog_Boxes, userTypes };

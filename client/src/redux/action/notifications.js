@@ -1,4 +1,5 @@
 import * as api from "../../api/index.js";
+import { userTypes } from "../../utils/constant.js";
 
 export const getAllNotifications = () => async (dispatch) => {
   try {
@@ -13,20 +14,24 @@ export const getAllNotifications = () => async (dispatch) => {
     //   "Error from getAllNotifications Action: " + err?.message,
     //   err?.stack
     // );
-    return { success: false, message:err.response.data.error || "something went wrong",  status: err.response.status };
+    return {
+      success: false,
+      message: err.response.data.error || "something went wrong",
+      status: err.response.status,
+    };
   }
 };
 
 export const getAllReceivedNotifications = (role) => async (dispatch) => {
   try {
     const { data } =
-      role === "admin"
+      role === userTypes.ADMIN
         ? await api.getNotificationByAdmin()
         : await api.getNotificationsByUser();
 
     dispatch({
       type:
-        role === "admin"
+        role === userTypes.ADMIN
           ? "GET_ALL_ADMIN_NOTIFICATIONS"
           : "GET_ALL_NOTIFICATIONS",
       data: data?.result,
