@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { Flex, Heading, Text } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
@@ -40,7 +41,17 @@ const NotificationItem = ({ notification }) => {
     </Flex>
   );
 };
+NotificationItem.propTypes = {
+  notification: PropTypes.shape({
+    navURL: PropTypes.string,
+    url: PropTypes.string,
+    heading: PropTypes.string.isRequired,
+    body: PropTypes.string.isRequired,
+    createdAt: PropTypes.string,
+  }).isRequired,
+};
 
+// Main component to display admin notifications
 // Main component to display admin notifications
 export default function AdminNotifications() {
   const dispatch = useDispatch();

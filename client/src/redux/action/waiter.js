@@ -71,6 +71,13 @@ const waiterSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    addDineInOrderToWaiter: (state, action) => {
+      if (
+        !state.orders?.some((order) => order.orderId === action.payload.orderId)
+      ) {
+        state.orders.push(action.payload);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -149,6 +156,6 @@ const waiterSlice = createSlice({
   },
 });
 
-export const { clearError } = waiterSlice.actions;
+export const { clearError, addDineInOrder, addDineInOrderToWaiter } = waiterSlice.actions;
 
 export default waiterSlice.reducer;

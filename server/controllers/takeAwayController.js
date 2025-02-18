@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import TakeAwayOrder from "../models/takeAwayOrder.js";
 import Chef from "../models/employees/chefModel.js";
 import Notification from "../models/notification.js";
-import { notifyUser } from "../utils/socket.js";
+import { notifyUser, sendTakeawayOffer } from "../utils/socket.js";
 
 // Define the schema for validating take-away orders
 const takeAwayOrderSchema = Joi.object({
@@ -201,6 +201,8 @@ export const assignTakeAwayOrderToChef = async (req, res) => {
 
     chef.assignedOrders.push(order._id);
     await chef.save();
+
+    await sendTakeawayOffer(chefId, order);
 
     const notification = await Notification.create({
       sender: user.id,

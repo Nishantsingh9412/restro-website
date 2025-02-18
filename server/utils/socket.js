@@ -30,6 +30,22 @@ export const sendDeliveryOffers = async (ids = [], offer) => {
   });
 };
 
+// Send Takeaway order offer to a specific user
+export const sendTakeawayOffer = async (id, offer) => {
+  const user = onlineUsers.get(id);
+  if (user) io.to(user.socketId).emit("takeaway", offer);
+};
+
+export const sendDineInOfferToWaiter = async (id, offer) => {
+  const user = onlineUsers.get(id);
+  if (user) io.to(user.socketId).emit("dineinwaiter", offer);
+};
+
+export const sendDineInOfferToChef = async (id, offer) => {
+  const user = onlineUsers.get(id);
+  if (user) io.to(user.socketId).emit("dineinchef", offer);
+};
+
 // Hides a delivery offer for all users
 export const hideDeliveryOffer = async (offerId) => {
   const users = Array.from(onlineUsers.keys()).map((id) => onlineUsers.get(id));

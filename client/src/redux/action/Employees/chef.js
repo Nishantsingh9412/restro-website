@@ -81,6 +81,24 @@ const chefSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    addTakeAwayOrder: (state, action) => {
+      if (
+        !state.orders.takeAwayOrders.some(
+          (order) => order.orderId === action.payload.orderId
+        )
+      ) {
+        state.orders.takeAwayOrders.push(action.payload);
+      }
+    },
+    addDineInOrderToChef: (state, action) => {
+      if (
+        !state.orders.dineInOrders.some(
+          (order) => order.orderId === action.payload.orderId
+        )
+      ) {
+        state.orders.dineInOrders.push(action.payload);
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -156,6 +174,7 @@ const chefSlice = createSlice({
   },
 });
 
-export const { clearError } = chefSlice.actions;
+export const { clearError, addTakeAwayOrder, addDineInOrderToChef } =
+  chefSlice.actions;
 
 export default chefSlice.reducer;

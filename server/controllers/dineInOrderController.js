@@ -4,7 +4,11 @@ import DineInOrder from "../models/dineInOrder.js";
 import Waiter from "../models/employees/waiterModel.js";
 import Chef from "../models/employees/chefModel.js";
 import Notification from "../models/notification.js";
-import { notifyUser } from "../utils/socket.js";
+import {
+  notifyUser,
+  sendDineInOfferToChef,
+  sendDineInOfferToWaiter,
+} from "../utils/socket.js";
 
 // Define the schema for validating dine-in orders
 const dineInOrderSchema = Joi.object({
@@ -275,6 +279,8 @@ export const assignDineInOrderToWaiter = async (req, res) => {
     waiter.assignedOrders.push(order._id);
     await waiter.save();
 
+    await sendDineInOfferToWaiter(waiterId, order);
+
     const notification = await Notification.create({
       sender: user.id,
       receiver: waiterId,
@@ -321,6 +327,8 @@ export const assignDineInOrderToChef = async (req, res) => {
     chef.assignedOrders.push(order._id);
     await chef.save();
 
+    await sendDineInOfferToChef(chefId, order);
+
     const notification = await Notification.create({
       sender: user.id,
       receiver: chefId,
@@ -360,7 +368,7 @@ export const updateDineInCurrentStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
     // check if order is completed
-    if (status === "Completed") {
+    if (status === "Completed" || status === "Served") {
       order.completedAt = new Date();
     }
     // check if order is rejected

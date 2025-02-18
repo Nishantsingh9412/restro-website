@@ -1,14 +1,19 @@
-import { socket, connectSocketIfDisconnected } from "../api/socket"; // Import socket manager
+import { socket } from "../api/socket"; // Import socket manager
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllReceivedNotifications } from "../redux/action/notifications";
-import {
-  getAllAvailabelDeliveryAction,
-  getCompletedDeliveriesAction,
-} from "../redux/action/delivery";
-import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboard";
+import { useDispatch } from "react-redux";
+// import { getAllReceivedNotifications } from "../redux/action/notifications";
+// import {
+//   getAllAvailabelDeliveryAction,
+//   getCompletedDeliveriesAction,
+// } from "../redux/action/delivery";
+// import { getDeliveryDashboardDataAction } from "../redux/action/deliveryDashboard";
 import { setDeliveryBoyLocation } from "../redux/action/location";
 import { useToast } from "./ToastContext";
+import {
+  addDineInOrderToChef,
+  addTakeAwayOrder,
+} from "../redux/action/Employees/chef";
+import { addDineInOrderToWaiter } from "../redux/action/waiter";
 export default function SocketInitializer() {
   const dispatch = useDispatch();
   // const user = useSelector((state) => state.authReducer?.profile);
@@ -68,6 +73,18 @@ export default function SocketInitializer() {
       console.log(data);
       dispatch({ type: "ADD_DELIVERY", data });
     };
+
+    const handleTakeAwayOrder = (data) => {
+      dispatch(addTakeAwayOrder(data));
+    };
+
+    const handleDineInOrderWaiter = (data) => {
+      dispatch(addDineInOrderToWaiter(data));
+    };
+    const handleDineInOrderChef = (data) => {
+      dispatch(addDineInOrderToChef(data));
+    };
+
     const handleHideDeliveryOffer = (data) => {
       if (user?.result?._id === data?.userId) {
         dispatch({
@@ -91,6 +108,9 @@ export default function SocketInitializer() {
     socket.on("delivery", handleDelivery);
     socket.on("hideDeliveryOffer", handleHideDeliveryOffer);
     socket.on("liveLocation", handleLiveLocationUpdate);
+    socket.on("takeaway", handleTakeAwayOrder);
+    socket.on("dineinchef", handleDineInOrderChef);
+    socket.on("dineinwaiter", handleDineInOrderWaiter);
 
     // Cleanup socket event listeners when the component unmounts
     return () => {
@@ -98,8 +118,11 @@ export default function SocketInitializer() {
       socket.off("delivery", handleDelivery);
       socket.off("hideDeliveryOffer", handleHideDeliveryOffer);
       socket.off("liveLocation", handleLiveLocationUpdate);
+      socket.off("takeaway", handleTakeAwayOrder);
+      socket.off("dineinchef", handleDineInOrderChef);
+      socket.off("dineinwaiter", handleDineInOrderWaiter);
     };
-  }, [dispatch, user?.result?._id]); // Only re-run when user._id changes
+  }, [dispatch, toast, user?.result?._id]); // Only re-run when user._id changes
 
   return null; // No UI to render
 }
