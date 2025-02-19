@@ -41,7 +41,7 @@ API.interceptors.response.use(
         case 401:
           console.error("Unauthorized: Clearing localStorage and redirecting.");
           localStorage.removeItem("ProfileData");
-          window.location.href = "/login";
+          window.location.href = "/";
           break;
         case 403:
           console.error(
@@ -158,15 +158,11 @@ export const UpdateSingleItemOrder = (id, updatedData) =>
 export const deleteSingleItemOrder = (id) =>
   API.delete(`/orders/delete-order-item/${id}`);
 // Search Order Item
-export const searchOrderItem = (orderNameData, localStorageId) =>
-  API.get(
-    `/orders/search-order-items/${localStorageId}?orderName=${orderNameData}`
-  );
+export const searchOrderItem = (orderNameData) =>
+  API.get(`/orders/search-order-items?orderName=${orderNameData}`);
 // Search Drinks Only
-export const searchDrinksOnly = (drinksData, localStorageId) =>
-  API.get(
-    `/orders/search-drinks-only/${localStorageId}?orderName=${drinksData}`
-  );
+export const searchDrinksOnly = (drinksData) =>
+  API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
 // Allot order to personnels (Delivery, Waiter, Chef)
 export const getPersonnelsBySupplier = (order, personnelsType) => {
   return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`);

@@ -15,30 +15,27 @@ import { accessMiddleware } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 const role = "Food-And-Drinks";
+const foodAndDrinksAccess = accessMiddleware(role);
 
-router.post("/add-order-item", accessMiddleware(role), AddOrderItem);
+router.post("/add-order-item", foodAndDrinksAccess, AddOrderItem);
 
 router.get(
   "/get-single-order-item/:id",
-  accessMiddleware(role),
+  foodAndDrinksAccess,
   getSingleOrderItem
 );
 
-router.get("/get-all-order-items", accessMiddleware(role), getAllOrderItems);
+router.get("/get-all-order-items", foodAndDrinksAccess, getAllOrderItems);
 
-router.get("/getDrinksOnly", accessMiddleware(role), getDrinksOnly);
+router.get("/getDrinksOnly", foodAndDrinksAccess, getDrinksOnly);
 
-router.patch("/update-order-item/:id", accessMiddleware(role), updateOrderItem);
+router.patch("/update-order-item/:id", foodAndDrinksAccess, updateOrderItem);
 
-router.delete(
-  "/delete-order-item/:id",
-  accessMiddleware(role),
-  deleteOrderItem
-);
+router.delete("/delete-order-item/:id", foodAndDrinksAccess, deleteOrderItem);
 
-router.get("/search-order-items/:id", accessMiddleware(role), searchOrderItems);
+router.get("/search-order-items", foodAndDrinksAccess, searchOrderItems);
 
-router.get("/search-drinks-only/:id", accessMiddleware(role), searchDrinksOnly);
+router.get("/search-drinks-only", foodAndDrinksAccess, searchDrinksOnly);
 
 // router.get(
 //   "/get-personnels-by-role/:role/:order",

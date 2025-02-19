@@ -40,6 +40,14 @@ import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/ToastContext";
 
 export default function AllOrders() {
+  // Selector to get the length of all order items
+  const AllOrderItemsLength = useSelector(
+    (state) => state.OrderItemReducer?.length
+  );
+  // Get admin data from Redux store
+  const adminData = useSelector((state) => state?.userReducer?.data);
+  const showToast = useToast();
+
   // Chakra UI hooks for modal and drawer states
   const {
     isOpen: isOpenItem,
@@ -90,13 +98,6 @@ export default function AllOrders() {
     searchResults: [],
     searchPerformed: false,
   });
-  // Selector to get the length of all order items
-  const AllOrderItemsLength = useSelector(
-    (state) => state.OrderItemReducer?.length
-  );
-  // Get admin data from Redux store
-  const adminData = useSelector((state) => state?.userReducer?.data);
-  const showToast = useToast();
 
   const [allOrderTotal, setAllOrderTotal] = useState(0);
   const [allItemsData, setAllItemsData] = useState([]);
@@ -114,7 +115,7 @@ export default function AllOrders() {
       const { searchTerm } = isDrink ? searchStateDrinks : searchState;
       const action = isDrink ? searchDrinksOnlyAction : searchOrderItemAction;
 
-      dispatch(action(searchTerm, userId)).then((res) => {
+      dispatch(action(searchTerm)).then((res) => {
         if (res.success) {
           const setSearchStateFn = isDrink
             ? setSearchStateDrinks
@@ -128,7 +129,7 @@ export default function AllOrders() {
         }
       });
     },
-    [dispatch, searchState, searchStateDrinks, userId]
+    [dispatch, searchState, searchStateDrinks]
   );
 
   const handleVerifyRestaurant = () => {
@@ -154,12 +155,12 @@ export default function AllOrders() {
   // Function to handle submission of item order
   const handleSubmitItemOrder = (data) => {
     data.created_by = userId;
-    const actionType = editItem ? "edit" : "add";
-    const actionPromise =
-      actionType === "edit"
-        ? dispatch(updateSingleItemOrderAction(editItem._id, data))
-        : dispatch(AddOrderItemAction(data));
+    const isEdit = editItem || editDrink;
+    const actionPromise = isEdit
+      ? dispatch(updateSingleItemOrderAction(isEdit._id, data))
+      : dispatch(AddOrderItemAction(data));
     setEditItem(null);
+    setEditDrink(null);
     const AddOrEditItemPromise = actionPromise.then((res) => {
       if (res.success) {
         const action = data.isDrink
@@ -180,14 +181,10 @@ export default function AllOrders() {
     });
 
     toast.promise(AddOrEditItemPromise, {
-      pending:
-        actionType === "edit"
-          ? "Processing Edit of Item..."
-          : "Processing Addition of Item...",
-      success:
-        actionType === "edit"
-          ? "Item Edited Successfully"
-          : "Item Added Successfully",
+      pending: isEdit
+        ? "Processing Edit of Item..."
+        : "Processing Addition of Item...",
+      success: isEdit ? "Item Edited Successfully" : "Item Added Successfully",
       error: (err) => err.message,
     });
   };
@@ -246,8 +243,8 @@ export default function AllOrders() {
       setLoading(true);
       try {
         const [allItemsRes, drinksRes] = await Promise.all([
-          dispatch(getAllOrderItemsAction(userId)),
-          dispatch(getDrinksOnlyAction(userId)),
+          dispatch(getAllOrderItemsAction()),
+          dispatch(getDrinksOnlyAction()),
         ]);
 
         if (!allItemsRes.success || !drinksRes.success) {
@@ -268,7 +265,7 @@ export default function AllOrders() {
     };
 
     fetchData();
-  }, [dispatch, userId]);
+  }, [dispatch, showToast, userId]);
 
   if (!isPermitted) {
     return <ForbiddenPage isPermitted={isPermitted} />;
