@@ -137,7 +137,7 @@ const ItemModal = (props) => {
       .catch((err) => {
         // console.log(err);
         setLoading(false);
-        return toast.error("Error Uploading Image to server");
+        return toast.error("Error Uploading Image to server", err.message);
       });
   };
 

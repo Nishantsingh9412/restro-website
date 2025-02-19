@@ -144,17 +144,17 @@ export default function ChefDashboard() {
                       fontSize={"xx-large"}
                       color={"green"}
                     >
-                      {data?.todayOrders["Completed"] || 0}
+                      {data?.todayOrders?.["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
                     <Flex gap={3}>
                       <Text>In Progress:</Text>
-                      <Text>{data?.todayOrders["Preparing"] || 0}</Text>
+                      <Text>{data?.todayOrders?.["Preparing"] || 0}</Text>
                     </Flex>
                     <Flex gap={3} color={"red"}>
                       <Text>Pending:</Text>
-                      <Text>{data?.todayOrders["Pending"] || 0}</Text>
+                      <Text>{data?.todayOrders?.["Pending"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -180,13 +180,13 @@ export default function ChefDashboard() {
                       fontSize={"xx-large"}
                       color={"blue"}
                     >
-                      {data?.monthlyOrders["Completed"] || 0}
+                      {data?.monthlyOrders?.["Completed"] || 0}
                     </Text>
                   </Flex>
                   <Flex flexDirection={"column"}>
                     <Flex gap={3} color={"blue"}>
                       <Text>In Progress:</Text>
-                      <Text>{data?.monthlyOrders["Preparing"] || 0}</Text>
+                      <Text>{data?.monthlyOrders?.["Preparing"] || 0}</Text>
                     </Flex>
                   </Flex>
                 </Flex>
@@ -202,9 +202,9 @@ export default function ChefDashboard() {
               Performance Overview
             </Heading>
             <ChefPerformanceChart
-              weeklyOrders={data?.weeklyOrders["Completed"] || []}
-              monthlyOrders={data?.monthlyOrders["Completed"] || []}
-              yearlyOrders={data?.yearlyOrders["Completed"] || []}
+              weeklyOrders={data?.weeklyOrders?.["Completed"] || []}
+              monthlyOrders={data?.monthlyOrders?.["Completed"] || []}
+              yearlyOrders={data?.yearlyOrders?.["Completed"] || []}
               totalTips={data?.totalTips || 0}
             />
           </Box>
@@ -231,20 +231,20 @@ export default function ChefDashboard() {
                       fontSize={"xx-large"}
                       color={"purple"}
                     >
-                      {(data?.averageCookingTime / 60).toFixed(1)} min
+                      {(data?.averageCookingTime / 60).toFixed(1) || 0} min
                     </Text>
                   </Flex>
                   <Flex flexDirection={"row"} justifyContent={"space-between"}>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Fastest</Text>
                       <Text>
-                        {(data?.fastestCookingTime / 60).toFixed(1)} min
+                        {(data?.fastestCookingTime / 60).toFixed(1) || 0} min
                       </Text>
                     </Flex>
                     <Flex flexDirection={"column"} alignItems={"center"}>
                       <Text>Slowest</Text>
                       <Text>
-                        {(data?.slowestCookingTime / 60).toFixed(1)} min
+                        {(data?.slowestCookingTime / 60).toFixed(1) || 0} min
                       </Text>
                     </Flex>
                   </Flex>
@@ -257,7 +257,7 @@ export default function ChefDashboard() {
               data={
                 <Flex flexDirection={"column"} gap={5}>
                   <Text fontWeight={"600"} fontSize={"xx-large"} color={"gold"}>
-                    ${data?.totalTips.toFixed(2)}
+                    ${data?.totalTips?.toFixed(2) || 0}
                   </Text>
                 </Flex>
               }
