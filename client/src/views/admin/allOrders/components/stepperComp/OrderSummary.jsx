@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,9 +14,11 @@ import { postCompleteOrderAction } from "../../../../../redux/action/completeOrd
 import { resetFormDataAction } from "../../../../../redux/action/stepperFormAction";
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import PropTypes from "prop-types";
+import { useToast } from "../../../../../contexts/ToastContext";
 
 // OrderSummary component definition
 const OrderSummary = ({ goToPreviousStep }) => {
+  const toast = useToast();
   // Chakra UI color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -48,10 +49,12 @@ const OrderSummary = ({ goToPreviousStep }) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());
-        navigate(role === "admin" ? "/admin/order-history" : "/employee/order-history");
-        toast.success(res.message);
+        navigate(
+          role === "admin" ? "/admin/order-history" : "/employee/order-history"
+        );
+        toast(res.message, "success");
       } else {
-        toast.error(res.message);
+        toast(res.message, "error");
       }
     });
   };

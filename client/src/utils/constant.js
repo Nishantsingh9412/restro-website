@@ -23,6 +23,12 @@ const orderTypes = {
   DELIVERY: "delivery",
 };
 
+const employeesRoles = {
+  CHEF: "Chef",
+  WAITER: "Waiter",
+  DELIVERY_BOY: "Delivery Boy",
+};
+
 const Dialog_Boxes = {
   showAcceptConfirmation: (id, handleAccept) => {
     Swal.fire({
@@ -83,4 +89,4 @@ const Dialog_Boxes = {
   },
 };
 
-export { statuses, orderTypes, Dialog_Boxes, userTypes };
+export { statuses, orderTypes, Dialog_Boxes, userTypes, employeesRoles };

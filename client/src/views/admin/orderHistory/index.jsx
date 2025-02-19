@@ -35,6 +35,7 @@ import DineInOrder from "./components/DineInOrder.jsx";
 import TakeAwayOrder from "./components/TakeAwayOrder.jsx";
 import DeliveryOrders from "./components/DeliveryOrders.jsx";
 import { set } from "date-fns";
+import { employeesRoles } from "../../../utils/constant.js";
 
 const OrderHistory = () => {
   const dispatch = useDispatch();
@@ -87,10 +88,9 @@ const OrderHistory = () => {
   }, [fetchCompleteOrders]);
 
   const handleAllotOrder = useCallback((orderId, personnelType) => {
-    console.log(orderId, personnelType);
     setSelectedOrderId(orderId);
     setSelectedPersonnel(personnelType);
-    if (personnelType.includes("Delivery")) {
+    if (personnelType.includes(employeesRoles.DELIVERY_BOY)) {
       setIsDeliveryModalOpen(true);
     } else {
       setIsModalOpen(true);
@@ -100,7 +100,7 @@ const OrderHistory = () => {
   const handleModalSubmit = useCallback(
     (data) => {
       switch (data?.role) {
-        case "Waiter":
+        case employeesRoles.WAITER:
           dispatch(
             allotDineInOrderToWaiterAction({
               orderId: selectedOrderId,
@@ -108,7 +108,7 @@ const OrderHistory = () => {
             })
           );
           break;
-        case "Chef":
+        case employeesRoles.CHEF:
           dispatch(
             allotTakeAwayOrderToChefAction({
               orderId: selectedOrderId,
@@ -183,7 +183,10 @@ const OrderHistory = () => {
                         key={order._id}
                         orderData={order}
                         handleAllotDeliveryBoy={() =>
-                          handleAllotOrder(order?.orderId, "Delivery Boy")
+                          handleAllotOrder(
+                            order?.orderId,
+                            employeesRoles.DELIVERY_BOY
+                          )
                         }
                       />
                     ))}
@@ -207,7 +210,10 @@ const OrderHistory = () => {
                         key={order._id}
                         orderData={order}
                         handleAllotWaiter={() =>
-                          handleAllotOrder(order?.orderId, "Waiter")
+                          handleAllotOrder(
+                            order?.orderId,
+                            employeesRoles.WAITER
+                          )
                         }
                       />
                     ))}
@@ -231,7 +237,7 @@ const OrderHistory = () => {
                         key={order._id}
                         orderData={order}
                         handleAllotChef={() =>
-                          handleAllotOrder(order?.orderId, "Chef")
+                          handleAllotOrder(order?.orderId, employeesRoles.CHEF)
                         }
                       />
                     ))}

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import {
   Modal,
@@ -11,20 +12,20 @@ import {
   Input,
   List,
   ListItem,
+  Spinner,
+  Box,
 } from "@chakra-ui/react";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import tt from "@tomtom-international/web-sdk-maps";
 import { setFormData } from "../../redux/action/stepperFormAction";
 
-export default function MapInput({ data, onSubmit, isOpen, onClose }) {
+export default function MapInput({ data, isOpen, onClose }) {
   const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
   const COUNTRY_CODE = import.meta.env.VITE_APP_COUNTRY_CODE || "DE";
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const [utils, setUtils] = useState({
-    position: [
-      data.dropLocation?.lat || 52.52,
-      data.dropLocation?.lng || 13.405,
-    ],
+    position: [data.dropLocation?.lat, data.dropLocation?.lng],
     locationName: data.dropLocationName || "",
     search: "",
     zoom: 13,
@@ -38,90 +39,6 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
-
-  useEffect(() => {
-    if (isOpen && mapContainer.current) {
-      if (!mapRef.current) {
-        mapRef.current = tt.map({
-          key: TOMTOM_API_KEY,
-          container: mapContainer.current,
-          center: utils.position,
-          zoom: utils.zoom,
-        });
-
-        markerRef.current = new tt.Marker()
-          .setLngLat([utils.position[1], utils.position[0]])
-          .addTo(mapRef.current);
-
-        mapRef.current.on("click", (e) => {
-          const [lng, lat] = e.lngLat.toArray();
-          mapRef.current.panTo([lng, lat], { duration: 200 });
-          console.log("utils initiala", utils);
-
-          if (markerRef.current) {
-            markerRef.current.setLngLat([lng, lat]);
-          }
-
-          updateUtils({ position: [lat, lng] });
-          handleSearchByCoords(lat, lng);
-          console.log("utils initial", utils);
-        });
-      } else {
-        mapRef.current.setCenter(utils.position);
-        mapRef.current.setZoom(utils.zoom);
-
-        if (markerRef.current) {
-          markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
-        }
-      }
-
-      return () => {
-        if (mapRef.current) {
-          mapRef.current.remove();
-          mapRef.current = null;
-        }
-      };
-    }
-  }, [isOpen, utils.position, utils.zoom]);
-
-  useEffect(() => {
-    if (markerRef.current) {
-      markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
-    }
-  }, [utils.position]);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          if (
-            latitude >= -90 &&
-            latitude <= 90 &&
-            longitude >= -180 &&
-            longitude <= 180
-          ) {
-            setUtils((prev) => ({
-              ...prev,
-              position: [latitude, longitude],
-            }));
-
-            if (markerRef.current) {
-              markerRef.current.setLngLat([longitude, latitude]);
-              mapRef.current.setCenter([longitude, latitude]);
-            }
-          } else {
-            console.error("Geolocation coordinates out of range");
-          }
-        },
-        (error) => {
-          console.error("Error getting current position:", error);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -173,16 +90,6 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
       });
   };
 
-  useEffect(() => {
-    if (mapRef.current && utils.position) {
-      mapRef.current.setCenter([utils.position[1], utils.position[0]]);
-
-      if (markerRef.current) {
-        markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
-      }
-    }
-  }, [utils.position, utils.zoom]);
-
   const handleSuggestionClick = (suggestion) => {
     const newPosition = [suggestion.position.lat, suggestion.position.lon];
 
@@ -222,17 +129,96 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
     onClose();
   };
 
+  // Initialize map
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+      if (isOpen && mapContainer.current) {
+        if (!mapRef.current) {
+          mapRef.current = tt.map({
+            key: TOMTOM_API_KEY,
+            container: mapContainer.current,
+            center: [utils.position[1], utils.position[0]],
+            zoom: utils.zoom,
+          });
+
+          markerRef.current = new tt.Marker()
+            .setLngLat([utils.position[1], utils.position[0]])
+            .addTo(mapRef.current);
+
+          mapRef.current.on("click", (e) => {
+            const [lng, lat] = e.lngLat.toArray();
+            mapRef.current.panTo([lng, lat], { duration: 200 });
+
+            if (markerRef.current) {
+              markerRef.current.setLngLat([lng, lat]);
+            }
+
+            updateUtils({ position: [lat, lng] });
+            handleSearchByCoords(lat, lng);
+          });
+        } else {
+          mapRef.current.setCenter([utils.position[1], utils.position[0]]);
+          mapRef.current.setZoom(utils.zoom);
+          if (markerRef.current) {
+            markerRef.current.setLngLat([utils.position[1], utils.position[0]]);
+          }
+        }
+        return () => {
+          if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+          }
+        };
+      }
+    }, 500);
+  }, [isOpen, utils.position, utils.zoom]);
+
+  // Get user's current location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          if (
+            latitude >= -90 &&
+            latitude <= 90 &&
+            longitude >= -180 &&
+            longitude <= 180
+          ) {
+            if (!utils.position[0] || !utils.position[1]) {
+              setUtils((prev) => ({
+                ...prev,
+                position: [latitude, longitude],
+              }));
+
+              if (markerRef.current) {
+                markerRef.current.setLngLat([longitude, latitude]);
+                mapRef.current.setCenter([longitude, latitude]);
+              }
+            }
+          } else {
+            console.error("Geolocation coordinates out of range");
+          }
+        },
+        (error) => {
+          console.error("Error getting current position:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="medium">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Search Location</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          <form
-            onSubmit={handleSearch}
-            style={{ display: "flex", alignItems: "center", gap: "10px" }}
-          >
+        <ModalBody display="flex" flexDirection="column" gap="10px">
+          <div style={{ display: "flex", gap: "10px" }}>
             <Input
               type="search"
               placeholder="Search places..."
@@ -241,16 +227,16 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
               style={{ flex: "1", padding: "10px", fontSize: "16px" }}
             />
             <Button
-              type="submit"
               borderRadius={"4px"}
               bg={"blue.500"}
               color={"#fff"}
               _hover={{ background: "blue.700" }}
               style={{ flexShrink: "0" }}
+              onClick={handleSearch}
             >
               Search
             </Button>
-          </form>
+          </div>
           {utils.error && <p>{utils.error}</p>}
           <List>
             {utils.suggestions.map((suggestion) => (
@@ -267,15 +253,28 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
               </ListItem>
             ))}
           </List>
-          <div
-            ref={mapContainer}
-            style={{
-              width: "100%",
-              height: "400px",
-              marginTop: "10px",
-              cursor: "crosshair",
-            }}
-          />
+          {loading ? (
+            <div>
+              <Box
+                height={"400px"}
+                display={"flex"}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
+                <Spinner />
+              </Box>
+            </div>
+          ) : (
+            <div
+              ref={mapContainer}
+              style={{
+                width: "100%",
+                height: "400px",
+                marginTop: "10px",
+                cursor: "crosshair",
+              }}
+            />
+          )}
           <Button
             borderRadius={"4px"}
             bg={"#029CFF"}
@@ -291,3 +290,57 @@ export default function MapInput({ data, onSubmit, isOpen, onClose }) {
     </Modal>
   );
 }
+MapInput.propTypes = {
+  data: PropTypes.shape({
+    dropLocation: PropTypes.shape({
+      lat: PropTypes.number,
+      lng: PropTypes.number,
+    }),
+    results: PropTypes.arrayOf(
+      PropTypes.shape({
+        position: PropTypes.shape({
+          lat: PropTypes.number,
+          lon: PropTypes.number,
+        }),
+        address: PropTypes.shape({
+          freeformAddress: PropTypes.string,
+        }),
+        poi: PropTypes.shape({
+          name: PropTypes.string,
+        }),
+      })
+    ),
+    addresses: PropTypes.arrayOf(
+      PropTypes.shape({
+        address: PropTypes.shape({
+          freeformAddress: PropTypes.string,
+        }),
+      })
+    ),
+    dropLocationName: PropTypes.string,
+  }),
+  addresses: PropTypes.arrayOf(
+    PropTypes.shape({
+      address: PropTypes.shape({
+        freeformAddress: PropTypes.string,
+      }),
+    })
+  ),
+  results: PropTypes.arrayOf(
+    PropTypes.shape({
+      position: PropTypes.shape({
+        lat: PropTypes.number,
+        lon: PropTypes.number,
+      }),
+      address: PropTypes.shape({
+        freeformAddress: PropTypes.string,
+      }),
+      poi: PropTypes.shape({
+        name: PropTypes.string,
+      }),
+    })
+  ),
+  onSubmit: PropTypes.func,
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
+};
