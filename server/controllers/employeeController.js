@@ -122,8 +122,8 @@ export const getAllEmployees = async (req, res) => {
 
     if (allEmployees.length === 0) {
       return res
-        .status(404)
-        .json({ success: false, message: "No Employees Found" });
+        .status(200)
+        .json({ success: false, message: "No Employees Found", result: [] });
     }
 
     // Filter out the admin from the list of employees
@@ -193,7 +193,6 @@ export const getOnlineEmployeesByRole = async (req, res) => {
 
     const onlineEmployees = Array.from(onlineUsers.keys());
     const Model = ROLE_CASES[type];
-
 
     const onlineRoleEmployees = await Model.find({
       _id: { $in: onlineEmployees },

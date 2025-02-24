@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import PropTypes from "prop-types";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet-fullscreen";
@@ -117,3 +118,23 @@ const DeliveryMap = ({ origin, destination, waypoints = [], center }) => {
 };
 
 export default DeliveryMap;
+
+DeliveryMap.propTypes = {
+  origin: PropTypes.object,
+  destination: PropTypes.object,
+  waypoints: PropTypes.array,
+  center: PropTypes.array,
+};
+
+RoutingMachine.propTypes = {
+  waypoints: PropTypes.arrayOf(
+    PropTypes.shape({
+      lat: PropTypes.number.isRequired,
+      lng: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+};
+
+RecenterControl.propTypes = {
+  center: PropTypes.array.isRequired,
+};

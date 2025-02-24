@@ -121,7 +121,7 @@ export const getSingleDelivery = async (req, res) => {
 
 // Get active delivery for a user
 export const getActiveDelivery = async (req, res) => {
-  const { userId } = req.params;
+  const { id: userId } = req.user;
 
   if (!validateId(userId, res, "Invalid delivery Item ID")) return;
 
@@ -167,7 +167,7 @@ export const getCompletedDeliveries = async (req, res) => {
 
 // Get all delivery items for a user
 export const getAllDelivery = async (req, res) => {
-  const { userId } = req.params;
+  const { id: userId } = req.user;
 
   if (!validateId(userId, res, "Invalid User ID")) return;
 
@@ -236,7 +236,7 @@ export const actionsOnDelivery = async (req, res) => {
 
       const noti = await notification.create({
         sender: userId,
-        receiver: acceptedDeliveryItem.supplier,
+        receiver: acceptedDeliveryItem.created_by,
         heading: "Order delivery accepted",
         body: `Your delivery order ${acceptedDeliveryItem.orderId} has been accepted by ${delPer.name}`,
       });
@@ -340,7 +340,7 @@ export const updateDeliveryStatus = async (req, res) => {
 
     const noti = await notification.create({
       sender: userId,
-      receiver: updatedDeliveryItem.supplier,
+      receiver: updatedDeliveryItem.created_by,
       heading: "Order delivery status update",
       body: `Your delivery order ${updatedDeliveryItem.orderId} status has been changed to ${updatedDeliveryItem.currentStatus} by ${delPer.name}`,
     });

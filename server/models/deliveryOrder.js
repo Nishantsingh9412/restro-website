@@ -22,7 +22,7 @@ const orderItemsSubDocsSchema = new Schema({
 });
 
 // Schema for the complete order
-const completeOrderSchema = new Schema(
+const DeliveryOrder = new Schema(
   {
     name: {
       type: String,
@@ -83,14 +83,6 @@ const completeOrderSchema = new Schema(
       type: String,
       trim: true, // Trim whitespace
     },
-    city: {
-      type: String,
-      trim: true, // Trim whitespace
-    },
-    state: {
-      type: String,
-      trim: true, // Trim whitespace
-    },
     zip: {
       type: String,
       trim: true, // Trim whitespace
@@ -135,4 +127,4 @@ const completeOrderSchema = new Schema(
   { timestamps: true } // Automatically add createdAt and updatedAt fields
 );
 
-export default model("CompleteOrder", completeOrderSchema);
+export default model("DeliveryOrder", DeliveryOrder);

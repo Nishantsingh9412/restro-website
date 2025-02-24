@@ -1,13 +1,11 @@
-import mongoose from "mongoose";
-import completeOrder from "../models/completeOrder.js";
-import delivery from "../models/delivery.js";
-import Delivery from "../models/delivery.js";
-import DeliverBoy from "../models/deliveryBoyModel.js";
-import Admin from "../models/adminModel.js";
-import Notification from "../models/notification.js";
-import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
 import axios from "axios";
-import deliveryBoyModel from "../models/deliveryBoyModel.js";
+import mongoose from "mongoose";
+import DeliveryOrder from "../models/deliveryOrder.js";
+import Delivery from "../models/delivery.js";
+import Notification from "../models/notification.js";
+import DeliveryBoyModel from "../models/deliveryBoyModel.js";
+import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
+import { getRestaurantCoordinates } from "./employees/commonController.js";
 
 // Function to get coordinates from address using TomTom API
 const getCoordinates = async (address) => {
@@ -39,145 +37,6 @@ const getCoordinates = async (address) => {
   }
 };
 
-// Controller to create a complete order
-export const createCompleteOrder = async (req, res) => {
-  const { id, role, created_by: empID } = req.user;
-  try {
-    const {
-      name,
-      phoneNumber,
-      paymentMethod,
-      deliveryMethod,
-      dropLocation,
-      dropLocationName,
-      address,
-      address2,
-      city,
-      state,
-      zip,
-      noteFromCustomer,
-      orderItems,
-      totalPrice,
-      created_by,
-    } = req.body;
-
-    // Validate required fields
-    if (!name || !phoneNumber || !address || !totalPrice || !dropLocation) {
-      return res
-        .status(401)
-        .json({ success: false, message: "All fields are required" });
-    }
-    if (!created_by) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Session expired login again" });
-    }
-
-    // Format order items
-    const formattedOrderItems = orderItems.map((item) => ({
-      item: new mongoose.Types.ObjectId(item._id),
-      quantity: item.quantity,
-      total: item.priceVal * item.quantity,
-    }));
-
-    // Generate unique order ID
-    const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
-      1000000 + Math.random() * 9000000
-    )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
-
-    // Get coordinates for the address
-    const coords = await getCoordinates(
-      [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
-    );
-    if (!coords?.lat || !coords?.lng)
-      return res
-        .status(500)
-        .json({ success: false, message: "Error fetching location" });
-
-    // Create new complete order
-    const newCompleteOrder = await completeOrder.create({
-      name,
-      phoneNumber,
-      paymentMethod,
-      deliveryMethod,
-      dropLocation,
-      dropLocationName,
-      lat: coords.lat,
-      lng: coords.lng,
-      address,
-      address2,
-      city,
-      state,
-      zip,
-      noteFromCustomer,
-      orderItems: formattedOrderItems,
-      totalPrice,
-      created_by: role === "admin" ? created_by : empID,
-      orderId,
-    });
-
-    if (newCompleteOrder) {
-      return res.status(201).json({
-        success: true,
-        message: "Order Added",
-        result: newCompleteOrder,
-      });
-    } else {
-      return res
-        .status(500)
-        .json({ success: false, message: "Order not added" });
-    }
-  } catch (err) {
-    console.log("Error from Order Controller : ", err.message);
-    console.log(err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-};
-
-// Controller to get all complete orders by user ID
-export const getCompleteOrders = async (req, res) => {
-  const { id, role, created_by } = req.user;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ success: false, message: "Invalid Id" });
-  }
-  try {
-    const completeOrders = await completeOrder
-      .find({ created_by: role === "admin" ? id : created_by })
-      .populate("orderItems.item")
-      .sort({ createdAt: -1 });
-
-    // Add assigned delivery boy information to each order
-    const finalOrders = await Promise.all(
-      completeOrders.map(async (order) => {
-        const assigned = await delivery
-          .findOne({ orderId: order?.orderId })
-          .select("assignedTo completedAt");
-        if (assigned) {
-          const assignedTo = await deliveryBoyModel
-            .findById(assigned.assignedTo)
-            .select("name");
-          return {
-            ...(order._doc || order),
-            assignedTo,
-            completedAt: assigned.completedAt,
-          };
-        } else return order._doc || order;
-      })
-    );
-
-    return res
-      .status(200)
-      .json({ success: true, message: "All Orders", result: finalOrders });
-  } catch (err) {
-    console.log("Error from Order Controller : ", err.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-};
-
 // Function to get route data from TomTom API
 const getRouteData = async (start, end) => {
   const apiKey = process.env.TOMTOM_API_KEY;
@@ -200,61 +59,206 @@ const getRouteData = async (start, end) => {
   }
 };
 
+// Controller to create a complete order
+export const createDeliveryOrder = async (req, res) => {
+  const { id, role, created_by } = req.user;
+  const supplier = role === "admin" ? id : created_by;
+  try {
+    const {
+      name,
+      phoneNumber,
+      paymentMethod,
+      deliveryMethod,
+      dropLocation,
+      dropLocationName,
+      address,
+      address2,
+      zip,
+      noteFromCustomer,
+      orderItems,
+      totalPrice,
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !phoneNumber || !address || !totalPrice || !dropLocation) {
+      return res
+        .status(401)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    // Format order items
+    const formattedOrderItems = orderItems.map((item) => ({
+      item: new mongoose.Types.ObjectId(item._id),
+      quantity: item.quantity,
+      total: item.priceVal * item.quantity,
+    }));
+
+    // Generate unique order ID
+    const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
+      1000000 + Math.random() * 9000000
+    )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
+    
+    //TODO: remove this section
+    // Get coordinates for the address
+    // const coords = await getCoordinates(
+    //   [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
+    // );
+    // if (!coords?.lat || !coords?.lng)
+    //   return res
+    //     .status(500)
+    //     .json({ success: false, message: "Error fetching location" });
+
+    // get coordinates for the pickup location
+    const pickupLocation = await getRestaurantCoordinates(supplier);
+    // Create new complete order
+    const newDeliveryOrder = await DeliveryOrder.create({
+      orderId,
+      name,
+      phoneNumber,
+      paymentMethod,
+      deliveryMethod,
+      dropLocation,
+      dropLocationName,
+      pickupLocation,
+      address,
+      address2,
+      zip,
+      noteFromCustomer,
+      orderItems: formattedOrderItems,
+      totalPrice,
+      created_by: supplier,
+    });
+
+    if (newDeliveryOrder) {
+      return res.status(201).json({
+        success: true,
+        message: "Order Added",
+        result: newDeliveryOrder,
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "Order not added" });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: `Internal Server Error, ${err.message}`,
+    });
+  }
+};
+
+// Controller to get all complete orders by user ID
+export const getDeliveryOrders = async (req, res) => {
+  const { id, role, created_by } = req.user;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ success: false, message: "Invalid Id" });
+  }
+  try {
+    const deliveryOrders = await DeliveryOrder.find({
+      created_by: role === "admin" ? id : created_by,
+    })
+      .populate("orderItems.item")
+      .sort({ createdAt: -1 });
+
+    // Add assigned delivery boy information to each order
+    const finalOrders = await Promise.all(
+      deliveryOrders.map(async (order) => {
+        const assigned = await Delivery.findOne({
+          orderId: order?.orderId,
+        }).select("assignedTo completedAt");
+        if (assigned) {
+          const assignedTo = await DeliveryBoyModel.findById(
+            assigned.assignedTo
+          ).select("name");
+          return {
+            ...(order._doc || order),
+            assignedTo,
+            completedAt: assigned.completedAt,
+          };
+        } else return order._doc || order;
+      })
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "All Orders", result: finalOrders });
+  } catch (err) {
+    console.log("Error from Order Controller : ", err.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 // Controller to allot order delivery to a delivery boy
 export const allotOrderDelivery = async (req, res) => {
   const { id, role, created_by } = req.user;
-  const { id: _id } = req.params;
+  const { id: orderId } = req.params;
   const supplier = role === "admin" ? id : created_by;
   const { deliveryBoyId } = req.body;
   try {
-    if (!supplier || !deliveryBoyId) {
+    // Validate required fields
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ success: false, message: "Invalid Id" });
+    }
+
+    if (!deliveryBoyId || !orderId) {
       return res.status(400).json({
         success: false,
         message: "Please provide all the required fields",
       });
     }
-
-    const order = await completeOrder.findOne({ orderId: _id });
-    if (!order)
+    // Get order details
+    const delOrder = await DeliveryOrder.findOne({ orderId: orderId });
+    if (!delOrder) {
       return res
         .status(404)
         .json({ success: false, message: "Order not found" });
+    }
+    //TODO: remove this section
+    // const foundSupplier = await Admin.findById(supplier);
+    // if (!foundSupplier)
+    //   return res
+    //     .status(404)
+    //     .json({ success: false, message: "Supplier not found" });
 
-    const foundSupplier = await Admin.findById(supplier);
-    if (!foundSupplier)
+    // Get route info from pickup to delivery location
+    const pickupLocation = {
+      lat: delOrder.pickupLocation.lat,
+      lng: delOrder.pickupLocation.lng,
+    };
+    const routeInfo = await getRouteData(pickupLocation, delOrder.dropLocation);
+    if (routeInfo === null) {
       return res
-        .status(404)
-        .json({ success: false, message: "Supplier not found" });
+        .status(500)
+        .json({ success: false, message: "Error fetching route info" });
+    }
 
-    const routeInfo = await getRouteData(order.dropLocation, {
-      lat: order.lat,
-      lng: order.lng,
-    });
-
-    const defaultCountry = "India";
+    //TODO: Add default country to the address
+    const defaultCountry = "Germany";
 
     const delivery = await Delivery.create({
-      orderId: _id,
-      supplier,
+      // supplier,
+      // restaurantName: foundSupplier.name,
+      orderId: orderId,
       assignedTo: deliveryBoyId,
-      dropLocation: order.dropLocation,
-      deliveryLocation: { lat: order.lat, lng: order.lng },
+      pickupLocation: delOrder.pickupLocation,
+      deliveryLocation: delOrder.dropLocation,
       deliveryAddress: [
-        order.address,
-        order.address2,
-        order.city,
-        order.state,
+        delOrder.address,
+        delOrder.address2,
+        delOrder.zip,
         defaultCountry,
-        order.zip,
       ]
         .filter(Boolean)
         .join(", "),
       distance: routeInfo?.distance,
       estimatedTime: routeInfo?.duration,
-      customerName: order.name,
-      customerContact: order.phoneNumber,
-      paymentType: order.paymentMethod,
-      restaurantName: foundSupplier.name,
+      customerName: delOrder.name,
+      customerContact: delOrder.phoneNumber,
+      paymentType: delOrder.paymentMethod,
+      created_by: supplier,
     });
 
     if (!delivery) {
@@ -267,7 +271,7 @@ export const allotOrderDelivery = async (req, res) => {
         sender: supplier,
         receiver: deliveryBoyId,
         heading: "Delivery Task Received",
-        body: `You have received a delivery task for order ${_id}`,
+        body: `You have received a delivery task for order ${orderId}`,
       });
 
       if (noti) {
@@ -284,13 +288,13 @@ export const allotOrderDelivery = async (req, res) => {
 };
 
 // Controller to get a complete order by ID
-export const getCompleteOrderById = async (req, res) => {
+export const getDeliveryOrderById = async (req, res) => {
   const { id: _id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(404).json({ success: false, message: "No Order found" });
   }
   try {
-    const completeOrderSingle = await completeOrder.findById(_id);
+    const completeOrderSingle = await DeliveryOrder.findById(_id);
     if (completeOrderSingle) {
       return res
         .status(200)
@@ -309,9 +313,9 @@ export const getCompleteOrderById = async (req, res) => {
 };
 
 // Controller to update a complete order by ID
-export const updateCompleteOrder = async (req, res) => {
+export const updateDeliveryOrder = async (req, res) => {
   const { id: _id } = req.params;
-  const { id, role, created_by: empID } = req.user;
+  const { id, role, created_by } = req.user;
   const {
     name,
     phoneNumber,
@@ -325,13 +329,12 @@ export const updateCompleteOrder = async (req, res) => {
     noteFromCustomer,
     orderItems,
     totalPrice,
-    created_by,
   } = req.body;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(404).json({ success: false, message: "No Order found" });
   }
   try {
-    const updatedOrder = await completeOrder.findByIdAndUpdate(
+    const updatedOrder = await DeliveryOrder.findByIdAndUpdate(
       { _id },
       {
         name,
@@ -346,7 +349,7 @@ export const updateCompleteOrder = async (req, res) => {
         noteFromCustomer,
         orderItems,
         totalPrice,
-        created_by: role === "admin" ? created_by : empID,
+        created_by: role === "admin" ? id : created_by,
       },
       { new: true }
     );
@@ -370,13 +373,13 @@ export const updateCompleteOrder = async (req, res) => {
 };
 
 // Controller to delete a complete order by ID
-export const deleteCompleteOrder = async (req, res) => {
+export const deleteDeliveryOrder = async (req, res) => {
   const { id: _id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(404).json({ success: false, message: "No Order found" });
   }
   try {
-    const deletedOrder = await completeOrder.findByIdAndDelete(_id);
+    const deletedOrder = await DeliveryOrder.findByIdAndDelete(_id);
     if (deletedOrder) {
       return res.status(200).json({
         success: true,

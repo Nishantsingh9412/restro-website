@@ -12,7 +12,6 @@ import {
   Input,
   List,
   ListItem,
-  Spinner,
   Box,
 } from "@chakra-ui/react";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
@@ -23,9 +22,12 @@ export default function MapInput({ data, isOpen, onClose }) {
   const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
   const COUNTRY_CODE = import.meta.env.VITE_APP_COUNTRY_CODE || "DE";
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(false);
   const [utils, setUtils] = useState({
-    position: [data.dropLocation?.lat, data.dropLocation?.lng],
+    position: [
+      data.dropLocation?.lat || 50.95042,
+      data.dropLocation?.lng || 6.933551,
+    ],
     locationName: data.dropLocationName || "",
     search: "",
     zoom: 13,
@@ -115,7 +117,32 @@ export default function MapInput({ data, isOpen, onClose }) {
     }
   };
 
+  function splitAddress(address) {
+    if (!address.includes(",")) {
+      return { error: "Invalid format: Missing comma separator." };
+    }
+
+    const parts = address.split(",").map((part) => part.trim());
+    if (parts.length < 2) {
+      return { error: "Invalid format: Address missing ZIP and city." };
+    }
+
+    const street = parts[0];
+    const zipCity = parts[1].split(/\s+/); // Split on spaces
+
+    if (zipCity.length < 2 || isNaN(zipCity[0])) {
+      return { error: "Invalid format: ZIP code missing or invalid." };
+    }
+
+    return {
+      street,
+      zip: zipCity[0],
+      city: zipCity.slice(1).join(" "),
+    };
+  }
+
   const handleFinalSubmit = () => {
+    const { street, zip, city } = splitAddress(utils.locationName);
     dispatch(
       setFormData({
         dropLocation: {
@@ -123,6 +150,9 @@ export default function MapInput({ data, isOpen, onClose }) {
           lng: utils.position[1],
         },
         dropLocationName: utils.locationName,
+        address: street,
+        address2: city,
+        zip: zip,
       })
     );
     console.log("Form data updated:", utils);
@@ -132,8 +162,8 @@ export default function MapInput({ data, isOpen, onClose }) {
   // Initialize map
   useEffect(() => {
     setTimeout(() => {
-      setLoading(false);
       if (isOpen && mapContainer.current) {
+        // setLoading(true);
         if (!mapRef.current) {
           mapRef.current = tt.map({
             key: TOMTOM_API_KEY,
@@ -171,45 +201,45 @@ export default function MapInput({ data, isOpen, onClose }) {
           }
         };
       }
-    }, 500);
-  }, [isOpen, utils.position, utils.zoom]);
+    }, 0);
+  }, [isOpen]);
 
-  // Get user's current location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
+  // // Get user's current location
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const { latitude, longitude } = position.coords;
 
-          if (
-            latitude >= -90 &&
-            latitude <= 90 &&
-            longitude >= -180 &&
-            longitude <= 180
-          ) {
-            if (!utils.position[0] || !utils.position[1]) {
-              setUtils((prev) => ({
-                ...prev,
-                position: [latitude, longitude],
-              }));
+  //         if (
+  //           latitude >= -90 &&
+  //           latitude <= 90 &&
+  //           longitude >= -180 &&
+  //           longitude <= 180
+  //         ) {
+  //           if (!utils.position[0] || !utils.position[1]) {
+  //             setUtils((prev) => ({
+  //               ...prev,
+  //               position: [latitude, longitude],
+  //             }));
 
-              if (markerRef.current) {
-                markerRef.current.setLngLat([longitude, latitude]);
-                mapRef.current.setCenter([longitude, latitude]);
-              }
-            }
-          } else {
-            console.error("Geolocation coordinates out of range");
-          }
-        },
-        (error) => {
-          console.error("Error getting current position:", error);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-  }, []);
+  //             if (markerRef.current) {
+  //               markerRef.current.setLngLat([longitude, latitude]);
+  //               mapRef.current.setCenter([longitude, latitude]);
+  //             }
+  //           }
+  //         } else {
+  //           console.error("Geolocation coordinates out of range");
+  //         }
+  //       },
+  //       (error) => {
+  //         console.error("Error getting current position:", error);
+  //       }
+  //     );
+  //   } else {
+  //     console.error("Geolocation is not supported by this browser.");
+  //   }
+  // }, []);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="medium">
@@ -253,7 +283,7 @@ export default function MapInput({ data, isOpen, onClose }) {
               </ListItem>
             ))}
           </List>
-          {loading ? (
+          {/* {loading ? (
             <div>
               <Box
                 height={"400px"}
@@ -264,17 +294,17 @@ export default function MapInput({ data, isOpen, onClose }) {
                 <Spinner />
               </Box>
             </div>
-          ) : (
-            <div
-              ref={mapContainer}
-              style={{
-                width: "100%",
-                height: "400px",
-                marginTop: "10px",
-                cursor: "crosshair",
-              }}
-            />
-          )}
+          ) : ( */}
+          <Box
+            ref={mapContainer}
+            style={{
+              width: "100%",
+              height: "400px",
+              marginTop: "10px",
+              cursor: "crosshair",
+            }}
+          />
+
           <Button
             borderRadius={"4px"}
             bg={"#029CFF"}
@@ -291,55 +321,7 @@ export default function MapInput({ data, isOpen, onClose }) {
   );
 }
 MapInput.propTypes = {
-  data: PropTypes.shape({
-    dropLocation: PropTypes.shape({
-      lat: PropTypes.number,
-      lng: PropTypes.number,
-    }),
-    results: PropTypes.arrayOf(
-      PropTypes.shape({
-        position: PropTypes.shape({
-          lat: PropTypes.number,
-          lon: PropTypes.number,
-        }),
-        address: PropTypes.shape({
-          freeformAddress: PropTypes.string,
-        }),
-        poi: PropTypes.shape({
-          name: PropTypes.string,
-        }),
-      })
-    ),
-    addresses: PropTypes.arrayOf(
-      PropTypes.shape({
-        address: PropTypes.shape({
-          freeformAddress: PropTypes.string,
-        }),
-      })
-    ),
-    dropLocationName: PropTypes.string,
-  }),
-  addresses: PropTypes.arrayOf(
-    PropTypes.shape({
-      address: PropTypes.shape({
-        freeformAddress: PropTypes.string,
-      }),
-    })
-  ),
-  results: PropTypes.arrayOf(
-    PropTypes.shape({
-      position: PropTypes.shape({
-        lat: PropTypes.number,
-        lon: PropTypes.number,
-      }),
-      address: PropTypes.shape({
-        freeformAddress: PropTypes.string,
-      }),
-      poi: PropTypes.shape({
-        name: PropTypes.string,
-      }),
-    })
-  ),
+  data: PropTypes.object,
   onSubmit: PropTypes.func,
   isOpen: PropTypes.bool,
   onClose: PropTypes.func,

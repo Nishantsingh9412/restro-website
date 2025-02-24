@@ -13,14 +13,12 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo } from "react";
-import { MdLocalShipping } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { getCompleteOrderAction } from "../../../redux/action/completeOrder.js";
-// import { singleUserDataAction } from "../../../redux/action/user.js";
+import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
 import { useState } from "react";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
 import { useToast } from "../../../contexts/ToastContext.jsx";
-import { allotDeliveryBoyAction } from "../../../redux/action/completeOrder.js";
+import { allotDeliveryBoyAction } from "../../../redux/action/deliveryOrder.js";
 import {
   allotDineInOrderToWaiterAction,
   getDineInOrderAction,
@@ -40,7 +38,6 @@ import { employeesRoles } from "../../../utils/constant.js";
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const showToast = useToast();
-  const user = useSelector((state) => state?.userReducer?.user);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
@@ -54,27 +51,22 @@ const OrderHistory = () => {
   const [isPermitted, setIsPermitted] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const localUserData = useMemo(
-    () => JSON.parse(localStorage.getItem("ProfileData")),
-    []
-  );
-  const localUserId = localUserData?.result?._id;
   const fetchCompleteOrders = useCallback(async () => {
     try {
-      const [dineInRes, completeRes, takeAwayRes] = await Promise.all([
+      const [dineInRes, deliveryRes, takeAwayRes] = await Promise.all([
         dispatch(getDineInOrderAction()),
-        dispatch(getCompleteOrderAction()),
+        dispatch(getDeliveryOrderAction()),
         dispatch(getTakeAwayOrderAction()),
       ]);
 
-      [dineInRes, completeRes, takeAwayRes].forEach((res) => {
+      [dineInRes, deliveryRes, takeAwayRes].forEach((res) => {
         if (res?.status === 403) {
           setIsPermitted(false);
         }
       });
       showToast(
-        completeRes?.message,
-        completeRes?.success ? "success" : "error"
+        deliveryRes?.message,
+        deliveryRes?.success ? "success" : "error"
       );
     } catch (err) {
       showToast(err.message, "error");
@@ -130,7 +122,9 @@ const OrderHistory = () => {
           orderId: selectedOrderId,
           deliveryBoy: delBoy,
         })
-      );
+      ).then((res) => {
+        showToast(res.message, res.success ? "success" : "error");
+      });
     });
   };
 

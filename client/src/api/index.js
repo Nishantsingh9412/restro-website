@@ -216,25 +216,25 @@ export const updateDeliveryPersonnelStatus = (id, updatedData) =>
 export const deleteSingleDeliveryPersonnel = (id) =>
   API.delete(`/delivery-person/delete-single/${id}`);
 
-// Complete Order Management APIs
-// Add Complete Order
-export const addCompleteOrderAPI = (newOrder) =>
-  API.post("/complete-order/create-order", newOrder);
-// Get All Complete Orders
-export const getAllCompleteOrdersAPI = () =>
-  API.get(`/complete-order/get-all-delivery-orders`);
-// Get Single Complete Order
-export const getSingleCompleteOrderAPI = (id) =>
-  API.get(`/complete-order/get-single/${id}`);
-// Update Complete Order
-export const updateSingleCompleteOrderAPI = (id, updatedData) =>
-  API.patch(`/complete-order/update/${id}`, updatedData);
-// Delete Complete Order
-export const deleteSingleCompleteOrderAPI = (id) =>
-  API.delete(`/complete-order/delete/${id}`);
+// delivery Order Management APIs
+// Add delivery Order
+export const addDeliveryOrderAPI = (newOrder) =>
+  API.post("/delivery-order/create-order", newOrder);
+// Get All delivery Orders
+export const getAllDeliveryOrdersAPI = () =>
+  API.get(`/delivery-order/get-all-delivery-orders`);
+// Get Single delivery Order
+export const getSingleDeliveryOrderAPI = (id) =>
+  API.get(`/delivery-order/get-single/${id}`);
+// Update delivery Order
+export const updateSingleDeliveryOrderAPI = (id, updatedData) =>
+  API.patch(`/delivery-order/update/${id}`, updatedData);
+// Delete delivery Order
+export const deleteSingleDeliveryOrderAPI = (id) =>
+  API.delete(`/delivery-order/delete/${id}`);
 //Allot Order to the Delivery boy
 export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
-  API.post(`/complete-order/allot-delivery/${orderId}`, {
+  API.post(`/delivery-order/allot-delivery/${orderId}`, {
     deliveryBoyId,
   });
 
@@ -395,9 +395,9 @@ export const getShiftByEmpl = () => API.get(`/shift/get-shift-with-employee`);
 
 // Delivery API
 // Get All Deliveries
-export const getAllDeliveries = (id) => API.get("/delivery/get-all/" + id);
+export const getAllDeliveries = () => API.get("/delivery/get-all-order");
 // Get Active Delivery
-export const getActiveDelivery = (id) => API.get("/delivery/get-active/" + id);
+export const getActiveDelivery = () => API.get("/delivery/get-active-order");
 // Get Single Delivery
 export const getSingleDelivery = (id) => API.get(`/delivery/get-single/${id}`);
 // Get Completed Delivery

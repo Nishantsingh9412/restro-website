@@ -10,7 +10,7 @@ import {
   useColorModeValue,
   Stack,
 } from "@chakra-ui/react";
-import { postCompleteOrderAction } from "../../../../../redux/action/completeOrder";
+import { postDeliveryOrderAction } from "../../../../../redux/action/deliveryOrder";
 import { resetFormDataAction } from "../../../../../redux/action/stepperFormAction";
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import PropTypes from "prop-types";
@@ -39,13 +39,13 @@ const OrderSummary = ({ goToPreviousStep }) => {
   // Handle order completion
   const handleCompleteOrder = (e) => {
     e.preventDefault();
-    const completeOrderData = {
+    const deliveryOrderData = {
       ...addressData,
       orderItems: cartItems,
       totalPrice: totalAmount,
       created_by: userId,
     };
-    dispatch(postCompleteOrderAction(completeOrderData)).then((res) => {
+    dispatch(postDeliveryOrderAction(deliveryOrderData)).then((res) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());

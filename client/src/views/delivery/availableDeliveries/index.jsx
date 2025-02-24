@@ -1,10 +1,4 @@
-import {
-  Flex,
-  Grid,
-  Heading,
-  Text,
-  Spinner,
-} from "@chakra-ui/react";
+import { Flex, Grid, Heading, Text, Spinner } from "@chakra-ui/react";
 import DeliveryCard from "./components/DeliveryCard";
 import ActiveDelivery from "./components/ActiveDelivery";
 import Swal from "sweetalert2";
@@ -19,6 +13,7 @@ import {
   getActiveDeliveryAction,
   getAllAvailabelDeliveryAction,
 } from "../../../redux/action/delivery";
+import { statuses } from "../../../utils/constant";
 
 export default function AvailableDeliveries() {
   const auth = useSelector((state) => state.admin.data);
@@ -34,10 +29,10 @@ export default function AvailableDeliveries() {
   const localId = localData?.result?._id;
   useEffect(() => {
     Promise.all([
-      dispatch(getAllAvailabelDeliveryAction(localId)),
-      dispatch(getActiveDeliveryAction(localId)),
+      dispatch(getAllAvailabelDeliveryAction()),
+      dispatch(getActiveDeliveryAction()),
     ]).then(() => setLoading(false));
-  }, [dispatch, localId]);
+  }, [dispatch]);
 
   // For Getting Delivery Boy Data End
 
@@ -107,7 +102,7 @@ export default function AvailableDeliveries() {
   };
 
   const handleUpdateStatus = (id, status) => {
-    if (status === "Completed") return handleCompleteDelivery(id);
+    if (status === statuses.COMPLETED) return handleCompleteDelivery(id);
     dispatch(udpateDeliveryStatusAction(id, status, localId || auth?._id));
   };
 

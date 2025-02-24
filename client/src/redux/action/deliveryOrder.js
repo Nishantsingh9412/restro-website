@@ -6,7 +6,6 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     dispatch({ type: actionType, data: data?.result });
     return { success: true, message: successMessage };
   } catch (err) {
-    // console.log(`Error from ${actionType} Action: ${err.message}`, err.stack);
     return {
       success: false,
       message: err?.response?.data?.error,
@@ -37,29 +36,29 @@ export const allotDeliveryBoyAction =
     }
   };
 
-export const postCompleteOrderAction = (orderData) => async (dispatch) => {
+export const postDeliveryOrderAction = (orderData) => async (dispatch) => {
   return handleApiCall(
-    () => api.addCompleteOrderAPI(orderData),
+    () => api.addDeliveryOrderAPI(orderData),
     dispatch,
-    "POST_COMPLETE_ORDER",
+    "POST_DELIVERY_ORDER",
     "Order placed successfully"
   );
 };
 
-export const getCompleteOrderAction = (localstorageId) => async (dispatch) => {
+export const getDeliveryOrderAction = (localstorageId) => async (dispatch) => {
   return handleApiCall(
-    () => api.getAllCompleteOrdersAPI(localstorageId),
+    () => api.getAllDeliveryOrdersAPI(localstorageId),
     dispatch,
-    "GET_COMPLETE_ORDER",
+    "GET_DELIVERY_ORDER",
     "Order fetched successfully"
   );
 };
 
-export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
+export const getSingleDeliveryOrderAction = (id) => async (dispatch) => {
   return handleApiCall(
-    () => api.getSingleCompleteOrderAPI(id),
+    () => api.getSingleDeliveryOrderAPI(id),
     dispatch,
-    "GET_SINGLE_COMPLETE_ORDER",
+    "GET_SINGLE_DELIVERY_ORDER",
     "Order fetched successfully"
   );
 };
@@ -67,18 +66,18 @@ export const getSingleCompleteOrderAction = (id) => async (dispatch) => {
 export const updateCompleteOrderAction =
   (id, orderData) => async (dispatch) => {
     return handleApiCall(
-      () => api.updateSingleCompleteOrderAPI(id, orderData),
+      () => api.updateSingleDeliveryOrderAPI(id, orderData),
       dispatch,
-      "UPDATE_COMPLETE_ORDER",
+      "UPDATE_DELIVERY_ORDER",
       "Order updated successfully"
     );
   };
 
 export const deleteCompleteOrderAction = (id) => async (dispatch) => {
   return handleApiCall(
-    () => api.deleteSingleCompleteOrderAPI(id),
+    () => api.deleteSingleDeliveryOrderAPI(id),
     dispatch,
-    "DELETE_COMPLETE_ORDER",
+    "DELETE_DELIVERY_ORDER",
     "Order deleted successfully"
   );
 };

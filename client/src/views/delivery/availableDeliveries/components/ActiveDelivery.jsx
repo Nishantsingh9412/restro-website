@@ -3,8 +3,7 @@ import { BiSolidPhoneCall } from "react-icons/bi";
 import { FaUserCircle } from "react-icons/fa";
 import DeliveryMap from "./DeliveryMap";
 import { HiExternalLink } from "react-icons/hi";
-import { useEffect, useState } from "react";
-
+import PropTypes from "prop-types";
 export default function ActiveDelivery({
   activeDelivery,
   handleUpdateStatus,
@@ -20,9 +19,9 @@ export default function ActiveDelivery({
       </Text>
       {activeDelivery.deliveryLocation ? (
         <DeliveryMap
-          origin={activeDelivery?.dropLocation}
+          origin={activeDelivery?.pickupLocation}
           destination={activeDelivery?.deliveryLocation}
-          center={activeDelivery?.dropLocation}
+          center={activeDelivery?.pickupLocation}
         />
       ) : (
         <Text my={20} mx={"auto"} width={"fit-content"} p={3} bg={"#eee"}>
@@ -32,8 +31,10 @@ export default function ActiveDelivery({
 
       <a
         href={`https://www.google.com/maps/dir/?api=1&origin=${
-          activeDelivery?.dropLocation?.lat
-        },${activeDelivery?.dropLocation?.lng}&destination=${encodeURIComponent(
+          activeDelivery?.pickupLocation?.lat
+        },${
+          activeDelivery?.pickupLocation?.lng
+        }&destination=${encodeURIComponent(
           `${activeDelivery?.deliveryAddress}`
         )}&travelmode=driving`}
         target="_blank"
@@ -157,4 +158,10 @@ const getNextStatus = (current) => {
   if (current === "Accepted") return "Picked up";
   if (current === "Picked up") return "Completed";
   return "Cancelled";
+};
+
+ActiveDelivery.propTypes = {
+  activeDelivery: PropTypes.object,
+  handleUpdateStatus: PropTypes.func,
+  handleCancel: PropTypes.func,
 };

@@ -68,18 +68,18 @@ export const addDeliveryAction = (newDel) => async (dispatch) => {
   );
 };
 
-export const getAllAvailabelDeliveryAction = (id) => async (dispatch) => {
+export const getAllAvailabelDeliveryAction = () => async (dispatch) => {
   return handleApiCall(
-    () => api.getAllDeliveries(id),
+    () => api.getAllDeliveries(),
     dispatch,
     "GET_ALL_DELIVERY",
     "All Delivery Personnel Fetched Successfully"
   );
 };
 
-export const getActiveDeliveryAction = (id) => async (dispatch) => {
+export const getActiveDeliveryAction = () => async (dispatch) => {
   return handleApiCall(
-    () => api.getActiveDelivery(id),
+    () => api.getActiveDelivery(),
     dispatch,
     "SET_ACTIVE_DELIVERY",
     "Active Delivery Fetched Successfully"

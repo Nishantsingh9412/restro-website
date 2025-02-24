@@ -8,7 +8,7 @@ import OrderItemReducer from "./reducers/orderItems";
 import QRItemsReducer from "./reducers/qrItems";
 import delBoyReducer from "./reducers/delboyReducer";
 import stepperFormReducer from "./reducers/stepperReducer";
-import compOrderReducer from "./reducers/compOrderReducer";
+import deliveryOrderReducer from "./reducers/deliveryOrderReducer";
 import dineInOrderReducer from "./reducers/dineInOrderReducer";
 import dineInStepperReducer from "./reducers/dineInStepperReducer";
 import takeAwayOrderReducer from "./reducers/takeAwayOrderReducer";
@@ -37,7 +37,7 @@ const store = configureStore({
     delBoyReducer,
     deliveryEmpReducer,
     form: stepperFormReducer,
-    compOrder: compOrderReducer,
+    compOrder: deliveryOrderReducer,
     dineInOrder: dineInOrderReducer,
     takeAwayOrder: takeAwayOrderReducer,
     dineInForm: dineInStepperReducer,
