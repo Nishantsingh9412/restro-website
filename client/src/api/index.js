@@ -237,6 +237,9 @@ export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
   API.post(`/delivery-order/allot-delivery/${orderId}`, {
     deliveryBoyId,
   });
+// Get Delivery Employees
+export const getDeliveryBoys = (orderId) =>
+  API.get(`/delivery-order/get-delivery-employees/${orderId}`);
 
 // Dine-In Order Management APIs
 // Add Dine-In Order

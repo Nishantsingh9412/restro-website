@@ -180,9 +180,9 @@ export const getEmployeeById = async (req, res) => {
 // Get online employees by role
 export const getOnlineEmployeesByRole = async (req, res) => {
   try {
-    let { id: userId, role } = req.user;
+    let { id: userId, role, created_by } = req.user;
     const { type } = req.params;
-    userId = role === "admin" ? userId : req.user.created_by;
+    userId = role === "admin" ? userId : created_by;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }

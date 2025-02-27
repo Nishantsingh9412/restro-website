@@ -150,6 +150,7 @@ const OrderHistory = () => {
         isOpen={isDeliveryModalOpen}
         setIsOpen={setIsDeliveryModalOpen}
         onSubmit={handleDeliveryBoyModalSubmit}
+        orderId={selectedOrderId}
       />
       <Box mt="8" px="4">
         <Tabs variant="soft-rounded" colorScheme="blue">

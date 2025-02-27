@@ -6,6 +6,7 @@ import Notification from "../models/notification.js";
 import DeliveryBoyModel from "../models/deliveryBoyModel.js";
 import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
 import { getRestaurantCoordinates } from "./employees/commonController.js";
+import { onlineUsers } from "../server.js";
 
 // Function to get coordinates from address using TomTom API
 const getCoordinates = async (address) => {
@@ -396,5 +397,131 @@ export const deleteDeliveryOrder = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
+const getDistance = async (start, end) => {
+  const url = `https://api.tomtom.com/routing/1/calculateRoute/${start.lat},${start.lng}:${end.lat},${end.lng}/json?key=${process.env.TOMTOM_API_KEY}`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data.routes[0].summary.lengthInMeters / 1000; // Convert to km
+  } catch (error) {
+    console.error("Error calculating distance:", error);
+    return Infinity;
+  }
+};
+
+// Function to get the nearest drop location for a delivery boy
+const getNearestDropLocation = async (deliveryBoyId, orderDropLocation) => {
+  const assignedOrders = await Delivery.find({
+    assignedTo: deliveryBoyId,
+    // currentStatus: { $in: ["Accepted", "Picked up"] },
+  });
+
+  if (assignedOrders.length === 0) return null;
+
+  let nearestLocation = null;
+  let minDistance = Infinity;
+
+  for (const order of assignedOrders) {
+    const distance = await getDistance(
+      order.deliveryLocation,
+      orderDropLocation
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearestLocation = order.deliveryLocation;
+    }
+  }
+
+  return nearestLocation
+    ? { location: nearestLocation, distance: minDistance }
+    : null;
+};
+
+// Function to get sorted delivery boys based on distance to current order's drop location
+const getSortedDeliveryBoys = async (orderDropLocation, supplier) => {
+  try {
+    const onlineEmployees = Array.from(onlineUsers.keys());
+    const availableDeliveryBoys = await DeliveryBoyModel.find({
+      _id: { $in: onlineEmployees },
+      is_online: true,
+      created_by: supplier,
+    });
+    if (availableDeliveryBoys.length === 0) {
+      throw new Error("No available delivery boys");
+    }
+
+    const deliveryBoyDistances = await Promise.all(
+      availableDeliveryBoys.map(async (boy) => {
+        const nearestDrop = await getNearestDropLocation(
+          boy._id,
+          orderDropLocation
+        );
+        const location = nearestDrop ? nearestDrop.location : boy.lastLocation;
+        const distance = nearestDrop
+          ? nearestDrop.distance
+          : await getDistance(boy.lastLocation, orderDropLocation);
+
+        if (!location || !location.lat || !location.lng) return null;
+
+        return { ...boy.toObject(), distance };
+      })
+    );
+
+    const sortedDeliveryBoys = deliveryBoyDistances
+      .filter((boy) => boy !== null)
+      .sort((a, b) => a.distance - b.distance);
+
+    return sortedDeliveryBoys;
+  } catch (error) {
+    console.error("Error getting sorted delivery boys:", error);
+    throw error;
+  }
+};
+
+// Express route to get sorted delivery boys
+export const getOnlineDeliveryBoys = async (req, res) => {
+  const { orderId } = req.params;
+  const { id, role, created_by } = req.user;
+  const supplier = role === "admin" ? id : created_by;
+  // const { dropLocation } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ success: false, message: "Invalid Id" });
+  }
+
+  if (orderId === undefined) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Order Id is required" });
+  }
+
+  // get order details
+  const order = await DeliveryOrder.findOne({ orderId: orderId }).select(
+    "dropLocation"
+  );
+  if (!order) {
+    return res.status(404).json({ success: false, message: "Order not found" });
+  }
+  const dropLocation = order.dropLocation;
+  console.log(dropLocation);
+  try {
+    const sortedDeliveryBoys = await getSortedDeliveryBoys(
+      dropLocation,
+      supplier
+    );
+    res.status(200).json({
+      success: true,
+      message:
+        "Delivery Boys sorted based on distance to drop location fetched successfully",
+      result: sortedDeliveryBoys,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to get delivery boys", error: error.message });
   }
 };

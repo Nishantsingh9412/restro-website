@@ -6,6 +6,7 @@ import {
   updateDeliveryOrder,
   deleteDeliveryOrder,
   allotOrderDelivery,
+  getOnlineDeliveryBoys,
 } from "../controllers/deliveryOrderController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -16,6 +17,13 @@ router.post("/create-order", delOrderAccess, createDeliveryOrder);
 
 // allot order to delivery boy
 router.post("/allot-delivery/:id", delOrderAccess, allotOrderDelivery);
+
+// get online delivery employees
+router.get(
+  "/get-delivery-employees/:orderId",
+  delOrderAccess,
+  getOnlineDeliveryBoys
+);
 
 // get all complete orders
 router.get("/get-all-delivery-orders", delOrderAccess, getDeliveryOrders);

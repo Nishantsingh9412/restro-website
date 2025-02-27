@@ -12,15 +12,19 @@ import {
   Center,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { getOnlineEmployeesByRole } from "../../../../api/index"; // Update the API function accordingly
+import { getDeliveryBoys } from "../../../../api/index"; // Update the API function accordingly
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
 import { useToast } from "../../../../contexts/ToastContext";
 
-export default function AllotDeliveryModal({ isOpen, setIsOpen, onSubmit }) {
+export default function AllotDeliveryModal({
+  isOpen,
+  setIsOpen,
+  onSubmit,
+  orderId,
+}) {
   const showToast = useToast();
-
   const [personnels, setPersonnels] = useState([]);
   const [selected, setSelected] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +50,7 @@ export default function AllotDeliveryModal({ isOpen, setIsOpen, onSubmit }) {
     const getPersonnels = async () => {
       try {
         setIsLoading(true);
-        const res = await getOnlineEmployeesByRole("Delivery Boy");
+        const res = await getDeliveryBoys(orderId);
         setPersonnels(res?.data?.result.length ? res.data.result : []);
       } catch (err) {
         showToast(err?.response?.data?.error, "error");
@@ -60,7 +64,7 @@ export default function AllotDeliveryModal({ isOpen, setIsOpen, onSubmit }) {
       getPersonnels();
     }
     setSelected([]);
-  }, [isOpen, showToast]);
+  }, [isOpen, orderId, showToast]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
@@ -98,7 +102,7 @@ export default function AllotDeliveryModal({ isOpen, setIsOpen, onSubmit }) {
                     {p.name}
                   </Button>
                   <Text color={selected.includes(p._id) ? "green" : "#ccc"}>
-                    Completed: {p.completedCount}
+                    Distance: {p?.distance?.toFixed(1)} KM
                   </Text>
                 </Flex>
               ))}
@@ -147,4 +151,5 @@ AllotDeliveryModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   setIsOpen: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  orderId: PropTypes.string,
 };

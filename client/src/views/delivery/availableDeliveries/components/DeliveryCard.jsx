@@ -3,6 +3,7 @@ import { GrRestaurant } from "react-icons/gr";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
 import { LuMoveRight } from "react-icons/lu";
+import { PropTypes } from "prop-types";
 
 export default function DeliveryCard({
   data,
@@ -92,3 +93,10 @@ export default function DeliveryCard({
     </Box>
   );
 }
+
+DeliveryCard.propTypes = {
+  data: PropTypes.object,
+  handleAccept: PropTypes.func,
+  handleReject: PropTypes.func,
+  disabled: PropTypes.Boolean,
+};
