@@ -9,6 +9,7 @@ import {
   updateDeliveryPersonnelOnlineStatus,
   updateDeliveryBoyOdometerReading,
   getOnlineDeliveryPersonnelsBySupplier,
+  toggleDeliveryBoyAvailability,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
@@ -21,6 +22,7 @@ router.get(
   accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
   getOnlineDeliveryPersonnelsBySupplier
 );
+router.patch("/toggle-availability/:id", toggleDeliveryBoyAvailability);
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);
 router.patch("/change-online-status/:id", updateDeliveryPersonnelOnlineStatus);

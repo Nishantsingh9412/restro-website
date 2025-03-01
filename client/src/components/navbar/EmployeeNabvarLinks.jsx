@@ -21,7 +21,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../redux/action/auth.js";
@@ -32,6 +32,7 @@ import {
 } from "../../redux/action/Employees/employee.js";
 import { socket } from "../../api/socket";
 import { clearEmpData } from "../../redux/action/user.js";
+import PropTypes from "prop-types";
 // Modal component for displaying different modals
 const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
@@ -43,6 +44,14 @@ const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
     </ModalContent>
   </Modal>
 );
+
+ModalComponent.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  body: PropTypes.node.isRequired,
+  footer: PropTypes.node.isRequired,
+};
 
 export default function EmployeeNavbarLinks() {
   const menuBg = useColorModeValue("white", "navy.800");
@@ -99,11 +108,11 @@ export default function EmployeeNavbarLinks() {
     });
   };
   //generate random  latitude and longitude
-  const randomLocation = () => {
-    const latitude = (Math.random() * (25.1 - 25) + 25).toFixed(7);
-    const longitude = (Math.random() * (85.2 - 85) + 85).toFixed(7);
-    return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
-  };
+  // const randomLocation = () => {
+  //   const latitude = (Math.random() * (25.1 - 25) + 25).toFixed(7);
+  //   const longitude = (Math.random() * (85.2 - 85) + 85).toFixed(7);
+  //   return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+  // };
 
   // Send live location to server
   // Function to send live location to the server

@@ -98,18 +98,7 @@ export const createDeliveryOrder = async (req, res) => {
     const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
       1000000 + Math.random() * 9000000
     )}-${Math.floor(1000000 + Math.random() * 9000000)}`;
-    
-    //TODO: remove this section
-    // Get coordinates for the address
-    // const coords = await getCoordinates(
-    //   [address, address2, city, state, "IN", zip].filter(Boolean).join(", ")
-    // );
-    // if (!coords?.lat || !coords?.lng)
-    //   return res
-    //     .status(500)
-    //     .json({ success: false, message: "Error fetching location" });
 
-    // get coordinates for the pickup location
     const pickupLocation = await getRestaurantCoordinates(supplier);
     // Create new complete order
     const newDeliveryOrder = await DeliveryOrder.create({
@@ -217,12 +206,6 @@ export const allotOrderDelivery = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Order not found" });
     }
-    //TODO: remove this section
-    // const foundSupplier = await Admin.findById(supplier);
-    // if (!foundSupplier)
-    //   return res
-    //     .status(404)
-    //     .json({ success: false, message: "Supplier not found" });
 
     // Get route info from pickup to delivery location
     const pickupLocation = {
@@ -236,7 +219,6 @@ export const allotOrderDelivery = async (req, res) => {
         .json({ success: false, message: "Error fetching route info" });
     }
 
-    //TODO: Add default country to the address
     const defaultCountry = "Germany";
 
     const delivery = await Delivery.create({
@@ -400,7 +382,6 @@ export const deleteDeliveryOrder = async (req, res) => {
   }
 };
 
-
 const getDistance = async (start, end) => {
   const url = `https://api.tomtom.com/routing/1/calculateRoute/${start.lat},${start.lng}:${end.lat},${end.lng}/json?key=${process.env.TOMTOM_API_KEY}`;
 
@@ -449,6 +430,7 @@ const getSortedDeliveryBoys = async (orderDropLocation, supplier) => {
       _id: { $in: onlineEmployees },
       is_online: true,
       created_by: supplier,
+      status: "AVAILABLE",
     });
     if (availableDeliveryBoys.length === 0) {
       throw new Error("No available delivery boys");
@@ -507,7 +489,6 @@ export const getOnlineDeliveryBoys = async (req, res) => {
     return res.status(404).json({ success: false, message: "Order not found" });
   }
   const dropLocation = order.dropLocation;
-  console.log(dropLocation);
   try {
     const sortedDeliveryBoys = await getSortedDeliveryBoys(
       dropLocation,

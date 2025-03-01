@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import Delivery from "../models/delivery.js";
-import deliveryPersonnel from "../models/deliveryPersonnel.js";
 import notification from "../models/notification.js";
 import { hideDeliveryOffer, notifyUser } from "../utils/socket.js";
 // import authDeliv from "../models/authDeliv.js";
@@ -203,7 +202,7 @@ export const actionsOnDelivery = async (req, res) => {
   }
 
   try {
-    const delPer = await deliveryPersonnel.findById(userId).select("name");
+    // const delPer = await deliveryPersonnel.findById(userId).select("name");
     if (!delPer) {
       return sendErrorResponse(res, 404, "Delivery Personnel not found");
     }

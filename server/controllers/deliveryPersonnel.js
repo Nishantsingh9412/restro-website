@@ -173,7 +173,7 @@ export const getDeliveryPersonnels = async (req, res) => {
 // Update a delivery personnel
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-   
+
   if (!mongoose.Types.ObjectId.isValid(_id))
     return res.status(404).send("No Delivery Personnel with that id");
   if (!req.body)
@@ -289,6 +289,36 @@ export const updateDeliveryBoyOdometerReading = async (req, res) => {
     // Update delivery personnel's odometer reading and photo
     delBoy.odometer_reading = odometer_reading;
     delBoy.odometer_photo = odometer_photo;
+    await delBoy.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Updated",
+      result: delBoy,
+    });
+  } catch (err) {
+    handleError(res, err, "Delivery Personnel not updated");
+  }
+};
+
+// Toggle delivery boy availability status
+export const toggleDeliveryBoyAvailability = async (req, res) => {
+  try {
+    const id = req.user.id;
+    // Validate the delivery personnel ID
+    if (!validateObjectId(id, res, "Delivery Personnel")) return;
+
+    // Find the delivery personnel by ID
+    const delBoy = await deliveryBoy.findById(id);
+
+    if (!delBoy) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery Personnel not found" });
+    }
+
+    // Toggle the delivery personnel's availability status
+    delBoy.status = delBoy.status === "AVAILABLE" ? "ON_DELIVERY" : "AVAILABLE";
     await delBoy.save();
 
     res.status(200).json({
