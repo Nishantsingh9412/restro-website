@@ -1,7 +1,6 @@
 import { Flex, Grid, Heading, Text, Spinner } from "@chakra-ui/react";
 import DeliveryCard from "./components/DeliveryCard";
 import ActiveDelivery from "./components/ActiveDelivery";
-import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
@@ -14,8 +13,12 @@ import {
   getAllAvailabelDeliveryAction,
 } from "../../../redux/action/delivery";
 import { statuses } from "../../../utils/constant";
+import TestNavigation from "./components/Test";
+import { Dialog_Boxes } from "../../../utils/constant";
+import { useToast } from "../../../contexts/ToastContext";
 
 export default function AvailableDeliveries() {
+  const toast = useToast();
   const auth = useSelector((state) => state.admin.data);
   const availableDeliveries = useSelector(
     (state) => state.deliveryReducer.deliveries || []
@@ -34,70 +37,13 @@ export default function AvailableDeliveries() {
     ]).then(() => setLoading(false));
   }, [dispatch]);
 
-  // For Getting Delivery Boy Data End
-
-  const showAcceptConfirmation = () =>
-    Swal.fire({
-      title: "Delivery Accepted",
-      text: "Complete the order to get more delivery offers",
-      icon: "success",
-      confirmButtonColor: "skyblue",
-      timer: 2500,
-      timerProgressBar: true,
-    });
-
-  const showStatusChangeConfirm = (id, status) =>
-    Swal.fire({
-      title: "Change Status to " + status,
-      text: `Confirm that you have ${status.toLowerCase()} the order`,
-      icon: "success",
-      confirmButtonColor: "green",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleUpdateStatus(id, status);
-    });
-
-  const showDeliveryCompleted = () =>
-    Swal.fire({
-      title: "Delivery Completed",
-      text: "You can earn more, get more deliveries",
-      icon: "success",
-      confirmButtonColor: "skyblue",
-    });
-
-  const showRejectConfirmation = (id) =>
-    Swal.fire({
-      title: "Reject delivery offer?",
-      text: "Are you sure you want to reject this offer?",
-      icon: "question",
-      confirmButtonColor: "red",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleReject(id);
-    });
-
-  const showCancelConfirmation = (id) =>
-    Swal.fire({
-      title: "Cancel delivery in progress?",
-      text: "Are you sure you want to cancel this delivery?",
-      icon: "warning",
-      confirmButtonColor: "red",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleCancel(id);
-    });
-
   const handleReject = (id) => {
-    console.log(id);
     dispatch(deleteSingleDeliveryAction(id));
   };
 
   const handleCompleteDelivery = (id) => {
     dispatch(completeDeliveryAction(id, localId || auth?._id)).then(() =>
-      showDeliveryCompleted()
+      Dialog_Boxes.showOrderCompleted()
     );
   };
 
@@ -108,7 +54,7 @@ export default function AvailableDeliveries() {
 
   const handleAccept = (id) => {
     dispatch(acceptDeliveryAction(id, localId || auth?._id)).then(() =>
-      showAcceptConfirmation()
+      toast("Order Accepted", "success")
     );
   };
 
@@ -126,14 +72,19 @@ export default function AvailableDeliveries() {
     return (
       <ActiveDelivery
         activeDelivery={activeDelivery}
-        handleCancel={showCancelConfirmation}
-        handleUpdateStatus={showStatusChangeConfirm}
+        handleCancel={(id) =>
+          Dialog_Boxes.showCancelConfirmation(id, handleCancel)
+        }
+        handleUpdateStatus={(id, message) =>
+          Dialog_Boxes.showStatusChangeConfirm(id, message, handleUpdateStatus)
+        }
       />
     );
   else
     return (
       <>
-        <Heading mt={20} mb={5} fontSize={20}>
+        <TestNavigation />
+        <Heading mt={10} mb={5} fontSize={20}>
           Available Deliveries
         </Heading>
         {availableDeliveries.length === 0 ? (
@@ -159,8 +110,12 @@ export default function AvailableDeliveries() {
               <DeliveryCard
                 data={delivery}
                 key={i}
-                handleAccept={handleAccept}
-                handleReject={showRejectConfirmation}
+                handleAccept={(id) => {
+                  Dialog_Boxes.showAcceptConfirmation(id, handleAccept);
+                }}
+                handleReject={(id) =>
+                  Dialog_Boxes.showRejectConfirmation(id, handleReject)
+                }
                 disabled={activeDelivery ? true : false}
               />
             ))}
