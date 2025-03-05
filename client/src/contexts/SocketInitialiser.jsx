@@ -2,7 +2,7 @@ import { socket } from "../api/socket"; // Import socket manager
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setDeliveryBoyLocation } from "../redux/action/location";
-import { useToast } from "./ToastContext";
+import { useToast } from "./useToast";
 import {
   addDineInOrderToChef,
   addTakeAwayOrder,
@@ -15,7 +15,6 @@ export default function SocketInitializer() {
 
   useEffect(() => {
     const handleNotification = (data) => {
-      console.log(data);
       toast(data?.heading, "success");
       dispatch({ type: "ADD_NOTIFICATION", data });
     };

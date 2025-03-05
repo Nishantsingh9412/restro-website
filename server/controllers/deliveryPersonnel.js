@@ -318,7 +318,8 @@ export const toggleDeliveryBoyAvailability = async (req, res) => {
     }
 
     // Toggle the delivery personnel's availability status
-    delBoy.status = delBoy.status === "AVAILABLE" ? "ON_DELIVERY" : "AVAILABLE";
+    delBoy.status =
+      delBoy.status === "AVAILABLE" ? "OUT_FOR_DELIVERY" : "AVAILABLE";
     await delBoy.save();
 
     res.status(200).json({
@@ -327,6 +328,7 @@ export const toggleDeliveryBoyAvailability = async (req, res) => {
       result: delBoy,
     });
   } catch (err) {
+    console.error("Error from toggleDeliveryBoyAvailability Controller:", err);
     handleError(res, err, "Delivery Personnel not updated");
   }
 };

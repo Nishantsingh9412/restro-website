@@ -7,7 +7,10 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     return { success: true, message: successMessage };
   } catch (err) {
     // console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
-    return { success: false, message:err.response.data.error || "something went wrong" };
+    return {
+      success: false,
+      message: err.response.data.error || "something went wrong",
+    };
   }
 };
 
@@ -25,34 +28,30 @@ export const acceptDeliveryAction =
     );
   };
 
-export const cancelDeliveryAction =
-  (deliveryId, userId) => async (dispatch) => {
-    return handleApiCall(
-      () =>
-        api.updateDeliveryStatus(deliveryId, { status: "Canceled", userId }),
-      dispatch,
-      "CANCEL_DELIVERY",
-      "Delivery canceled successfully"
-    );
-  };
+export const cancelDeliveryAction = (deliveryId) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryStatus(deliveryId, { status: "Cancelled" }),
+    dispatch,
+    "CANCEL_DELIVERY",
+    "Delivery canceled successfully"
+  );
+};
 
-export const completeDeliveryAction =
-  (deliveryId, userId) => async (dispatch) => {
-    return handleApiCall(
-      () =>
-        api.updateDeliveryStatus(deliveryId, { status: "Completed", userId }),
-      dispatch,
-      "COMPLETE_DELIVERY",
-      "Delivery completed successfully"
-    );
-  };
+export const completeDeliveryAction = (deliveryId) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryStatus(deliveryId, { status: "Delivered" }),
+    dispatch,
+    "COMPLETE_DELIVERY",
+    "Delivery completed successfully"
+  );
+};
 
 export const udpateDeliveryStatusAction =
-  (deliveryId, status, userId) => async (dispatch) => {
+  (deliveryId, status) => async (dispatch) => {
     return handleApiCall(
-      () => api.updateDeliveryStatus(deliveryId, { userId, status }),
+      () => api.updateDeliveryStatus(deliveryId, { status }),
       dispatch,
-      status === "Completed"
+      status === "Delivered"
         ? "ADD_COMPLETED_DELIVERY"
         : "UPDATE_DELIVERY_STATUS",
       "Delivery status updated successfully"

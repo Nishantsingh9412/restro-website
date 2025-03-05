@@ -2,11 +2,15 @@ import Swal from "sweetalert2";
 
 const statuses = {
   ACCEPTED: "Accepted",
+  AVAILABLE: "Available",
   ASSIGNED: "Assigned",
   ASSIGNED_TO_CHEF: "Assigned To Chef",
   ACCEPTED_BY_CHEF: "Accepted By Chef",
   COMPLETED: "Completed",
   PREPARING: "Preparing",
+  PICKED_UP: "Picked Up",
+  OUT_FOR_DELIVERY: "Out For Delivery",
+  DELIVERED: "Delivered",
   PENDING: "Pending",
   CANCELLED: "Cancelled",
   REJECTED: "Rejected",

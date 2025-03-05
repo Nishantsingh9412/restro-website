@@ -45,7 +45,7 @@ import BarCodePrinter from "./components/BarCodePrinter";
 import BarcodeScanner from "./components/BarCodeScan";
 import ItemUseModal from "./components/ItemUseModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../contexts/useToast";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -249,7 +249,7 @@ export default function ItemManagement() {
     setItemDataArray(ItemData);
   }, [ItemData]);
 
-  if(!isPermitted){
+  if (!isPermitted) {
     return <ForbiddenPage isPermitted={isPermitted} />;
   }
 

@@ -11,7 +11,7 @@ import theme from "./theme/theme";
 import store from "./redux/store";
 import AdminLayout from "./layouts/admin";
 import AuthLayout from "./layouts/auth";
-import DeliveryLayout from "./layouts/delivery";
+// import DeliveryLayout from "./layouts/delivery";
 import EmployeeLayout from "./layouts/employee";
 import RtlLayout from "./layouts/rtl";
 import SignIn from "./views/auth/signIn";

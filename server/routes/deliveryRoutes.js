@@ -14,7 +14,6 @@ import {
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-
 router.get("/get-all-order", accessMiddleware(), getAllDelivery);
 router.get("/get-active-order", accessMiddleware(), getActiveDelivery);
 router.get("/get-completed", accessMiddleware(), getCompletedDeliveries);

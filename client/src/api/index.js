@@ -216,6 +216,13 @@ export const updateDeliveryPersonnelStatus = (id, updatedData) =>
 export const deleteSingleDeliveryPersonnel = (id) =>
   API.delete(`/delivery-person/delete-single/${id}`);
 
+// Update Odometer Reading
+export const updateOdometerReading = (updatedData) =>
+  API.put(`/delivery-person/update-odometer`, updatedData);
+
+// Toggle Delivery Personnel Availability
+export const toggleDeliveryPersonnelAvailability = () =>
+  API.patch(`/delivery-person/toggle-availability`);
 // delivery Order Management APIs
 // Add delivery Order
 export const addDeliveryOrderAPI = (newOrder) =>
@@ -419,31 +426,28 @@ export const cancelDelivery = (id) => API.post(`/delivery/cancel/${id}`);
 // Delete Delivery
 export const deleteSingleDelivery = (id) =>
   API.delete(`/delivery/delete-single/${id}`);
+// Delivery Dashboard API
+export const getDeliveryDashboardData = () =>
+  API.get(`/delivery-dashboard/get-dashboard-data`);
 
 // Map API
 export const getDirections = async (options) => await axios.request(options);
 
 // Notificaiton API
 export const getAllNotifications = () => API.get("/notification/get-all");
+
 export const getNotificationsByUser = () =>
   API.get(`/notification/get-emp-notification`);
+
 export const getNotificationByAdmin = () =>
   API.get(`/notification/get-admin-notification`);
 
-// Delivery Dashboard API
-export const getDeliveryDashboardData = (userId) =>
-  API.get(`/delivery-dashboard/get/${userId}`);
-
-// Update Odometer Reading
-export const updateOdometerReading = (updatedData) =>
-  API.put(`/delivery-person/update-odometer`, updatedData);
-
 //Employees
-
 // Waiter
 // Get Waiter Dashboard Data
 export const getWaiterDashboardData = () =>
   API.get("/waiter/get-dashboard-data");
+
 //Get Waiter All Orders
 export const getWaiterAllOrders = () => API.get("/waiter/get-all-orders");
 

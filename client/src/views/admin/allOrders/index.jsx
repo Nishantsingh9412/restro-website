@@ -37,7 +37,7 @@ import DineInDrawer from "./components/DineInDrawer";
 import TakeawayDrawer from "./components/TakeAwayDrawer";
 import RestaurantModal from "../../../components/restaurant/restaurantModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../contexts/useToast";
 
 export default function AllOrders() {
   // Selector to get the length of all order items

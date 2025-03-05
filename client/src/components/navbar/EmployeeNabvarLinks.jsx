@@ -33,6 +33,9 @@ import {
 import { socket } from "../../api/socket";
 import { clearEmpData } from "../../redux/action/user.js";
 import PropTypes from "prop-types";
+import { employeesRoles } from "../../utils/constant.js";
+import { setCurrentLocation } from "../../redux/action/location.js";
+
 // Modal component for displaying different modals
 const ModalComponent = ({ isOpen, onClose, title, body, footer }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
@@ -101,18 +104,19 @@ export default function EmployeeNavbarLinks() {
 
   // Send location to server
   const sendLocation = (location) => {
+    dispatch(setCurrentLocation(location));
     socket.emit("sendLocation", {
       delEmpId: empData?._id,
       adminId: empData?.created_by,
       location,
     });
   };
-  //generate random  latitude and longitude
-  // const randomLocation = () => {
-  //   const latitude = (Math.random() * (25.1 - 25) + 25).toFixed(7);
-  //   const longitude = (Math.random() * (85.2 - 85) + 85).toFixed(7);
-  //   return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
-  // };
+  // generate random  latitude and longitude
+  const randomLocation = () => {
+    const latitude = 50.9375 + (Math.random() - 0.5) * 0.01;
+    const longitude = 6.9603 + (Math.random() - 0.5) * 0.01;
+    return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+  };
 
   // Send live location to server
   // Function to send live location to the server
@@ -123,11 +127,12 @@ export default function EmployeeNavbarLinks() {
     const updateLocation = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          //TODO: Change to actual location
           // Generate random latitude and longitude for testing purpose
-          // const { latitude, longitude } = randomLocation();
+          const { latitude, longitude } = randomLocation();
 
           // Get the current location coordinates
-          const { latitude, longitude } = position.coords;
+          // const { latitude, longitude } = position.coords;
 
           // Get the last known location
           const lastLocation = location ?? {
@@ -404,7 +409,7 @@ export default function EmployeeNavbarLinks() {
 
   // Handle changes in online status
   useEffect(() => {
-    if (onlineStatus && empData?.role === "Delivery Boy") {
+    if (onlineStatus && empData?.role === employeesRoles.DELIVERY_BOY) {
       sendLiveLocation();
     } else {
       clearInterval(locationInterval);

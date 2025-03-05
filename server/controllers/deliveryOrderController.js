@@ -407,6 +407,7 @@ const getNearestDropLocation = async (deliveryBoyId, orderDropLocation) => {
   let minDistance = Infinity;
 
   for (const order of assignedOrders) {
+    // Get distance between order's delivery location and current order's drop location
     const distance = await getDistance(
       order.deliveryLocation,
       orderDropLocation
@@ -423,9 +424,14 @@ const getNearestDropLocation = async (deliveryBoyId, orderDropLocation) => {
 };
 
 // Function to get sorted delivery boys based on distance to current order's drop location
-const getSortedDeliveryBoys = async (orderDropLocation, supplier) => {
+const getSortedDeliveryBoys = async (
+  pickupLocation,
+  orderDropLocation,
+  supplier
+) => {
   try {
     const onlineEmployees = Array.from(onlineUsers.keys());
+
     const availableDeliveryBoys = await DeliveryBoyModel.find({
       _id: { $in: onlineEmployees },
       is_online: true,
@@ -433,19 +439,21 @@ const getSortedDeliveryBoys = async (orderDropLocation, supplier) => {
       status: "AVAILABLE",
     });
     if (availableDeliveryBoys.length === 0) {
-      throw new Error("No available delivery boys");
+      throw new Error("Delivery boys not available");
     }
 
     const deliveryBoyDistances = await Promise.all(
       availableDeliveryBoys.map(async (boy) => {
+        // Get nearest drop location for the delivery
         const nearestDrop = await getNearestDropLocation(
           boy._id,
           orderDropLocation
         );
-        const location = nearestDrop ? nearestDrop.location : boy.lastLocation;
+        // Get distance between delivery
+        const location = nearestDrop ? nearestDrop.location : pickupLocation;
         const distance = nearestDrop
           ? nearestDrop.distance
-          : await getDistance(boy.lastLocation, orderDropLocation);
+          : await getDistance(pickupLocation, orderDropLocation);
 
         if (!location || !location.lat || !location.lng) return null;
 
@@ -469,7 +477,6 @@ export const getOnlineDeliveryBoys = async (req, res) => {
   const { orderId } = req.params;
   const { id, role, created_by } = req.user;
   const supplier = role === "admin" ? id : created_by;
-  // const { dropLocation } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ success: false, message: "Invalid Id" });
@@ -483,14 +490,18 @@ export const getOnlineDeliveryBoys = async (req, res) => {
 
   // get order details
   const order = await DeliveryOrder.findOne({ orderId: orderId }).select(
-    "dropLocation"
+    "dropLocation pickupLocation"
   );
   if (!order) {
     return res.status(404).json({ success: false, message: "Order not found" });
   }
+  // get delivery details of the order
+  const pickupLocation = order.pickupLocation;
   const dropLocation = order.dropLocation;
+
   try {
     const sortedDeliveryBoys = await getSortedDeliveryBoys(
+      pickupLocation,
       dropLocation,
       supplier
     );
@@ -501,6 +512,7 @@ export const getOnlineDeliveryBoys = async (req, res) => {
       result: sortedDeliveryBoys,
     });
   } catch (error) {
+    console.error("Error getting sorted delivery", error);
     res
       .status(500)
       .json({ message: "Failed to get delivery boys", error: error.message });

@@ -4,13 +4,30 @@ import { FaLocationDot } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
 import { LuMoveRight } from "react-icons/lu";
 import { PropTypes } from "prop-types";
+import { statuses } from "../../../../utils/constant";
 
 export default function DeliveryCard({
   data,
-  handleAccept,
-  handleReject,
+  handleUpdateStatus,
   disabled,
 }) {
+  const getNextStatus = (current) => {
+    switch (current) {
+      case statuses.AVAILABLE:
+        return { status: statuses.PICKED_UP, color: "blue.500" };
+      case statuses.PICKED_UP:
+      case statuses.OUT_FOR_DELIVERY:
+        return { status: statuses.DELIVERED, color: "green.500" };
+      case statuses.DELIVERED:
+        return { status: statuses.COMPLETED, color: "purple.500" };
+      case statuses.CANCELLED:
+        return { status: statuses.AVAILABLE, color: "red.500" };
+      default:
+        return { status: "Completed", color: "gray.500" };
+    }
+  };
+  const nextStatus = getNextStatus(data.currentStatus);
+
   return (
     <Box
       borderRadius={8}
@@ -42,7 +59,6 @@ export default function DeliveryCard({
                 {data.paymentType?.toUpperCase()}
               </Text>
             </Box>
-
             <Box
               width="50px"
               height="50px"
@@ -88,28 +104,23 @@ export default function DeliveryCard({
             <Button
               p={2}
               flex={1}
-              bg="green.500"
-              _hover={{ background: "green.600" }}
+              bg={disabled ? "#ccc" : nextStatus.color}
+              _hover={{
+                background: disabled
+                  ? null
+                  : nextStatus.color.split(".")[0] + ".600",
+              }}
               color="#fff"
               _disabled={{ background: "#ccc", pointerEvents: "none" }}
               disabled={disabled}
-              onClick={() => handleAccept(data._id)}
+              onClick={
+                disabled
+                  ? null
+                  : () => handleUpdateStatus(data._id, nextStatus.status)
+              }
               fontSize={14}
             >
-              Accept
-            </Button>
-            <Button
-              p={2}
-              flex={1}
-              bg="red.500"
-              _hover={{ background: "red.600" }}
-              color="#fff"
-              _disabled={{ background: "#ccc", pointerEvents: "none" }}
-              disabled={disabled}
-              onClick={() => handleReject(data._id)}
-              fontSize={14}
-            >
-              Reject
+              {nextStatus.status}
             </Button>
           </Flex>
         </Flex>
@@ -120,7 +131,6 @@ export default function DeliveryCard({
 
 DeliveryCard.propTypes = {
   data: PropTypes.object,
-  handleAccept: PropTypes.func,
-  handleReject: PropTypes.func,
+  handleUpdateStatus: PropTypes.func,
   disabled: PropTypes.bool,
 };

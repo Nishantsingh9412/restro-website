@@ -16,7 +16,7 @@ import { getDeliveryBoys } from "../../../../api/index"; // Update the API funct
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
-import { useToast } from "../../../../contexts/ToastContext";
+import { useToast } from "../../../../contexts/useToast";
 
 export default function AllotDeliveryModal({
   isOpen,

@@ -10,7 +10,7 @@ import {
 import DeliveryBoyCard from "./components/DeliveryBoyCard";
 import { getDeliveryPersonnelsBySupplier } from "../../../api/index.js";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../contexts/useToast";
 const OrderShipping = () => {
   const [loading, setLoading] = useState(true);
   const [onlineDelEmp, setOnlineDelEmp] = useState([]);
@@ -21,12 +21,12 @@ const OrderShipping = () => {
     try {
       setLoading(true);
       const onlineDelEmpRes = await getDeliveryPersonnelsBySupplier();
-      
+
       setOnlineDelEmp(
         onlineDelEmpRes?.data?.result.length ? onlineDelEmpRes?.data.result : []
       );
     } catch (err) {
-      if(err.status === 403){
+      if (err.status === 403) {
         setIsPermitted(false);
       }
       showToast(err.response.data.error, "error");
@@ -57,7 +57,7 @@ const OrderShipping = () => {
     );
   }
 
-  if(!isPermitted){
+  if (!isPermitted) {
     return <ForbiddenPage isPermitted={isPermitted} />;
   }
 

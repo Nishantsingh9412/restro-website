@@ -22,18 +22,21 @@ router.get(
   accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
   getOnlineDeliveryPersonnelsBySupplier
 );
-router.patch("/toggle-availability/:id", toggleDeliveryBoyAvailability);
-router.post("/create-one", createDeliveryPersonnel);
-router.patch("/update-del-person/:id", updateDeliveryPersonnel);
-router.patch("/change-online-status/:id", updateDeliveryPersonnelOnlineStatus);
-router.get("/get-single/:id", getDeliveryPersonnelSingle);
-router.delete("/delete-single/:id", deleteDeliveryPersonnel);
-
+router.patch(
+  "/toggle-availability",
+  accessMiddleware(),
+  toggleDeliveryBoyAvailability
+);
 router.put(
   "/update-odometer",
   accessMiddleware(),
   upload.single("odometer_photo"),
   updateDeliveryBoyOdometerReading
 );
+router.post("/create-one", createDeliveryPersonnel);
+router.patch("/update-del-person/:id", updateDeliveryPersonnel);
+router.patch("/change-online-status/:id", updateDeliveryPersonnelOnlineStatus);
+router.get("/get-single/:id", getDeliveryPersonnelSingle);
+router.delete("/delete-single/:id", deleteDeliveryPersonnel);
 
 export default router;

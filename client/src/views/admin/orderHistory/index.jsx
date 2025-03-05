@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
 import { useState } from "react";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
-import { useToast } from "../../../contexts/ToastContext.jsx";
+import { useToast } from "../../../contexts/useToast.jsx";
 import { allotDeliveryBoyAction } from "../../../redux/action/deliveryOrder.js";
 import {
   allotDineInOrderToWaiterAction,

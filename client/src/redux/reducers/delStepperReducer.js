@@ -8,12 +8,8 @@ const initialState = {
     lng: NaN,
   },
   dropLocationName: "",
-  // lat: "",
-  // lng: "",
   address: "",
   address2: "",
-  // city: "",
-  // state: "",
   zip: "",
   noteFromCustomer: "",
 };

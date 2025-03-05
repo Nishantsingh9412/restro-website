@@ -20,7 +20,7 @@ import {
 import { ChevronRightIcon, QuestionIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
 import { updateSingleDelBoyAction } from "../../../../redux/action/delboy";
-import { useToast } from "../../../../contexts/ToastContext";
+import { useToast } from "../../../../contexts/useToast";
 
 export default function LiveLocationModal({
   isOpen,

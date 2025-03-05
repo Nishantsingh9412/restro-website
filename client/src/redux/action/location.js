@@ -1,25 +1,39 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    deliveryBoyLocations: []
+  currentLocation: {
+    lat: null,
+    lng: null,
+  },
+  deliveryBoyLocations: [],
 };
 
 const locationSlice = createSlice({
-    name: 'location',
-    initialState,
-    reducers: {
-        setDeliveryBoyLocation: (state, action) => {
-            const { _id, location } = action.payload;
-            const existingIndex = state.deliveryBoyLocations.findIndex(loc => loc._id === _id);
-            if (existingIndex >= 0) {
-                state.deliveryBoyLocations[existingIndex].location = location;
-            } else {
-                state.deliveryBoyLocations.push({ _id, location });
-            }
-        }
-    }
+  name: "location",
+  initialState,
+  reducers: {
+    setDeliveryBoyLocation: (state, action) => {
+      const { _id, location } = action.payload;
+      const existingIndex = state.deliveryBoyLocations.findIndex(
+        (loc) => loc._id === _id
+      );
+      if (existingIndex >= 0) {
+        state.deliveryBoyLocations[existingIndex].location = location;
+      } else {
+        state.deliveryBoyLocations.push({ _id, location });
+      }
+    },
+    setCurrentLocation: (state, action) => {
+      const currentLocation = action.payload;
+      state.currentLocation = {
+        lat: currentLocation.latitude,
+        lng: currentLocation.longitude,
+      };
+    },
+  },
 });
 
-export const { setDeliveryBoyLocation } = locationSlice.actions;
+export const { setDeliveryBoyLocation, setCurrentLocation } =
+  locationSlice.actions;
 
 export default locationSlice.reducer;

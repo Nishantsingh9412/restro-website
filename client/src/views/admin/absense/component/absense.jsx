@@ -14,7 +14,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { AddIcon, StarIcon, EditIcon } from "@chakra-ui/icons";
-import { useToast } from "../../../../contexts/ToastContext";
+import { useToast } from "../../../../contexts/useToast";
 import {
   deleteAbsenceApi,
   getAbsenceByEmpl,

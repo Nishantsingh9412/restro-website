@@ -150,7 +150,7 @@ export const getCompletedDeliveries = async (req, res) => {
   try {
     const completedDeliveries = await Delivery.find({
       assignedTo: userId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
     }).sort({ completedAt: -1 });
 
     return res.status(200).json({
@@ -173,7 +173,7 @@ export const getAllDelivery = async (req, res) => {
   try {
     const allDeliveryItems = await Delivery.find({
       assignedTo: userId,
-      currentStatus: { $ne: "Completed" },
+      currentStatus: { $ne: "Delivered" },
     }).sort({ createdAt: -1 });
 
     if (!allDeliveryItems) {
@@ -300,8 +300,9 @@ export const updateDeliveryItem = async (req, res) => {
 
 // Update delivery status
 export const updateDeliveryStatus = async (req, res) => {
+  const userId = req.user.id;
   const { id: _id } = req.params;
-  const { userId, status } = req.body;
+  const { status } = req.body;
 
   if (!validateId(_id, res, "Invalid Delivery Item ID")) return;
   if (!validateId(userId, res, "Invalid User ID")) return;
@@ -321,7 +322,7 @@ export const updateDeliveryStatus = async (req, res) => {
       {
         $set: {
           currentStatus: status,
-          completedAt: status === "Completed" ? new Date() : null,
+          completedAt: status === "Delivered" ? new Date() : null,
         },
         $push: {
           statusHistory: {

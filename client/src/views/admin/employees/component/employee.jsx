@@ -28,7 +28,7 @@ import { IoPencilOutline } from "react-icons/io5";
 import EmployeeModal from "./employeeModal";
 import { Spinner, Center } from "@chakra-ui/react";
 import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
-import { useToast } from "../../../../contexts/ToastContext";
+import { useToast } from "../../../../contexts/useToast";
 
 export default function EmployeeComponent() {
   const showToast = useToast();
@@ -52,7 +52,7 @@ export default function EmployeeComponent() {
     showToast(res.message, res.success ? "success" : "error");
     if (res.success) setEmployees(res.data);
     else {
-      if(res.status === 403){
+      if (res.status === 403) {
         setIsPermitted(false);
       }
     }
@@ -146,7 +146,7 @@ export default function EmployeeComponent() {
   };
 
   // If user is not permitted to access the page
-  if(!isPermitted){
+  if (!isPermitted) {
     return <ForbiddenPage isPermitted={isPermitted} />;
   }
 

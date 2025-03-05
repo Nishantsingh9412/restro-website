@@ -23,7 +23,7 @@ const deliveryBoySchema = new mongoose.Schema({
   status: {
     type: String,
     default: "AVAILABLE",
-    enum: ["AVAILABLE", "ON_DELIVERY"],
+    enum: ["AVAILABLE", "OUT_FOR_DELIVERY", "ON_BREAK"],
   },
 });
 

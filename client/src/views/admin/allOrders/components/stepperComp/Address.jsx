@@ -15,7 +15,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setFormData } from "../../../../../redux/action/stepperFormAction";
 import MapInput from "../../../../../components/mapInput/MapInput";
-import { useToast } from "../../../../../contexts/ToastContext";
+import { useToast } from "../../../../../contexts/useToast";
 
 const Address = ({ goToNextStep }) => {
   const dispatch = useDispatch();
@@ -64,7 +64,6 @@ const Address = ({ goToNextStep }) => {
 
   const handleAddressSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
     if (!validate()) return;
     dispatch(setFormData({ created_by: userId }));
     goToNextStep();
