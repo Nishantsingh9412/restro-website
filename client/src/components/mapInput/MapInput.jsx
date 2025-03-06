@@ -85,7 +85,6 @@ export default function MapInput({ data, isOpen, onClose }) {
             locationName: data.addresses[0].address.freeformAddress,
           });
         }
-        console.log("utils", utils);
       })
       .catch((error) => {
         console.error("Error fetching reverse geocoding data:", error);
@@ -155,7 +154,6 @@ export default function MapInput({ data, isOpen, onClose }) {
         zip: zip,
       })
     );
-    console.log("Form data updated:", utils);
     onClose();
   };
 
@@ -203,43 +201,6 @@ export default function MapInput({ data, isOpen, onClose }) {
       }
     }, 0);
   }, [isOpen]);
-
-  // // Get user's current location
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const { latitude, longitude } = position.coords;
-
-  //         if (
-  //           latitude >= -90 &&
-  //           latitude <= 90 &&
-  //           longitude >= -180 &&
-  //           longitude <= 180
-  //         ) {
-  //           if (!utils.position[0] || !utils.position[1]) {
-  //             setUtils((prev) => ({
-  //               ...prev,
-  //               position: [latitude, longitude],
-  //             }));
-
-  //             if (markerRef.current) {
-  //               markerRef.current.setLngLat([longitude, latitude]);
-  //               mapRef.current.setCenter([longitude, latitude]);
-  //             }
-  //           }
-  //         } else {
-  //           console.error("Geolocation coordinates out of range");
-  //         }
-  //       },
-  //       (error) => {
-  //         console.error("Error getting current position:", error);
-  //       }
-  //     );
-  //   } else {
-  //     console.error("Geolocation is not supported by this browser.");
-  //   }
-  // }, []);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="medium">

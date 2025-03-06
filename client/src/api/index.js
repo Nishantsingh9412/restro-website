@@ -244,6 +244,12 @@ export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
   API.post(`/delivery-order/allot-delivery/${orderId}`, {
     deliveryBoyId,
   });
+// Send Delivery Offer
+export const sendDeliveryOfferAPI = ({id, deliveryBoyIds}) =>
+  API.post(`/delivery-order/send-delivery-offer/${id}`, {
+    deliveryBoyIds,
+  });
+
 // Get Delivery Employees
 export const getDeliveryBoys = (orderId) =>
   API.get(`/delivery-order/get-delivery-employees/${orderId}`);

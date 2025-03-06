@@ -107,6 +107,7 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
         latitude,
         longitude
       );
+      //TODO: Change the condition to 100 meters
       if (distance < 100) {
         return res.status(403).json({
           message:

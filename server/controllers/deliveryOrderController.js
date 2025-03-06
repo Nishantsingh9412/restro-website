@@ -4,9 +4,15 @@ import DeliveryOrder from "../models/deliveryOrder.js";
 import Delivery from "../models/delivery.js";
 import Notification from "../models/notification.js";
 import DeliveryBoyModel from "../models/deliveryBoyModel.js";
-import { notifyUser, sendDeliveryOffer } from "../utils/socket.js";
+import {
+  acceptedDeliveryOffer,
+  notifyUser,
+  sendDeliveryOffer,
+  sendDeliveryOffers,
+} from "../utils/socket.js";
 import { getRestaurantCoordinates } from "./employees/commonController.js";
 import { onlineUsers } from "../server.js";
+const defaultCountry = "Germany";
 
 // Function to get coordinates from address using TomTom API
 const getCoordinates = async (address) => {
@@ -219,8 +225,6 @@ export const allotOrderDelivery = async (req, res) => {
         .json({ success: false, message: "Error fetching route info" });
     }
 
-    const defaultCountry = "Germany";
-
     const delivery = await Delivery.create({
       // supplier,
       // restaurantName: foundSupplier.name,
@@ -398,7 +402,7 @@ const getDistance = async (start, end) => {
 const getNearestDropLocation = async (deliveryBoyId, orderDropLocation) => {
   const assignedOrders = await Delivery.find({
     assignedTo: deliveryBoyId,
-    // currentStatus: { $in: ["Accepted", "Picked up"] },
+    currentStatus: { $in: ["Available", "Picked Up"] },
   });
 
   if (assignedOrders.length === 0) return null;
@@ -512,9 +516,126 @@ export const getOnlineDeliveryBoys = async (req, res) => {
       result: sortedDeliveryBoys,
     });
   } catch (error) {
-    console.error("Error getting sorted delivery", error);
     res
       .status(500)
       .json({ message: "Failed to get delivery boys", error: error.message });
+  }
+};
+
+//Send Delivery Order Offer to All Delivery Employees
+export const sendDeliveryOrderOffer = async (req, res) => {
+  const { id: orderId } = req.params;
+  const { id, role, created_by } = req.user;
+  const { deliveryBoyIds } = req.body;
+  const supplier = role === "admin" ? id : created_by;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ success: false, message: "Invalid Id" });
+  }
+
+  if (orderId === undefined) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Order Id is required" });
+  }
+
+  // get order details
+  const order = await DeliveryOrder.findOne({ orderId: orderId });
+  if (!order) {
+    return res.status(404).json({ success: false, message: "Order not found" });
+  }
+
+  // send delivery order offer to all delivery employees
+  try {
+    await sendDeliveryOffers(deliveryBoyIds, order, supplier);
+    res.status(200).json({
+      success: true,
+      message: "Delivery Order Offer sent to all delivery employees",
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Failed to send Delivery Order Offer",
+    });
+  }
+};
+
+export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
+  try {
+    const { _id: delEmpId, created_by } = delBoy;
+    // Check who send the order, admin or employee
+    const supplier = supplierId === created_by ? supplierId : created_by;
+
+    const delOrder = await DeliveryOrder.findOne({ orderId });
+    if (!delOrder) {
+      return { success: false, message: "Order not found" };
+    }
+
+    // Get route info from pickup to delivery location
+    const pickupLocation = {
+      lat: delOrder.pickupLocation.lat,
+      lng: delOrder.pickupLocation.lng,
+    };
+
+    const routeInfo = await getRouteData(pickupLocation, delOrder.dropLocation);
+    if (routeInfo === null) {
+      return { success: false, message: "Error fetching route info" };
+    }
+    // Atomic operation to ensure only one delivery record is created
+    const delivery = await Delivery.findOneAndUpdate(
+      { orderId }, // Match the orderId
+      {
+        $setOnInsert: {
+          orderId: orderId,
+          assignedTo: delEmpId,
+          pickupLocation: delOrder.pickupLocation,
+          deliveryLocation: delOrder.dropLocation,
+          deliveryAddress: [
+            delOrder.address,
+            delOrder.address2,
+            delOrder.zip,
+            defaultCountry,
+          ]
+            .filter(Boolean)
+            .join(", "),
+          distance: routeInfo?.distance,
+          estimatedTime: routeInfo?.duration,
+          customerName: delOrder.name,
+          customerContact: delOrder.phoneNumber,
+          paymentType: delOrder.paymentMethod,
+          created_by: supplier,
+        },
+      },
+      { upsert: true, new: true } // Insert only if it doesn't exist
+    );
+    console.log("Delivery:", delivery);
+    // If delivery was not created, it means the order was already assigned
+    if (!delivery.assignedTo) {
+      console.log("Order already assigned to another delivery");
+      return {
+        success: false,
+        message: "Order already assigned to another delivery boy",
+      };
+    }
+
+    if (!delivery) {
+      return { success: false, message: "Failed to allot Order Delivery" };
+    } else {
+      console.log("Delivery created successfully");
+      const noti = await Notification.create({
+        sender: supplier,
+        receiver: delEmpId,
+        heading: "Delivery Task Received",
+        body: `You have received a delivery task for order ${orderId}`,
+      });
+      if (noti) {
+        await acceptedDeliveryOffer(noti.sender, orderId, delBoy);
+        await sendDeliveryOffer(noti.receiver, delivery);
+        await notifyUser(noti.receiver, noti);
+      }
+    }
+    return { success: true, message: "Order Allotted" };
+  } catch (error) {
+    console.error("Error accepting order:", error);
   }
 };

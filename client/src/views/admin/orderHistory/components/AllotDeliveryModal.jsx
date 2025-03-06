@@ -17,7 +17,8 @@ import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
 import { useToast } from "../../../../contexts/useToast";
-
+import { Dialog_Boxes } from "../../../../utils/constant";
+import { sendDeliveryOfferAPI } from "../../../../api/index";
 export default function AllotDeliveryModal({
   isOpen,
   setIsOpen,
@@ -42,8 +43,18 @@ export default function AllotDeliveryModal({
     setIsOpen(false);
   };
 
+  const handleSendDelOffer = () => {
+    sendDeliveryOfferAPI({ id: orderId, deliveryBoyIds: selected }).then(() => {
+      showToast("Delivery offer sent", "success");
+    });
+  };
+
   const handleSelectAll = () => {
-    setSelected(personnels.map((p) => p._id));
+    if (selected.length === personnels.length) {
+      setSelected([]);
+    } else {
+      setSelected(personnels.map((p) => p._id));
+    }
   };
 
   useEffect(() => {
@@ -54,7 +65,6 @@ export default function AllotDeliveryModal({
         setPersonnels(res?.data?.result.length ? res.data.result : []);
       } catch (err) {
         showToast(err?.response?.data?.error, "error");
-        console.error("Error in getting delivery boys", err.response);
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +80,25 @@ export default function AllotDeliveryModal({
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Allot Delivery Boys</ModalHeader>
+        <ModalHeader>Allot Delivery Boys </ModalHeader>
+        <Button
+          ml={1}
+          variant={"ghost"}
+          position={"absolute"}
+          display={isLoading ? "none" : "block"}
+          top={4}
+          left={48}
+          onClick={handleSelectAll}
+          colorScheme={selected.length === personnels.length ? "green" : "gray"}
+          width={"fit-content"}
+          leftIcon={
+            selected.length === personnels.length ? (
+              <FiCheckCircle />
+            ) : (
+              <FiCircle />
+            )
+          }
+        ></Button>
         <ModalCloseButton />
         <ModalBody>
           {isLoading ? (
@@ -106,6 +134,7 @@ export default function AllotDeliveryModal({
                   </Text>
                 </Flex>
               ))}
+              {/* Add a box to select all the personnels */}
             </Flex>
           ) : (
             <Text
@@ -120,28 +149,40 @@ export default function AllotDeliveryModal({
           )}
         </ModalBody>
 
-        <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            colorScheme="blue"
-            disabled={!selected.length}
-            onClick={handleSubmit}
-            pointerEvents={selected.length ? "auto" : "none"}
-            bg={selected.length ? "blue.500" : "gray.300"}
-          >
-            Allot
-          </Button>
-          <Button
-            colorScheme="teal"
-            ml={3}
-            onClick={handleSelectAll}
-            disabled={!personnels.length}
-          >
-            Allot All
-          </Button>
-        </ModalFooter>
+        {!isLoading && (
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              disabled={!selected.length}
+              onClick={handleSubmit}
+              pointerEvents={selected.length === 1 ? "auto" : "none"}
+              bg={selected.length === 1 ? "blue.500" : "gray.300"}
+            >
+              Allot
+            </Button>
+            <Button
+              colorScheme="teal"
+              ml={3}
+              disabled={selected.length < 2}
+              onClick={() => {
+                setIsOpen(false);
+                Dialog_Boxes.showCustomAlert(
+                  "Send Delivery Offer",
+                  "Are you sure you want to send delivery offer to all delivery",
+                  "center",
+                  handleSendDelOffer
+                );
+              }}
+              pointerEvents={selected.length >= 2 ? "auto" : "none"}
+              bg={selected.length >= 2 ? "teal.500" : "gray.400"}
+            >
+              Allot All
+            </Button>
+          </ModalFooter>
+        )}
       </ModalContent>
     </Modal>
   );

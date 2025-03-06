@@ -34,7 +34,7 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
-import { sendLiveLocation } from "./utils/socket.js";
+import { sendLiveLocation, acceptOfferOrder } from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -141,10 +141,10 @@ io.on("connection", (socket) => {
   socket.on("heartbeat", (userId) => {
     if (onlineUsers.has(userId)) {
       onlineUsers.get(userId).lastActive = Date.now();
-      console.log(
-        `${onlineUsers.size} users online at ${new Date()}`,
-        Array.from(onlineUsers.keys())
-      );
+      // console.log(
+      //   `${onlineUsers.size} users online at ${new Date()}`,
+      //   Array.from(onlineUsers.keys())
+      // );
     }
   });
 
@@ -153,6 +153,12 @@ io.on("connection", (socket) => {
     console.log("Location received:", data);
     const { delEmpId, adminId, location } = data;
     sendLiveLocation(adminId, delEmpId, location);
+  });
+
+  socket.on("acceptOrder", (data) => {
+    console.log("Order accepted:", data);
+    const { delEmpId, supplierId, orderId } = data;
+    acceptOfferOrder(orderId, delEmpId, supplierId);
   });
 
   // Handle user disconnect

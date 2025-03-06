@@ -8,7 +8,7 @@ import {
   addTakeAwayOrder,
 } from "../redux/action/Employees/chef";
 import { addDineInOrderToWaiter } from "../redux/action/waiter";
-
+import { showDeliveryOffer } from "../redux/action/Employees/deliveryBoy";
 
 export default function SocketInitializer() {
   const dispatch = useDispatch();
@@ -36,6 +36,21 @@ export default function SocketInitializer() {
       dispatch(addDineInOrderToChef(data));
     };
 
+    const handleDeliveryOffer = (data, supplier) => {
+      dispatch(showDeliveryOffer({ data, supplier }));
+    };
+
+    const handleAcceptedDeliveryOffer = (data, orderId) => {
+      const { _id, name } = data;
+      dispatch({
+        type: "ALLOT_DELIVERY_BOY",
+        data: {
+          orderId,
+          assignedTo: { name, _id },
+        },
+      });
+    };
+
     const handleHideDeliveryOffer = (data) => {
       if (user?.result?._id === data?.userId) {
         dispatch({
@@ -57,6 +72,8 @@ export default function SocketInitializer() {
     // Subscribe to socket events
     socket.on("notification", handleNotification);
     socket.on("delivery", handleDelivery);
+    socket.on("deliveryOffer", handleDeliveryOffer);
+    socket.on("acceptedDeliveryOffer", handleAcceptedDeliveryOffer);
     socket.on("hideDeliveryOffer", handleHideDeliveryOffer);
     socket.on("liveLocation", handleLiveLocationUpdate);
     socket.on("takeaway", handleTakeAwayOrder);
@@ -67,6 +84,8 @@ export default function SocketInitializer() {
     return () => {
       socket.off("notification", handleNotification);
       socket.off("delivery", handleDelivery);
+      socket.off("deliveryOffer", handleDeliveryOffer);
+      socket.off("acceptedDeliveryOffer", handleAcceptedDeliveryOffer);
       socket.off("hideDeliveryOffer", handleHideDeliveryOffer);
       socket.off("liveLocation", handleLiveLocationUpdate);
       socket.off("takeaway", handleTakeAwayOrder);

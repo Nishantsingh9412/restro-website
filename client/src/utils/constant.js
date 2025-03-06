@@ -91,6 +91,21 @@ const Dialog_Boxes = {
       confirmButtonColor: "skyblue",
     });
   },
+  showCustomAlert: (title, text, position = "center", handleFunction) => {
+    setTimeout(() => {
+      Swal.fire({
+        title,
+        text,
+        icon: "question",
+        confirmButtonColor: "green",
+        confirmButtonText: "Ok",
+        showCancelButton: true,
+        position,
+      }).then((result) => {
+        if (result.isConfirmed) handleFunction();
+      });
+    }, 300);
+  },
 };
 
 export { statuses, orderTypes, Dialog_Boxes, userTypes, employeesRoles };

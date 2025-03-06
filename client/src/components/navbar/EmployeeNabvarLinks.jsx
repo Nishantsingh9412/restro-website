@@ -113,11 +113,11 @@ export default function EmployeeNavbarLinks() {
     });
   };
   // generate random  latitude and longitude
-  const randomLocation = () => {
-    const latitude = 50.9375 + (Math.random() - 0.5) * 0.01;
-    const longitude = 6.9603 + (Math.random() - 0.5) * 0.01;
-    return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
-  };
+  // const randomLocation = () => {
+  //   const latitude = 50.9375 + (Math.random() - 0.5) * 0.01;
+  //   const longitude = 6.9603 + (Math.random() - 0.5) * 0.01;
+  //   return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+  // };
 
   // Send live location to server
   // Function to send live location to the server
@@ -130,10 +130,10 @@ export default function EmployeeNavbarLinks() {
         (position) => {
           //TODO: Change to actual location
           // Generate random latitude and longitude for testing purpose
-          const { latitude, longitude } = randomLocation();
+          // const { latitude, longitude } = randomLocation();
 
           // Get the current location coordinates
-          // const { latitude, longitude } = position.coords;
+          const { latitude, longitude } = position.coords;
 
           // Get the last known location
           const lastLocation = location ?? {

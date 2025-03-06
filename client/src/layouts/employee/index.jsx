@@ -15,6 +15,7 @@ import {
   bartenderRoutes,
   helperRoutes,
 } from "../../routes.jsx";
+import OrderAcceptModal from "../../components/delivery/OrderAcceptModal.jsx";
 
 export default function EmployeeDashboard(props) {
   const { ...rest } = props;
@@ -143,6 +144,7 @@ export default function EmployeeDashboard(props) {
           fixed={fixed}
           {...rest}
         />
+        <OrderAcceptModal isOpen={true} onClose={() => {}} order={{}} />
 
         <Box mt="130px" p="20px">
           <Outlet />

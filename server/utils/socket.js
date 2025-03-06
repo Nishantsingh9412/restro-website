@@ -1,5 +1,8 @@
 import { io, onlineUsers } from "../server.js";
 import DeliveryBoy from "../models/deliveryBoyModel.js";
+import Delivery from "../models/delivery.js";
+import Notification from "../models/notification.js";
+import { acceptDeliveryOrder } from "../controllers/deliveryOrderController.js";
 // Emits a notification to a specific user
 export const notifyUser = async (id, message) => {
   const user = onlineUsers.get(id);
@@ -19,15 +22,22 @@ export const notifyUsers = async (ids = [], message) => {
 // Sends a delivery offer to a specific user
 export const sendDeliveryOffer = async (id, offer) => {
   const user = onlineUsers.get(id);
+  console.log("User:", user);
   if (user) io.to(user.socketId).emit("delivery", offer);
 };
 
 // Sends delivery offers to multiple users
-export const sendDeliveryOffers = async (ids = [], offer) => {
+export const sendDeliveryOffers = async (ids = [], offer, supplier) => {
   const users = ids.map((id) => onlineUsers.get(id));
   users.forEach((user) => {
-    if (user) io.to(user.socketId).emit("delivery", offer);
+    if (user) io.to(user.socketId).emit("deliveryOffer", offer, supplier);
   });
+};
+
+export const acceptedDeliveryOffer = async (id, orderId, data) => {
+  const user = onlineUsers.get(id);
+  console.log("User:", user);
+  if (user) io.to(user.socketId).emit("acceptedDeliveryOffer", data, orderId);
 };
 
 // Send Takeaway order offer to a specific user
@@ -75,5 +85,32 @@ export const sendLiveLocation = async (adminId, delEmpId, locationData) => {
     }
   } catch (error) {
     console.error("Error sending live location:", error);
+  }
+};
+
+// Accepts a delivery order and notifies the supplier
+export const acceptOfferOrder = async (orderId, delEmpId, supplierId) => {
+  try {
+    const order = await Delivery.findOne({ orderId });
+    if (order) return; // If order is already accepted, return
+
+    const delBoy = await DeliveryBoy.findById(delEmpId);
+    if (!delBoy) return; // If delivery boy not found, return
+
+    const delOrder = await acceptDeliveryOrder(orderId, delBoy, supplierId);
+    if (!delOrder) return; // If order not created or accepted, return
+
+    const notification = await Notification.create({
+      sender: delEmpId,
+      receiver: supplierId,
+      heading: `Order Accepted By ${delBoy.name}`,
+      body: `Delivery boy ${delBoy.name} accepted the order ${orderId}`,
+    });
+
+    if (notification) {
+      await notifyUser(notification.receiver, notification); // Notify the supplier
+    }
+  } catch (error) {
+    console.error("Error accepting order:", error);
   }
 };
