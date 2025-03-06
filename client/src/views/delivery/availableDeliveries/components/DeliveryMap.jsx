@@ -23,6 +23,7 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const currentMarker = useRef(null);
+  const dropMarkers = useRef({});
 
   const initializeMap = () => {
     const map = tt.map({
@@ -33,6 +34,8 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
     });
 
     mapInstance.current = map;
+
+    map.on("load", updateMap);
   };
 
   const generateRandomColor = () => {
@@ -66,10 +69,21 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
     const icon = text.includes("Pickup")
       ? pickupMarkerElement
       : dropMarkerElement;
-    new tt.Marker({ element: icon })
+    const marker = new tt.Marker({ element: icon })
       .setLngLat([position.lng, position.lat])
       .setPopup(new tt.Popup().setHTML(text))
       .addTo(map);
+
+    dropMarkers.current[position.orderId] = marker;
+  };
+  
+  const removeUnusedMarkers = (activeOrderIds) => {
+    Object.keys(dropMarkers.current).forEach((orderId) => {
+      if (!activeOrderIds.includes(orderId)) {
+        dropMarkers.current[orderId].remove();
+        delete dropMarkers.current[orderId];
+      }
+    });
   };
 
   const drawRoute = async (map, start, end, color) => {
@@ -128,12 +142,28 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
 
     const map = mapInstance.current;
 
+    if (!map || !map.getStyle() || !map.getStyle().layers) return;
+
     addMarker(map, pickupLocation, "Pickup Location", "#FFA500");
 
     dropPoints.forEach((point) => {
       const color = generateRandomColor();
-      addMarker(map, point, `Drop Point (Order ID: ${point.orderId})`, color);
+      if (!dropMarkers.current[point.orderId]) {
+        addMarker(map, point, `Drop Point (Order ID: ${point.orderId})`, color);
+      }
       drawRoute(map, currentLocation ?? pickupLocation, point, color);
+    });
+
+    // Remove any existing routes that are no longer needed
+    const routeIds = dropPoints.map((point) => `route-${point.orderId}`);
+    const activeOrderIds = dropPoints.map((point) => point.orderId);
+    removeUnusedMarkers(activeOrderIds);
+    const mapLayers = map.getStyle().layers || [];
+    mapLayers.forEach((layer) => {
+      if (layer.id.includes("route-") && !routeIds.includes(layer.id)) {
+        map.removeLayer(layer.id);
+        map.removeSource(layer.id);
+      }
     });
   };
 
@@ -149,9 +179,9 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
 
     if (!mapInstance.current) {
       initializeMap();
+    } else if (mapInstance.current?.loaded()) {
+      updateMap();
     }
-
-    updateMap();
   }, [pickupLocation, dropPoints, currentLocation]);
 
   useEffect(() => {

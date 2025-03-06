@@ -18,14 +18,16 @@ export default function AvailableDeliveries() {
   const [allPickedUp, setAllPickedUp] = useState(false);
   const [pickupLocation, setPickupLocation] = useState(null);
   const [dropLocations, setDropLocations] = useState([]);
+  const delBoy = useSelector((state) => state.userReducer.data);
   const currentLocation = useSelector((state) => {
-    const { lat, lng } = state.location.currentLocation || {};
-    return lat && lng ? { lat, lng } : delBoy?.lastLocation || pickupLocation;
+    const location = state.location.currentLocation;
+    return location?.lat && location?.lng
+      ? location
+      : delBoy?.lastLocation || pickupLocation;
   });
   const availableDeliveries = useSelector(
     (state) => state.deliveryReducer.deliveries || []
   );
-  const delBoy = useSelector((state) => state.userReducer.data);
 
   const handleCompleteDelivery = (id) => {
     if (availableDeliveries.length === 1) toggleDeliveryPersonnelAvailability();
@@ -63,16 +65,20 @@ export default function AvailableDeliveries() {
       );
       setAllPickedUp(allPicked);
       setPickupLocation(availableDeliveries[0]?.pickupLocation);
+      const dropLocations = [];
       availableDeliveries.map((delivery) => {
-        setDropLocations((prev) => [
-          ...prev,
-          {
-            lat: delivery.deliveryLocation.lat,
-            lng: delivery.deliveryLocation.lng,
-            orderId: delivery.orderId,
-          },
-        ]);
+        if (
+          delivery?.currentStatus === statuses.PICKED_UP ||
+          delivery?.currentStatus === statuses.OUT_FOR_DELIVERY
+        ) {
+          dropLocations.push({
+            orderId: delivery?.orderId,
+            lat: delivery?.deliveryLocation?.lat,
+            lng: delivery?.deliveryLocation?.lng,
+          });
+        }
       });
+      setDropLocations(dropLocations);
       return () => {
         setDropLocations([]);
       };

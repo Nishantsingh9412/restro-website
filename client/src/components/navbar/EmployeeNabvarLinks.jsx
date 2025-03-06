@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Avatar,
   Flex,
@@ -52,7 +53,7 @@ ModalComponent.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  body: PropTypes.node.isRequired,
+  body: PropTypes.node,
   footer: PropTypes.node.isRequired,
 };
 

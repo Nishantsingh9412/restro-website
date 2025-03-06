@@ -8,6 +8,8 @@ import {
   addTakeAwayOrder,
 } from "../redux/action/Employees/chef";
 import { addDineInOrderToWaiter } from "../redux/action/waiter";
+
+
 export default function SocketInitializer() {
   const dispatch = useDispatch();
   const user = localStorage.getItem("ProfileData");
@@ -18,8 +20,8 @@ export default function SocketInitializer() {
       toast(data?.heading, "success");
       dispatch({ type: "ADD_NOTIFICATION", data });
     };
+
     const handleDelivery = (data) => {
-      console.log(data);
       dispatch({ type: "ADD_DELIVERY", data });
     };
 

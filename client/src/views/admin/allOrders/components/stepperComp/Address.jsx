@@ -80,8 +80,8 @@ const Address = ({ goToNextStep }) => {
     zip: "12345",
     paymentMethod: "cash",
     deliveryMethod: "delivery",
-    dropLocation: { lat: 40.712776, lng: -74.005974 },
-    dropLocationName: "New York, NY, USA",
+    // dropLocation: { lat: 40.712776, lng: -74.005974 },
+    // dropLocationName: "New York, NY, USA",
     noteFromCustomer: "Leave at the front door.",
   };
   // For testing purposes
