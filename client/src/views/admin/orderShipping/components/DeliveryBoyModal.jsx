@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import PropTypes from "prop-types";
+import { useToast } from "../../../../contexts/useToast";
 import "react-toastify/dist/ReactToastify.css";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -30,7 +30,7 @@ const DeliveryBoyModal = ({
   isEditMode = false,
 }) => {
   const dispatch = useDispatch();
-
+  const showToast = useToast();
   // State management with an object
   const [formState, setFormState] = useState({
     supplierName: "",
@@ -87,11 +87,11 @@ const DeliveryBoyModal = ({
 
     const { supplierName, phone, countryCode } = formState;
     if (!supplierName || !phone || !countryCode) {
-      toast.error("All fields are required");
+      showToast("All fields are required", "error");
       return;
     }
     if (phone.length < 10 || phone.length > 15) {
-      toast.error("Phone number must be at least 10 characters");
+      showToast("Phone number must be at least 10 characters", "error");
       return;
     }
 
@@ -115,14 +115,14 @@ const DeliveryBoyModal = ({
       }
 
       if (res.success) {
-        toast.success(res.message);
+        showToast(res.message, "success");
         resetForm(); // Clear form after submission
         onClose(); // Close modal
       } else {
-        toast.error(res.message);
+        showToast(res.message, "error");
       }
     } catch (error) {
-      toast.error("An error occurred while processing the request", error);
+      showToast(error.message, "error");
     } finally {
       setFormState((prevState) => ({ ...prevState, loading: false }));
     }
@@ -216,6 +216,13 @@ const DeliveryBoyModal = ({
       </ModalContent>
     </Modal>
   );
+};
+
+DeliveryBoyModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  initialData: PropTypes.object,
+  isEditMode: PropTypes.bool,
 };
 
 export default DeliveryBoyModal;

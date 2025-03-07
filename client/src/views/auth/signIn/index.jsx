@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -76,13 +76,13 @@ function SignIn() {
   // Validate form data
   const validate = () => {
     if (!formData.email) {
-      toast.error("Email is required");
+      showToast("Email is required");
       return false;
     } else if (!formData.password) {
-      toast.error("Password is required");
+      showToast("Password is required");
       return false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error("Please enter a valid email");
+      showToast("Please enter a valid email");
       return false;
     }
     return true;
@@ -103,7 +103,7 @@ function SignIn() {
         if (res.payload.success) {
           navigate("/admin/dashboards/default");
         } else {
-          // toast.error(res.payload);
+          // showToast(res.payload);
           showToast(res.payload, "error");
         }
       })
@@ -134,7 +134,6 @@ function SignIn() {
         const empRole = res?.payload?.result?.role;
         handleRouteByRole(empRole);
       } else {
-        // toast.error(res.payload);
         showToast(res.payload, "error");
       }
     });
@@ -362,6 +361,7 @@ function SignIn() {
   );
 
   // Render loader
+  // eslint-disable-next-line no-unused-vars
   const renderLoader = () => (
     <Flex justifyContent="center" alignItems="center" h="100vh">
       <Spinner size="xl" color="blue.500" />

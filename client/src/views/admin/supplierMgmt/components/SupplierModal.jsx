@@ -23,7 +23,7 @@ import {
 import { FaRegUser } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useToast } from "../../../../contexts/useToast";
 import {
   updateSupplierAction,
   addNewSupplierAction,
@@ -47,7 +47,7 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
     location: "",
     created_by: "",
   };
-
+  const showToast = useToast();
   const dispatch = useDispatch();
   const [supplierData, setSupplierData] = useState(initialSupplierState);
   const [loading, setLoading] = useState(false);
@@ -107,12 +107,12 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
   const postSupplierImage = (pics) => {
     setLoading(true);
     if (!pics || (pics.type !== "image/jpeg" && pics.type !== "image/png")) {
-      toast.error("Invalid image format. Please upload JPEG or PNG.");
+      showToast("Invalid image format. Please upload JPEG or PNG.", "error");
       setLoading(false);
       return;
     }
     if (pics.size > 2000000) {
-      toast.error("Image size should be less than 2 MB");
+      showToast("Image size should be less than 2 MB", "info");
       setLoading(false);
       return;
     }
@@ -133,9 +133,9 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
         }));
         setLoading(false);
       })
+      // eslint-disable-next-line no-unused-vars
       .catch((err) => {
-        // console.log(err);
-        toast.error("Error Uploading Image");
+        showToast("Error Uploading Image", "error");
         setLoading(false);
       });
   };

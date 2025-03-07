@@ -40,7 +40,7 @@ export default function LiveLocationModal({
 
   const handleSubmit = () => {
     if (!deliveryBoyId) {
-      // toast.error("Something went wrong! Delivery person is not authorized!");
+      // showToast("Something went wrong! Delivery person is not authorized!");
       showToast(
         "Something went wrong! Delivery person is not authorized!",
         "error"
@@ -65,13 +65,13 @@ export default function LiveLocationModal({
         })
       );
       // On success
-      // toast.success("Live location updated successfully!");
+      // showToastss("Live location updated successfully!");
       showToast("Live location updated successfully!", "success");
       setIsOpen(false); // Close the modal
     } catch (error) {
       // On failure
       console.error("Error updating live location:", error);
-      // toast.error("Something went wrong! Unable to update live location.");
+      // showToast("Something went wrong! Unable to update live location.");
       showToast(
         "Something went wrong! Unable to update live location.",
         "error"

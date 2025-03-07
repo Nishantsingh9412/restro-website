@@ -64,10 +64,6 @@ const OrderHistory = () => {
           setIsPermitted(false);
         }
       });
-      showToast(
-        deliveryRes?.message,
-        deliveryRes?.success ? "success" : "error"
-      );
     } catch (err) {
       showToast(err.message, "error");
     } finally {

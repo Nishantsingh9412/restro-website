@@ -15,8 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { nanoid } from "nanoid";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-
+import { useToast } from "../../../../contexts/useToast";
 export default function ItemManagementModal({
   isOpen,
   onClose,
@@ -38,8 +37,7 @@ export default function ItemManagementModal({
     //   Last_Replenished: "",
   };
   const [formData, setFormData] = useState(initialItemState);
-
-  console.log("itemData", itemData);
+  const showToast = useToast();
 
   // Populate form for edit mode
   useEffect(() => {
@@ -102,7 +100,7 @@ export default function ItemManagementModal({
       formData.minimum_quantity <= 0 ||
       !formData.bar_code
     ) {
-      toast.error("All required fields must be filled out");
+      showToast("All required fields must be filled out", "error");
       return false;
     }
     return true;

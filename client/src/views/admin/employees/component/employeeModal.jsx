@@ -22,12 +22,12 @@ import {
   Checkbox,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/useToast";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import React from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { useSelector } from "react-redux";
+import { userTypes } from "../../../../utils/constant";
 
 // Date conversion utilities
 const formatDateForInput = (isoDate) => {
@@ -77,9 +77,10 @@ export default function EmployeeModal({
     notes: "",
     is_online: false,
   };
-
+  const showToast = useToast();
   // Get the logged in user's role
-  const userRole = JSON.parse(localStorage.getItem("ProfileData"))?.result?.role;
+  const userRole = JSON.parse(localStorage.getItem("ProfileData"))?.result
+    ?.role;
 
   // State to manage form data
   const [formData, setFormData] = useState(initialFormState);
@@ -150,7 +151,7 @@ export default function EmployeeModal({
       formData.type === "" ||
       formData.role === ""
     ) {
-      toast.error("All required fields must be filled out");
+      showToast("All required fields must be filled out", "error");
       return false;
     }
     return true;
@@ -379,27 +380,25 @@ export default function EmployeeModal({
               {renderInput("Notes", "notes")}
             </GridItem>
           </Grid>
-
-        {userRole === "admin" && <Menu closeOnSelect={false}>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Select Role Access
-          </MenuButton>
-          <MenuList>
-            {Permissions.map((option) => (
-              <MenuItem key={option.id}>
-                <Checkbox
-                  isChecked={isChecked(option.id)}
-                  onChange={() => handleToggle(option.id)}
-                >
-                  {option.label}
-                </Checkbox>
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>}
-          {/* <Box mt={4}>
-                      Selected Permissions: {selectedPermissions.join(", ") || "None"}
-                    </Box> */}
+          {userRole === userTypes.ADMIN && (
+            <Menu closeOnSelect={false}>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                Select Role Access
+              </MenuButton>
+              <MenuList>
+                {Permissions.map((option) => (
+                  <MenuItem key={option.id}>
+                    <Checkbox
+                      isChecked={isChecked(option.id)}
+                      onChange={() => handleToggle(option.id)}
+                    >
+                      {option.label}
+                    </Checkbox>
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+          )}
         </ModalBody>
         <ModalFooter>
           {actionType !== "view" ? (

@@ -131,13 +131,11 @@ export default function ItemManagement() {
       const res = await dispatch(addItemAction(formData));
       if (res.success) {
         handleOnItemModalClose();
-        // toast.success("Item Added Successfully");
         showToast(res.message, "success");
       } else {
         throw new Error("Error Adding Item");
       }
     } catch (e) {
-      // toast.error("Error in Adding Item");
       showToast(e.message, "error");
       // console.error(e);
     }
@@ -151,13 +149,11 @@ export default function ItemManagement() {
       );
       if (res.success) {
         handleOnItemModalClose();
-        // toast.success("Item Updated Successfully");
         showToast(res.message, "success");
       } else {
         throw new Error("Error Updating Item");
       }
     } catch (e) {
-      // toast.error("Error in Updating Item");
       showToast(e.message, "error");
       console.error(e);
     }
@@ -235,7 +231,6 @@ export default function ItemManagement() {
     dispatch(getAllItemsAction(userId))
       .then((res) => {
         if (!res.success) {
-          // toast.error(res.message);
           showToast(res.message, "error");
           if (res.status === 403) {
             setIsPermitted(false);
@@ -268,35 +263,6 @@ export default function ItemManagement() {
         <Box px={{ base: 4, md: 8 }} py={6}>
           <ToastContainer />
           <Flex justify="space-between" mb={2}>
-            {/* <Button
-              leftIcon={<FiPlusCircle />}
-              colorScheme="teal"
-              variant="solid"
-              onClick={() => {
-                setActionType("add");
-                handleModeModalOpen();
-              }}
-              w={{ base: "100%", md: "auto" }}
-              mx={2}
-            >
-              Add Item
-            </Button>
-
-            <Button
-              leftIcon={<FiPlusCircle />}
-              colorScheme="teal"
-              variant="solid"
-              p={4}
-              onClick={() => {
-                setActionType("use");
-                handleModeModalOpen();
-              }}
-              w={{ base: "100%", md: "auto" }}
-              mx={2}
-            >
-              Use Items
-            </Button> */}
-
             <Button
               leftIcon={<IoMdQrScanner />}
               colorScheme="teal"
@@ -483,17 +449,6 @@ export default function ItemManagement() {
                     }}
                     mr={2}
                   />
-                  {/* <IconButton
-                    aria-label="View Item"
-                    colorScheme="green"
-                    size="md"
-                    icon={<IoMdEye />}
-                    onClick={() => {
-                      setSelectedItemData(item._id);
-                      isOpen();
-                    }}
-                    mr={2}
-                  /> */}
                   <IconButton
                     aria-label="Generate Barcode"
                     colorScheme="blue"

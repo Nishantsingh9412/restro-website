@@ -248,7 +248,6 @@ export default function AllOrders() {
         ]);
 
         if (!allItemsRes.success || !drinksRes.success) {
-          // toast.error(allItemsRes.message || drinksRes.message);
           showToast(allItemsRes.message || drinksRes.message, "error");
           if (allItemsRes.status === 403 || drinksRes.status === 403) {
             setIsPermitted(false);

@@ -9,15 +9,14 @@ import {
 import PropTypes from "prop-types";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { setFormData } from "../../../../../redux/action/takeAwayStepperForm";
+import { useToast } from "../../../../../contexts/useToast";
 // TakeAwayForm component definition
 const TakeAwayForm = ({ goToNextStep }) => {
   const dispatch = useDispatch();
-
+  const showToast = useToast();
   // Get form data from the Redux store
   const formData = useSelector((state) => state.takeAwayForm);
-
   // Destructure form data
   const { customerName } = formData;
 
@@ -32,7 +31,7 @@ const TakeAwayForm = ({ goToNextStep }) => {
   // validate the form data
   const validate = () => {
     if (!customerName) {
-      toast.error("Please enter customer name");
+      showToast("Please enter customer name", "error");
       return false;
     }
     return true;

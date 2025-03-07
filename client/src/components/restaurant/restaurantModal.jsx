@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -12,8 +12,9 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { toast } from "react-toastify";
 import { addRestaurantDetails } from "../../api";
+import { useToast } from "../../contexts/useToast";
+import PropTypes from "prop-types";
 
 const RestaurantModal = ({ isOpen, onClose }) => {
   const initialState = {
@@ -25,6 +26,7 @@ const RestaurantModal = ({ isOpen, onClose }) => {
       lng: "",
     },
   };
+  const showToast = useToast();
   const [formData, setFormData] = useState(initialState);
   const [locationLoading, setLocationLoading] = useState(false);
 
@@ -71,27 +73,31 @@ const RestaurantModal = ({ isOpen, onClose }) => {
     // validate the form data
     const invalidField = validate(formData);
     if (invalidField) {
-      toast.error(`${invalidField} is required`);
+      showToast(`${invalidField} is required`, "error");
       return;
     }
     // Submit the form data
     try {
       const { data } = await addRestaurantDetails(formData);
       if (data.success) {
-        toast.success("Restaurant details added successfully");
+        showToast("Restaurant details added successfully", "success");
         onClose();
       } else if (data.error) {
-        toast.error(data.error.message);
+        showToast(data.error.message, "error");
       } else {
-        toast.error("An unexpected error occurred");
+        showToast("An unexpected error occurred", "error");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
-        toast.error(
-          "Failed to add restaurant details: " + error.response.data.error
+        showToast(
+          "Failed to add restaurant details: " + error.response.data.error,
+          "error"
         );
       } else {
-        toast.error("Failed to add restaurant details: " + error.message);
+        showToast(
+          "Failed to add restaurant details: " + error.message,
+          "error"
+        );
       }
     }
   };
@@ -157,5 +163,9 @@ const RestaurantModal = ({ isOpen, onClose }) => {
     </Modal>
   );
 };
-
 export default RestaurantModal;
+
+RestaurantModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

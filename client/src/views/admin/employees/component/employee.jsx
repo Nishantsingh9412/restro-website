@@ -13,7 +13,6 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import {
   deleteEmployeeApi,
@@ -49,9 +48,9 @@ export default function EmployeeComponent() {
   // Function to fetch employees from the API
   const getEmployees = async () => {
     const res = await dispatch(getEmployeeApi());
-    showToast(res.message, res.success ? "success" : "error");
     if (res.success) setEmployees(res.data);
     else {
+      showToast(res.message, "error");
       if (res.status === 403) {
         setIsPermitted(false);
       }
@@ -79,14 +78,14 @@ export default function EmployeeComponent() {
     try {
       const res = await dispatch(postEmployeeApi(newEmployee));
       if (res.success) {
-        toast.success("Employee added successfully");
+        showToast("Employee added successfully", "success");
         getEmployees();
         setIsOpen(false);
       } else {
-        toast.error("Failed to add employee", res.message);
+        showToast(res.message, "error");
       }
     } catch (error) {
-      toast.error("Error to add employee", error);
+      showToast(error.message, "error");
     }
   };
 
@@ -97,14 +96,14 @@ export default function EmployeeComponent() {
     try {
       const res = await dispatch(updateEmployeeApi(employeeId, formData));
       if (res.success) {
-        toast.success("Employee updated successfully");
+        showToast("Employee updated successfully", "success");
         getEmployees();
         setIsOpen(false);
       } else {
-        toast.error("Failed to update employee");
+        showToast(res.message, "error");
       }
     } catch (error) {
-      toast.error("Failed to update employee", error);
+      showToast(error.message, "error");
     }
   };
 
@@ -122,10 +121,10 @@ export default function EmployeeComponent() {
     if (confirmation.isConfirmed) {
       const res = await dispatch(deleteEmployeeApi(id));
       if (res.success) {
-        toast.success("Employee deleted successfully");
+        showToast("Employee deleted successfully", "success");
         getEmployees();
       } else {
-        toast.error("Failed to delete employee");
+        showToast("Failed to delete employee", "error");
       }
     }
   };

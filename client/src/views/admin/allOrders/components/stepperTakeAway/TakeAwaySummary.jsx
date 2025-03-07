@@ -14,7 +14,7 @@ import { postTakeAwayOrderAction } from "../../../../../redux/action/takeAwayOrd
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import { resetFormDataAction } from "../../../../../redux/action/takeAwayStepperForm";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../../contexts/useToast";
 
 // TakeAwaySummary component definition
 const TakeAwaySummary = ({ goToPreviousStep }) => {
@@ -26,7 +26,7 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   // Redux hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const takeAwayData = useSelector((state) => state.form);
+  const showToast = useToast();
   const takeAwayData = useSelector((state) => state.takeAwayForm);
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localData?.result?._id;
@@ -39,7 +39,6 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   // Handle TakeAway order completion
   const handleCompleteOrder = (e) => {
     e.preventDefault();
-
     const takeAwayOrderData = {
       ...takeAwayData,
       orderItems: cartItems,
@@ -53,9 +52,8 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
         navigate(
           role === "admin" ? "/admin/order-history" : "/employee/order-history"
         );
-        toast.success(res.message);
-      } else toast.error(res.message);
-      // console.log(res);
+        showToast(res.message, "success");
+      } else showToast(res.message, "error");
     });
   };
 

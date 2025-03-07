@@ -64,7 +64,7 @@ export default function AllotDeliveryModal({
         const res = await getDeliveryBoys(orderId);
         setPersonnels(res?.data?.result.length ? res.data.result : []);
       } catch (err) {
-        showToast(err?.response?.data?.error, "error");
+        showToast(err?.response?.data?.error, "info");
       } finally {
         setIsLoading(false);
       }

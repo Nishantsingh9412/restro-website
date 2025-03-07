@@ -132,18 +132,16 @@ const ShiftScheduleComponent = () => {
     const timeDifference = (toTime - fromTime) / (1000 * 60 * 60); // Difference in hours
 
     if (timeDifference < 1) {
-      // return toast.error("The shift duration must be at least 1 hour.");
       showToast("The shift duration must be at least 1 hour.", "error");
     }
     const { date, employeeId, from, to, _id } = shiftData;
     if (!date || !employeeId || !from || !to)
-      // return toast.error("All fields are required");
       return showToast("All fields are required", "error");
 
     const res = await dispatch(postShiftApi(shiftData, _id));
 
     handleModalClose();
-    if (res.success) {      
+    if (res.success) {
       fetchData();
       showToast(
         _id ? "Shift updated successfully" : "Shift added successfully",
@@ -156,7 +154,7 @@ const ShiftScheduleComponent = () => {
 
   // Handle shift delete action
   const handleDeleteShift = async () => {
-    // if (!shiftData._id) return toast.error("Shift not found");
+    // if (!shiftData._id) return showToast("Shift not found");
     if (!shiftData._id) return showToast("Shift not found", "error");
     const res = await dispatch(deleteShiftApi({ _id: shiftData._id }));
     handleModalClose();
@@ -360,7 +358,6 @@ const ShiftScheduleComponent = () => {
                                   });
                                   onModalOpen();
                                 } else {
-                                  
                                   showToast(
                                     "Cannot add shift for past dates or within 24 hours.",
                                     "error"

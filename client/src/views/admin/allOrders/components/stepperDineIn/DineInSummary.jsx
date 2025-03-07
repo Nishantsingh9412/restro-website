@@ -14,7 +14,7 @@ import { postDineInOrderAction } from "../../../../../redux/action/dineInOrder";
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import { resetFormDataAction } from "../../../../../redux/action/dineInStepperForm";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../../contexts/useToast";
 
 // DineInOrderSummary component definition
 const DineInOrderSummary = ({ goToPreviousStep }) => {
@@ -26,7 +26,7 @@ const DineInOrderSummary = ({ goToPreviousStep }) => {
   // Redux hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const dineInData = useSelector((state) => state.form);
+  const showToast = useToast();
   const dineInData = useSelector((state) => state.dineInForm);
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localData?.result?._id;
@@ -54,9 +54,8 @@ const DineInOrderSummary = ({ goToPreviousStep }) => {
         navigate(
           role === "admin" ? "/admin/order-history" : "/employee/order-history"
         );
-        toast.success(res.message);
-      } else toast.error(res.message);
-      // console.log(res);
+        showToast(res.message, "success");
+      } else showToast(res.message, "error");
     });
   };
 
