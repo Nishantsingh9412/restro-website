@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./assets/css/App.css";
@@ -14,9 +15,7 @@ import { ToastProvider } from "./contexts/ToastContext";
 
 // Lazy load heavy components
 const AdminLayout = lazy(() => import("./layouts/admin"));
-const AuthLayout = lazy(() => import("./layouts/auth"));
 const EmployeeLayout = lazy(() => import("./layouts/employee"));
-const RtlLayout = lazy(() => import("./layouts/rtl"));
 const SignIn = lazy(() => import("./views/auth/signIn"));
 const SignUp = lazy(() => import("./views/auth/signup"));
 const ForgotPassword = lazy(() => import("./views/auth/forgotPassword"));
@@ -63,29 +62,29 @@ root.render(
           <SocketInitializer />
           <ThemeEditorProvider>
             <Router>
-              <Routes>
-                <Route path="*" element={<h1>NOT FOUND</h1>} />
-                <Route path="/auth/*" element={<AuthLayout />} />
-                <Route path="/rtl/*" element={<RtlLayout />} />
-                <Route path="/" element={<SignIn />} />
-                <Route path="/auth/sign-up" element={<SignUp />} />
-                <Route
-                  path="/auth/forgot-password"
-                  element={<ForgotPassword />}
-                />
-                <Route path="/admin/*" element={<AdminLayout />}>
-                  {renderRoutes(adminRoutes)}
-                </Route>
-                <Route path="/employee/*" element={<EmployeeLayout />}>
-                  {renderRoutes(deliveryRoutes)}
-                  {renderRoutes(waiterRoutes)}
-                  {renderRoutes(chefRoutes)}
-                  {renderRoutes(managerRoutes)}
-                  {renderRoutes(staffRoutes)}
-                  {renderRoutes(helperRoutes)}
-                  {renderRoutes(bartenderRoutes)}
-                </Route>
-              </Routes>
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="*" element={<h1>NOT FOUND</h1>} />
+                  <Route path="/" element={<SignIn />} />
+                  <Route path="/auth/sign-up" element={<SignUp />} />
+                  <Route
+                    path="/auth/forgot-password"
+                    element={<ForgotPassword />}
+                  />
+                  <Route path="/admin/*" element={<AdminLayout />}>
+                    {renderRoutes(adminRoutes)}
+                  </Route>
+                  <Route path="/employee/*" element={<EmployeeLayout />}>
+                    {renderRoutes(deliveryRoutes)}
+                    {renderRoutes(waiterRoutes)}
+                    {renderRoutes(chefRoutes)}
+                    {renderRoutes(managerRoutes)}
+                    {renderRoutes(staffRoutes)}
+                    {renderRoutes(helperRoutes)}
+                    {renderRoutes(bartenderRoutes)}
+                  </Route>
+                </Routes>
+              </Suspense>
               <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
             </Router>
           </ThemeEditorProvider>
