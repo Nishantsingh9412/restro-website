@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import http from "http";
+import compression from "compression";
 import { Server } from "socket.io";
 
 // Route imports
@@ -97,7 +98,13 @@ const __dirname = path.resolve(); // Set the __dirname to current directory
 
 // Serve static files in production (e.g., frontend build files)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("./frontend/dist"));
+  app.use(compression());
+  app.use(
+    express.static("./frontend/dist", {
+      maxAge: "1d",
+      etag: false,
+    })
+  );
 
   // Serve React app for any unknown routes in production
   app.get("*", (req, res) => {

@@ -15,30 +15,42 @@ import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { TbTruckDelivery, TbReorder } from "react-icons/tb";
 import { AiFillPrinter } from "react-icons/ai";
+import { lazy } from "react";
 
-// Admin Imports
-import MainDashboard from "./views/admin/default";
-import ItemManagement from "./views/admin/itemManagement";
-import LowStocks from "./views/admin/lowStocks";
-import SupplierManagement from "./views/admin/supplierMgmt";
-import AllOrders from "./views/admin/allOrders";
-import OrderHistory from "./views/admin/orderHistory";
-import OrderShipping from "./views/admin/orderShipping";
-import Dashboard from "./views/admin/dashboard";
-import ShiftSchedule from "./views/admin/shiftSchedule";
-import Absence from "./views/admin/absense";
-import Employee from "./views/admin/employees";
-import AvailableDeliveries from "./views/delivery/availableDeliveries"; // Adjust the path as necessary
-import EmployeeNotification from "./views/employees/components/Notification";
-import DeliveryHistory from "./views/delivery/history"; // Adjust the path as necessary
-import DeliveryDashboard from "./views/delivery/dashboard/index";
-import AdminNotifications from "./views/admin/Notification";
-import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
-import WaiterDashboard from "./views/employees/Waiter/Dashboard";
-import WaiterAvailableOrders from "./views/employees/Waiter/AvailableOrders";
-import ChefDashboard from "./views/employees/Chef/Dashboard";
-import ChefAvailableOrders from "./views/employees/Chef/AvailableOrders";
-
+// Lazy-loaded components for better chunking
+const MainDashboard = lazy(() => import("./views/admin/default"));
+const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
+const LowStocks = lazy(() => import("./views/admin/lowStocks"));
+const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
+const AllOrders = lazy(() => import("./views/admin/allOrders"));
+const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
+const OrderShipping = lazy(() => import("./views/admin/orderShipping"));
+const Dashboard = lazy(() => import("./views/admin/dashboard"));
+const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
+const Absence = lazy(() => import("./views/admin/absense"));
+const Employee = lazy(() => import("./views/admin/employees"));
+const AvailableDeliveries = lazy(() =>
+  import("./views/delivery/availableDeliveries")
+);
+const EmployeeNotification = lazy(() =>
+  import("./views/employees/components/Notification")
+);
+const DeliveryHistory = lazy(() => import("./views/delivery/history"));
+const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
+const AdminNotifications = lazy(() => import("./views/admin/Notification"));
+const EmployeeShifts = lazy(() =>
+  import("./views/employees/Shift/EmployeeShifts")
+);
+const WaiterDashboard = lazy(() =>
+  import("./views/employees/Waiter/Dashboard")
+);
+const WaiterAvailableOrders = lazy(() =>
+  import("./views/employees/Waiter/AvailableOrders")
+);
+const ChefDashboard = lazy(() => import("./views/employees/Chef/Dashboard"));
+const ChefAvailableOrders = lazy(() =>
+  import("./views/employees/Chef/AvailableOrders")
+);
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
 // import SignUpCentered from "./views/auth/signup";
