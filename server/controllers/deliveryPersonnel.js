@@ -173,7 +173,7 @@ export const getDeliveryPersonnels = async (req, res) => {
 // Update a delivery personnel
 export const updateDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-  console.log(req.body);
+
   if (!mongoose.Types.ObjectId.isValid(_id))
     return res.status(404).send("No Delivery Personnel with that id");
   if (!req.body)
@@ -233,7 +233,7 @@ export const getDeliveryPersonnelSingle = async (req, res) => {
 // Delete a delivery personnel by ID
 export const deleteDeliveryPersonnel = async (req, res) => {
   const { id: _id } = req.params;
-  
+
   if (!validateObjectId(_id, res, "Delivery Personnel")) return;
 
   try {
@@ -297,6 +297,38 @@ export const updateDeliveryBoyOdometerReading = async (req, res) => {
       result: delBoy,
     });
   } catch (err) {
+    handleError(res, err, "Delivery Personnel not updated");
+  }
+};
+
+// Toggle delivery boy availability status
+export const toggleDeliveryBoyAvailability = async (req, res) => {
+  try {
+    const id = req.user.id;
+    // Validate the delivery personnel ID
+    if (!validateObjectId(id, res, "Delivery Personnel")) return;
+
+    // Find the delivery personnel by ID
+    const delBoy = await deliveryBoy.findById(id);
+
+    if (!delBoy) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery Personnel not found" });
+    }
+
+    // Toggle the delivery personnel's availability status
+    delBoy.status =
+      delBoy.status === "AVAILABLE" ? "OUT_FOR_DELIVERY" : "AVAILABLE";
+    await delBoy.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Delivery Personnel Updated",
+      result: delBoy,
+    });
+  } catch (err) {
+    console.error("Error from toggleDeliveryBoyAvailability Controller:", err);
     handleError(res, err, "Delivery Personnel not updated");
   }
 };

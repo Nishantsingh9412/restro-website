@@ -18,7 +18,7 @@ const handleApiCall = async (apiFunc, dispatch, actionType, successMessage) => {
     };
   } catch (err) {
     // Return error response
-    return { success: false, message: err.message || "An error occurred" };
+    return { success: false, message: err.response.data.error || "An error occurred", status: err.response.status };
   }
 };
 

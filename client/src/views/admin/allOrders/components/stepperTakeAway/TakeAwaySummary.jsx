@@ -14,7 +14,7 @@ import { postTakeAwayOrderAction } from "../../../../../redux/action/takeAwayOrd
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import { resetFormDataAction } from "../../../../../redux/action/takeAwayStepperForm";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../../contexts/useToast";
 
 // TakeAwaySummary component definition
 const TakeAwaySummary = ({ goToPreviousStep }) => {
@@ -26,10 +26,11 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   // Redux hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const takeAwayData = useSelector((state) => state.form);
+  const showToast = useToast();
   const takeAwayData = useSelector((state) => state.takeAwayForm);
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localData?.result?._id;
+  const role = localData?.result?.role;
 
   const allOrderItems = useSelector((state) => state?.OrderItemReducer);
   const cartItems = allOrderItems?.items;
@@ -38,21 +39,21 @@ const TakeAwaySummary = ({ goToPreviousStep }) => {
   // Handle TakeAway order completion
   const handleCompleteOrder = (e) => {
     e.preventDefault();
-
-    const dineInOrderData = {
+    const takeAwayOrderData = {
       ...takeAwayData,
       orderItems: cartItems,
       totalPrice: totalAmount,
       created_by: userId,
     };
-
-    dispatch(postTakeAwayOrderAction(dineInOrderData)).then((res) => {
+    dispatch(postTakeAwayOrderAction(takeAwayOrderData)).then((res) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());
-        navigate("/admin/order-history");
-      } else toast.error(res.message);
-      // console.log(res);
+        navigate(
+          role === "admin" ? "/admin/order-history" : "/employee/order-history"
+        );
+        showToast(res.message, "success");
+      } else showToast(res.message, "error");
     });
   };
 

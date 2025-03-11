@@ -12,6 +12,16 @@ const chefSchema = new Schema({
     type: Number,
     default: 0,
   },
+  assignedOrders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "orderType",
+    },
+  ],
+  orderType: {
+    type: String,
+    enum: ["DineInOrder", "TakeAwayOrder"],
+  },
 });
 
 const Chef = Employee.discriminator("Chef", chefSchema);

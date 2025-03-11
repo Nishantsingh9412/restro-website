@@ -1,35 +1,25 @@
-import { useEffect, useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { Box, Flex, Img } from "@chakra-ui/react";
 import { FaPencil } from "react-icons/fa6";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-// import {
-//   // singleUserDataAction,
-//   updateProfilePicAction,
-// } from "../../../redux/action/user";
-
-// import { getAdminData } from "../../../redux/action/admin";
-import {
-  getLoggedInUserData,
-  updateProfilePicAction,
-} from "../../../redux/action/user";
+import { updateProfilePicAction } from "../../../redux/action/user";
+import { useToast } from "../../../contexts/useToast";
 
 // SidebarBrand component
 export function SidebarBrand() {
+  // Toast notification function
+  const showToast = useToast();
   // Reference to the file input element
   const fileInputRef = useRef(null);
   // Redux dispatch function
   const dispatch = useDispatch();
   // Retrieve local profile data from localStorage
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
-
   const role = localData?.result?.role;
   // Retrieve user profile data from Redux store
   const userProfileData = useSelector((state) => state?.userReducer?.data);
-  // const adminData = useSelector((state) => state?.admin?.data);
-  // const employeeData = useSelector((state) => state?.employee?.data);
-  // const userProfileData = adminData || employeeData;
 
   // Function to handle profile picture update click
   const handleProfilePicUpdate = useCallback(() => {
@@ -47,21 +37,15 @@ export function SidebarBrand() {
         // Dispatch action to update profile picture
         dispatch(updateProfilePicAction(formData)).then((res) => {
           if (res.success) {
-            toast.success(res.message);
+            showToast(res.message, "success");
           } else {
-            toast.error(res.message);
+            showToast(res.message, "error");
           }
         });
       }
     },
     [dispatch]
   );
-
-  // Fetch user data on component mount
-  useEffect(() => {
-    // dispatch(singleUserDataAction(user_id));
-    // dispatch(getLoggedInUserData(role));
-  }, []);
 
   // Memoized function to get the profile picture URL
   const ImageUrl = useMemo(() => {
@@ -111,15 +95,6 @@ export function SidebarBrand() {
           <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
         </Box>
       )}
-      {/* Buttons for Favourites and Recently */}
-      {/* <Flex alignItems="center" justifyContent="space-between">
-        <Button bg="var(--primary)" color="#fff">
-          Favourites
-        </Button>
-        <Button bg="var(--primary)" color="#fff">
-          Recently
-        </Button>
-      </Flex> */}
     </Flex>
   );
 }

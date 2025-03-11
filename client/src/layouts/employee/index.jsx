@@ -15,6 +15,7 @@ import {
   bartenderRoutes,
   helperRoutes,
 } from "../../routes.jsx";
+import OrderAcceptModal from "../../components/delivery/OrderAcceptModal.jsx";
 
 export default function EmployeeDashboard(props) {
   const { ...rest } = props;
@@ -23,17 +24,17 @@ export default function EmployeeDashboard(props) {
   const location = useLocation();
   const { onOpen } = useDisclosure();
   const [role, setRole] = useState(null);
+  const localData = JSON.parse(localStorage.getItem("ProfileData"));
 
   // Load role from localStorage
   useEffect(() => {
-    const localData = JSON.parse(localStorage.getItem("ProfileData"));
+    if (!localData?.result?._id) return;
     setRole(localData?.result?.role?.toLowerCase());
-    console.log("Role:", localData?.result?.role?.toLowerCase());
 
     // Connect to socket
     connectSocketIfDisconnected();
 
-    socket.on("connect", () => {
+    const handleConnect = () => {
       console.log("Socket Connected");
       socket.emit("userJoined", localData?.result?._id);
       const heartbeatInterval = setInterval(() => {
@@ -42,12 +43,15 @@ export default function EmployeeDashboard(props) {
       return () => {
         clearInterval(heartbeatInterval);
       };
-    });
+    };
+
+    socket.on("connect", handleConnect);
+
     return () => {
-      socket.off("connect");
+      socket.off("connect", handleConnect);
       socket.disconnect();
     };
-  }, []);
+  }, [localData?.result?._id]);
 
   useEffect(() => {
     setRoutes(getRoutes(role));
@@ -143,6 +147,7 @@ export default function EmployeeDashboard(props) {
           fixed={fixed}
           {...rest}
         />
+        <OrderAcceptModal isOpen={true} onClose={() => {}} order={{}} />
 
         <Box mt="130px" p="20px">
           <Outlet />

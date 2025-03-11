@@ -14,8 +14,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { AddIcon, StarIcon, EditIcon } from "@chakra-ui/icons";
-
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/useToast";
 import {
   deleteAbsenceApi,
   getAbsenceByEmpl,
@@ -103,13 +102,12 @@ export default function AbsenseComponent() {
   const [employees, setEmployees] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedAbsence, setSelectedAbsence] = useState(null);
-
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [editAbsenceId, setEditAbsenceId] = useState("");
   const [actionType, setActionType] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-
+  const toast = useToast();
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -167,7 +165,6 @@ export default function AbsenseComponent() {
 
   // API Call to get absence by date
   const getAbsencebyDate = async () => {
-    const userData = JSON.parse(localStorage.getItem("ProfileData"));
     const res = await dispatch(getAbsenceByEmpl());
     if (res.success) setEmployees(res.data);
   };
@@ -178,10 +175,11 @@ export default function AbsenseComponent() {
     try {
       const res = await dispatch(postAbsenceApi(formData, editAbsenceId));
       if (res.success) {
-        toast.success(
+        toast(
           editAbsenceId
             ? "Absence Updated successfully"
-            : "Absence Add successfully"
+            : "Absence Add successfully",
+          "success"
         );
         onClose();
         await getAbsencebyDate();
@@ -197,11 +195,11 @@ export default function AbsenseComponent() {
   const deleteAbsence = async () => {
     try {
       if (!editAbsenceId) {
-        toast.warning("All fields are required");
+        toast("All fields are required", "error");
         return;
       }
       await dispatch(deleteAbsenceApi({ _id: editAbsenceId }));
-      toast.success("Absence Delete successfully");
+      toast("Absence deleted successfully", "success");
       onClose();
       await getAbsencebyDate();
     } catch (err) {
@@ -394,8 +392,9 @@ export default function AbsenseComponent() {
                                     }
                                     onClick={() => {
                                       if (!isDateValid) {
-                                        toast.warning(
-                                          "You can't edit absence for past dates"
+                                        toast(
+                                          "You can't edit absence for past dates or within 24 hours",
+                                          "error"
                                         );
                                         return;
                                       }
@@ -445,8 +444,9 @@ export default function AbsenseComponent() {
                                   });
                                   onOpen();
                                 } else {
-                                  toast.warning(
-                                    "You can't add absence for past dates"
+                                  toast(
+                                    "You can't add absence for past dates or within 24 hours",
+                                    "error"
                                   );
                                 }
                               }}

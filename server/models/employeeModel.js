@@ -1,5 +1,24 @@
 import { Schema, model } from "mongoose";
 
+const permissionSchema = new Schema({
+  id: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  label: {
+    type: String,
+    required: true,
+    enum: [
+      "Inventory-Management",
+      "Employee-Management",
+      "Food-And-Drinks",
+      "Delivery-Tracking",
+      "Other",
+    ],
+  },
+});
+
 // Employee Schema Definition
 const employeeSchema = new Schema(
   {
@@ -99,6 +118,10 @@ const employeeSchema = new Schema(
     variableWorkingHours: {
       type: Boolean,
       default: false,
+    },
+    permissions: {
+      type: [permissionSchema],
+      default: [],
     },
     annualHolidayEntitlement: {
       type: Number,

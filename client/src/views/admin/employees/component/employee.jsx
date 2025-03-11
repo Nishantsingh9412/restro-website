@@ -13,7 +13,6 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import {
   deleteEmployeeApi,
@@ -27,8 +26,11 @@ import { IoMdEye } from "react-icons/io";
 import { IoPencilOutline } from "react-icons/io5";
 import EmployeeModal from "./employeeModal";
 import { Spinner, Center } from "@chakra-ui/react";
+import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
+import { useToast } from "../../../../contexts/useToast";
 
 export default function EmployeeComponent() {
+  const showToast = useToast();
   const dispatch = useDispatch();
   const [employees, setEmployees] = useState([]);
   const [employeeId, setEmployeeId] = useState("");
@@ -36,6 +38,7 @@ export default function EmployeeComponent() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null); // To hold employee data for view/edit
   const [isLoading, setIsLoading] = useState(true);
+  const [isPermitted, setIsPermitted] = useState(true);
 
   // Fetch employees on component mount
   useEffect(() => {
@@ -46,6 +49,12 @@ export default function EmployeeComponent() {
   const getEmployees = async () => {
     const res = await dispatch(getEmployeeApi());
     if (res.success) setEmployees(res.data);
+    else {
+      showToast(res.message, "error");
+      if (res.status === 403) {
+        setIsPermitted(false);
+      }
+    }
   };
 
   // Function to fetch employee details for viewing/editing
@@ -69,14 +78,14 @@ export default function EmployeeComponent() {
     try {
       const res = await dispatch(postEmployeeApi(newEmployee));
       if (res.success) {
-        toast.success("Employee added successfully");
+        showToast("Employee added successfully", "success");
         getEmployees();
         setIsOpen(false);
       } else {
-        toast.error("Failed to add employee", res.message);
+        showToast(res.message, "error");
       }
     } catch (error) {
-      toast.error("Error to add employee", error);
+      showToast(error.message, "error");
     }
   };
 
@@ -87,14 +96,14 @@ export default function EmployeeComponent() {
     try {
       const res = await dispatch(updateEmployeeApi(employeeId, formData));
       if (res.success) {
-        toast.success("Employee updated successfully");
+        showToast("Employee updated successfully", "success");
         getEmployees();
         setIsOpen(false);
       } else {
-        toast.error("Failed to update employee");
+        showToast(res.message, "error");
       }
     } catch (error) {
-      toast.error("Failed to update employee", error);
+      showToast(error.message, "error");
     }
   };
 
@@ -112,10 +121,10 @@ export default function EmployeeComponent() {
     if (confirmation.isConfirmed) {
       const res = await dispatch(deleteEmployeeApi(id));
       if (res.success) {
-        toast.success("Employee deleted successfully");
+        showToast("Employee deleted successfully", "success");
         getEmployees();
       } else {
-        toast.error("Failed to delete employee");
+        showToast("Failed to delete employee", "error");
       }
     }
   };
@@ -134,6 +143,11 @@ export default function EmployeeComponent() {
     setEmployeeId(""); // Reset employeeId for adding
     setSelectedEmployee(null); // Clear selected employee data
   };
+
+  // If user is not permitted to access the page
+  if (!isPermitted) {
+    return <ForbiddenPage isPermitted={isPermitted} />;
+  }
 
   // Show loading spinner while data is being fetched
   if (isLoading) {

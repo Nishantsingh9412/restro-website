@@ -1,5 +1,5 @@
 import express from "express";
-import { adminMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 import {
   assignTask,
@@ -16,12 +16,16 @@ import {
   deleteEmployee,
   getTodaysBirthday,
   getDeliveryEmployees,
-  getEmployeesByRestaurant,
+  getAllEmployees,
   getUpcomingEmployeeBirthday,
   getEmployeeById,
+  getOnlineEmployeesByRole,
 } from "../controllers/employeeController.js";
 
 const router = express.Router();
+
+const employeeManagementAccess = accessMiddleware("Employee-Management");
+const foodAndDrinksAccess = accessMiddleware("Food-And-Drinks");
 
 router.post("/assign-task", assignTask);
 router.get("/tasks", getAllTasks);
@@ -30,20 +34,19 @@ router.get("/all-employees", AllEmployees);
 router.delete("/delete-single-task/:id", deleteSingleTask);
 router.patch("/update-task/:id", updateSingleTask);
 
-router.post("/add-employee", adminMiddleware, addEmployee);
-
-router.get("/get-employee/:id", adminMiddleware, getEmployeeById);
-
-router.get("/get-all-employee", adminMiddleware, getEmployeesByRestaurant);
-
-router.get("/get-delivery-employees", adminMiddleware, getDeliveryEmployees);
-
-router.put("/update-employee/:id", updateEmployee);
-
-router.delete("/delete-employee/:id", deleteEmployee);
+router.post("/add-employee", employeeManagementAccess, addEmployee);
+router.get("/get-employee/:id", employeeManagementAccess, getEmployeeById);
+router.get("/get-all-employee", employeeManagementAccess, getAllEmployees);
+router.get(
+  "/get-online-employees/:type",
+  accessMiddleware(),
+  getOnlineEmployeesByRole
+);
+router.get("/get-delivery-employees", accessMiddleware(), getDeliveryEmployees);
+router.put("/update-employee/:id", employeeManagementAccess, updateEmployee);
+router.delete("/delete-employee/:id", employeeManagementAccess, deleteEmployee);
 
 router.get("/get-todays-employee-birthday", getTodaysBirthday);
-
 router.get("/get-upcoming-employee-birthday", getUpcomingEmployeeBirthday);
 
 export default router;

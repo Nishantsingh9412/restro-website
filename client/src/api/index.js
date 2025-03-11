@@ -36,10 +36,33 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      console.error("Unauthorized: Clearing localStorage and redirecting.");
-      localStorage.removeItem("ProfileData");
-      window.location.href = "/login";
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          console.error("Unauthorized: Clearing localStorage and redirecting.");
+          localStorage.removeItem("ProfileData");
+          window.location.href = "/";
+          break;
+        case 403:
+          console.error(
+            "Forbidden: You do not have permission to access this resource."
+          );
+          break;
+        case 404:
+          console.error(
+            "Not Found: The requested resource could not be found."
+          );
+          break;
+        case 500:
+          console.error("Internal Server Error: Please try again later.");
+          break;
+        default:
+          console.error(
+            `Error ${error.response.status}: ${error.response.statusText}`
+          );
+      }
+    } else {
+      console.error("Network error or server did not respond.");
     }
     return Promise.reject(error);
   }
@@ -82,8 +105,7 @@ export const updateEmployeeOnlineStatus = (updatedData) =>
 export const AddItem = (newItem) =>
   API.post("/item-management/additem", newItem);
 // Get All Items
-export const GetAllItems = (localStorageId) =>
-  API.get(`/item-management/get-all-items/${localStorageId}`);
+export const GetAllItems = () => API.get(`/item-management/get-all-items`);
 // Get Single Item
 export const GetSingleItem = (id) => API.get(`/item-management/get-item/${id}`);
 // Update Item
@@ -126,11 +148,9 @@ export const AddOrderItem = (newItem) =>
 export const GetSingleItemOrder = (id) =>
   API.get(`/orders/get-single-order-item/${id}`);
 // Get All Orders
-export const getAllOrderItems = (localStorageId) =>
-  API.get(`/orders/get-all-order-items/${localStorageId}`);
+export const getAllOrderItems = () => API.get(`/orders/get-all-order-items`);
 // Get Drinks Only
-export const getDrinksOnly = (localStorageId) =>
-  API.get(`/orders/getDrinksOnly/${localStorageId}`);
+export const getDrinksOnly = () => API.get(`/orders/getDrinksOnly`);
 // Update Order Item
 export const UpdateSingleItemOrder = (id, updatedData) =>
   API.patch(`/orders/update-order-item/${id}`, updatedData);
@@ -138,16 +158,15 @@ export const UpdateSingleItemOrder = (id, updatedData) =>
 export const deleteSingleItemOrder = (id) =>
   API.delete(`/orders/delete-order-item/${id}`);
 // Search Order Item
-export const searchOrderItem = (orderNameData, localStorageId) =>
-  API.get(
-    `/orders/search-order-items/${localStorageId}?orderName=${orderNameData}`
-  );
+export const searchOrderItem = (orderNameData) =>
+  API.get(`/orders/search-order-items?orderName=${orderNameData}`);
 // Search Drinks Only
-export const searchDrinksOnly = (drinksData, localStorageId) =>
-  API.get(
-    `/orders/search-drinks-only/${localStorageId}?orderName=${drinksData}`
-  );
-
+export const searchDrinksOnly = (drinksData) =>
+  API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
+// Allot order to personnels (Delivery, Waiter, Chef)
+export const getPersonnelsBySupplier = (order, personnelsType) => {
+  return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`);
+};
 // QR Item Management APIs
 // Add Item Using QR
 export const postItemUsingQR = (newItem) =>
@@ -166,7 +185,7 @@ export const deleteSingleQRItem = (id) =>
 
 // User Data APIs
 // Get Single User Data
-export const getSingleUserData = (id) => API.get(`/user/get-user`);
+export const getSingleUserData = () => API.get(`/user/get-user`);
 // Update Single User Data Profile Pic
 export const UpdateUserProfilePic = (updatedData) =>
   API.patch(`/user/profile-pic-update`, updatedData);
@@ -181,8 +200,8 @@ export const addDeliveryPersonnel = (newPersonnel) =>
 export const getAllDeliveryPersonnels = () =>
   API.get("/delivery-person/get-all");
 // Get All Delivery Personnel by supplier
-export const getDeliveryPersonnelsBySupplier = () =>
-  API.get(`/delivery-person/get-by-supplier`);
+export const getDeliveryPersonnelsBySupplier = (personnelType) =>
+  API.get(`/delivery-person/get-by-supplier/${personnelType}`);
 // Get Single Delivery Personnel
 export const getSingleDeliveryPersonnel = (id) =>
   API.get(`/delivery-person/get-single/${id}`);
@@ -197,35 +216,51 @@ export const updateDeliveryPersonnelStatus = (id, updatedData) =>
 export const deleteSingleDeliveryPersonnel = (id) =>
   API.delete(`/delivery-person/delete-single/${id}`);
 
-// Complete Order Management APIs
-// Add Complete Order
-export const addCompleteOrderAPI = (newOrder) =>
-  API.post("/complete-order/create", newOrder);
-// Get All Complete Orders
-export const getAllCompleteOrdersAPI = (localStorageId) =>
-  API.get(`/complete-order/get-all/${localStorageId}`);
-// Get Single Complete Order
-export const getSingleCompleteOrderAPI = (id) =>
-  API.get(`/complete-order/get-single/${id}`);
-// Update Complete Order
-export const updateSingleCompleteOrderAPI = (id, updatedData) =>
-  API.patch(`/complete-order/update/${id}`, updatedData);
-// Delete Complete Order
-export const deleteSingleCompleteOrderAPI = (id) =>
-  API.delete(`/complete-order/delete/${id}`);
+// Update Odometer Reading
+export const updateOdometerReading = (updatedData) =>
+  API.put(`/delivery-person/update-odometer`, updatedData);
+
+// Toggle Delivery Personnel Availability
+export const toggleDeliveryPersonnelAvailability = () =>
+  API.patch(`/delivery-person/toggle-availability`);
+// delivery Order Management APIs
+// Add delivery Order
+export const addDeliveryOrderAPI = (newOrder) =>
+  API.post("/delivery-order/create-order", newOrder);
+// Get All delivery Orders
+export const getAllDeliveryOrdersAPI = () =>
+  API.get(`/delivery-order/get-all-delivery-orders`);
+// Get Single delivery Order
+export const getSingleDeliveryOrderAPI = (id) =>
+  API.get(`/delivery-order/get-single/${id}`);
+// Update delivery Order
+export const updateSingleDeliveryOrderAPI = (id, updatedData) =>
+  API.patch(`/delivery-order/update/${id}`, updatedData);
+// Delete delivery Order
+export const deleteSingleDeliveryOrderAPI = (id) =>
+  API.delete(`/delivery-order/delete/${id}`);
 //Allot Order to the Delivery boy
 export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
-  API.post(`/complete-order/allot-delivery/${orderId}`, {
+  API.post(`/delivery-order/allot-delivery/${orderId}`, {
     deliveryBoyId,
   });
+// Send Delivery Offer
+export const sendDeliveryOfferAPI = ({id, deliveryBoyIds}) =>
+  API.post(`/delivery-order/send-delivery-offer/${id}`, {
+    deliveryBoyIds,
+  });
+
+// Get Delivery Employees
+export const getDeliveryBoys = (orderId) =>
+  API.get(`/delivery-order/get-delivery-employees/${orderId}`);
 
 // Dine-In Order Management APIs
 // Add Dine-In Order
 export const addDineInOrderAPI = (newOrder) =>
   API.post("/dine-in/create-dine-in", newOrder);
 // Get All Dine-In Orders
-export const getAllDineInOrdersAPI = (localStorageId) =>
-  API.get(`/dine-in/get-all/${localStorageId}`);
+export const getAllDineInOrdersAPI = () =>
+  API.get(`/dine-in/get-all-dine-orders`);
 // Get Single Dine-In Order
 export const getSingleDineInOrderAPI = (id) =>
   API.get(`/dine-in/get-single/${id}`);
@@ -235,14 +270,28 @@ export const updateSingleDineInOrderAPI = (id, updatedData) =>
 // Delete Dine-In Order
 export const deleteSingleDineInOrderAPI = (id) =>
   API.delete(`/dine-in-order/delete/${id}`);
+// Allot Dine-In Order to Waiter
+export const allotDineInOrderToWaiter = (orderId, waiterId) =>
+  API.post(`/dine-in/assign-to-waiter/${orderId}`, {
+    waiterId: waiterId,
+  });
+// Allot Dine-In Order to Chef
+export const allotDineInOrderToChef = (orderId, chefId) =>
+  API.post(`/dine-in/assign-to-chef/${orderId}`, {
+    chefId: chefId,
+  });
+
+// Update Dine-In Order Status
+export const updateDineInOrderStatus = (orderId, updatedData) =>
+  API.patch(`/dine-in/update-order-status/${orderId}`, updatedData);
 
 // Take Away Order Management APIs
 // Add Take Away Order
 export const addTakeAwayOrderAPI = (newOrder) =>
   API.post("/take-away/create-take-away", newOrder);
 // Get All Take Away Orders
-export const getAllTakeAwayOrdersAPI = (localStorageId) =>
-  API.get(`/take-away/get-all/${localStorageId}`);
+export const getAllTakeAwayOrdersAPI = () =>
+  API.get(`/take-away/get-all-take-away`);
 // Get Single Take Away Order
 export const getSingleTakeAwayOrderAPI = (id) =>
   API.get(`/take-away/get-single/${id}`);
@@ -252,6 +301,16 @@ export const updateSingleTakeAwayOrderAPI = (id, updatedData) =>
 // Delete Take Away Order
 export const deleteSingleTakeAwayOrderAPI = (id) =>
   API.delete(`/take-away/delete/${id}`);
+
+// Allot Take-Away Order to Chef
+export const allotTakeAwayOrderToChef = (orderId, chefId) =>
+  API.post(`/take-away/assign-to-chef/${orderId}`, {
+    chefId: chefId,
+  });
+
+// Update Take-Away Order Status
+export const updateTakeAwayOrderStatus = (orderId, updatedData) =>
+  API.patch(`/take-away/update-order-status/${orderId}`, updatedData);
 
 // Dashboard APIs
 // Total Stocks API
@@ -301,6 +360,9 @@ export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
 export const getemployeedata = () => API.get(`/employee/get-all-employee`);
+// Get Online Employees by role
+export const getOnlineEmployeesByRole = (role) =>
+  API.get(`/employee/get-online-employees/${role}`);
 // Add Employee Data
 export const postemployeedata = (data) =>
   API.post("/employee/add-employee", data);
@@ -349,9 +411,9 @@ export const getShiftByEmpl = () => API.get(`/shift/get-shift-with-employee`);
 
 // Delivery API
 // Get All Deliveries
-export const getAllDeliveries = (id) => API.get("/delivery/get-all/" + id);
+export const getAllDeliveries = () => API.get("/delivery/get-all-order");
 // Get Active Delivery
-export const getActiveDelivery = (id) => API.get("/delivery/get-active/" + id);
+export const getActiveDelivery = () => API.get("/delivery/get-active-order");
 // Get Single Delivery
 export const getSingleDelivery = (id) => API.get(`/delivery/get-single/${id}`);
 // Get Completed Delivery
@@ -370,21 +432,38 @@ export const cancelDelivery = (id) => API.post(`/delivery/cancel/${id}`);
 // Delete Delivery
 export const deleteSingleDelivery = (id) =>
   API.delete(`/delivery/delete-single/${id}`);
+// Delivery Dashboard API
+export const getDeliveryDashboardData = () =>
+  API.get(`/delivery-dashboard/get-dashboard-data`);
 
 // Map API
 export const getDirections = async (options) => await axios.request(options);
 
 // Notificaiton API
 export const getAllNotifications = () => API.get("/notification/get-all");
+
 export const getNotificationsByUser = () =>
   API.get(`/notification/get-emp-notification`);
+
 export const getNotificationByAdmin = () =>
   API.get(`/notification/get-admin-notification`);
 
-// Delivery Dashboard API
-export const getDeliveryDashboardData = (userId) =>
-  API.get(`/delivery-dashboard/get/${userId}`);
+//Employees
+// Waiter
+// Get Waiter Dashboard Data
+export const getWaiterDashboardData = () =>
+  API.get("/waiter/get-dashboard-data");
 
-// Update Odometer Reading
-export const updateOdometerReading = (updatedData) =>
-  API.put(`/delivery-person/update-odometer`, updatedData);
+//Get Waiter All Orders
+export const getWaiterAllOrders = () => API.get("/waiter/get-all-orders");
+
+// Get Waiter Active Orders
+export const getWaiterActiveOrder = () => API.get("/waiter/get-active-order");
+
+// Chef
+// Get Chef Dashboard Data
+export const getChefDashboardData = () => API.get("/chef/get-dashboard-data");
+// Get Chef All Orders
+export const getChefAllOrders = () => API.get("/chef/get-all-orders");
+// Get Chef Active Orders
+export const getChefActiveOrder = () => API.get("/chef/get-active-order");

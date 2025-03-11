@@ -10,14 +10,13 @@ import {
 import PropTypes from "prop-types";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-// import { postDineInOrderAction } from "../../../../../redux/action/dineInOrder";
+import { useToast } from "../../../../../contexts/useToast";
 import { setFormData } from "../../../../../redux/action/dineInStepperForm";
 
 // DineInForm component definition
 const DineInForm = ({ goToNextStep }) => {
   const dispatch = useDispatch();
-
+  const showToast = useToast();
   // Get form data from the Redux store
   const formData = useSelector((state) => state.dineInForm);
 
@@ -42,15 +41,15 @@ const DineInForm = ({ goToNextStep }) => {
   // validate the form data
   const validate = () => {
     if (!tableNumber) {
-      toast.error("Please enter table number");
+      showToast("Please enter table number", "error");
       return false;
     }
     if (!numberOfGuests) {
-      toast.error("Please enter number of guests");
+      showToast("Please enter number of guests", "error");
       return false;
     }
     if (phoneNumber && phoneNumber.length !== 10) {
-      toast.error("Phone number must be 10 digits long");
+      showToast("Phone number must be 10 digits long", "error");
       return false;
     }
     return true;

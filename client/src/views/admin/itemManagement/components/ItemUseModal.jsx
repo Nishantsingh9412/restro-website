@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -16,17 +16,17 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/useToast";
 import { useDispatch } from "react-redux";
 import { updateSingleItemAction } from "../../../../redux/action/Items";
-import { use } from "react";
+import PropTypes from "prop-types";
 
 const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
   const initialItemState = {
     item_name: "",
     item_unit: "",
     available_quantity: "",
-    minimum_quantity: 0,
+    minimum_quantity: "",
     bar_code: "",
     existing_barcode_no: "",
     expiry_date: "",
@@ -37,8 +37,7 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
   const [selectedItem, setSelectedItem] = useState(itemData ?? null);
   const [searchInput, setSearchInput] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
-  console.log("itemData", itemData);
-
+  const showToast = useToast();
   const dispatch = useDispatch();
   const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
 
@@ -86,13 +85,13 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
 
   const handleSubmit = () => {
     if (!quantity) {
-      toast.error("Please enter a quantity");
+      showToast("Please enter a quantity", "error");
       return;
     }
 
     const updatedQuantity = formData.available_quantity - quantity;
     if (updatedQuantity < 0) {
-      toast.error("Quantity cannot be less than zero");
+      showToast("Exceed Quantity", "info");
       return;
     }
 
@@ -112,10 +111,10 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
   const handleUpdate = (updatedData) => {
     dispatch(updateSingleItemAction(selectedItem?._id, updatedData))
       .then(() => {
-        toast.success("Item updated successfully");
+        showToast("Item updated successfully", "success");
       })
       .catch((error) => {
-        toast.error("Failed to update item: " + error.message);
+        showToast(error.message, "error");
       });
   };
 
@@ -207,3 +206,10 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
 };
 
 export default ItemUseModal;
+
+ItemUseModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  itemData: PropTypes.object,
+  itemsList: PropTypes.array.isRequired,
+};

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import Chart from "react-apexcharts";
 import {
@@ -8,15 +8,9 @@ import {
   eachMonthOfInterval,
   subMonths,
 } from "date-fns";
+import PropTypes from "prop-types";
 
-export default function CompletedDeliveriesChart({
-  weekly,
-  monthly,
-  yearly,
-  totalInWeek,
-  totalInMonth,
-  totalInYear,
-}) {
+export default function CompletedDeliveriesChart({ weekly, monthly, yearly }) {
   const [weeklyData, setWeeklyData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [yearlyData, setYearlyData] = useState([]);
@@ -72,6 +66,7 @@ export default function CompletedDeliveriesChart({
       title: {
         text: "Deliveries",
       },
+      tickAmount: 3,
     },
     stroke: {
       curve: "smooth",
@@ -122,3 +117,9 @@ export default function CompletedDeliveriesChart({
     </Tabs>
   );
 }
+
+CompletedDeliveriesChart.propTypes = {
+  weekly: PropTypes.array.isRequired,
+  monthly: PropTypes.array.isRequired,
+  yearly: PropTypes.array.isRequired,
+};

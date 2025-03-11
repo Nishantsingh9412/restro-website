@@ -19,7 +19,7 @@ export default function Dashboard(props) {
     connectSocketIfDisconnected(); // Connect to socket
 
     // Emit event when user joins
-    socket.on("connect", () => {
+    const handleConnect = () => {
       console.log("Socket Connected");
       socket.emit("userJoined", localData?.result?._id);
       const heartbeatInterval = setInterval(() => {
@@ -28,12 +28,15 @@ export default function Dashboard(props) {
       return () => {
         clearInterval(heartbeatInterval);
       };
-    });
+    };
+
+    socket.on("connect", handleConnect);
+
     return () => {
-      socket.off("connect");
+      socket.off("connect", handleConnect);
       socket.disconnect();
     };
-  }, []);
+  }, [localData?.result?._id]);
 
   // functions for changing the states from components
   const getActiveRoute = (routes) => {

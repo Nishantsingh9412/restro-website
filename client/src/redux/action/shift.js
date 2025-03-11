@@ -23,7 +23,7 @@ export const postShiftApi = (dataemployee, isEdit) => {
       };
     } catch (err) {
       // Return error message if API call fails
-      return { success: false, message: err.message };
+      return { success: false,  message:err.response.data.error || "something went wrong",  status: err.response.status };
     }
   };
 };
@@ -43,7 +43,7 @@ export const deleteShiftApi = (dataemployee) => {
       };
     } catch (err) {
       // Return error message if API call fails
-      return { success: false, message: err.message };
+      return { success: false, message:err.response.data.error || "something went wrong",  status: err.response.status };
     }
   };
 };
@@ -63,7 +63,7 @@ export const fetchShitDetailsApi = (employeeId) => {
       };
     } catch (err) {
       // Return error message if API call fails
-      return { success: false, message: err.message };
+      return { success: false,message:err.response.data.error || "something went wrong",  status: err.response.status };
     }
   };
 };
@@ -83,7 +83,7 @@ export const getShiftByEmpl = () => {
       };
     } catch (err) {
       // Return error message if API call fails
-      return { success: false, message: err.message };
+      return { success: false, message:err.response.data.error || "something went wrong",  status: err.response.status };
     }
   };
 };

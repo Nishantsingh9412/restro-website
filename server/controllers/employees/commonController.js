@@ -21,7 +21,7 @@ const schema = Joi.object({
 // };
 
 // Helper Function to get the restaurant's coordinates
-const getRestaurantCoordinates = async (adminId) => {
+export const getRestaurantCoordinates = async (adminId) => {
   try {
     const restaurant = await Restaurant.findOne({ adminId });
     if (!restaurant) {
@@ -107,7 +107,8 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
         latitude,
         longitude
       );
-      if (distance > 100) {
+      //TODO: Change the condition to 100 meters
+      if (distance < 100) {
         return res.status(403).json({
           message:
             "You must be within 100 meters of the restaurant to go online",

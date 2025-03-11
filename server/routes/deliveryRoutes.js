@@ -11,19 +11,18 @@ import {
   updateDeliveryStatus,
   getActiveDelivery,
 } from "../controllers/deliveryController.js";
-import { employeeMiddleware } from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-
-router.get("/get-all/:userId", getAllDelivery);
-router.get("/get-active/:userId", getActiveDelivery);
-router.get("/get-completed", employeeMiddleware, getCompletedDeliveries);
-router.post("/create-one", addDeliveryItem);
-router.patch("/update-single/:id", updateDeliveryItem);
-router.patch("/update-status/:id", updateDeliveryStatus);
-router.get("/get-single/:id", getSingleDelivery);
-router.delete("/delete-single/:id", deleteDeliveryItem);
-router.delete("/delete-all", deleteAllDeliveryItems);
-router.post("/action/:id", actionsOnDelivery);
+router.get("/get-all-order", accessMiddleware(), getAllDelivery);
+router.get("/get-active-order", accessMiddleware(), getActiveDelivery);
+router.get("/get-completed", accessMiddleware(), getCompletedDeliveries);
+router.post("/create-one", accessMiddleware(), addDeliveryItem);
+router.patch("/update-single/:id", accessMiddleware(), updateDeliveryItem);
+router.patch("/update-status/:id", accessMiddleware(), updateDeliveryStatus);
+router.get("/get-single/:id", accessMiddleware(), getSingleDelivery);
+router.delete("/delete-single/:id", accessMiddleware(), deleteDeliveryItem);
+router.delete("/delete-all", accessMiddleware(), deleteAllDeliveryItems);
+router.post("/action/:id", accessMiddleware(), actionsOnDelivery);
 
 export default router;

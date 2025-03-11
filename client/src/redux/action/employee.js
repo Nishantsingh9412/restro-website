@@ -11,8 +11,7 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
       data: data.result || data,
     };
   } catch (err) {
-    console.error("Error from Employee Action: ", err.message, err.stack);
-    return { success: false, message: err.message };
+    return { success: false, message: err.response.data.error || "An error occurred", status: err.response.status };
   }
 };
 

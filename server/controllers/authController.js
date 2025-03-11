@@ -87,7 +87,7 @@ export const signUpAdminController = async (req, res) => {
         .json({ success: false, message: "Admin not created" });
     }
     const token = jwt.sign(
-      { email: newAdmin.email, id: newAdmin._id },
+      { email: newAdmin.email, id: newAdmin._id, role: "admin" },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -119,7 +119,7 @@ export const loginAdminController = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { email: admin.email, id: admin._id },
+      { email: admin.email, id: admin._id, role: "admin" },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -149,7 +149,7 @@ export const loginEmployeeController = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { phone: employee.phone, id: employee._id },
+      { phone: employee.phone, id: employee._id, role: "employee" },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );

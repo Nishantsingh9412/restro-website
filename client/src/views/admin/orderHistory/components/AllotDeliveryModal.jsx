@@ -1,4 +1,3 @@
-import { CheckCircleIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -12,66 +11,94 @@ import {
   Text,
   Center,
 } from "@chakra-ui/react";
-import { getDeliveryPersonnelsBySupplier } from "../../../../api/index";
+import PropTypes from "prop-types";
+import { getDeliveryBoys } from "../../../../api/index"; // Update the API function accordingly
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
-
-// Dummy data for testing purposes
-const dummy = Array.from({ length: 4 }, (_, i) => ({
-  name: "Delivery guy",
-  _id: i,
-  completedCount: i,
-}));
-
-export default function AllotDeliveryBoyModal({
+import { useToast } from "../../../../contexts/useToast";
+import { Dialog_Boxes } from "../../../../utils/constant";
+import { sendDeliveryOfferAPI } from "../../../../api/index";
+export default function AllotDeliveryModal({
   isOpen,
   setIsOpen,
   onSubmit,
-  supplierId,
+  orderId,
 }) {
-  const [online, setOnline] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const showToast = useToast();
+  const [personnels, setPersonnels] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Handle selection of a delivery guy
   const handleSelect = (id) => {
-    setSelected(id);
+    setSelected((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((item) => item !== id)
+        : [...prevSelected, id]
+    );
   };
 
-  // Handle submission of the selected delivery guy
   const handleSubmit = () => {
-    onSubmit(online.find((item) => item?._id === selected));
+    onSubmit(personnels.filter((item) => selected.includes(item._id)));
     setIsOpen(false);
   };
 
-  // Fetch online delivery guys based on supplierId
-  const getOnlineDeliveryGuys = async () => {
-    try {
-      if (!supplierId) return;
-      setIsLoading(true);
-      const onlineRes = await getDeliveryPersonnelsBySupplier(supplierId);
-      setOnline(onlineRes?.data?.result.length ? onlineRes.data.result : []);
-    } catch (err) {
-      console.error("Error in getting online delivery guys", err);
-    } finally {
-      setIsLoading(false);
+  const handleSendDelOffer = () => {
+    sendDeliveryOfferAPI({ id: orderId, deliveryBoyIds: selected }).then(() => {
+      showToast("Delivery offer sent", "success");
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selected.length === personnels.length) {
+      setSelected([]);
+    } else {
+      setSelected(personnels.map((p) => p._id));
     }
   };
 
-  // Effect to fetch delivery guys when modal is opened
   useEffect(() => {
+    const getPersonnels = async () => {
+      try {
+        setIsLoading(true);
+        const res = await getDeliveryBoys(orderId);
+        setPersonnels(res?.data?.result.length ? res.data.result : []);
+      } catch (err) {
+        showToast(err?.response?.data?.error, "info");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (isOpen) {
-      getOnlineDeliveryGuys();
+      getPersonnels();
     }
-    setSelected(null);
-  }, [isOpen]);
+    setSelected([]);
+  }, [isOpen, orderId, showToast]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Allot Delivery Guys</ModalHeader>
+        <ModalHeader>Allot Delivery Boys </ModalHeader>
+        <Button
+          ml={1}
+          variant={"ghost"}
+          position={"absolute"}
+          display={isLoading ? "none" : "block"}
+          top={4}
+          left={48}
+          onClick={handleSelectAll}
+          colorScheme={selected.length === personnels.length ? "green" : "gray"}
+          width={"fit-content"}
+          leftIcon={
+            selected.length === personnels.length ? (
+              <FiCheckCircle />
+            ) : (
+              <FiCircle />
+            )
+          }
+        ></Button>
         <ModalCloseButton />
         <ModalBody>
           {isLoading ? (
@@ -79,30 +106,35 @@ export default function AllotDeliveryBoyModal({
               <CircleLoader />
               Loading...
             </Center>
-          ) : online.length ? (
+          ) : personnels.length ? (
             <Flex
               flexDirection={"column"}
               gap={5}
               maxH={"400px"}
               overflowY={"auto"}
             >
-              {online.map((o) => (
-                <Flex key={o._id} gap={5} alignItems={"center"}>
+              {personnels.map((p) => (
+                <Flex key={p._id} gap={5} alignItems={"center"}>
                   <Button
-                    onClick={() => handleSelect(o._id)}
-                    colorScheme={selected === o._id ? "green" : "gray"}
+                    onClick={() => handleSelect(p._id)}
+                    colorScheme={selected.includes(p._id) ? "green" : "gray"}
                     width={"fit-content"}
                     leftIcon={
-                      selected === o._id ? <FiCheckCircle /> : <FiCircle />
+                      selected.includes(p._id) ? (
+                        <FiCheckCircle />
+                      ) : (
+                        <FiCircle />
+                      )
                     }
                   >
-                    {o.name}
+                    {p.name}
                   </Button>
-                  <Text color={selected === o._id ? "green" : "#ccc"}>
-                    Completed: {o.completedCount}
+                  <Text color={selected.includes(p._id) ? "green" : "#ccc"}>
+                    Distance: {p?.distance?.toFixed(1)} KM
                   </Text>
                 </Flex>
               ))}
+              {/* Add a box to select all the personnels */}
             </Flex>
           ) : (
             <Text
@@ -112,26 +144,53 @@ export default function AllotDeliveryBoyModal({
               textAlign={"center"}
               color={"#999"}
             >
-              No delivery guy is online at this moment
+              No delivery boys are available at this moment
             </Text>
           )}
         </ModalBody>
 
-        <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            colorScheme="blue"
-            disabled={!selected}
-            onClick={handleSubmit}
-            pointerEvents={selected ? "auto" : "none"}
-            bg={selected ? "blue.500" : "gray.300"}
-          >
-            Allot
-          </Button>
-        </ModalFooter>
+        {!isLoading && (
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              disabled={!selected.length}
+              onClick={handleSubmit}
+              pointerEvents={selected.length === 1 ? "auto" : "none"}
+              bg={selected.length === 1 ? "blue.500" : "gray.300"}
+            >
+              Allot
+            </Button>
+            <Button
+              colorScheme="teal"
+              ml={3}
+              disabled={selected.length < 2}
+              onClick={() => {
+                setIsOpen(false);
+                Dialog_Boxes.showCustomAlert(
+                  "Send Delivery Offer",
+                  "Are you sure you want to send delivery offer to all delivery",
+                  "center",
+                  handleSendDelOffer
+                );
+              }}
+              pointerEvents={selected.length >= 2 ? "auto" : "none"}
+              bg={selected.length >= 2 ? "teal.500" : "gray.400"}
+            >
+              Allot All
+            </Button>
+          </ModalFooter>
+        )}
       </ModalContent>
     </Modal>
   );
 }
+
+AllotDeliveryModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  setIsOpen: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  orderId: PropTypes.string,
+};

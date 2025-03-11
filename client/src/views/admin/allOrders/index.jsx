@@ -36,8 +36,18 @@ import ItemModal from "./components/ItemModal";
 import DineInDrawer from "./components/DineInDrawer";
 import TakeawayDrawer from "./components/TakeAwayDrawer";
 import RestaurantModal from "../../../components/restaurant/restaurantModal";
+import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
+import { useToast } from "../../../contexts/useToast";
 
 export default function AllOrders() {
+  // Selector to get the length of all order items
+  const AllOrderItemsLength = useSelector(
+    (state) => state.OrderItemReducer?.length
+  );
+  // Get admin data from Redux store
+  const adminData = useSelector((state) => state?.userReducer?.data);
+  const showToast = useToast();
+
   // Chakra UI hooks for modal and drawer states
   const {
     isOpen: isOpenItem,
@@ -88,12 +98,6 @@ export default function AllOrders() {
     searchResults: [],
     searchPerformed: false,
   });
-  // Selector to get the length of all order items
-  const AllOrderItemsLength = useSelector(
-    (state) => state.OrderItemReducer?.length
-  );
-  // Get admin data from Redux store
-  const adminData = useSelector((state) => state?.userReducer?.data);
 
   const [allOrderTotal, setAllOrderTotal] = useState(0);
   const [allItemsData, setAllItemsData] = useState([]);
@@ -103,6 +107,7 @@ export default function AllOrders() {
   const [editDrink, setEditDrink] = useState(null);
   const [IsCartClicked, setIsCartClicked] = useState(false);
   const [isVerified, setIsVerified] = useState(true);
+  const [isPermitted, setIsPermitted] = useState(true);
 
   // Function to handle search
   const handleSearch = useCallback(
@@ -110,7 +115,7 @@ export default function AllOrders() {
       const { searchTerm } = isDrink ? searchStateDrinks : searchState;
       const action = isDrink ? searchDrinksOnlyAction : searchOrderItemAction;
 
-      dispatch(action(searchTerm, userId)).then((res) => {
+      dispatch(action(searchTerm)).then((res) => {
         if (res.success) {
           const setSearchStateFn = isDrink
             ? setSearchStateDrinks
@@ -124,7 +129,7 @@ export default function AllOrders() {
         }
       });
     },
-    [dispatch, searchState, searchStateDrinks, userId]
+    [dispatch, searchState, searchStateDrinks]
   );
 
   const handleVerifyRestaurant = () => {
@@ -133,7 +138,8 @@ export default function AllOrders() {
   };
 
   const handleCartClick = (type) => {
-    if (!adminData?.isVerified) {
+    //TODO: Check if restaurant is verified and handle the employee cases
+    if (!adminData?.isVerified && adminData?.role === "admin") {
       setIsVerified(false);
       return;
     }
@@ -149,12 +155,12 @@ export default function AllOrders() {
   // Function to handle submission of item order
   const handleSubmitItemOrder = (data) => {
     data.created_by = userId;
-    const actionType = editItem ? "edit" : "add";
-    const actionPromise =
-      actionType === "edit"
-        ? dispatch(updateSingleItemOrderAction(editItem._id, data))
-        : dispatch(AddOrderItemAction(data));
+    const isEdit = editItem || editDrink;
+    const actionPromise = isEdit
+      ? dispatch(updateSingleItemOrderAction(isEdit._id, data))
+      : dispatch(AddOrderItemAction(data));
     setEditItem(null);
+    setEditDrink(null);
     const AddOrEditItemPromise = actionPromise.then((res) => {
       if (res.success) {
         const action = data.isDrink
@@ -175,14 +181,10 @@ export default function AllOrders() {
     });
 
     toast.promise(AddOrEditItemPromise, {
-      pending:
-        actionType === "edit"
-          ? "Processing Edit of Item..."
-          : "Processing Addition of Item...",
-      success:
-        actionType === "edit"
-          ? "Item Edited Successfully"
-          : "Item Added Successfully",
+      pending: isEdit
+        ? "Processing Edit of Item..."
+        : "Processing Addition of Item...",
+      success: isEdit ? "Item Edited Successfully" : "Item Added Successfully",
       error: (err) => err.message,
     });
   };
@@ -237,18 +239,36 @@ export default function AllOrders() {
 
   // useEffect to fetch data on component mount
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
-      const [allItemsRes, drinksRes] = await Promise.all([
-        dispatch(getAllOrderItemsAction(userId)),
-        dispatch(getDrinksOnlyAction(userId)),
-      ]);
-      if (allItemsRes.success) setAllItemsData(allItemsRes?.data);
-      if (drinksRes.success) setDrinksData(drinksRes?.data);
-      setLoading(false);
+      setLoading(true);
+      try {
+        const [allItemsRes, drinksRes] = await Promise.all([
+          dispatch(getAllOrderItemsAction()),
+          dispatch(getDrinksOnlyAction()),
+        ]);
+
+        if (!allItemsRes.success || !drinksRes.success) {
+          showToast(allItemsRes.message || drinksRes.message, "error");
+          if (allItemsRes.status === 403 || drinksRes.status === 403) {
+            setIsPermitted(false);
+          }
+        } else {
+          setAllItemsData(allItemsRes.data);
+          setDrinksData(drinksRes.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
-  }, [dispatch, userId]);
+  }, [dispatch, showToast, userId]);
+
+  if (!isPermitted) {
+    return <ForbiddenPage isPermitted={isPermitted} />;
+  }
 
   // Function to render search box
   const renderSearchBox = (isDrink) => {

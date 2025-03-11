@@ -1,127 +1,90 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Grid,
-  Heading,
-  Text,
-  Spinner,
-} from "@chakra-ui/react";
+import { Flex, Grid, Heading, Text, Spinner, Button } from "@chakra-ui/react";
 import DeliveryCard from "./components/DeliveryCard";
-import ActiveDelivery from "./components/ActiveDelivery";
-import Swal from "sweetalert2";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
-  acceptDeliveryAction,
-  deleteSingleDeliveryAction,
   completeDeliveryAction,
-  cancelDeliveryAction,
   udpateDeliveryStatusAction,
-  getActiveDeliveryAction,
   getAllAvailabelDeliveryAction,
 } from "../../../redux/action/delivery";
+import { statuses } from "../../../utils/constant";
+import { Dialog_Boxes } from "../../../utils/constant";
+import { toggleDeliveryPersonnelAvailability } from "../../../api";
+import DeliveryMap from "./components/DeliveryMap";
 
 export default function AvailableDeliveries() {
-  const auth = useSelector((state) => state.admin.data);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+  const [allPickedUp, setAllPickedUp] = useState(false);
+  const [pickupLocation, setPickupLocation] = useState(null);
+  const [dropLocations, setDropLocations] = useState([]);
+  const delBoy = useSelector((state) => state.userReducer.data);
+  const currentLocation = useSelector((state) => {
+    const location = state.location.currentLocation;
+    return location?.lat && location?.lng
+      ? location
+      : delBoy?.lastLocation || pickupLocation;
+  });
   const availableDeliveries = useSelector(
     (state) => state.deliveryReducer.deliveries || []
   );
-  const [loading, setLoading] = useState(true);
-  const activeDelivery = useSelector(
-    (state) => state.deliveryReducer.activeDelivery
-  );
-  const dispatch = useDispatch();
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const localId = localData?.result?._id;
-  useEffect(() => {
-    Promise.all([
-      dispatch(getAllAvailabelDeliveryAction(localId)),
-      dispatch(getActiveDeliveryAction(localId)),
-    ]).then(() => setLoading(false));
-  }, []);
-
-  // For Getting Delivery Boy Data End
-
-  const showAcceptConfirmation = () =>
-    Swal.fire({
-      title: "Delivery Accepted",
-      text: "Complete the order to get more delivery offers",
-      icon: "success",
-      confirmButtonColor: "skyblue",
-      timer: 2500,
-      timerProgressBar: true,
-    });
-
-  const showStatusChangeConfirm = (id, status) =>
-    Swal.fire({
-      title: "Change Status to " + status,
-      text: `Confirm that you have ${status.toLowerCase()} the order`,
-      icon: "success",
-      confirmButtonColor: "green",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleUpdateStatus(id, status);
-    });
-
-  const showDeliveryCompleted = () =>
-    Swal.fire({
-      title: "Delivery Completed",
-      text: "You can earn more, get more deliveries",
-      icon: "success",
-      confirmButtonColor: "skyblue",
-    });
-
-  const showRejectConfirmation = (id) =>
-    Swal.fire({
-      title: "Reject delivery offer?",
-      text: "Are you sure you want to reject this offer?",
-      icon: "question",
-      confirmButtonColor: "red",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleReject(id);
-    });
-
-  const showCancelConfirmation = (id) =>
-    Swal.fire({
-      title: "Cancel delivery in progress?",
-      text: "Are you sure you want to cancel this delivery?",
-      icon: "warning",
-      confirmButtonColor: "red",
-      confirmButtonText: "Yes",
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) handleCancel(id);
-    });
-
-  const handleReject = (id) => {
-    console.log(id);
-    dispatch(deleteSingleDeliveryAction(id));
-  };
 
   const handleCompleteDelivery = (id) => {
-    dispatch(completeDeliveryAction(id, localId || auth?._id)).then(() =>
-      showDeliveryCompleted()
+    if (availableDeliveries.length === 1) toggleDeliveryPersonnelAvailability();
+    dispatch(completeDeliveryAction(id)).then(() =>
+      Dialog_Boxes.showOrderCompleted()
     );
   };
 
   const handleUpdateStatus = (id, status) => {
-    if (status === "Completed") return handleCompleteDelivery(id);
-    dispatch(udpateDeliveryStatusAction(id, status, localId || auth?._id));
+    if (status === statuses.DELIVERED) return handleCompleteDelivery(id);
+    dispatch(udpateDeliveryStatusAction(id, status));
   };
 
-  const handleAccept = (id) => {
-    dispatch(acceptDeliveryAction(id, localId || auth?._id)).then(() =>
-      showAcceptConfirmation()
+  const handleUpdateAllToOutForDelivery = () => {
+    availableDeliveries.forEach((delivery) => {
+      if (delivery?.currentStatus === statuses.PICKED_UP) {
+        dispatch(
+          udpateDeliveryStatusAction(delivery?._id, statuses.OUT_FOR_DELIVERY)
+        );
+      }
+    });
+    toggleDeliveryPersonnelAvailability();
+  };
+
+  useEffect(() => {
+    Promise.all([dispatch(getAllAvailabelDeliveryAction())]).then(() =>
+      setLoading(false)
     );
-  };
+  }, [dispatch]);
 
-  const handleCancel = (id) => {
-    dispatch(cancelDeliveryAction(id, localId || auth?._id));
-  };
+  useEffect(() => {
+    if (availableDeliveries.length > 0) {
+      const allPicked = availableDeliveries.every(
+        ({ currentStatus }) => currentStatus === statuses.PICKED_UP
+      );
+      setAllPickedUp(allPicked);
+      setPickupLocation(availableDeliveries[0]?.pickupLocation);
+      const dropLocations = [];
+      availableDeliveries.map((delivery) => {
+        if (
+          delivery?.currentStatus === statuses.PICKED_UP ||
+          delivery?.currentStatus === statuses.OUT_FOR_DELIVERY
+        ) {
+          dropLocations.push({
+            orderId: delivery?.orderId,
+            lat: delivery?.deliveryLocation?.lat,
+            lng: delivery?.deliveryLocation?.lng,
+          });
+        }
+      });
+      setDropLocations(dropLocations);
+      return () => {
+        setDropLocations([]);
+      };
+    }
+  }, [availableDeliveries]);
+
   if (loading)
     return (
       <Flex justifyContent="center" alignItems="center" height="50vh">
@@ -129,31 +92,47 @@ export default function AvailableDeliveries() {
       </Flex>
     );
 
-  if (activeDelivery)
-    return (
-      <ActiveDelivery
-        activeDelivery={activeDelivery}
-        handleCancel={showCancelConfirmation}
-        handleUpdateStatus={showStatusChangeConfirm}
-      />
-    );
-  else
-    return (
-      <>
-        <Heading mt={20} mb={5} fontSize={20}>
-          Available Deliveries
-        </Heading>
-        {availableDeliveries.length === 0 ? (
-          <Text
-            p={3}
-            w={"fit-content"}
-            bg={"rgba(255, 255, 255, 0.5)"}
-            mx={"auto"}
-            my={20}
-          >
-            You don't have any delivery offer at this moment
-          </Text>
-        ) : (
+  return (
+    <>
+      {availableDeliveries.length === 0 ? (
+        <Text
+          p={3}
+          w={"fit-content"}
+          bg={"rgba(255, 255, 255, 0.5)"}
+          mx={"auto"}
+          my={20}
+        >
+          You don&apos;t have any delivery offer at this moment
+        </Text>
+      ) : (
+        <>
+          <Heading fontSize={20} my={5}>
+            Navigation Map
+          </Heading>
+          <DeliveryMap
+            currentLocation={currentLocation ?? pickupLocation}
+            pickupLocation={pickupLocation}
+            dropPoints={dropLocations}
+          />
+          <Flex justifyContent={"space-between"} alignItems={"center"} mt={10}>
+            <Heading fontSize={20}>Available Deliveries</Heading>
+            {allPickedUp && (
+              <Button
+                colorScheme="orange"
+                onClick={() =>
+                  Dialog_Boxes.showStatusChangeConfirm(
+                    null,
+                    statuses.OUT_FOR_DELIVERY,
+                    handleUpdateAllToOutForDelivery
+                  )
+                }
+                mb={5}
+                fontWeight={"bold"}
+              >
+                Out for Delivery
+              </Button>
+            )}
+          </Flex>
           <Grid
             gap={5}
             gridTemplateColumns={{
@@ -166,13 +145,21 @@ export default function AvailableDeliveries() {
               <DeliveryCard
                 data={delivery}
                 key={i}
-                handleAccept={handleAccept}
-                handleReject={showRejectConfirmation}
-                disabled={activeDelivery ? true : false}
+                handleUpdateStatus={(id, status) =>
+                  Dialog_Boxes.showStatusChangeConfirm(
+                    id,
+                    status,
+                    handleUpdateStatus
+                  )
+                }
+                disabled={
+                  delivery?.currentStatus === statuses.PICKED_UP ? true : false
+                }
               />
             ))}
           </Grid>
-        )}
-      </>
-    );
+        </>
+      )}
+    </>
+  );
 }

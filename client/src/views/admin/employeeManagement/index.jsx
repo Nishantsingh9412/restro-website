@@ -14,7 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "react-datepicker/dist/react-datepicker.css";
-import { toast } from "react-toastify";
+import { useToast } from "../../../contexts/useToast.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import TaskModal from "./components/TaskModal";
 import Swal from "sweetalert2";
@@ -32,13 +32,12 @@ const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 const EmployeeManagement = () => {
+  // Toast notification
+  const showToast = useToast();
   // State to manage events
   const [events, setEvents] = useState([]);
   // State to manage modal visibility
   const { isOpen, onOpen, onClose } = useDisclosure();
-  // State to manage selected slot
-  // eslint-disable-next-line no-unused-vars
-  const [selectedSlot, setSelectedSlot] = useState(null);
   // State to manage task details
   const [selectedTask, setSelectedTask] = useState(null);
   // State to manage action type
@@ -53,14 +52,12 @@ const EmployeeManagement = () => {
   // Handle slot selection in the calendar
   const handleSelectSlot = (slotInfo) => {
     onOpen();
-    setSelectedSlot(slotInfo);
     const { start, end } = slotInfo;
     setSelectedTask((prevDetails) => ({
       ...prevDetails,
       startDate: start,
       endDate: end,
     }));
-    console.log(slotInfo);
   };
 
   // Handle event drop in the calendar
@@ -77,9 +74,9 @@ const EmployeeManagement = () => {
         endDate: end,
       });
       if (res.status === 200) {
-        toast.success("Task updated successfully");
+        showToast("Task updated successfully", "success");
       } else {
-        toast.error("Error updating task");
+        showToast("Error updating task", "error");
       }
     } catch (err) {
       console.error("Error updating task:", err);
@@ -105,15 +102,15 @@ const EmployeeManagement = () => {
       };
 
       if (status === 201) {
-        toast.success("Task assigned successfully");
+        showToast("Task assigned successfully", "success");
         setEvents((prev) => [...prev, event]);
       } else if (status === 200) {
-        toast.success("Task updated successfully");
+        showToast("Task updated successfully", "success");
         setEvents((prev) =>
           prev.map((evt) => (evt.id === task._id ? event : evt))
         );
       } else {
-        toast.error("Error assigning task");
+        showToast("Error assigning task", "error");
       }
     } catch (err) {
       console.error("Error assigning task:", err);
@@ -180,7 +177,7 @@ const EmployeeManagement = () => {
         // Fetch tasks
         const tasksResponse = await getAllTasksAPI();
         if (tasksResponse.status !== 200) {
-          toast.error("Error fetching tasks");
+          showToast("Error fetching tasks", "error");
         } else {
           const allTasks = tasksResponse?.data?.result.map((task) => ({
             title: task.title,
@@ -198,7 +195,7 @@ const EmployeeManagement = () => {
         if (employeesResponse.status === 200) {
           setEmployees(employeesResponse?.data?.result);
         } else {
-          toast.error("Error fetching employees");
+          showToast("Error fetching employees", "error");
         }
       } catch (err) {
         console.error("Error fetching data:", err);

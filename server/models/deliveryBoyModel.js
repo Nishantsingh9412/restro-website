@@ -20,6 +20,11 @@ const deliveryBoySchema = new mongoose.Schema({
       default: null,
     },
   },
+  status: {
+    type: String,
+    default: "AVAILABLE",
+    enum: ["AVAILABLE", "OUT_FOR_DELIVERY", "ON_BREAK"],
+  },
 });
 
 export default Employee.discriminator("DeliveryBoy", deliveryBoySchema);

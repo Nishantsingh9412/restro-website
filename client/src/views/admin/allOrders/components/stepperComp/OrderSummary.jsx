@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,13 +10,15 @@ import {
   useColorModeValue,
   Stack,
 } from "@chakra-ui/react";
-import { postCompleteOrderAction } from "../../../../../redux/action/completeOrder";
+import { postDeliveryOrderAction } from "../../../../../redux/action/deliveryOrder";
 import { resetFormDataAction } from "../../../../../redux/action/stepperFormAction";
 import { ResetOrderItemAction } from "../../../../../redux/action/OrderItems";
 import PropTypes from "prop-types";
+import { useToast } from "../../../../../contexts/useToast";
 
 // OrderSummary component definition
 const OrderSummary = ({ goToPreviousStep }) => {
+  const toast = useToast();
   // Chakra UI color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -29,6 +30,7 @@ const OrderSummary = ({ goToPreviousStep }) => {
   const addressData = useSelector((state) => state.form);
   const localData = JSON.parse(localStorage.getItem("ProfileData"));
   const userId = localData?.result?._id;
+  const role = localData?.result?.role;
 
   const allOrderItems = useSelector((state) => state?.OrderItemReducer);
   const cartItems = allOrderItems?.items;
@@ -37,19 +39,22 @@ const OrderSummary = ({ goToPreviousStep }) => {
   // Handle order completion
   const handleCompleteOrder = (e) => {
     e.preventDefault();
-    const completeOrderData = {
+    const deliveryOrderData = {
       ...addressData,
       orderItems: cartItems,
       totalPrice: totalAmount,
       created_by: userId,
     };
-    dispatch(postCompleteOrderAction(completeOrderData)).then((res) => {
+    dispatch(postDeliveryOrderAction(deliveryOrderData)).then((res) => {
       if (res.success) {
         dispatch(resetFormDataAction());
         dispatch(ResetOrderItemAction());
-        navigate("/admin/order-history");
+        navigate(
+          role === "admin" ? "/admin/order-history" : "/employee/order-history"
+        );
+        toast(res.message, "success");
       } else {
-        toast.error(res.message);
+        toast(res.message, "error");
       }
     });
   };

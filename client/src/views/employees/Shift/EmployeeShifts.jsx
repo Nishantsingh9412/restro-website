@@ -1,5 +1,5 @@
 import { Box, Spinner } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ShiftTable from "./components/ShiftTable";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeeShifts } from "../../../redux/action/Employees/employee";
@@ -24,7 +24,7 @@ function EmployeeShifts() {
 
   const currentDate = new Date();
   // Separate shifts into past and upcoming based on the current date
-  const [pastShifts, todayShifts, upcomingShifts] = shifts?.reduce(
+  const [pastShifts, todayShifts, upcomingShifts] = (shifts || []).reduce(
     ([past, today, upcoming], shift) => {
       const shiftDate = new Date(shift.date).setHours(0, 0, 0, 0);
       const currentDateOnly = currentDate.setHours(0, 0, 0, 0);

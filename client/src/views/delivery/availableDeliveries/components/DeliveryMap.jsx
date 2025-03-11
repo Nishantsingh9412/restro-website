@@ -1,119 +1,236 @@
-import React, { useState, useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet-routing-machine";
-import "leaflet-fullscreen";
-import "leaflet/dist/leaflet.css";
-import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { useEffect, useRef } from "react";
+import tt from "@tomtom-international/web-sdk-maps";
+import "@tomtom-international/web-sdk-maps/dist/maps.css";
+import ttServices from "@tomtom-international/web-sdk-services";
+import PropTypes from "prop-types";
 
-// Fix for default marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
 
 const containerStyle = {
   width: "100%",
-  height: "700px",
+  height: "500px",
 };
 
-const RoutingMachine = ({ waypoints }) => {
-  const map = useMap();
-  const routingControlRef = useRef(null);
-
-  useEffect(() => {
-    if (!map) return;
-
-    // Remove previous routing control if it exists
-    if (routingControlRef.current) {
-      map.removeControl(routingControlRef.current);
-      routingControlRef.current = null;
-    }
-
-    // Initialize routing control
-    routingControlRef.current = L.Routing.control({
-      waypoints: waypoints.map((point) => L.latLng(point.lat, point.lng)),
-      lineOptions: { styles: [{ color: "#4a90e2", weight: 6 }] },
-      createMarker: (i, waypoint, n) =>
-        L.marker(waypoint.latLng).bindPopup(
-          i === 0 ? "You" : i === n - 1 ? "Deliver" : "Pickup"
-        ),
-      addWaypoints: false,
-      draggableWaypoints: false,
-      routeWhileDragging: false,
-    }).addTo(map);
-
-    // Cleanup on unmount
-    return () => {
-      if (routingControlRef.current) {
-        map?.removeControl(routingControlRef.current);
-        routingControlRef.current = null;
-      }
-    };
-  }, [map, waypoints]);
-
-  return null;
-};
-
-const RecenterControl = ({ center }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-
-    const recenterControl = L.control({ position: "bottomright" });
-
-    recenterControl.onAdd = () => {
-      const button = L.DomUtil.create("button", "leaflet-bar");
-      button.title = "Recenter Map";
-
-      const icon = document.createElement("div");
-      icon.style.cssText = `
-        width: 30px; height: 30px; background: #fff; border: none;
-        border-radius: 4px; cursor: pointer; padding: 5px;
-      `;
-      icon.innerHTML = `<img src="https://static.thenounproject.com/png/2819186-200.png" alt="Recenter" class="react-icon" />`;
-      button.appendChild(icon);
-      button.onclick = () => map.setView(center, 16);
-      return button;
-    };
-
-    recenterControl.addTo(map);
-
-    return () => {
-      map.removeControl(recenterControl);
-    };
-  }, [map, center]);
-
-  return null;
-};
-
-const DeliveryMap = ({ origin, destination, waypoints = [], center }) => {
-  const allPoints = [origin, ...waypoints, destination];
-
+const isValidLocation = (location) => {
   return (
-    <div>
-      <MapContainer
-        center={center}
-        zoom={13}
-        style={{ ...containerStyle, position: "relative", zIndex: 0 }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {origin && <Marker position={[origin.lat, origin.lng]} />}
-        <RoutingMachine waypoints={allPoints} />
-        <RecenterControl center={center} />
-      </MapContainer>
-    </div>
+    location &&
+    typeof location.lat === "number" &&
+    typeof location.lng === "number"
   );
 };
 
+const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const currentMarker = useRef(null);
+  const dropMarkers = useRef({});
+
+  const initializeMap = () => {
+    const map = tt.map({
+      key: TOMTOM_API_KEY,
+      container: mapRef.current,
+      center: [currentLocation.lng, currentLocation.lat],
+      zoom: 14,
+    });
+
+    mapInstance.current = map;
+
+    map.on("load", updateMap);
+  };
+
+  const generateRandomColor = () => {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    color =
+      "#" + "012345".charAt(Math.floor(Math.random() * 6)) + color.slice(2);
+    return color;
+  };
+
+  const addMarker = (map, position, text, color) => {
+    if (!isValidLocation(position)) return;
+
+    const dropMarkerElement = document.createElement("div");
+    dropMarkerElement.style.backgroundColor = color;
+    dropMarkerElement.style.width = "20px";
+    dropMarkerElement.style.height = "20px";
+    dropMarkerElement.style.borderRadius = "50%";
+    dropMarkerElement.style.border = "2px solid white";
+
+    const pickupMarkerElement = document.createElement("div");
+    const pickupIcon = document.createElement("img");
+    pickupIcon.src = "https://img.icons8.com/ios-filled/50/FF0000/marker.png";
+    pickupIcon.style.width = "30px";
+    pickupIcon.style.height = "30px";
+    pickupMarkerElement.appendChild(pickupIcon);
+
+    const icon = text.includes("Pickup")
+      ? pickupMarkerElement
+      : dropMarkerElement;
+    const marker = new tt.Marker({ element: icon })
+      .setLngLat([position.lng, position.lat])
+      .setPopup(new tt.Popup().setHTML(text))
+      .addTo(map);
+
+    dropMarkers.current[position.orderId] = marker;
+  };
+  
+  const removeUnusedMarkers = (activeOrderIds) => {
+    Object.keys(dropMarkers.current).forEach((orderId) => {
+      if (!activeOrderIds.includes(orderId)) {
+        dropMarkers.current[orderId].remove();
+        delete dropMarkers.current[orderId];
+      }
+    });
+  };
+
+  const drawRoute = async (map, start, end, color) => {
+    if (!isValidLocation(start) || !isValidLocation(end)) return;
+
+    try {
+      const response = await ttServices.services.calculateRoute({
+        key: TOMTOM_API_KEY,
+        locations: [`${start.lng},${start.lat}`, `${end.lng},${end.lat}`],
+        traffic: false,
+      });
+
+      const points = response.routes[0].legs[0].points;
+      const coordinates = points.map((point) => [point.lng, point.lat]);
+      const geoJson = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates,
+            },
+          },
+        ],
+      };
+
+      const routeId = `route-${end.orderId}`;
+
+      if (map.getSource(routeId)) {
+        map.getSource(routeId).setData(geoJson);
+      } else {
+        map.addSource(routeId, { type: "geojson", data: geoJson });
+        map.addLayer({
+          id: routeId,
+          type: "line",
+          source: routeId,
+          layout: {
+            "line-join": "round",
+            "line-cap": "round",
+          },
+          paint: {
+            "line-color": color,
+            "line-width": 6,
+            "line-opacity": 0.8,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to draw route", error);
+    }
+  };
+
+  const updateMap = () => {
+    if (!mapInstance.current) return;
+
+    const map = mapInstance.current;
+
+    if (!map || !map.getStyle() || !map.getStyle().layers) return;
+
+    addMarker(map, pickupLocation, "Pickup Location", "#FFA500");
+
+    dropPoints.forEach((point) => {
+      const color = generateRandomColor();
+      if (!dropMarkers.current[point.orderId]) {
+        addMarker(map, point, `Drop Point (Order ID: ${point.orderId})`, color);
+      }
+      drawRoute(map, currentLocation ?? pickupLocation, point, color);
+    });
+
+    // Remove any existing routes that are no longer needed
+    const routeIds = dropPoints.map((point) => `route-${point.orderId}`);
+    const activeOrderIds = dropPoints.map((point) => point.orderId);
+    removeUnusedMarkers(activeOrderIds);
+    const mapLayers = map.getStyle().layers || [];
+    mapLayers.forEach((layer) => {
+      if (layer.id.includes("route-") && !routeIds.includes(layer.id)) {
+        map.removeLayer(layer.id);
+        map.removeSource(layer.id);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (
+      !isValidLocation(currentLocation) ||
+      !isValidLocation(pickupLocation) ||
+      !Array.isArray(dropPoints)
+    ) {
+      console.error("Invalid locations provided");
+      return;
+    }
+
+    if (!mapInstance.current) {
+      initializeMap();
+    } else if (mapInstance.current?.loaded()) {
+      updateMap();
+    }
+  }, [pickupLocation, dropPoints, currentLocation]);
+
+  useEffect(() => {
+    if (!mapInstance.current) return;
+
+    const map = mapInstance.current;
+
+    if (currentMarker.current) {
+      currentMarker.current.setLngLat([
+        currentLocation.lng,
+        currentLocation.lat,
+      ]);
+    } else {
+      const currentLocMarker = document.createElement("div");
+      const currentLocIcon = document.createElement("img");
+      currentLocIcon.src =
+        "https://img.icons8.com/?size=100&id=HZC1E42sHiI3&format=png&color=000000";
+      currentLocIcon.style.width = "30px";
+      currentLocIcon.style.height = "30px";
+      currentLocMarker.appendChild(currentLocIcon);
+
+      currentMarker.current = new tt.Marker({ element: currentLocMarker })
+        .setLngLat([currentLocation.lng, currentLocation.lat])
+        .setPopup(new tt.Popup().setHTML("Current Location"))
+        .addTo(map);
+    }
+
+    map.setCenter([currentLocation.lng, currentLocation.lat]);
+  }, [currentLocation]);
+
+  return <div ref={mapRef} style={containerStyle}></div>;
+};
+
 export default DeliveryMap;
+
+DeliveryMap.propTypes = {
+  currentLocation: PropTypes.shape({
+    lat: PropTypes.number.isRequired,
+    lng: PropTypes.number.isRequired,
+  }).isRequired,
+  pickupLocation: PropTypes.shape({
+    lat: PropTypes.number.isRequired,
+    lng: PropTypes.number.isRequired,
+  }).isRequired,
+  dropPoints: PropTypes.arrayOf(
+    PropTypes.shape({
+      lat: PropTypes.number.isRequired,
+      lng: PropTypes.number.isRequired,
+      orderId: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};

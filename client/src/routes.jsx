@@ -1,51 +1,103 @@
-// import React from 'react';
+/* eslint-disable react-refresh/only-export-components */
 import { Icon } from "@chakra-ui/react";
 import {
   MdShoppingBag,
   MdRestaurant,
   MdHistory,
-  MdEvent,
   MdChevronRight,
   MdLocalShipping,
   MdVideoLibrary,
   MdDashboard,
-  MdSettings,
   MdOutlineDeliveryDining,
-  MdMap,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { TbTruckDelivery, TbReorder } from "react-icons/tb";
 import { AiFillPrinter } from "react-icons/ai";
+import { lazy } from "react";
 
-// Admin Imports
-import MainDashboard from "./views/admin/default";
-import ItemManagement from "./views/admin/itemManagement";
-import LowStocks from "./views/admin/lowStocks";
-import SupplierManagement from "./views/admin/supplierMgmt";
-import AllOrders from "./views/admin/allOrders";
-import OrderHistory from "./views/admin/orderHistory";
-import EmployeeManagement from "./views/admin/employeeManagement";
-import OrderShipping from "./views/admin/orderShipping";
-import Dashboard from "./views/admin/dashboard";
-import ShiftSchedule from "./views/admin/shiftSchedule";
-import Absence from "./views/admin/absense";
-import Employee from "./views/admin/employees";
-import AvailableDeliveries from "./views/delivery/availableDeliveries"; // Adjust the path as necessary
-import Notifications from "./views/delivery/notifications"; // Adjust the path as necessary
-import DeliveryHistory from "./views/delivery/history"; // Adjust the path as necessary
-import TestMap from "./views/delivery/testMap"; // Adjust the path as necessary
-import DeliveryDashboard from "./views/delivery/dashboard/index";
-import AdminNotifications from "./views/admin/Notification";
-import DeliverySettings from "./views/delivery/settings";
-import EmployeeShifts from "./views/employees/Shift/EmployeeShifts";
-import BarcodeGenerator from "./views/admin/barcodeGenerator/index";
-import { BiBarcodeReader } from "react-icons/bi";
-
+// Lazy-loaded components for better chunking
+const MainDashboard = lazy(() => import("./views/admin/default"));
+const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
+const LowStocks = lazy(() => import("./views/admin/lowStocks"));
+const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
+const AllOrders = lazy(() => import("./views/admin/allOrders"));
+const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
+const OrderShipping = lazy(() => import("./views/admin/orderShipping"));
+const Dashboard = lazy(() => import("./views/admin/dashboard"));
+const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
+const Absence = lazy(() => import("./views/admin/absense"));
+const Employee = lazy(() => import("./views/admin/employees"));
+const AvailableDeliveries = lazy(() =>
+  import("./views/delivery/availableDeliveries")
+);
+const EmployeeNotification = lazy(() =>
+  import("./views/employees/components/Notification")
+);
+const DeliveryHistory = lazy(() => import("./views/delivery/history"));
+const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
+const AdminNotifications = lazy(() => import("./views/admin/Notification"));
+const EmployeeShifts = lazy(() =>
+  import("./views/employees/Shift/EmployeeShifts")
+);
+const WaiterDashboard = lazy(() =>
+  import("./views/employees/Waiter/Dashboard")
+);
+const WaiterAvailableOrders = lazy(() =>
+  import("./views/employees/Waiter/AvailableOrders")
+);
+const ChefDashboard = lazy(() => import("./views/employees/Chef/Dashboard"));
+const ChefAvailableOrders = lazy(() =>
+  import("./views/employees/Chef/AvailableOrders")
+);
 // // Auth Imports
 // import SignInCentered from "./views/auth/signIn";
 // import SignUpCentered from "./views/auth/signup";
+
+const commonRoutes = [
+  {
+    name: "Item Management",
+    layout: "/employee",
+    path: "/item-management",
+    icon: (
+      <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
+    ),
+    // type: 'link',
+    // component: () => <></>,
+    component: <ItemManagement />,
+  },
+  {
+    name: "Employees",
+    layout: "/employee",
+    path: "/employees",
+    icon: <Icon as={MdHistory} width="20px" height="20px" color="inherit" />,
+    component: <Employee />,
+  },
+  {
+    name: "Delivery Tracking",
+    layout: "/employee",
+    path: "/delivery-tracking",
+    icon: (
+      <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
+    ),
+    component: <OrderShipping />,
+  },
+  {
+    name: "Foods and Drinks",
+    layout: "/employee",
+    path: "/orders",
+    icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
+    component: <AllOrders />,
+  },
+  {
+    name: "Order History",
+    layout: "/employee",
+    path: "/order-history",
+    icon: <Icon as={MdHistory} width="20px" height="20px" color="inherit" />,
+    component: <OrderHistory />,
+  },
+];
 
 const adminRoutes = [
   {
@@ -304,22 +356,22 @@ const adminRoutes = [
   //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
   //   ),
   //   links: [
-  //     // {
-  //     //   name: "Assign Schedule",
-  //     //   layout: "/admin",
-  //     //   path: "/employee-management",
-  //     //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
-  //     //   component: <EmployeeManagement />,
-  //     // },
-  //     // {
-  //     //   name: "Shift Schedule",
-  //     //   layout: "/admin",
-  //     //   path: "/shift-schedule",
-  //     //   icon: (
-  //     //     <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
-  //     //   ),
-  //     //   component: <ShiftSchedule />,
-  //     // },
+  // {
+  //   name: "Assign Schedule",
+  //   layout: "/admin",
+  //   path: "/employee-management",
+  //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
+  //   component: <EmployeeManagement />,
+  // },
+  // {
+  //   name: "Shift Schedule",
+  //   layout: "/admin",
+  //   path: "/shift-schedule",
+  //   icon: (
+  //     <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
+  //   ),
+  //   component: <ShiftSchedule />,
+  // },
   //   ],
   // },
   {
@@ -475,9 +527,9 @@ export const deliveryRoutes = [
         component: <AvailableDeliveries />,
       },
       {
-        name: "Available Work",
+        name: "Available Shifts",
         layout: "/employee",
-        path: "/delivery/available-work",
+        path: "/delivery/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -502,7 +554,7 @@ export const deliveryRoutes = [
             height="15px"
           />
         ),
-        component: <Notifications />,
+        component: <EmployeeNotification />,
       },
       {
         name: "History",
@@ -514,24 +566,7 @@ export const deliveryRoutes = [
         ),
         component: <DeliveryHistory />,
       },
-      //  {
-      //     name: "Settings",
-      //     layout: "/employee",
-      //     path: "/delivery/settings",
-      //     type: "link",
-      //     icon: (
-      //       <Icon as={MdSettings} color="inherit" width="15px" height="15px" />
-      //     ),
-      //     component: <DeliverySettings />,
-      //   },
-      // {
-      //   name: "Test Map",
-      //   layout: "/employee",
-      //   path: "/delivery/test-map",
-      //   type: "link",
-      //   icon: <Icon as={MdMap} color="inherit" width="15px" height="15px" />,
-      //   component: <TestMap />,
-      // },
+      ...commonRoutes,
     ],
   },
 ];
@@ -546,7 +581,7 @@ export const waiterRoutes = [
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
-    component: <DeliveryDashboard />,
+    component: <WaiterDashboard />,
     links: [
       {
         name: "Dashboard",
@@ -556,12 +591,41 @@ export const waiterRoutes = [
         icon: (
           <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
         ),
-        component: <DeliveryDashboard />,
+        component: <WaiterDashboard />,
       },
       {
-        name: "Available Work",
+        name: "Available Orders",
         layout: "/employee",
-        path: "/waiter/available-work",
+        path: "/waiter/available-orders",
+        icon: (
+          <Icon
+            as={MdOutlineDeliveryDining}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        component: <WaiterAvailableOrders />,
+      },
+      {
+        name: "Notifications",
+        layout: "/employee",
+        path: "/waiter/notifications",
+        type: "link",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <EmployeeNotification />,
+      },
+      {
+        name: "Available Shifts",
+        layout: "/employee",
+        path: "/waiter/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -573,6 +637,7 @@ export const waiterRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -587,7 +652,7 @@ export const chefRoutes = [
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
-    component: <DeliveryDashboard />,
+    component: <ChefDashboard />,
     links: [
       {
         name: "Dashboard",
@@ -597,12 +662,40 @@ export const chefRoutes = [
         icon: (
           <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
         ),
-        component: <DeliveryDashboard />,
+        component: <ChefDashboard />,
       },
       {
-        name: "Available Work",
+        name: "Available Orders",
         layout: "/employee",
-        path: "/chef/available-work",
+        path: "/chef/available-orders",
+        icon: (
+          <Icon
+            as={MdOutlineDeliveryDining}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        component: <ChefAvailableOrders />,
+      },
+      {
+        name: "Notifications",
+        layout: "/employee",
+        path: "/chef/notifications",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="15px"
+            height="15px"
+          />
+        ),
+        component: <EmployeeNotification />,
+      },
+      {
+        name: "Available Shifts",
+        layout: "/employee",
+        path: "/chef/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -614,6 +707,7 @@ export const chefRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -640,10 +734,11 @@ export const managerRoutes = [
         ),
         component: <DeliveryDashboard />,
       },
+
       {
-        name: "Available Work",
+        name: "Available Shifts",
         layout: "/employee",
-        path: "/manager/available-work",
+        path: "/manager/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -655,6 +750,7 @@ export const managerRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -682,9 +778,9 @@ export const bartenderRoutes = [
         component: <DeliveryDashboard />,
       },
       {
-        name: "Available Work",
+        name: "Available Shifts",
         layout: "/employee",
-        path: "/bar/available-work",
+        path: "/bar/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -696,6 +792,7 @@ export const bartenderRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -724,9 +821,9 @@ export const staffRoutes = [
         component: <DeliveryDashboard />,
       },
       {
-        name: "Available Work",
+        name: "Available Shifts",
         layout: "/employee",
-        path: "/staff/available-work",
+        path: "/staff/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -738,6 +835,7 @@ export const staffRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
@@ -765,9 +863,9 @@ export const helperRoutes = [
         component: <DeliveryDashboard />,
       },
       {
-        name: "Available Work",
+        name: "Available Shifts",
         layout: "/employee",
-        path: "/helper/available-work",
+        path: "/helper/available-shifts",
         type: "link",
         icon: (
           <Icon
@@ -779,105 +877,9 @@ export const helperRoutes = [
         ),
         component: <EmployeeShifts />,
       },
+      ...commonRoutes,
     ],
   },
 ];
-
-// const routes = [
-//   {
-//     name: "Main Dashboard",
-//     layout: "/admin",
-//     path: "/default",
-//     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-//     component: MainDashboard,
-//   },
-//   {
-//     name: "Item Management",
-//     layout: "/admin",
-//     path: "/item-management",
-//     icon: (
-//       <Icon as={LuShoppingBag} width="20px" height="20px" color="inherit" />
-//     ),
-//     component: ItemManagement,
-//   },
-//   {
-//     name: "Low Stocks Alert",
-//     layout: "/admin",
-//     path: "/low-stock",
-//     icon: (
-//       <Icon as={LuFolderClosed} width="20px" height="20px" color="inherit" />
-//     ),
-//     component: LowStocks,
-//   },
-//   {
-//     name: "Supplier Management",
-//     layout: "/admin",
-//     path: "/supplier-management",
-//     icon: <Icon as={FaBookOpen} width="20px" height="20px" color="inherit" />,
-//     component: SupplierManagement,
-//   },
-//   {
-//     name: "Orders",
-//     layout: "/admin",
-//     path: "/orders",
-//     icon: (
-//       <Icon as={MdShoppingCart} width="20px" height="20px" color="inherit" />
-//     ),
-//     component: AllOrders,
-//   },
-
-// {
-//   name: 'Barcode Generator',
-//   layout: '/admin',
-//   path: '/barcode',
-//   icon: (
-//     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
-//   ),
-//   component: BarcodeGenerator,
-// },
-// {
-//   name: "NFT Marketplace",
-//   layout: "/admin",
-//   path: "/nft-marketplace",
-//   icon: (
-//     <Icon
-//       as={MdOutlineShoppingCart}
-//       width='20px'
-//       height='20px'
-//       color='inherit'
-//     />
-//   ),
-//   component: NFTMarketplace,
-//   secondary: true,
-// },
-// {
-//   name: "Data Tables",
-//   layout: "/admin",
-//   icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
-//   path: "/data-tables",
-//   component: DataTables,
-// },
-// {
-//   name: "Profile",
-//   layout: "/admin",
-//   path: "/profile",
-//   icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
-//   component: Profile,
-// },
-// {
-//   name: "Sign In",
-//   layout: "/auth",
-//   path: "/sign-in",
-//   icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
-//   component: SignInCentered,
-// },
-// {
-//   name: "RTL Admin",
-//   layout: "/rtl",
-//   path: "/rtl-default",
-//   icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-//   component: RTL,
-// },
-// ];
 
 export default adminRoutes;

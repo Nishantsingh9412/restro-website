@@ -3,15 +3,14 @@ import mongoose from "mongoose";
 
 export const getDeliveryDashboardData = async (req, res) => {
   try {
-    const { delId } = req.params;
-    // console.log(delId);
+    const { id: delId } = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(delId))
       return res.status(404).send("Delivery boy not found");
 
     const allCompleted = await Delivery.find({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
     });
 
     const todayAssignedDeliveries = await Delivery.countDocuments({
@@ -20,7 +19,7 @@ export const getDeliveryDashboardData = async (req, res) => {
     });
     const todayCompletedDeliveries = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
     });
     const todayAvailableDeliveries = await Delivery.countDocuments({
@@ -37,7 +36,7 @@ export const getDeliveryDashboardData = async (req, res) => {
     });
     const totalCompletedDeliveries = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
     });
     const totalAvailableDeliveries = await Delivery.countDocuments({
       assignedTo: delId,
@@ -49,12 +48,12 @@ export const getDeliveryDashboardData = async (req, res) => {
       totalAvailableDeliveries;
     const totalDeliveriesCompletedToday = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       completedAt: { $gte: new Date().setHours(0, 0, 0, 0) },
     });
     const totalDeliveryCompletedPastweek = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       completedAt: { $gte: new Date(new Date() - 7 * 24 * 60 * 60 * 1000) },
     });
 
@@ -155,19 +154,19 @@ export const getDeliveryDashboardData = async (req, res) => {
 
     const totalDeliveryCompletedPastMonth = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       completedAt: { $gte: new Date(new Date() - 30 * 24 * 60 * 60 * 1000) },
     });
 
     const totalDeliveryCompletedPastYear = await Delivery.countDocuments({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       completedAt: { $gte: new Date(new Date() - 365 * 24 * 60 * 60 * 1000) },
     });
 
     const longestTimeTaken = await Delivery.findOne({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       estimatedTime: { $gt: 0 },
     })
       .sort({ estimatedTime: -1 })
@@ -175,7 +174,7 @@ export const getDeliveryDashboardData = async (req, res) => {
 
     const smallestTimeTaken = await Delivery.findOne({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       estimatedTime: { $gt: 0 },
     })
       .sort({ estimatedTime: 1 })
@@ -183,7 +182,7 @@ export const getDeliveryDashboardData = async (req, res) => {
 
     const longestDeliveryDistance = await Delivery.findOne({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       distance: { $gt: 0 },
     })
       .sort({ distance: -1 })
@@ -191,7 +190,7 @@ export const getDeliveryDashboardData = async (req, res) => {
 
     const shortestDeliveryDistance = await Delivery.findOne({
       assignedTo: delId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
       distance: { $gt: 0 },
     })
       .sort({ distance: 1 })

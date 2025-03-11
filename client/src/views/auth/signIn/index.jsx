@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +30,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { loginAdmin, loginEmployee } from "../../../redux/action/auth.js";
+import { useToast } from "../../../contexts/useToast.jsx";
 
 function SignIn() {
   // Define color modes for different elements
@@ -49,6 +51,7 @@ function SignIn() {
     memberId: "",
   });
   const [loading, setLoading] = useState(false);
+  const showToast = useToast();
 
   // Redux dispatch and navigation hooks
   const dispatch = useDispatch();
@@ -73,13 +76,13 @@ function SignIn() {
   // Validate form data
   const validate = () => {
     if (!formData.email) {
-      toast.error("Email is required");
+      showToast("Email is required");
       return false;
     } else if (!formData.password) {
-      toast.error("Password is required");
+      showToast("Password is required");
       return false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error("Please enter a valid email");
+      showToast("Please enter a valid email");
       return false;
     }
     return true;
@@ -96,10 +99,12 @@ function SignIn() {
     dispatch(loginAdmin(loginData))
       .then((res) => {
         setLoading(false);
+
         if (res.payload.success) {
           navigate("/admin/dashboards/default");
         } else {
-          toast.error(res.error.message);
+          // showToast(res.payload);
+          showToast(res.payload, "error");
         }
       })
       .catch((err) => {
@@ -124,13 +129,12 @@ function SignIn() {
     };
 
     dispatch(loginEmployee(loginData)).then((res) => {
-      console.log(res.payload);
       setLoading(false);
       if (res.payload.success) {
         const empRole = res?.payload?.result?.role;
         handleRouteByRole(empRole);
       } else {
-        toast.error(res.payload);
+        showToast(res.payload, "error");
       }
     });
   };
@@ -357,13 +361,14 @@ function SignIn() {
   );
 
   // Render loader
+  // eslint-disable-next-line no-unused-vars
   const renderLoader = () => (
     <Flex justifyContent="center" alignItems="center" h="100vh">
       <Spinner size="xl" color="blue.500" />
     </Flex>
   );
 
-  if (loading) return renderLoader();
+  // if (loading) return renderLoader();
 
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>

@@ -16,7 +16,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/useToast";
 
 // Utility function to format date
 const formatDateForInput = (isoDate) => {
@@ -47,7 +47,7 @@ export default function LeaveRequestModal({
 
   // State to manage form data
   const [formData, setFormData] = useState(initialFormState);
-
+  const showToast = useToast();
   // Effect to populate form data when editing
   useEffect(() => {
     if (actionType === "edit" && leaveData) {
@@ -77,11 +77,11 @@ export default function LeaveRequestModal({
   const validate = () => {
     const { leaveType, startDate, endDate, type } = formData;
     if (!leaveType || !startDate || !endDate || !type) {
-      toast.error("All required fields must be filled out");
+      showToast("All required fields must be filled out", "error");
       return false;
     }
     if (new Date(startDate) >= new Date(endDate)) {
-      toast.error("End date must be greater than start date");
+      showToast("End date must be greater than start date", "error");
       return false;
     }
     return true;

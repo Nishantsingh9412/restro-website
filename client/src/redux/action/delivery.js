@@ -6,8 +6,11 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     dispatch({ type: actionType, data: data?.result });
     return { success: true, message: successMessage };
   } catch (err) {
-    console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
-    return { success: false, message: "something went wrong" };
+    // console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
+    return {
+      success: false,
+      message: err.response.data.error || "something went wrong",
+    };
   }
 };
 
@@ -25,34 +28,30 @@ export const acceptDeliveryAction =
     );
   };
 
-export const cancelDeliveryAction =
-  (deliveryId, userId) => async (dispatch) => {
-    return handleApiCall(
-      () =>
-        api.updateDeliveryStatus(deliveryId, { status: "Canceled", userId }),
-      dispatch,
-      "CANCEL_DELIVERY",
-      "Delivery canceled successfully"
-    );
-  };
+export const cancelDeliveryAction = (deliveryId) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryStatus(deliveryId, { status: "Cancelled" }),
+    dispatch,
+    "CANCEL_DELIVERY",
+    "Delivery canceled successfully"
+  );
+};
 
-export const completeDeliveryAction =
-  (deliveryId, userId) => async (dispatch) => {
-    return handleApiCall(
-      () =>
-        api.updateDeliveryStatus(deliveryId, { status: "Completed", userId }),
-      dispatch,
-      "COMPLETE_DELIVERY",
-      "Delivery completed successfully"
-    );
-  };
+export const completeDeliveryAction = (deliveryId) => async (dispatch) => {
+  return handleApiCall(
+    () => api.updateDeliveryStatus(deliveryId, { status: "Delivered" }),
+    dispatch,
+    "COMPLETE_DELIVERY",
+    "Delivery completed successfully"
+  );
+};
 
 export const udpateDeliveryStatusAction =
-  (deliveryId, status, userId) => async (dispatch) => {
+  (deliveryId, status) => async (dispatch) => {
     return handleApiCall(
-      () => api.updateDeliveryStatus(deliveryId, { userId, status }),
+      () => api.updateDeliveryStatus(deliveryId, { status }),
       dispatch,
-      status === "Completed"
+      status === "Delivered"
         ? "ADD_COMPLETED_DELIVERY"
         : "UPDATE_DELIVERY_STATUS",
       "Delivery status updated successfully"
@@ -68,25 +67,25 @@ export const addDeliveryAction = (newDel) => async (dispatch) => {
   );
 };
 
-export const getAllAvailabelDeliveryAction = (id) => async (dispatch) => {
+export const getAllAvailabelDeliveryAction = () => async (dispatch) => {
   return handleApiCall(
-    () => api.getAllDeliveries(id),
+    () => api.getAllDeliveries(),
     dispatch,
     "GET_ALL_DELIVERY",
     "All Delivery Personnel Fetched Successfully"
   );
 };
 
-export const getActiveDeliveryAction = (id) => async (dispatch) => {
+export const getActiveDeliveryAction = () => async (dispatch) => {
   return handleApiCall(
-    () => api.getActiveDelivery(id),
+    () => api.getActiveDelivery(),
     dispatch,
     "SET_ACTIVE_DELIVERY",
     "Active Delivery Fetched Successfully"
   );
 };
 
-export const getCompletedDeliveriesAction = (userId) => async (dispatch) => {
+export const getCompletedDeliveriesAction = () => async (dispatch) => {
   return handleApiCall(
     () => api.getCompletedDeliveries(),
     dispatch,

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useToast } from "../../../../contexts/useToast";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Box,
@@ -27,7 +27,7 @@ const ItemModal = (props) => {
     description: "",
     isFavourite: "",
   };
-
+  const showToast = useToast();
   // Destructuring props
   const { isOpen, onClose, onSubmitData, isDrink, data } = props;
 
@@ -104,18 +104,18 @@ const ItemModal = (props) => {
   const postOrderImage = async (pics) => {
     setLoading(true);
     if (pics === undefined) {
-      toast.error("Please upload a picture");
+      showToast("Please upload a picture", "error");
       setLoading(false);
       return;
     }
     if (pics.type !== "image/jpeg" && pics.type !== "image/png") {
-      toast.error("Invalid image format");
+      showToast("Invalid image format", "error");
       setLoading(false);
       return;
     }
     if (pics.size > 2000000) {
       setLoading(false);
-      return toast.error("Image size should be less than 2 MB ");
+      return showToast("Image size should be less than 2 MB ", "error");
     }
 
     const data = new FormData();
@@ -135,9 +135,8 @@ const ItemModal = (props) => {
         setLoading(false);
       })
       .catch((err) => {
-        // console.log(err);
         setLoading(false);
-        return toast.error("Error Uploading Image to server");
+        return showToast(err.message, "error");
       });
   };
 
@@ -159,7 +158,7 @@ const ItemModal = (props) => {
       formState.orderName === "" ||
       formState.priceVal === ""
     ) {
-      toast.error("Please fill all the required fields");
+      showToast("Please fill all the required fields", "error");
       return;
     }
     e.preventDefault();

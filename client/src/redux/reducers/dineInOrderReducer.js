@@ -1,20 +1,40 @@
 const initialState = {
   data: [],
   order: [],
+  dineInFormData: {},
 };
 // Dine-In Order Reducer
 const dineInOrderReducer = (state = initialState, action) => {
   switch (action.type) {
+    case "ALLOT_WAITER_DINE_IN":
+      return {
+        ...state,
+        order: state.order.map((item) =>
+          item.orderId === action.data.orderId
+            ? { ...item, assignedWaiter: action.data.assignedWaiter }
+            : item
+        ),
+      };
+    case "ALLOT_CHEF_DINE_IN":
+      return {
+        ...state,
+        order: state.order.map((item) =>
+          item.orderId === action.data.orderId
+            ? { ...item, assignedChef: action.data.assignedChef }
+            : item
+        ),
+      };
+
     case "POST_DINE_IN_ORDER":
       return {
         ...state,
-        dineInFormData: action.payload,
+        data: [...state.data, action.data],
       };
 
     case "GET_DINE_IN_ORDER":
       return {
         ...state,
-        order: action.payload,
+        order: action.data,
       };
 
     case "RESET_DINE_IN_ORDER":

@@ -175,7 +175,7 @@ export default function HeaderLinks({ secondary }) {
               justifyContent={"space-between"}
               bg={"transparent"}
             >
-              <Text fontSize={"sm"}>Receive Deliveries</Text>
+              <Text fontSize={"sm"}>Go Online</Text>
               <Switch isChecked={isOnline} onChange={handleToggleStatus} />
             </MenuItem>
             <MenuItem

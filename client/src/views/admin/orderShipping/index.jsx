@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import {
   Box,
   Flex,
@@ -8,25 +7,29 @@ import {
   HStack,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import DeliveryBoyCard from "./components/DeliveryBoyCard";
 import { getDeliveryPersonnelsBySupplier } from "../../../api/index.js";
-
+import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
+import { useToast } from "../../../contexts/useToast";
 const OrderShipping = () => {
   const [loading, setLoading] = useState(true);
   const [onlineDelEmp, setOnlineDelEmp] = useState([]);
+  const [isPermitted, setIsPermitted] = useState(true);
+  const showToast = useToast();
 
   const getOnlineDelEmpDeliveryEmployees = async () => {
     try {
       setLoading(true);
       const onlineDelEmpRes = await getDeliveryPersonnelsBySupplier();
+
       setOnlineDelEmp(
-        onlineDelEmpRes?.data?.result.length ? onlineDelEmpRes.data.result : []
+        onlineDelEmpRes?.data?.result.length ? onlineDelEmpRes?.data.result : []
       );
     } catch (err) {
-      toast.error("Error in getting onlineDelEmp delivery guys");
-      console.error("Error in getting onlineDelEmp delivery guys", err);
+      if (err.status === 403) {
+        setIsPermitted(false);
+      }
+      showToast(err.response.data.error, "error");
     } finally {
       setLoading(false);
     }
@@ -54,6 +57,10 @@ const OrderShipping = () => {
     );
   }
 
+  if (!isPermitted) {
+    return <ForbiddenPage isPermitted={isPermitted} />;
+  }
+
   return (
     <Box
       mt="2vw"
@@ -63,7 +70,7 @@ const OrderShipping = () => {
       minH="100vh"
       borderRadius={"10px"}
     >
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <Flex mb="4" alignItems="center">
         <Heading size="lg">Active Delivery Partners</Heading>
         <Spacer />

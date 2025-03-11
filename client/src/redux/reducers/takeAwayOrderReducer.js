@@ -3,8 +3,18 @@ const initialState = {
   order: [],
 };
 
-export const dineInOrderReducer = (state = initialState, action) => {
+const takeAwayOrderReducer = (state = initialState, action) => {
   switch (action.type) {
+    case "ALLOT_CHEF_TAKE_AWAY":
+      console.log("action", action.data);
+      return {
+        ...state,
+        order: state.order.map((item) =>
+          item.orderId === action.data.orderId
+            ? { ...item, assignedChef: action.data.assignedChef }
+            : item
+        ),
+      };
     case "POST_TAKE_AWAY_ORDER":
       return {
         ...state,
@@ -14,7 +24,7 @@ export const dineInOrderReducer = (state = initialState, action) => {
     case "GET_TAKE_AWAY_ORDER":
       return {
         ...state,
-        order: action.payload,
+        order: action.data,
       };
 
     case "RESET_TAKE_AWAY_ORDER":
@@ -27,3 +37,5 @@ export const dineInOrderReducer = (state = initialState, action) => {
       return state;
   }
 };
+
+export default takeAwayOrderReducer;

@@ -44,9 +44,12 @@ import ItemManagementModal from "./components/itemModal";
 import BarCodePrinter from "./components/BarCodePrinter";
 import BarcodeScanner from "./components/BarCodeScan";
 import ItemUseModal from "./components/ItemUseModal";
+import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
+import { useToast } from "../../../contexts/useToast";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
+  const showToast = useToast();
 
   // Manage modal states
   const {
@@ -95,6 +98,7 @@ export default function ItemManagement() {
   const [barCodeData, setbarCodeData] = useState("");
   const [barcodeDataUrl, setBarcodeDataUrl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPermitted, setIsPermitted] = useState(true);
 
   // Get item data from Redux store
   const ItemData = useSelector((state) => state.itemsReducer.items);
@@ -127,13 +131,13 @@ export default function ItemManagement() {
       const res = await dispatch(addItemAction(formData));
       if (res.success) {
         handleOnItemModalClose();
-        toast.success("Item Added Successfully");
+        showToast(res.message, "success");
       } else {
         throw new Error("Error Adding Item");
       }
     } catch (e) {
-      toast.error("Error in Adding Item");
-      console.error(e);
+      showToast(e.message, "error");
+      // console.error(e);
     }
   };
 
@@ -145,12 +149,12 @@ export default function ItemManagement() {
       );
       if (res.success) {
         handleOnItemModalClose();
-        toast.success("Item Updated Successfully");
+        showToast(res.message, "success");
       } else {
         throw new Error("Error Updating Item");
       }
     } catch (e) {
-      toast.error("Error in Updating Item");
+      showToast(e.message, "error");
       console.error(e);
     }
   };
@@ -223,13 +227,26 @@ export default function ItemManagement() {
   };
 
   useEffect(() => {
-    dispatch(getAllItemsAction(userId));
-    setLoading(false);
+    // Fetch all items when the component mounts
+    dispatch(getAllItemsAction(userId))
+      .then((res) => {
+        if (!res.success) {
+          showToast(res.message, "error");
+          if (res.status === 403) {
+            setIsPermitted(false);
+          }
+        }
+      })
+      .finally(() => setLoading(false));
   }, [dispatch, userId]);
 
   useEffect(() => {
     setItemDataArray(ItemData);
   }, [ItemData]);
+
+  if (!isPermitted) {
+    return <ForbiddenPage isPermitted={isPermitted} />;
+  }
 
   // Loader component to show while data is being fetched
   if (loading) {
@@ -246,35 +263,6 @@ export default function ItemManagement() {
         <Box px={{ base: 4, md: 8 }} py={6}>
           <ToastContainer />
           <Flex justify="space-between" mb={2}>
-            {/* <Button
-              leftIcon={<FiPlusCircle />}
-              colorScheme="teal"
-              variant="solid"
-              onClick={() => {
-                setActionType("add");
-                handleModeModalOpen();
-              }}
-              w={{ base: "100%", md: "auto" }}
-              mx={2}
-            >
-              Add Item
-            </Button>
-
-            <Button
-              leftIcon={<FiPlusCircle />}
-              colorScheme="teal"
-              variant="solid"
-              p={4}
-              onClick={() => {
-                setActionType("use");
-                handleModeModalOpen();
-              }}
-              w={{ base: "100%", md: "auto" }}
-              mx={2}
-            >
-              Use Items
-            </Button> */}
-
             <Button
               leftIcon={<IoMdQrScanner />}
               colorScheme="teal"
@@ -461,17 +449,6 @@ export default function ItemManagement() {
                     }}
                     mr={2}
                   />
-                  {/* <IconButton
-                    aria-label="View Item"
-                    colorScheme="green"
-                    size="md"
-                    icon={<IoMdEye />}
-                    onClick={() => {
-                      setSelectedItemData(item._id);
-                      isOpen();
-                    }}
-                    mr={2}
-                  /> */}
                   <IconButton
                     aria-label="Generate Barcode"
                     colorScheme="blue"

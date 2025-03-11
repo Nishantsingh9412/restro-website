@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import Delivery from "../models/delivery.js";
-import deliveryPersonnel from "../models/deliveryPersonnel.js";
 import notification from "../models/notification.js";
 import { hideDeliveryOffer, notifyUser } from "../utils/socket.js";
 // import authDeliv from "../models/authDeliv.js";
@@ -95,9 +94,6 @@ export const addDeliveryItem = async (req, res) => {
   }
 };
 
-
-
-
 // Get a single delivery item by ID
 export const getSingleDelivery = async (req, res) => {
   const { id: _id } = req.params;
@@ -124,7 +120,7 @@ export const getSingleDelivery = async (req, res) => {
 
 // Get active delivery for a user
 export const getActiveDelivery = async (req, res) => {
-  const { userId } = req.params;
+  const { id: userId } = req.user;
 
   if (!validateId(userId, res, "Invalid delivery Item ID")) return;
 
@@ -154,7 +150,7 @@ export const getCompletedDeliveries = async (req, res) => {
   try {
     const completedDeliveries = await Delivery.find({
       assignedTo: userId,
-      currentStatus: "Completed",
+      currentStatus: "Delivered",
     }).sort({ completedAt: -1 });
 
     return res.status(200).json({
@@ -170,14 +166,14 @@ export const getCompletedDeliveries = async (req, res) => {
 
 // Get all delivery items for a user
 export const getAllDelivery = async (req, res) => {
-  const { userId } = req.params;
+  const { id: userId } = req.user;
 
   if (!validateId(userId, res, "Invalid User ID")) return;
 
   try {
     const allDeliveryItems = await Delivery.find({
       assignedTo: userId,
-      currentStatus: { $ne: "Completed" },
+      currentStatus: { $ne: "Delivered" },
     }).sort({ createdAt: -1 });
 
     if (!allDeliveryItems) {
@@ -206,7 +202,7 @@ export const actionsOnDelivery = async (req, res) => {
   }
 
   try {
-    const delPer = await deliveryPersonnel.findById(userId).select("name");
+    // const delPer = await deliveryPersonnel.findById(userId).select("name");
     if (!delPer) {
       return sendErrorResponse(res, 404, "Delivery Personnel not found");
     }
@@ -239,7 +235,7 @@ export const actionsOnDelivery = async (req, res) => {
 
       const noti = await notification.create({
         sender: userId,
-        receiver: acceptedDeliveryItem.supplier,
+        receiver: acceptedDeliveryItem.created_by,
         heading: "Order delivery accepted",
         body: `Your delivery order ${acceptedDeliveryItem.orderId} has been accepted by ${delPer.name}`,
       });
@@ -304,8 +300,9 @@ export const updateDeliveryItem = async (req, res) => {
 
 // Update delivery status
 export const updateDeliveryStatus = async (req, res) => {
+  const userId = req.user.id;
   const { id: _id } = req.params;
-  const { userId, status } = req.body;
+  const { status } = req.body;
 
   if (!validateId(_id, res, "Invalid Delivery Item ID")) return;
   if (!validateId(userId, res, "Invalid User ID")) return;
@@ -325,7 +322,7 @@ export const updateDeliveryStatus = async (req, res) => {
       {
         $set: {
           currentStatus: status,
-          completedAt: status === "Completed" ? new Date() : null,
+          completedAt: status === "Delivered" ? new Date() : null,
         },
         $push: {
           statusHistory: {
@@ -343,7 +340,7 @@ export const updateDeliveryStatus = async (req, res) => {
 
     const noti = await notification.create({
       sender: userId,
-      receiver: updatedDeliveryItem.supplier,
+      receiver: updatedDeliveryItem.created_by,
       heading: "Order delivery status update",
       body: `Your delivery order ${updatedDeliveryItem.orderId} status has been changed to ${updatedDeliveryItem.currentStatus} by ${delPer.name}`,
     });

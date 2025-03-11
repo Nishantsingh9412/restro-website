@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import http from "http";
+import compression from "compression";
 import { Server } from "socket.io";
 
 // Route imports
@@ -14,7 +15,7 @@ import orderRoutes from "./routes/orders.js";
 import qrRoutes from "./routes/qr.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 import addressRoutes from "./routes/address.js";
-import compOrderRoutes from "./routes/compOrderRoutes.js";
+import deliveryOrderRoutes from "./routes/deliveryOrderRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import employeeShiftRoute from "./routes/employeeShiftRoute.js";
@@ -34,7 +35,7 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
-import { sendLiveLocation } from "./utils/socket.js";
+import { sendLiveLocation, acceptOfferOrder } from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -69,7 +70,7 @@ app.use("/qr-items", qrRoutes);
 // app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
-app.use("/complete-order", compOrderRoutes);
+app.use("/delivery-order", deliveryOrderRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/shift", employeeShiftRoute);
@@ -97,7 +98,14 @@ const __dirname = path.resolve(); // Set the __dirname to current directory
 
 // Serve static files in production (e.g., frontend build files)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("./frontend/dist"));
+  app.use(compression());
+  app.use(
+    express.static("./frontend/dist", {
+      maxAge: "1d",
+      etag: true,
+      cacheControl: true,
+    })
+  );
 
   // Serve React app for any unknown routes in production
   app.get("*", (req, res) => {
@@ -141,10 +149,10 @@ io.on("connection", (socket) => {
   socket.on("heartbeat", (userId) => {
     if (onlineUsers.has(userId)) {
       onlineUsers.get(userId).lastActive = Date.now();
-      console.log(
-        `${onlineUsers.size} users online at ${new Date()}`,
-        Array.from(onlineUsers.keys())
-      );
+      // console.log(
+      //   `${onlineUsers.size} users online at ${new Date()}`,
+      //   Array.from(onlineUsers.keys())
+      // );
     }
   });
 
@@ -153,6 +161,12 @@ io.on("connection", (socket) => {
     console.log("Location received:", data);
     const { delEmpId, adminId, location } = data;
     sendLiveLocation(adminId, delEmpId, location);
+  });
+
+  socket.on("acceptOrder", (data) => {
+    console.log("Order accepted:", data);
+    const { delEmpId, supplierId, orderId } = data;
+    acceptOfferOrder(orderId, delEmpId, supplierId);
   });
 
   // Handle user disconnect

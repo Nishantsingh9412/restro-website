@@ -4,36 +4,39 @@ import {
   deleteDeliveryPersonnel,
   getDeliveryPersonnelSingle,
   getDeliveryPersonnels,
-  getOnlineDeliveryPersonnelsBySupplier,
+  // getOnlineEmployeesByRole,
   updateDeliveryPersonnel,
   updateDeliveryPersonnelOnlineStatus,
   updateDeliveryBoyOdometerReading,
+  getOnlineDeliveryPersonnelsBySupplier,
+  toggleDeliveryBoyAvailability,
 } from "../controllers/deliveryPersonnel.js";
 import { upload } from "../middleware/fileupload.js";
-import {
-  employeeMiddleware,
-  adminMiddleware,
-} from "../middleware/authMiddleware.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/get-all", getDeliveryPersonnels);
 router.get(
-  "/get-by-supplier",
-  adminMiddleware,
+  "/get-by-supplier/:type",
+  accessMiddleware("Delivery-Tracking" || "Food-And-Drinks"),
   getOnlineDeliveryPersonnelsBySupplier
+);
+router.patch(
+  "/toggle-availability",
+  accessMiddleware(),
+  toggleDeliveryBoyAvailability
+);
+router.put(
+  "/update-odometer",
+  accessMiddleware(),
+  upload.single("odometer_photo"),
+  updateDeliveryBoyOdometerReading
 );
 router.post("/create-one", createDeliveryPersonnel);
 router.patch("/update-del-person/:id", updateDeliveryPersonnel);
 router.patch("/change-online-status/:id", updateDeliveryPersonnelOnlineStatus);
 router.get("/get-single/:id", getDeliveryPersonnelSingle);
 router.delete("/delete-single/:id", deleteDeliveryPersonnel);
-
-router.put(
-  "/update-odometer",
-  employeeMiddleware,
-  upload.single("odometer_photo"),
-  updateDeliveryBoyOdometerReading
-);
 
 export default router;

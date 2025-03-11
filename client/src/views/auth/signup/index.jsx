@@ -22,6 +22,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { signUpAdmin } from "../../../redux/action/auth.js";
+import { useToast } from "../../../contexts/useToast.jsx";
 
 function SignUp() {
   // Chakra color mode
@@ -42,6 +43,7 @@ function SignUp() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const showToast = useToast();
 
   // Check if user is already logged in
   useEffect(() => {
@@ -66,37 +68,37 @@ function SignUp() {
   // Form validation
   const validate = () => {
     if (!name) {
-      toast.error("Please Enter Your Name");
+      showToast("Please Enter Your Name");
       return false;
     } else if (name.length < 3 || name.length > 20) {
-      toast.error("Name should be between 3 and 20 characters long");
+      showToast("Name should be between 3 and 20 characters long");
       return false;
     } else if (!email) {
-      toast.error("Please Enter Your Email");
+      showToast("Please Enter Your Email");
       return false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Please enter a valid email");
+      showToast("Please enter a valid email");
       return false;
     } else if (!password) {
-      toast.error("Please Enter your Password");
+      showToast("Please Enter your Password");
       return false;
     } else if (password.length < 6 || password.length > 20) {
-      toast.error("Password should be between 6 and 20 characters long");
+      showToast("Password should be between 6 and 20 characters long");
       return false;
     } else if (!confirmPassword) {
-      toast.error("Please Confirm Your Password");
+      showToast("Please Confirm Your Password");
       return false;
     } else if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      showToast("Passwords do not match");
       return false;
     } else if (
       profilePicture &&
       !["image/jpeg", "image/png", "image/jpg"].includes(profilePicture.type)
     ) {
-      toast.error("Please upload a valid image file");
+      showToast("Please upload a valid image file");
       return false;
     } else if (profilePicture && profilePicture.size > 2000000) {
-      toast.error("Image size should be less than 2MB");
+      showToast("Image size should be less than 2MB");
       return false;
     }
     return true;
@@ -121,8 +123,10 @@ function SignUp() {
 
     dispatch(signUpAdmin(formData)).then((res) => {
       setLoading(false);
+      console.log(res);
       if (!res.payload.success) {
-        toast.error(res.message);
+        // showToast(res.payload);
+        showToast(res.payload, "error");
       } else {
         navigate("/admin/dashboards/default");
       }

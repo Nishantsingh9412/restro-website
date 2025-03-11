@@ -31,19 +31,13 @@ const orderItemSchema = new mongoose.Schema({
 // Define the main delivery schema to represent a delivery record
 const deliverySchema = new mongoose.Schema(
   {
-    // Reference to the supplier
-    supplier: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Supplier",
-      required: true,
-    },
     // Unique identifier for the order
     orderId: {
       type: String,
       required: true,
     },
     // Pickup location coordinates
-    dropLocation: {
+    pickupLocation: {
       lat: {
         type: Number,
         required: true,
@@ -107,7 +101,15 @@ const deliverySchema = new mongoose.Schema(
     // Current status of the delivery
     currentStatus: {
       type: String,
-      enum: ["Available", "Accepted", "Picked up", "Completed", "Canceled"],
+      enum: [
+        "Available",
+        "Accepted",
+        "Picked up",
+        "Out for delivery",
+        "Delivered",
+        "Completed",
+        "Cancelled",
+      ],
       default: "Available",
     },
     // History of status changes
@@ -127,6 +129,12 @@ const deliverySchema = new mongoose.Schema(
     completedAt: {
       type: Date,
       default: null,
+    },
+    // Reference to the supplier
+    created_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
     },
   },
   { timestamps: true } // Automatically manage createdAt and updatedAt fields

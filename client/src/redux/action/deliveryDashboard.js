@@ -1,10 +1,10 @@
 import * as api from "../../api/index.js";
 
 // Action to get delivery dashboard data
-export const getDeliveryDashboardDataAction = (userId) => async (dispatch) => {
+export const getDeliveryDashboardDataAction = () => async (dispatch) => {
   try {
     // Make an API call to get delivery dashboard data
-    const { data } = await api.getDeliveryDashboardData(userId);
+    const { data } = await api.getDeliveryDashboardData();
 
     // Dispatch the action to set the delivery dashboard data in the store
     dispatch({
