@@ -102,7 +102,8 @@ if (process.env.NODE_ENV === "production") {
   app.use(
     express.static("./frontend/dist", {
       maxAge: "1d",
-      etag: false,
+      etag: true,
+      cacheControl: true,
     })
   );
 
