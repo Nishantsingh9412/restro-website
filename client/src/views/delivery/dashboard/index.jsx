@@ -18,9 +18,9 @@ import { RiPinDistanceFill } from "react-icons/ri";
 import CompletedDeliveriesChart from "./components/CompletedDeliveriesChart";
 import { getDeliveryDashboardDataAction } from "../../../redux/action/deliveryDashboard";
 import { BiPlus, BiRefresh } from "react-icons/bi";
-// import { toast } from "react-toastify";
-import { useToast } from "../../../contexts/useToast";
+// import { useToast } from "../../../contexts/useToast";
 import PropTypes from "prop-types";
+import CreateDeliveryModal from "./components/CreateDeliveriesModal";
 
 // Card component with optional footerLink and footerText
 const DashboardCard = ({
@@ -83,10 +83,12 @@ const LoadingOrError = ({ isLoading, isError }) => {
 };
 
 export default function Dashboard() {
-  const showToast = useToast();
+  // const showToast = useToast();
   const dispatch = useDispatch();
+
   // State to manage loading and error states
   const [utils, setUtils] = useState({ isLoading: true, isError: false });
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Get delivery dashboard data from Redux store
   const data = useSelector((state) => state.deliveryDashboardReducer.data);
 
@@ -97,12 +99,6 @@ export default function Dashboard() {
       .then(() => setUtils({ isLoading: false, isError: false }))
       .catch(() => setUtils({ isLoading: false, isError: true }));
   }, [dispatch]);
-
-  // Handle create deliveries
-  const handleCreateDeliveries = () => {
-    // toast.info("Feature coming soon!");
-    showToast("Feature coming soon!", "info");
-  };
 
   // Fetch data on component mount
   useEffect(() => {
@@ -124,7 +120,7 @@ export default function Dashboard() {
         <Button
           // isLoading={utils.isLoading}
           leftIcon={<BiPlus />}
-          onClick={handleCreateDeliveries}
+          onClick={() => setIsModalOpen(true)}
         >
           Create Deliveries
         </Button>
@@ -139,6 +135,14 @@ export default function Dashboard() {
 
       {/* Display loading or error message */}
       <LoadingOrError isLoading={utils.isLoading} isError={utils.isError} />
+
+      {/* Create Delivery Order Modal */}
+      {isModalOpen && (
+        <CreateDeliveryModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
       {/* Display dashboard data if not loading or error */}
       {!utils.isLoading && !utils.isError && data && (
@@ -231,7 +235,6 @@ export default function Dashboard() {
               color="blue"
             />
           </Grid>
-
           {/* Section for completed deliveries chart */}
           <Box mt={5} bg={"#fff"}>
             <Heading fontSize={20} mb={5} pl={5} pt={5}>
@@ -246,7 +249,6 @@ export default function Dashboard() {
               totalInYear={data.totalDeliveryCompletedPastYear || 0}
             />
           </Box>
-
           {/* Grid for delivery time taken and distance covered */}
           <Grid
             templateColumns={{
