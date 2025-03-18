@@ -25,11 +25,20 @@ const handleResponse = (res, success, message, result = null) => {
 // Joi schema for validating order items
 const orderItemSchema = Joi.object({
   orderName: Joi.string().required(),
+  subItems: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string().optional().allow(null, ""),
+        name: Joi.string().required(),
+      })
+    )
+    .optional()
+    .allow(null, ""),
   priceVal: Joi.number().required(),
   priceUnit: Joi.string().required(),
-  pic: Joi.string().optional(),
-  description: Joi.string().optional(),
-  isFavourite: Joi.boolean().optional(),
+  pic: Joi.string().optional().allow(null, ""),
+  description: Joi.string().optional().allow(null, ""),
+  isFavourite: Joi.boolean().optional().allow(null, ""),
   isDrink: Joi.boolean().optional(),
   created_by: Joi.string().required(),
 });
@@ -49,6 +58,7 @@ export const AddOrderItem = async (req, res) => {
 
     const {
       orderName,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -59,6 +69,7 @@ export const AddOrderItem = async (req, res) => {
 
     const newOrderItem = await OrderedItems.create({
       orderName,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -151,6 +162,7 @@ export const updateOrderItem = async (req, res) => {
 
     const {
       orderName,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -163,6 +175,7 @@ export const updateOrderItem = async (req, res) => {
       {
         $set: {
           orderName,
+          subItems,
           priceVal,
           priceUnit,
           pic,

@@ -5,6 +5,11 @@ const { Schema, model } = mongoose;
 const OrderedItemsSchema = new Schema(
   {
     orderName: { type: String, required: true },
+    subItems: [
+      {
+        name: { type: String, required: true },
+      },
+    ],
     priceVal: { type: Number, required: true },
     priceUnit: { type: String, required: true },
     pic: {
