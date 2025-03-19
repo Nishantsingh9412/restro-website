@@ -96,6 +96,10 @@ export const createDeliveryOrder = async (req, res) => {
     // Format order items
     const formattedOrderItems = orderItems.map((item) => ({
       item: new mongoose.Types.ObjectId(item._id),
+      subItems: item.selectedSubItems?.map((subItem) => ({
+        _id: new mongoose.Types.ObjectId(subItem._id),
+        name: subItem.name,
+      })),
       quantity: item.quantity,
       total: item.priceVal * item.quantity,
     }));
@@ -154,7 +158,7 @@ export const getDeliveryOrders = async (req, res) => {
     const deliveryOrders = await DeliveryOrder.find({
       created_by: role === "admin" ? id : created_by,
     })
-      .populate("orderItems.item")
+      .populate("orderItems.item", "-subItems")
       .sort({ createdAt: -1 });
 
     // Add assigned delivery boy information to each order

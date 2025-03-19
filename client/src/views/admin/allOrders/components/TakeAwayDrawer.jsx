@@ -58,7 +58,7 @@ const TakeAwayDrawer = ({ isOpen, onClose }) => {
           </Flex>
         </DrawerHeader>
         <DrawerBody>
-          <Box height="70vh" overflowY="scroll">
+          <Box height="70vh" overflowY="scroll" mb={0}>
             {allCartItems?.length > 0 ? (
               <>
                 {allCartItems.map((item, index) => (
@@ -73,7 +73,7 @@ const TakeAwayDrawer = ({ isOpen, onClose }) => {
                 <Box
                   display="flex"
                   flexDirection="column"
-                  position="absolute"
+                  position="relative"
                   bottom="0"
                   p="1rem"
                   w="90%"

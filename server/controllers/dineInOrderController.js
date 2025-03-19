@@ -53,6 +53,10 @@ export const createDineInOrder = async (req, res) => {
     // Format the order items
     const formattedOrderItems = orderItems.map((item) => ({
       item: new mongoose.Types.ObjectId(item._id),
+      subItems: item.selectedSubItems?.map((subItem) => ({
+        _id: new mongoose.Types.ObjectId(subItem._id),
+        name: subItem.name,
+      })),
       quantity: item.quantity,
       total: item.priceVal * item.quantity,
     }));
@@ -102,7 +106,7 @@ export const getDineInOrders = async (req, res) => {
     const dineInOrders = await DineInOrder.find({
       created_by: role === "admin" ? _id : created_by,
     })
-      .populate("orderItems.item")
+      .populate("orderItems.item", "-subItems")
       .populate("assignedWaiter", "name")
       .populate("assignedChef", "name")
       .sort({ createdAt: -1 });

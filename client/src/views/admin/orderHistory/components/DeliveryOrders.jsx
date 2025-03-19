@@ -103,9 +103,22 @@ const DeliveryOrders = ({ orderData, handleAllotDeliveryBoy }) => {
         Order Items:
       </Heading>
       <UnorderedList>
-        {orderItems?.map(({ _id, quantity, total }) => (
+        {orderItems?.map(({ _id, quantity, total, item, subItems }) => (
           <ListItem key={_id}>
-            Quantity: {quantity} - Total: ${total}
+            {item?.orderName}{" "}
+            {subItems?.length > 0 && (
+              <Text as="span" fontSize={"sm"} color={"gray.500"}>
+                {" "}
+                (
+                {subItems?.map((subItem, index) => (
+                  <Text key={index} as={"span"}>
+                    {subItem.name + (index === subItems.length - 1 ? "" : ", ")}
+                  </Text>
+                ))}
+                )
+              </Text>
+            )}{" "}
+            &times; {quantity} - Total: ${total}
           </ListItem>
         ))}
       </UnorderedList>
