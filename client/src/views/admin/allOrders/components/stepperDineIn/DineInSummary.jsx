@@ -16,7 +16,8 @@ import { useToast } from "../../../../../contexts/useToast";
 import CartSummary from "../CartSummary";
 
 // DineInOrderSummary component definition
-const DineInOrderSummary = ({ goToPreviousStep }) => {
+// eslint-disable-next-line no-unused-vars
+const DineInOrderSummary = ({ goToPreviousStep, cancelOrder }) => {
   // Chakra UI color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -107,8 +108,8 @@ const DineInOrderSummary = ({ goToPreviousStep }) => {
       <CartSummary cartItems={cartItems} totalAmount={totalAmount} />
       {/* Buttons for navigation */}
       <Stack direction="row" spacing={4} mt={8}>
-        <Button onClick={goToPreviousStep} colorScheme="gray">
-          Previous
+        <Button onClick={cancelOrder} colorScheme="gray">
+          Cancel
         </Button>
         <Button onClick={handleCompleteOrder} colorScheme="blue">
           Confirm Dine-In Order
@@ -120,6 +121,7 @@ const DineInOrderSummary = ({ goToPreviousStep }) => {
 
 DineInOrderSummary.propTypes = {
   goToPreviousStep: PropTypes.func.isRequired,
+  cancelOrder: PropTypes.func.isRequired,
 };
 
 export default DineInOrderSummary;
