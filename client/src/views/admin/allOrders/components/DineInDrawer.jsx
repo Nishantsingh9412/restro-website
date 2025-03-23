@@ -49,6 +49,10 @@ const DineInDrawer = (props) => {
   // Handler to update form data in the Redux store
   const handleChange = useCallback(
     (e) => {
+      if (e.target.id === "numberOfGuests" && e.target.value > 20) {
+        showToast("Number of guests should be between 1 and 20", "error");
+        return;
+      }
       dispatch(setFormData({ [e.target.id]: e.target.value }));
     },
     [dispatch]
@@ -118,7 +122,7 @@ const DineInDrawer = (props) => {
                       />
                     ))}
                     {/* <DineInForm /> */}
-                    <Box mt={10}>
+                    <Box mt={5} mx={1}>
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                         {/* Table Number Input */}
                         <FormControl id="tableNumber" mb={4} isRequired>
@@ -139,11 +143,33 @@ const DineInDrawer = (props) => {
                             type="number"
                             placeholder="Enter number of guests"
                             value={numberOfGuests}
+                            min={1}
+                            max={20}
                             onChange={handleChange}
                             required={true}
                           />
                         </FormControl>
                       </SimpleGrid>
+                      <Box textAlign="center">
+                        {numberOfGuests &&
+                        numberOfGuests > 0 &&
+                        numberOfGuests <= 20 ? (
+                          <img
+                            src={`/tables/table-${numberOfGuests}.webp`}
+                            alt={`Table ${numberOfGuests}`}
+                            width="100%"
+                            style={{
+                              borderRadius: "8px",
+                              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                            }}
+                          />
+                        ) : (
+                          <Text fontSize="sm" color="gray.500">
+                            Enter a number of guest (1-20) to see the table
+                            layout.
+                          </Text>
+                        )}
+                      </Box>
                     </Box>
 
                     <Box
