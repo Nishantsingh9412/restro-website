@@ -22,7 +22,9 @@ import {
 import PropTypes from "prop-types";
 const ItemModal = (props) => {
   const initialState = {
+    itemId: "",
     orderName: "",
+    category: "",
     subItems: [],
     priceVal: "",
     priceUnit: "",
@@ -40,12 +42,14 @@ const ItemModal = (props) => {
     if (data) {
       setFormState((prevState) => ({
         ...prevState,
+        itemId: data?.itemId || "",
         orderName: data?.orderName || "",
+        category: data?.category || "",
         subItems: data?.subItems || [],
         priceVal: data?.priceVal || "",
         priceUnit: data?.priceUnit || "",
         description: data?.description || "",
-        isFavourite: data?.isFavourite,
+        isFavourite: data?.isFavourite || false,
         pic: data.pic,
         created_by: data.created_by,
       }));
@@ -73,23 +77,31 @@ const ItemModal = (props) => {
   };
 
   const handleSubItemKeyPress = (e) => {
-    if (e.key === "Enter" && subItemInput.trim() !== "") {
-      e.preventDefault();
-      if (formState.subItems.some((item) => item.name === subItemInput)) {
-        showToast("Sub Item already exists or is invalid", "error");
-        return;
-      }
-      if (/^[\d]+$/.test(subItemInput)) {
-        showToast("Sub Item should not be a number", "error");
-        return;
-      }
+    if (e.key !== "Enter" || !subItemInput.trim()) return;
 
-      setFormState((prevState) => ({
-        ...prevState,
-        subItems: [...prevState.subItems, { name: subItemInput.trim() }],
-      }));
-      setSubItemInput("");
+    e.preventDefault();
+    const subItemData = subItemInput.trim().split(" ");
+    const subItemName = subItemData.slice(0, -1).join(" ");
+    const subItemPrice = parseFloat(subItemData[subItemData.length - 1]);
+
+    if (!subItemName || isNaN(subItemPrice)) {
+      showToast("Enter a valid sub-item name followed by its price", "error");
+      return;
     }
+
+    if (formState.subItems.some((item) => item.name === subItemName)) {
+      showToast("Sub-item already exists", "error");
+      return;
+    }
+
+    setFormState((prevState) => ({
+      ...prevState,
+      subItems: [
+        ...prevState.subItems,
+        { name: subItemName, price: subItemPrice },
+      ],
+    }));
+    setSubItemInput("");
   };
 
   const removeSubItem = (index) => {
@@ -103,9 +115,11 @@ const ItemModal = (props) => {
     setLoading(true);
     e.preventDefault();
     if (
+      formState.itemId === "" ||
       formState.orderName === "" ||
       formState.priceVal === "" ||
-      formState.priceUnit === ""
+      formState.priceUnit === "" ||
+      formState.category === ""
     ) {
       showToast("Please fill all the required fields", "error");
       return;
@@ -135,8 +149,19 @@ const ItemModal = (props) => {
             background={"whiteAlpha.100"}
           >
             <form onSubmit={handleSubmit}>
-              <FormControl id="orderName" isRequired>
-                <FormLabel>Item Name</FormLabel>
+              <FormControl id="itemId" isRequired>
+                <FormLabel>Item ID</FormLabel>
+                <Input
+                  type="text"
+                  name="itemId"
+                  onChange={handleChange}
+                  placeholder="Item ID"
+                  value={formState.itemId}
+                  required
+                />
+              </FormControl>
+              <FormControl mt={1} id="orderName" isRequired>
+                <FormLabel>Name</FormLabel>
                 <Input
                   type="text"
                   name="orderName"
@@ -146,9 +171,25 @@ const ItemModal = (props) => {
                   required
                 />
               </FormControl>
+              <FormControl mt={1} id="category" isRequired>
+                <FormLabel>Category</FormLabel>
+                <Input
+                  type="text"
+                  name="category"
+                  onChange={handleChange}
+                  placeholder="Item Category"
+                  value={formState.category}
+                  required
+                />
+              </FormControl>
               {/* Sub Items (Tags inside Input) */}
-              <FormControl id="subItems">
-                <FormLabel>Sub Items</FormLabel>
+              <FormControl mt={1} id="subItems">
+                <FormLabel>
+                  Sub Items{" "}
+                  <span style={{ fontWeight: "lighter", fontSize: "14px" }}>
+                    (Eg: XYZ 3.5)
+                  </span>
+                </FormLabel>
                 <Flex
                   flexWrap="wrap"
                   gap="2"
@@ -168,6 +209,7 @@ const ItemModal = (props) => {
                     >
                       {/* {console.log(item)} */}
                       <TagLabel>{item["name"]}</TagLabel>
+                      <TagLabel>{`: ${item["price"]}`}</TagLabel>
                       <TagCloseButton onClick={() => removeSubItem(index)} />
                     </Tag>
                   ))}
@@ -177,7 +219,9 @@ const ItemModal = (props) => {
                     pl={1}
                     type="text"
                     placeholder={
-                      formState.subItems.length === 0 ? "Add Sub Item & Press Enter" : ""
+                      formState.subItems.length === 0
+                        ? "Enter a valid sub-item name followed by its price"
+                        : ""
                     }
                     value={subItemInput}
                     onChange={(e) => setSubItemInput(e.target.value)}
@@ -190,7 +234,7 @@ const ItemModal = (props) => {
                 </Flex>
               </FormControl>
 
-              <FormControl id="priceVal" isRequired>
+              <FormControl mt={1} id="priceVal" isRequired>
                 <FormLabel>Price Value</FormLabel>
                 <Input
                   type="number"
@@ -204,7 +248,7 @@ const ItemModal = (props) => {
                 />
               </FormControl>
 
-              <FormControl id="priceUnit" isRequired>
+              <FormControl mt={1} id="priceUnit" isRequired>
                 <FormLabel>Price Unit</FormLabel>
                 <Select
                   name="priceUnit"

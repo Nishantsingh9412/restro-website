@@ -315,54 +315,55 @@ export default function AllOrders() {
 
     if (isSearchPerformed) {
       return (
-        <List mt={2}>
+        <List mt={4}>
           {searchResults?.map((result, index) => (
             <Box
               key={index}
-              p="4"
-              mb={3}
+              p="6"
+              mb={5}
               borderWidth="1px"
               borderRadius="lg"
-              boxShadow="sm"
+              boxShadow="lg"
               position="relative"
+              bg="white"
+              _hover={{ transform: "scale(1.02)", transition: "0.3s" }}
             >
               <Box display="flex" alignItems="center">
                 <Image
-                  borderRadius="full"
-                  boxSize="50px"
+                  borderRadius="lg"
+                  boxSize="80px"
                   src={result?.pic}
                   alt="Food-Image"
+                  objectFit="cover"
+                  boxShadow="md"
                 />
-                <Box ml="1rem">
-                  <Text fontWeight="semibold" as="h4">
+                <Box ml="1.5rem" flex="1">
+                  <Text fontWeight="bold" fontSize="lg" color="teal.600">
                     {result?.orderName}
                   </Text>
-                  <Text fontWeight="semibold" as="h4">
+                  <Text fontSize="md" color="gray.600">
                     {result?.priceVal} {result?.priceUnit}
                   </Text>
                 </Box>
+                <Box display="flex" gap="1rem">
+                  <EditIcon
+                    cursor="pointer"
+                    fontSize="20px"
+                    color="blue.500"
+                    onClick={() => handleEditItem(result, isDrink)}
+                  />
+                  <DeleteIcon
+                    cursor="pointer"
+                    fontSize="20px"
+                    color="red.500"
+                    onClick={() => handleDeleteItem(result, isDrink)}
+                  />
+                </Box>
               </Box>
-              <Box
-                position="relative"
-                top="0"
-                right="0"
-                display="flex"
-                gap="1rem"
-                p="1"
-              >
-                <EditIcon
-                  cursor="pointer"
-                  onClick={() => handleEditItem(result, isDrink)}
-                />
-                <DeleteIcon
-                  cursor="pointer"
-                  color="red.500"
-                  onClick={() => handleDeleteItem(result, isDrink)}
-                />
-              </Box>
-              <Box mt="2" display="flex" justifyContent="end">
+              <Box mt="4" display="flex" justifyContent="space-between">
                 <Button
                   colorScheme="teal"
+                  variant="solid"
                   onClick={() => handleAddItemOrder(result)}
                 >
                   Add To Cart
@@ -378,8 +379,8 @@ export default function AllOrders() {
       <Box
         mt="1rem"
         display="grid"
-        gridTemplateColumns="repeat(2, 1fr)"
-        gap={6}
+        gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
+        gap={8}
       >
         {data.map((item) => (
           <Box
@@ -387,46 +388,71 @@ export default function AllOrders() {
             p="4"
             borderWidth="1px"
             borderRadius="lg"
-            boxShadow="sm"
-            display="flex"
-            flexDir="column"
+            boxShadow="lg"
+            bg="white"
+            transition="transform 0.3s, box-shadow 0.3s"
+            _hover={{
+              transform: "scale(1.02)",
+              boxShadow: "xl",
+            }}
           >
-            <Box display="flex" justifyContent={"space-between"}>
-              <Box>
-                <Image
-                  borderRadius="full"
-                  boxSize="50px"
-                  src={item?.pic}
-                  alt="Food-Image"
-                />
-                <Text mt="1" fontWeight="semibold">
-                  {item?.orderName}
-                </Text>
-                <Text fontSize={14} fontWeight="normal">
-                  {item?.priceVal} {item?.priceUnit}
-                </Text>
-              </Box>
-              <Box display="flex" gap="3" p="1" flexDir={"column"}>
+            <Box display="flex" flexDir="column" alignItems="center">
+              <Image
+                borderRadius="lg"
+                boxSize="100px"
+                src={item?.pic}
+                alt="Food-Image"
+                objectFit="cover"
+                boxShadow="md"
+                mb="4"
+              />
+              <Text
+                mt="2"
+                fontWeight="bold"
+                fontSize="lg"
+                color="teal.600"
+                textAlign="center"
+              >
+                {item?.orderName}
+              </Text>
+              <Text
+                fontSize="md"
+                fontWeight="medium"
+                color="gray.600"
+                textAlign="center"
+              >
+                {item?.priceVal} {item?.priceUnit}
+              </Text>
+            </Box>
+            <Box
+              mt="4"
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Button
+                colorScheme="teal"
+                variant="solid"
+                onClick={() => handleAddItemOrder(item)}
+                flex="1"
+              >
+                Add To Cart
+              </Button>
+              <Box display="flex" gap="3" ml="4">
                 <EditIcon
                   cursor="pointer"
-                  fontSize={20}
+                  fontSize="24px"
+                  color="blue.500"
                   onClick={() => handleEditItem(item, isDrink)}
                 />
                 <DeleteIcon
                   cursor="pointer"
+                  fontSize="24px"
                   color="red.500"
-                  fontSize={20}
                   onClick={() => handleDeleteItem(item, isDrink)}
                 />
               </Box>
             </Box>
-            <Button
-              mt="2"
-              colorScheme="teal"
-              onClick={() => handleAddItemOrder(item)}
-            >
-              Add To Cart
-            </Button>
           </Box>
         ))}
       </Box>
