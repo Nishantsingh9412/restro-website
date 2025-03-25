@@ -19,6 +19,7 @@ const dineInOrderSchema = Joi.object({
   emailAddress: Joi.string().optional().allow(""),
   specialRequests: Joi.string().optional().allow(""),
   orderItems: Joi.array().required(),
+  paymentMethod: Joi.string().required(),
   totalPrice: Joi.number().required(),
   created_by: Joi.string().required(),
 });
@@ -70,6 +71,7 @@ export const createDineInOrder = async (req, res) => {
       emailAddress,
       specialRequests,
       orderItems,
+      paymentMethod,
       totalPrice,
       created_by,
     } = req.body;
@@ -91,6 +93,7 @@ export const createDineInOrder = async (req, res) => {
       emailAddress,
       specialRequests,
       orderItems: formattedOrderItems,
+      paymentMethod,
       totalPrice,
       created_by: role === "admin" ? _id : adminID,
       orderId,
@@ -190,6 +193,7 @@ export const updateDineInOrder = async (req, res) => {
       emailAddress,
       specialRequests,
       orderItems,
+      paymentMethod,
       totalPrice,
     } = req.body;
 
@@ -207,6 +211,7 @@ export const updateDineInOrder = async (req, res) => {
         emailAddress,
         specialRequests,
         orderItems: formattedOrderItems,
+        paymentMethod,
         totalPrice,
         created_by: role === "admin" ? userId : adminID,
       },

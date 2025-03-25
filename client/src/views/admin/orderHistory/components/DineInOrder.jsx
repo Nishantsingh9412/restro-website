@@ -22,6 +22,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
     customerName,
     numberOfGuests,
     specialRequests,
+    paymentMethod,
     totalPrice,
     tableNumber,
     orderItems,
@@ -82,6 +83,10 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
         </Text>
         <Text>
           <Badge colorScheme="blue">Total</Badge> ${totalPrice || "0.00"}
+        </Text>
+        <Text>
+          <Badge colorScheme="blue">Payment Method</Badge>{" "}
+          {paymentMethod?.toUpperCase() || "N/A"}
         </Text>
         <Text>
           <Badge colorScheme="blue">Table No</Badge> {tableNumber || "N/A"}

@@ -79,6 +79,11 @@ const dineInOrderSchema = new Schema(
         message: "Order must have at least one item.",
       },
     },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ["cash", "card", "online", "paypal"], // Possible payment methods
+    },
     totalPrice: {
       type: Number,
       required: true,

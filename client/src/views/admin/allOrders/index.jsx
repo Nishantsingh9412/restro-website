@@ -169,8 +169,8 @@ export default function AllOrders() {
         dispatch(action(userId)).then((res) => {
           if (res.success) {
             data.isDrink
-              ? setDrinksData(res?.data)
-              : setAllItemsData(res?.data);
+              ? setDrinksData(groupByCategory(res?.data))
+              : setAllItemsData(groupByCategory(res?.data));
           } else {
             console.error("Error fetching data");
           }
@@ -236,6 +236,17 @@ export default function AllOrders() {
       error: "Error in Deleting Item",
     });
   };
+  // Group by category the coming data
+  const groupByCategory = (data) => {
+    return data.reduce((acc, item) => {
+      const category = item.category || "Uncategorized";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {});
+  };
 
   // useEffect to fetch data on component mount
   useEffect(() => {
@@ -253,8 +264,8 @@ export default function AllOrders() {
             setIsPermitted(false);
           }
         } else {
-          setAllItemsData(allItemsRes.data);
-          setDrinksData(drinksRes.data);
+          setAllItemsData(groupByCategory(allItemsRes.data));
+          setDrinksData(groupByCategory(drinksRes.data));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -376,82 +387,97 @@ export default function AllOrders() {
     }
 
     return (
-      <Box
-        mt="1rem"
-        display="grid"
-        gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
-        gap={8}
-      >
-        {data.map((item) => (
-          <Box
-            key={item._id}
-            p="4"
-            borderWidth="1px"
-            borderRadius="lg"
-            boxShadow="lg"
-            bg="white"
-            transition="transform 0.3s, box-shadow 0.3s"
-            _hover={{
-              transform: "scale(1.02)",
-              boxShadow: "xl",
-            }}
-          >
-            <Box display="flex" flexDir="column" alignItems="center">
-              <Image
-                borderRadius="lg"
-                boxSize="100px"
-                src={item?.pic}
-                alt="Food-Image"
-                objectFit="cover"
-                boxShadow="md"
-                mb="4"
-              />
-              <Text
-                mt="2"
-                fontWeight="bold"
-                fontSize="lg"
-                color="teal.600"
-                textAlign="center"
-              >
-                {item?.orderName}
-              </Text>
-              <Text
-                fontSize="md"
-                fontWeight="medium"
-                color="gray.600"
-                textAlign="center"
-              >
-                {item?.priceVal} {item?.priceUnit}
-              </Text>
-            </Box>
-            <Box
-              mt="4"
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
+      <Box mt="1rem">
+        {Object.entries(data).map(([category, items]) => (
+          <Box key={category} mb="2rem">
+            <Text
+              fontSize="xl"
+              fontWeight="bold"
+              color="teal.600"
+              mb="0.5rem"
+              textTransform="capitalize"
             >
-              <Button
-                colorScheme="teal"
-                variant="solid"
-                onClick={() => handleAddItemOrder(item)}
-                flex="1"
-              >
-                Add To Cart
-              </Button>
-              <Box display="flex" gap="3" ml="4">
-                <EditIcon
-                  cursor="pointer"
-                  fontSize="24px"
-                  color="blue.500"
-                  onClick={() => handleEditItem(item, isDrink)}
-                />
-                <DeleteIcon
-                  cursor="pointer"
-                  fontSize="24px"
-                  color="red.500"
-                  onClick={() => handleDeleteItem(item, isDrink)}
-                />
-              </Box>
+              {category}
+            </Text>
+            <Box
+              display="grid"
+              gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
+              gap={4}
+            >
+              {items.map((item) => (
+                <Box
+                  key={item._id}
+                  p="4"
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  boxShadow="lg"
+                  bg="white"
+                  maxWidth={"350px"}
+                  transition="transform 0.3s, box-shadow 0.3s"
+                  _hover={{
+                    transform: "scale(1.02)",
+                    boxShadow: "xl",
+                  }}
+                >
+                  <Box display="flex" flexDir="column" alignItems="center">
+                    <Image
+                      borderRadius="lg"
+                      boxSize="100px"
+                      src={item?.pic}
+                      alt="Food-Image"
+                      objectFit="cover"
+                      boxShadow="md"
+                      mb="4"
+                    />
+                    <Text
+                      mt="2"
+                      fontWeight="bold"
+                      fontSize="lg"
+                      color="teal.600"
+                      textAlign="center"
+                    >
+                      {item?.orderName}
+                    </Text>
+                    <Text
+                      fontSize="md"
+                      fontWeight="medium"
+                      color="gray.600"
+                      textAlign="center"
+                    >
+                      {item?.priceVal} {item?.priceUnit}
+                    </Text>
+                  </Box>
+                  <Box
+                    mt="4"
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Button
+                      colorScheme="teal"
+                      variant="solid"
+                      onClick={() => handleAddItemOrder(item)}
+                      flex="1"
+                    >
+                      Add To Cart
+                    </Button>
+                    <Box display="flex" gap="3" ml="4">
+                      <EditIcon
+                        cursor="pointer"
+                        fontSize="24px"
+                        color="blue.500"
+                        onClick={() => handleEditItem(item, isDrink)}
+                      />
+                      <DeleteIcon
+                        cursor="pointer"
+                        fontSize="24px"
+                        color="red.500"
+                        onClick={() => handleDeleteItem(item, isDrink)}
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
             </Box>
           </Box>
         ))}
@@ -577,6 +603,7 @@ export default function AllOrders() {
         <Box display="flex" gap="1rem">
           <Box flex="1">
             {renderSearchBox(false)}
+            {console.log(allItemsData)}
             {renderSearchResults(allItemsData, false)}
           </Box>
 

@@ -87,16 +87,14 @@ const DineInOrderSummary = ({ goToPreviousStep, cancelOrder }) => {
               <strong>Customer Name:</strong> {dineInData.customerName}
             </Text>
           )}
-          {dineInData.phoneNumber && (
+          {dineInData.paymentMethod && (
             <Text mb={2}>
-              <strong>Phone Number:</strong> {dineInData.phoneNumber}
+              <strong>Payment Method:</strong>{" "}
+              {dineInData.paymentMethod?.[0].toUpperCase() +
+                dineInData.paymentMethod?.slice(1)}
             </Text>
           )}
-          {dineInData.emailAddress && (
-            <Text mb={2}>
-              <strong>Email Address:</strong> {dineInData.emailAddress}
-            </Text>
-          )}
+
           {dineInData.specialRequests && (
             <Text mb={2}>
               <strong>Special Requests:</strong> {dineInData.specialRequests}
