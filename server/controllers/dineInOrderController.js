@@ -31,6 +31,30 @@ const validateDineInOrder = (data) => {
   }
 };
 
+const calculateItemOrderPrice = (item) => {
+  const { quantity, priceVal, selectedSubItems } = item;
+  const subItemPrice = selectedSubItems.reduce(
+    (prev, item) => prev + item.price,
+    0
+  );
+  const totalPrice = priceVal + subItemPrice;
+  return quantity * totalPrice;
+};
+//TODO: ADD To Constant UTILS Folder
+export const formatOrderItems = (orderItems) => {
+  const formattedOrderItems = orderItems.map((item) => ({
+    item: new mongoose.Types.ObjectId(item._id),
+    subItems: item.selectedSubItems?.map((subItem) => ({
+      _id: new mongoose.Types.ObjectId(subItem._id),
+      name: subItem.name,
+      price: subItem.price,
+    })),
+    quantity: item.quantity,
+    total: calculateItemOrderPrice(item),
+  }));
+  return formattedOrderItems;
+};
+
 // Controller function to create a new dine-in order
 export const createDineInOrder = async (req, res) => {
   const { id: _id, role, created_by: adminID } = req.user;
@@ -51,11 +75,7 @@ export const createDineInOrder = async (req, res) => {
     } = req.body;
 
     // Format the order items
-    const formattedOrderItems = orderItems.map((item) => ({
-      item: new mongoose.Types.ObjectId(item._id),
-      quantity: item.quantity,
-      total: item.priceVal * item.quantity,
-    }));
+    const formattedOrderItems = formatOrderItems(orderItems);
 
     // Generate a unique order ID
     const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
@@ -102,7 +122,7 @@ export const getDineInOrders = async (req, res) => {
     const dineInOrders = await DineInOrder.find({
       created_by: role === "admin" ? _id : created_by,
     })
-      .populate("orderItems.item")
+      .populate("orderItems.item", "-subItems")
       .populate("assignedWaiter", "name")
       .populate("assignedChef", "name")
       .sort({ createdAt: -1 });
@@ -174,11 +194,7 @@ export const updateDineInOrder = async (req, res) => {
     } = req.body;
 
     // Format the order items
-    const formattedOrderItems = orderItems.map((item) => ({
-      item: new mongoose.Types.ObjectId(item._id),
-      quantity: item.quantity,
-      total: item.priceVal * item.quantity,
-    }));
+    const formattedOrderItems = formatOrderItems(orderItems);
 
     // Update the dine-in order in the database
     const updatedDineInOrder = await DineInOrder.findByIdAndUpdate(

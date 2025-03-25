@@ -12,6 +12,7 @@ import {
 } from "../utils/socket.js";
 import { getRestaurantCoordinates } from "./employees/commonController.js";
 import { onlineUsers } from "../server.js";
+import { formatOrderItems } from "./dineInOrderController.js";
 const defaultCountry = "Germany";
 
 // Function to get coordinates from address using TomTom API
@@ -94,11 +95,7 @@ export const createDeliveryOrder = async (req, res) => {
     }
 
     // Format order items
-    const formattedOrderItems = orderItems.map((item) => ({
-      item: new mongoose.Types.ObjectId(item._id),
-      quantity: item.quantity,
-      total: item.priceVal * item.quantity,
-    }));
+    const formattedOrderItems = formatOrderItems(orderItems);
 
     // Generate unique order ID
     const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
@@ -154,7 +151,7 @@ export const getDeliveryOrders = async (req, res) => {
     const deliveryOrders = await DeliveryOrder.find({
       created_by: role === "admin" ? id : created_by,
     })
-      .populate("orderItems.item")
+      .populate("orderItems.item", "-subItems")
       .sort({ createdAt: -1 });
 
     // Add assigned delivery boy information to each order

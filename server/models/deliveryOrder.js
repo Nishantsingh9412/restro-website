@@ -3,12 +3,27 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 // Schema for individual order items
-const orderItemsSubDocsSchema = new Schema({
+export const orderItemsSubDocsSchema = new Schema({
   item: {
     type: Schema.Types.ObjectId,
     ref: "OrderedItems", // Reference to the OrderedItems model
     required: true,
   },
+  subItems: [
+    {
+      _id: {
+        type: Schema.Types.ObjectId,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   quantity: {
     type: Number,
     required: true,

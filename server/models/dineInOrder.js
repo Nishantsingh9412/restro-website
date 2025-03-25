@@ -1,24 +1,6 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
-
-// Subdocument schema for order items
-const orderItemsSubDocsSchema = new Schema({
-  item: {
-    type: Schema.Types.ObjectId,
-    ref: "OrderedItems", // Reference to the OrderedItems model
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: [1, "Quantity must be at least 1"], // Minimum quantity is 1
-  },
-  total: {
-    type: Number,
-    required: true,
-    min: [0, "Total must be a positive number"], // Total must be a positive number
-  },
-});
+import { orderItemsSubDocsSchema } from "./deliveryOrder.js";
 
 //Status History Schema
 const statusHistorySchema = new Schema({

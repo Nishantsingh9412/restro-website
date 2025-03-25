@@ -19,14 +19,13 @@ import {
 } from "@chakra-ui/react";
 
 import Address from "./stepperComp/Address";
-import AllOrdersData from "./stepperComp/AllOrdersData";
+// import AllOrdersData from "./stepperComp/AllOrdersData";
 import OrderSummary from "./stepperComp/OrderSummary";
 
 const CheckoutComp = ({ isOpen, onClose }) => {
   // Define steps before using them
   const steps = [
     { title: "Address", description: "Add Address", component: Address },
-    { title: "Items", description: "Added Items", component: AllOrdersData },
     { title: "Summary", description: "Order Summary", component: OrderSummary },
   ];
 

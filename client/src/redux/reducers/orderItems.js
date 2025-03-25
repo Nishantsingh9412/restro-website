@@ -1,136 +1,107 @@
-// const initialState = {
-//     items: [],
-//     length: 0,
-//     total: 0,
-// }
-
-// const OrderItemReducer = (state = initialState, action) => {
-//     switch (action.type) {
-//         case 'ADD_ORDER_ITEM_TEMP':
-//             let addedItem = state.items.find(item => item._id === action.data._id);
-
-//             if (addedItem) {
-//                 // Increasing the quantity of the existing item
-//                 addedItem.quantity += 1;
-//                 state.length += 1;
-//                 state.total += addedItem.priceVal;
-//                 return { ...state, items: [...state.items] }
-//             } else {
-//                 // Add the new item with a quantity of 1
-//                 state.length += 1;
-//                 state.total += action.data.priceVal;
-//                 return { ...state, items: [...state.items, { ...action.data, quantity: 1 }], }
-//             }
-//         case 'REMOVE_ORDER_ITEM_TEMP':
-//             let removedItem = state.items.find(item => item._id === action.data);
-//             if (removedItem && removedItem.quantity > 1) {
-//                 // Decrease the quantity of the existing item
-//                 removedItem.quantity -= 1;
-//                 state.length -= 1;
-//                 state.total -= removedItem.priceVal;
-//                 return { ...state, items: [...state.items] }
-//             } else {
-//                 // Remove the item from the array
-//                 const newItems = state.items.filter(item => item._id !== action.data);
-//                 state.length -= 1;
-//                 state.total -= removedItem.priceVal;
-//                 return { ...state, items: newItems }
-//             }
-//         case 'REMOVE_ORDER_ITEM_TEMP_COMPLETELY':
-//             const newItems = state.items.filter(item => item._id !== action.data);
-//             state.length = state.length - state.items.find(item => item._id === action.data).quantity;
-//             state.total = state.total - (state.items.find(item => item._id === action.data).quantity * state.items.find(item => item._id === action.data).priceVal);
-//             return { ...state, items: newItems }
-//         case 'RESET_ORDER_ITEM_TEMP':
-//             return { ...initialState, items: [...initialState.items], length: initialState.length, total: initialState.total };
-//         default:
-//             return state;
-//     }
-// }
-
-// export default OrderItemReducer;
-
-
 const initialState = {
-    items: [],
-    length: 0,
-    total: 0,
-}
+  items: [],
+  length: 0,
+  total: 0,
+};
+
+const calculateItemTotal = (item) => {
+  const totalPrice =
+    item.priceVal +
+    (item.selectedSubItems || item.subItems || []).reduce(
+      (acc, subItem) => acc + subItem.price,
+      0
+    );
+  return item.quantity * totalPrice;
+};
 
 const OrderItemReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'ADD_ORDER_ITEM_TEMP': {
-            const existingItem = state.items.find(item => item._id === action.data._id);
+  switch (action.type) {
+    case "ADD_ORDER_ITEM_TEMP": {
+      const existingItem = state.items.find(
+        (item) => item._id === action.data._id
+      );
+      const newItem = existingItem
+        ? {
+            ...existingItem,
+            quantity: existingItem.quantity + 1,
+          }
+        : { ...action.data, quantity: 1 };
 
-            if (existingItem) {
-                const updatedItems = state.items.map(item =>
-                    item._id === action.data._id
-                        ? { ...item, quantity: item.quantity + 1 }
-                        : item
-                );
-                return {
-                    ...state,
-                    items: updatedItems,
-                    length: state.length + 1,
-                    total: state.total + existingItem.priceVal,
-                };
-            } else {
-                const newItem = { ...action.data, quantity: 1 };
-                return {
-                    ...state,
-                    items: [...state.items, newItem],
-                    length: state.length + 1,
-                    total: state.total + newItem.priceVal,
-                };
-            }
-        }
-        case 'REMOVE_ORDER_ITEM_TEMP': {
-            const existingItem = state.items.find(item => item._id === action.data);
+      const updatedItems = existingItem
+        ? state.items.map((item) =>
+            item._id === action.data._id ? newItem : item
+          )
+        : [...state.items, newItem];
 
-            if (existingItem) {
-                if (existingItem.quantity > 1) {
-                    const updatedItems = state.items.map(item =>
-                        item._id === action.data
-                            ? { ...item, quantity: item.quantity - 1 }
-                            : item
-                    );
-                    return {
-                        ...state,
-                        items: updatedItems,
-                        length: state.length - 1,
-                        total: state.total - existingItem.priceVal,
-                    };
-                } else {
-                    const updatedItems = state.items.filter(item => item._id !== action.data);
-                    return {
-                        ...state,
-                        items: updatedItems,
-                        length: state.length - 1,
-                        total: state.total - existingItem.priceVal,
-                    };
-                }
-            }
-            return state;
-        }
-        case 'REMOVE_ORDER_ITEM_TEMP_COMPLETELY': {
-            const existingItem = state.items.find(item => item._id === action.data);
-            if (existingItem) {
-                const updatedItems = state.items.filter(item => item._id !== action.data);
-                return {
-                    ...state,
-                    items: updatedItems,
-                    length: state.length - existingItem.quantity,
-                    total: state.total - (existingItem.quantity * existingItem.priceVal),
-                };
-            }
-            return state;
-        }
-        case 'RESET_ORDER_ITEM_TEMP': {
-            return initialState;
-        }
-        default:
-            return state;
+      return {
+        ...state,
+        items: updatedItems,
+        length: state.length + 1,
+        total: updatedItems.reduce(
+          (acc, item) => acc + calculateItemTotal(item),
+          0
+        ),
+      };
     }
-}
+    case "UPDATE_ORDER_ITEM_TEMP_SUBITEM": {
+      const { parentId, subItems } = action.data;
+      const updatedItems = state.items.map((item) =>
+        item._id === parentId ? { ...item, selectedSubItems: subItems } : item
+      );
+
+      return {
+        ...state,
+        items: updatedItems,
+        total: updatedItems.reduce(
+          (acc, item) => acc + calculateItemTotal(item),
+          0
+        ),
+      };
+    }
+    case "REMOVE_ORDER_ITEM_TEMP": {
+      const existingItem = state.items.find((item) => item._id === action.data);
+      if (!existingItem) return state;
+
+      const updatedItems =
+        existingItem.quantity > 1
+          ? state.items.map((item) =>
+              item._id === action.data
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+            )
+          : state.items.filter((item) => item._id !== action.data);
+
+      return {
+        ...state,
+        items: updatedItems,
+        length: state.length - 1,
+        total: updatedItems.reduce(
+          (acc, item) => acc + calculateItemTotal(item),
+          0
+        ),
+      };
+    }
+    case "REMOVE_ORDER_ITEM_TEMP_COMPLETELY": {
+      const updatedItems = state.items.filter(
+        (item) => item._id !== action.data
+      );
+
+      return {
+        ...state,
+        items: updatedItems,
+        length: updatedItems.reduce((acc, item) => acc + item.quantity, 0),
+        total: updatedItems.reduce(
+          (acc, item) => acc + calculateItemTotal(item),
+          0
+        ),
+      };
+    }
+    case "RESET_ORDER_ITEM_TEMP":
+      return initialState;
+
+    default:
+      return state;
+  }
+};
 
 export default OrderItemReducer;

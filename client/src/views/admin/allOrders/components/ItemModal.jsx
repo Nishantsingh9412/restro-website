@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useToast } from "../../../../contexts/useToast";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,269 +14,297 @@ import {
   ModalHeader,
   Select,
   Textarea,
-  Text,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Flex,
 } from "@chakra-ui/react";
-
+import PropTypes from "prop-types";
 const ItemModal = (props) => {
-  // Initial state for the form
   const initialState = {
+    itemId: "",
     orderName: "",
+    category: "",
+    subItems: [],
     priceVal: "",
     priceUnit: "",
     description: "",
     isFavourite: "",
   };
-  const showToast = useToast();
-  // Destructuring props
-  const { isOpen, onClose, onSubmitData, isDrink, data } = props;
 
-  // State hooks for form data and loading status
+  const showToast = useToast();
+  const { isOpen, onClose, onSubmitData, isDrink, data } = props;
   const [formState, setFormState] = useState(initialState);
   const [loading, setLoading] = useState(false);
+  const [subItemInput, setSubItemInput] = useState("");
 
-  // Retrieve user ID from local storage
-  const localUserId = JSON.parse(localStorage.getItem("ProfileData"));
-  const userId = localUserId?.result?._id;
-
-  // Function to auto-fill the form based on whether the item is a drink or not
-  const autoFillform = () => {
-    if (isDrink) {
-      setFormState({
-        orderName: "Coke",
-        priceVal: 2,
-        priceUnit: "Euro",
-        description: "This is coke",
-        isFavourite: true,
-        pic: formState.pic,
-      });
-    } else {
-      const orderNames = [
-        "Mix Veg",
-        "Normal Dal",
-        "Paneer Tikka",
-        "Dal Makhani",
-      ];
-      const priceVals = [10, 15, 20, 25];
-      const descriptions = [
-        "This is Mix Veg",
-        "This is Normal Dal",
-        "This is Paneer Tikka",
-        "This is Dal Makhani",
-      ];
-      setFormState({
-        orderName: orderNames[Math.floor(Math.random() * orderNames.length)],
-        priceVal: priceVals[Math.floor(Math.random() * priceVals.length)],
-        priceUnit: "Euro",
-        description:
-          descriptions[Math.floor(Math.random() * descriptions.length)],
-        isFavourite: true,
-        pic: formState.pic,
-      });
-    }
-  };
-
-  // Effect hook to update form state when data changes
   useEffect(() => {
-    if (data != null) {
+    if (data) {
       setFormState((prevState) => ({
         ...prevState,
+        itemId: data?.itemId || "",
         orderName: data?.orderName || "",
+        category: data?.category || "",
+        subItems: data?.subItems || [],
         priceVal: data?.priceVal || "",
         priceUnit: data?.priceUnit || "",
         description: data?.description || "",
-        isFavourite: data?.isFavourite,
+        isFavourite: data?.isFavourite || false,
         pic: data.pic,
         created_by: data.created_by,
       }));
     }
-    // Cleanup function to reset form state
     return () => setFormState(initialState);
   }, [data]);
 
-  // Function to handle modal close and reset form state
   const handleClose = () => {
     onClose();
     setFormState(initialState);
   };
 
-  // Function to handle image upload
-  const postOrderImage = async (pics) => {
-    setLoading(true);
-    if (pics === undefined) {
-      showToast("Please upload a picture", "error");
-      setLoading(false);
-      return;
-    }
-    if (pics.type !== "image/jpeg" && pics.type !== "image/png") {
-      showToast("Invalid image format", "error");
-      setLoading(false);
-      return;
-    }
-    if (pics.size > 2000000) {
-      setLoading(false);
-      return showToast("Image size should be less than 2 MB ", "error");
-    }
-
-    const data = new FormData();
-    data.append("file", pics);
-    data.append("upload_preset", "restro-website");
-    data.append("cloud_name", "dezifvepx");
-    fetch("https://api.cloudinary.com/v1_1/dezifvepx/image/upload", {
-      method: "post",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setFormState((prevState) => ({
-          ...prevState,
-          pic: data.url.toString(),
-        }));
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false);
-        return showToast(err.message, "error");
-      });
-  };
-
-  // Function to handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "priceVal" && !/^\d*\.?\d*$/.test(value)) {
+      showToast("Price value should be a valid number", "error");
+      return;
+    }
+
     setFormState((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
-  // Function to handle form submission
+  const handleSubItemKeyPress = (e) => {
+    if (e.key !== "Enter" || !subItemInput.trim()) return;
+
+    e.preventDefault();
+    const subItemData = subItemInput.trim().split(" ");
+    const subItemName = subItemData.slice(0, -1).join(" ");
+    const subItemPrice = parseFloat(subItemData[subItemData.length - 1]);
+
+    if (!subItemName || isNaN(subItemPrice)) {
+      showToast("Enter a valid sub-item name followed by its price", "error");
+      return;
+    }
+
+    if (formState.subItems.some((item) => item.name === subItemName)) {
+      showToast("Sub-item already exists", "error");
+      return;
+    }
+
+    setFormState((prevState) => ({
+      ...prevState,
+      subItems: [
+        ...prevState.subItems,
+        { name: subItemName, price: subItemPrice },
+      ],
+    }));
+    setSubItemInput("");
+  };
+
+  const removeSubItem = (index) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      subItems: prevState.subItems.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = (e) => {
-    formState.isDrink = isDrink;
-    formState.created_by = userId;
+    setLoading(true);
+    e.preventDefault();
     if (
-      formState.priceUnit === "" ||
+      formState.itemId === "" ||
       formState.orderName === "" ||
-      formState.priceVal === ""
+      formState.priceVal === "" ||
+      formState.priceUnit === "" ||
+      formState.category === ""
     ) {
       showToast("Please fill all the required fields", "error");
       return;
     }
-    e.preventDefault();
+    if (formState.isFavourite === "") {
+      formState.isFavourite = "false";
+    }
+
+    formState.isDrink = isDrink;
     onSubmitData(formState);
     handleClose();
+    setLoading(false);
   };
 
   return (
-    <>
-      <Modal isCentered isOpen={isOpen} onClose={handleClose}>
-        <ModalContent>
-          <ModalHeader>Add Drinks</ModalHeader>
-          <Button onClick={autoFillform}>Auto Fill</Button>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box
-              maxW="sm"
-              m="auto"
-              p="4"
-              borderWidth="1px"
-              borderRadius="lg"
-              background={"whiteAlpha.100"}
-            >
-              <form onSubmit={handleSubmit}>
-                <FormControl id="orderName" isRequired>
-                  <FormLabel>Item Name</FormLabel>
-                  <Input
-                    type="text"
-                    name="orderName"
-                    onChange={handleChange}
-                    value={formState.orderName}
-                    required={true}
-                  />
-                </FormControl>
-                <FormControl id="priceVal" isRequired>
-                  <FormLabel>Price Value</FormLabel>
-                  <Input
-                    type="number"
-                    name="priceVal"
-                    onChange={handleChange}
-                    min={0}
-                    value={formState.priceVal}
-                    required={true}
-                  />
-                </FormControl>
-                <FormControl id="priceUnit">
-                  <FormLabel>Price Unit</FormLabel>
-                  <Select
-                    name="priceUnit"
-                    onChange={handleChange}
-                    value={formState.priceUnit}
-                    required={true}
-                  >
-                    <option value=""> Select Price Unit </option>
-                    <option value="Euro">Euro</option>
-                  </Select>
-                </FormControl>
-                <FormControl id="description">
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    type="text"
-                    name="description"
-                    onChange={handleChange}
-                    value={formState.description}
-                  />
-                </FormControl>
-                <FormControl id="isFavourite">
-                  <FormLabel>Favourite</FormLabel>
-                  <Select
-                    name="isFavourite"
-                    onChange={handleChange}
-                    value={formState.isFavourite}
-                  >
-                    <option value=""> Select Favourite </option>
-                    <option value={false}>No</option>
-                    <option value={true}>Yes</option>
-                  </Select>
-                </FormControl>
-                <FormControl id="pic">
-                  <FormLabel>Upload Picture</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => postOrderImage(e.target.files[0])}
-                  />
-                </FormControl>
-                <Text>{formState.pic}</Text>
-                {data ? (
-                  <>
-                    <Button
-                      mt="4"
-                      mr={2}
+    <Modal isCentered isOpen={isOpen} onClose={handleClose}>
+      <ModalContent>
+        <ModalHeader>Add Item</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Box
+            maxW="sm"
+            m="auto"
+            p="4"
+            borderWidth="1px"
+            borderRadius="lg"
+            background={"whiteAlpha.100"}
+          >
+            <form onSubmit={handleSubmit}>
+              <FormControl id="itemId" isRequired>
+                <FormLabel>Item ID</FormLabel>
+                <Input
+                  type="text"
+                  name="itemId"
+                  onChange={handleChange}
+                  placeholder="Item ID"
+                  value={formState.itemId}
+                  required
+                />
+              </FormControl>
+              <FormControl mt={1} id="orderName" isRequired>
+                <FormLabel>Name</FormLabel>
+                <Input
+                  type="text"
+                  name="orderName"
+                  onChange={handleChange}
+                  placeholder="Item Name"
+                  value={formState.orderName}
+                  required
+                />
+              </FormControl>
+              <FormControl mt={1} id="category" isRequired>
+                <FormLabel>Category</FormLabel>
+                <Input
+                  type="text"
+                  name="category"
+                  onChange={handleChange}
+                  placeholder="Item Category"
+                  value={formState.category}
+                  required
+                />
+              </FormControl>
+              {/* Sub Items (Tags inside Input) */}
+              <FormControl mt={1} id="subItems">
+                <FormLabel>
+                  Sub Items{" "}
+                  <span style={{ fontWeight: "lighter", fontSize: "14px" }}>
+                    (Eg: XYZ 3.5)
+                  </span>
+                </FormLabel>
+                <Flex
+                  flexWrap="wrap"
+                  gap="2"
+                  px="1"
+                  borderWidth="1px"
+                  borderRadius="md"
+                  alignItems="center"
+                >
+                  {formState.subItems.map((item, index) => (
+                    <Tag
+                      key={index}
+                      size="md"
+                      borderRadius="full"
+                      variant="solid"
                       colorScheme="blue"
-                      type="submit"
-                      isLoading={loading}
+                      height="25px"
                     >
-                      Update Item
-                    </Button>
-                    <Button mt="4" colorScheme="red" onClick={onClose}>
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    mt="4"
-                    colorScheme="blue"
-                    type="submit"
-                    isLoading={loading}
-                  >
-                    Add Item
-                  </Button>
-                )}
-              </form>
-            </Box>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+                      {/* {console.log(item)} */}
+                      <TagLabel>{item["name"]}</TagLabel>
+                      <TagLabel>{`: ${item["price"]}`}</TagLabel>
+                      <TagCloseButton onClick={() => removeSubItem(index)} />
+                    </Tag>
+                  ))}
+                  <Input
+                    p={0}
+                    m={0}
+                    pl={1}
+                    type="text"
+                    placeholder={
+                      formState.subItems.length === 0
+                        ? "Enter a valid sub-item name followed by its price"
+                        : ""
+                    }
+                    value={subItemInput}
+                    onChange={(e) => setSubItemInput(e.target.value)}
+                    onKeyDown={handleSubItemKeyPress}
+                    border="none"
+                    outline="none"
+                    _focusVisible={{ outline: "none" }}
+                    flex="1"
+                  />
+                </Flex>
+              </FormControl>
+
+              <FormControl mt={1} id="priceVal" isRequired>
+                <FormLabel>Price Value</FormLabel>
+                <Input
+                  type="number"
+                  name="priceVal"
+                  placeholder="0.00"
+                  onChange={handleChange}
+                  step="0.01"
+                  min={0}
+                  value={formState.priceVal}
+                  required
+                />
+              </FormControl>
+
+              <FormControl mt={1} id="priceUnit" isRequired>
+                <FormLabel>Price Unit</FormLabel>
+                <Select
+                  name="priceUnit"
+                  onChange={handleChange}
+                  value={formState.priceUnit}
+                  required
+                >
+                  <option value="">Select Price Unit</option>
+                  <option value="Euro">Euro</option>
+                </Select>
+              </FormControl>
+
+              <FormControl id="description">
+                <FormLabel>Description</FormLabel>
+                <Textarea
+                  name="description"
+                  onChange={handleChange}
+                  value={formState.description}
+                />
+              </FormControl>
+
+              <FormControl id="isFavourite">
+                <FormLabel>Favourite</FormLabel>
+                <Select
+                  name="isFavourite"
+                  onChange={handleChange}
+                  value={formState.isFavourite}
+                >
+                  <option value="">Select Favourite</option>
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </Select>
+              </FormControl>
+
+              <Button
+                mt="4"
+                colorScheme="blue"
+                type="submit"
+                isLoading={loading}
+              >
+                {data ? "Update Item" : "Add Item"}
+              </Button>
+            </form>
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 };
 
 export default ItemModal;
+
+ItemModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmitData: PropTypes.func.isRequired,
+  isDrink: PropTypes.bool.isRequired,
+  data: PropTypes.object,
+};

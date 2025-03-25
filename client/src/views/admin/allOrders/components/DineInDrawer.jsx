@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useCallback } from "react";
 import {
   Box,
   Text,
@@ -12,6 +12,10 @@ import {
   Flex,
   IconButton,
   useDisclosure,
+  FormControl,
+  FormLabel,
+  Input,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { FaCartShopping } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,12 +25,12 @@ import { FaTimes } from "react-icons/fa";
 import EmptyCart from "./EmptyCart";
 import CheckOutDinein from "./CheckOutDineIn";
 import CartItem from "./CartItem"; // Importing CartItem component
-
+import { setFormData } from "../../../../redux/action/dineInStepperForm";
+import { useToast } from "../../../../contexts/useToast";
 const DineInDrawer = (props) => {
   // Destructuring props
-  const isOpen = props.isOpen;
-  const onClose = props.onClose;
-
+  const { isOpen, onClose } = props;
+  const showToast = useToast();
   // Using Chakra UI's useDisclosure hook for managing the state of the checkout drawer
   const {
     isOpen: isOpenCheckoutRight,
@@ -34,17 +38,38 @@ const DineInDrawer = (props) => {
     onClose: onCloseCheckoutRight,
   } = useDisclosure();
 
-  // State for drawer placement
-  // eslint-disable-next-line no-unused-vars
-  const [placement, setPlacement] = useState("left");
-
   // Redux hooks for dispatching actions and selecting state
   const dispatch = useDispatch();
   const allOrderItems = useSelector((state) => state?.OrderItemReducer);
   const allCartItems = allOrderItems?.items;
-
-  // Logging cart items and total for debugging
   const AllOrderItemsTotal = allOrderItems?.total;
+  const formData = useSelector((state) => state.dineInForm);
+  const { tableNumber, numberOfGuests, customerName, specialRequests } =
+    formData;
+
+  // Handler to update form data in the Redux store
+  const handleChange = useCallback(
+    (e) => {
+      if (e.target.id === "numberOfGuests" && e.target.value > 20) {
+        showToast("Number of guests should be between 1 and 20", "error");
+        return;
+      }
+      dispatch(setFormData({ [e.target.id]: e.target.value }));
+    },
+    [dispatch]
+  );
+
+  const handleOpenCheckoutRight = () => {
+    if (customerName.trim() === "") {
+      showToast("Please enter the customer name", "error");
+      return;
+    }
+    if (tableNumber === "" || numberOfGuests === "") {
+      showToast("Please enter table number and number of guests", "error");
+      return;
+    }
+    onOpenCheckoutRight();
+  };
 
   // Handler to remove an item completely from the order
   const handleRemoveItemOrderCompletely = (id) => {
@@ -71,12 +96,7 @@ const DineInDrawer = (props) => {
     <div>
       <>
         {/* Drawer component for displaying the cart */}
-        <Drawer
-          placement={placement}
-          onClose={onClose}
-          isOpen={isOpen}
-          size="md"
-        >
+        <Drawer placement={"left"} onClose={onClose} isOpen={isOpen} size="md">
           <DrawerOverlay />
           <DrawerContent>
             <DrawerHeader borderBottomWidth="1px">
@@ -94,68 +114,139 @@ const DineInDrawer = (props) => {
             </DrawerHeader>
             <DrawerBody>
               {/* Display subtotal and checkout button if there are items in the cart */}
-            <Box height="60vh" overflowY="scroll">
-              {allCartItems?.length > 0 ? (
-                <>
-                  {allCartItems.map((item, index) => (
-                    <CartItem
-                      key={index}
-                      item={item}
-                      onRemoveCompletely={handleRemoveItemOrderCompletely}
-                      onAdd={handleAddItemOrder}
-                      onRemove={handleRemoveItemOrder}
-                    />
-                  ))}
-                  <Box
-                    display={"flex"}
-                    flexDirection={"column"}
-                    position={"absolute"}
-                    bottom={"0"}
-                    padding={"1rem"}
-                    width={"90%"}
-                  >
+              <Box height="70vh" overflowY="scroll">
+                {allCartItems?.length > 0 ? (
+                  <>
+                    {allCartItems.map((item, index) => (
+                      <CartItem
+                        key={index}
+                        item={item}
+                        onRemoveCompletely={handleRemoveItemOrderCompletely}
+                        onAdd={handleAddItemOrder}
+                        onRemove={handleRemoveItemOrder}
+                      />
+                    ))}
+                    {/* <DineInForm /> */}
+                    <Box mt={5} mx={1}>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                        <FormControl id="customerName" mb={4} isRequired>
+                          <FormLabel>Customer Name</FormLabel>
+                          <Input
+                            type="text"
+                            placeholder="Enter Customer Name"
+                            value={customerName}
+                            onChange={handleChange}
+                            required={true}
+                          />
+                        </FormControl>
+                        <FormControl id="specialRequests" mb={4}>
+                          <FormLabel>Number of Guests</FormLabel>
+                          <Input
+                            type="text"
+                            placeholder="Enter any special request"
+                            value={specialRequests}
+                            onChange={handleChange}
+                          />
+                        </FormControl>
+                        {/* Table Number Input */}
+                        <FormControl id="tableNumber" mb={4} isRequired>
+                          <FormLabel>Table Number</FormLabel>
+                          <Input
+                            type="number"
+                            placeholder="Enter table number"
+                            value={tableNumber}
+                            onChange={handleChange}
+                            min={1}
+                            required={true}
+                          />
+                        </FormControl>
+
+                        {/* Number of Guests Input */}
+                        <FormControl id="numberOfGuests" mb={4} isRequired>
+                          <FormLabel>Number of Guests</FormLabel>
+                          <Input
+                            type="number"
+                            placeholder="Enter number of guests"
+                            value={numberOfGuests}
+                            min={1}
+                            max={20}
+                            onChange={handleChange}
+                            required={true}
+                          />
+                        </FormControl>
+                      </SimpleGrid>
+                      <Box textAlign="center">
+                        {numberOfGuests &&
+                        numberOfGuests > 0 &&
+                        numberOfGuests <= 20 ? (
+                          <img
+                            src={`/tables/table-${numberOfGuests}.webp`}
+                            alt={`Table ${numberOfGuests}`}
+                            width="100%"
+                            style={{
+                              borderRadius: "8px",
+                              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                            }}
+                          />
+                        ) : (
+                          <Text fontSize="sm" color="gray.500">
+                            Enter a number of guest (1-20) to see the table
+                            layout.
+                          </Text>
+                        )}
+                      </Box>
+                    </Box>
+
                     <Box
                       display={"flex"}
-                      justifyContent={"space-between"}
+                      flexDirection={"column"}
+                      position={"absolute"}
+                      bottom={"0"}
                       padding={"1rem"}
-                      borderTopWidth={"1px"}
+                      width={"90%"}
                     >
-                      <Text fontWeight={"bold"} fontSize={"2xl"}>
-                        Subtotal :
-                      </Text>
-
-                      <Text
-                        fontWeight={"bold"}
-                        fontSize={"2xl"}
-                        color={"#029CFF"}
+                      <Box
+                        display={"flex"}
+                        justifyContent={"space-between"}
+                        padding={"1rem"}
+                        borderTopWidth={"1px"}
                       >
-                        {parseFloat(AllOrderItemsTotal).toFixed(2)} €
-                      </Text>
+                        <Text fontWeight={"bold"} fontSize={"2xl"}>
+                          Subtotal :
+                        </Text>
+
+                        <Text
+                          fontWeight={"bold"}
+                          fontSize={"2xl"}
+                          color={"#029CFF"}
+                        >
+                          {parseFloat(AllOrderItemsTotal).toFixed(2)} €
+                        </Text>
+                      </Box>
+                      {/* Checkout drawer starts */}
+                      <CheckOutDinein
+                        allOrderItems={allOrderItems}
+                        AllOrderItemsTotal={AllOrderItemsTotal}
+                        onOpen={onOpenCheckoutRight}
+                        onClose={onCloseCheckoutRight}
+                        isOpen={isOpenCheckoutRight}
+                      />
+                      {/* Checkout drawer ends */}
+                      <Button
+                        background={"#029CFF"}
+                        color={"white"}
+                        _hover={{ color: "#029CFF", bg: "whitesmoke" }}
+                        onClick={handleOpenCheckoutRight}
+                      >
+                        Checkout
+                      </Button>
                     </Box>
-                    {/* Checkout drawer starts */}
-                    <CheckOutDinein
-                      allOrderItems={allOrderItems}
-                      AllOrderItemsTotal={AllOrderItemsTotal}
-                      onOpen={onOpenCheckoutRight}
-                      onClose={onCloseCheckoutRight}
-                      isOpen={isOpenCheckoutRight}
-                    />
-                    {/* Checkout drawer ends */}
-                    <Button
-                      background={"#029CFF"}
-                      color={"white"}
-                      _hover={{ color: "#029CFF", bg: "whitesmoke" }}
-                      onClick={onOpenCheckoutRight}
-                    >
-                      Checkout
-                    </Button>
-                  </Box>
-                </>
-              ) : (
-                // No items in cart show your cart is empty
-                <EmptyCart />
-              )}
-            </Box>
+                  </>
+                ) : (
+                  // No items in cart show your cart is empty
+                  <EmptyCart />
+                )}
+              </Box>
             </DrawerBody>
           </DrawerContent>
         </Drawer>

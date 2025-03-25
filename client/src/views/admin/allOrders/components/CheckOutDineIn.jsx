@@ -17,17 +17,17 @@ import {
   Stepper,
   useSteps,
 } from "@chakra-ui/react";
-import DineInForm from "./stepperDineIn/DineInForm";
+// import DineInForm from "./stepperDineIn/DineInForm";
 import DineInOrderSummary from "./stepperDineIn/DineInSummary";
 
 const CheckOutDineIn = ({ isOpen, onClose }) => {
   // Define the steps for the stepper
   const steps = [
-    {
-      title: "DineIn Details",
-      description: "Add DineIn Details",
-      component: DineInForm,
-    },
+    // {
+    //   title: "DineIn Details",
+    //   description: "Add DineIn Details",
+    //   component: DineInForm,
+    // },
     {
       title: "Summary",
       description: "Order Summary",
@@ -76,6 +76,7 @@ const CheckOutDineIn = ({ isOpen, onClose }) => {
             {React.createElement(steps[activeStep].component, {
               goToNextStep: () => goToStep(1),
               goToPreviousStep: () => goToStep(-1),
+              cancelOrder: onClose,
             })}
           </Box>
         </DrawerBody>

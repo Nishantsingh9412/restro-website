@@ -3,10 +3,10 @@ import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 // https://vitejs.dev/config/
 export default defineConfig({
-  // server: {
-  //   host: "0.0.0.0",
-  //   port: 5173,
-  // },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+  },
   base: "/",
   build: {
     rollupOptions: {

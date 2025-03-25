@@ -24,12 +24,25 @@ const handleResponse = (res, success, message, result = null) => {
 
 // Joi schema for validating order items
 const orderItemSchema = Joi.object({
+  itemId: Joi.string().required(),
   orderName: Joi.string().required(),
+  category: Joi.string().required(),
+  subItems: Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string().optional().allow(null, ""),
+        name: Joi.string().required(),
+        price: Joi.number().required(),
+        pic: Joi.string().optional().allow(null, ""),
+      })
+    )
+    .optional()
+    .allow(null, ""),
   priceVal: Joi.number().required(),
   priceUnit: Joi.string().required(),
-  pic: Joi.string().optional(),
-  description: Joi.string().optional(),
-  isFavourite: Joi.boolean().optional(),
+  pic: Joi.string().optional().allow(null, ""),
+  description: Joi.string().optional().allow(null, ""),
+  isFavourite: Joi.boolean().optional().allow(null, ""),
   isDrink: Joi.boolean().optional(),
   created_by: Joi.string().required(),
 });
@@ -48,7 +61,10 @@ export const AddOrderItem = async (req, res) => {
     const userId = role === "admin" ? id : created_by;
 
     const {
+      itemId,
       orderName,
+      category,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -57,8 +73,16 @@ export const AddOrderItem = async (req, res) => {
       isDrink,
     } = req.body;
 
+    const itemIdExist = await OrderedItems.findOne({ itemId });
+    if (itemIdExist) {
+      return handleResponse(res, false, "Item ID already exists");
+    }
+
     const newOrderItem = await OrderedItems.create({
+      itemId,
       orderName,
+      category,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -150,7 +174,10 @@ export const updateOrderItem = async (req, res) => {
     }
 
     const {
+      itemId,
       orderName,
+      category,
+      subItems,
       priceVal,
       priceUnit,
       pic,
@@ -162,7 +189,10 @@ export const updateOrderItem = async (req, res) => {
       _id,
       {
         $set: {
+          itemId,
           orderName,
+          category,
+          subItems,
           priceVal,
           priceUnit,
           pic,
