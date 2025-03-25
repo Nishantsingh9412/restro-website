@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { BiSolidTrash } from "react-icons/bi";
+import { calculatePrice } from "../../../../utils/constant";
 
 // Helper function to format price with unit
 const formatPrice = (value, unit) =>
@@ -117,17 +118,18 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
                       )}
                       onChange={() => handleCheckboxChange(subItem)}
                     >
-                      {subItem.name}
+                      {subItem.name} &times;{" "}
+                      {formatPrice(subItem.price, item.priceUnit)}
                     </Checkbox>
                   ))}
                 </Stack>
               </CheckboxGroup>
             </Box>
           )}
-          <Box display="flex" justifyContent="end" mt="0.5rem">
-            {formatPrice(item?.quantity * item?.priceVal, item?.priceUnit)}
-          </Box>
         </Flex>
+        <Box display="flex" justifyContent="end" mt="0.5rem">
+          {formatPrice(calculatePrice(item, selectedSubItems), item?.priceUnit)}
+        </Box>
       </Box>
     </Box>
   );

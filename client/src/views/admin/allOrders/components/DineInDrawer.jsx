@@ -44,7 +44,8 @@ const DineInDrawer = (props) => {
   const allCartItems = allOrderItems?.items;
   const AllOrderItemsTotal = allOrderItems?.total;
   const formData = useSelector((state) => state.dineInForm);
-  const { tableNumber, numberOfGuests } = formData;
+  const { tableNumber, numberOfGuests, customerName, specialRequests } =
+    formData;
 
   // Handler to update form data in the Redux store
   const handleChange = useCallback(
@@ -59,6 +60,10 @@ const DineInDrawer = (props) => {
   );
 
   const handleOpenCheckoutRight = () => {
+    if (customerName.trim() === "") {
+      showToast("Please enter the customer name", "error");
+      return;
+    }
     if (tableNumber === "" || numberOfGuests === "") {
       showToast("Please enter table number and number of guests", "error");
       return;
@@ -124,6 +129,25 @@ const DineInDrawer = (props) => {
                     {/* <DineInForm /> */}
                     <Box mt={5} mx={1}>
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                        <FormControl id="customerName" mb={4} isRequired>
+                          <FormLabel>Customer Name</FormLabel>
+                          <Input
+                            type="text"
+                            placeholder="Enter Customer Name"
+                            value={customerName}
+                            onChange={handleChange}
+                            required={true}
+                          />
+                        </FormControl>
+                        <FormControl id="specialRequests" mb={4}>
+                          <FormLabel>Number of Guests</FormLabel>
+                          <Input
+                            type="text"
+                            placeholder="Enter any special request"
+                            value={specialRequests}
+                            onChange={handleChange}
+                          />
+                        </FormControl>
                         {/* Table Number Input */}
                         <FormControl id="tableNumber" mb={4} isRequired>
                           <FormLabel>Table Number</FormLabel>
@@ -132,6 +156,7 @@ const DineInDrawer = (props) => {
                             placeholder="Enter table number"
                             value={tableNumber}
                             onChange={handleChange}
+                            min={1}
                             required={true}
                           />
                         </FormControl>

@@ -574,21 +574,23 @@ export default function AllOrders() {
           onSubmitData={handleSubmitItemOrder}
           data={editDrink}
         />
-        <Box display="flex" gap="2rem">
-          {[
-            { data: allItemsData, isDrink: false },
-            { data: drinksData, isDrink: true },
-          ].map((section, index) => (
-            <Box key={index} flex="1">
-              {renderSearchBox(section.isDrink)}
-              {renderSearchResults(section.data, section.isDrink)}
-            </Box>
-          ))}
+        <Box display="flex" gap="1rem">
+          <Box flex="1">
+            {renderSearchBox(false)}
+            {renderSearchResults(allItemsData, false)}
+          </Box>
+
+          {/* Custom divider */}
+          <Box width="2px" minHeight={"100px"} bgColor="gray.300" />
+
+          <Box flex="1">
+            {renderSearchBox(true)}
+            {renderSearchResults(drinksData, true)}
+          </Box>
         </Box>
         <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
         <DineInDrawer isOpen={isOpenDineIn} onClose={onCloseDineIn} />
         <TakeawayDrawer isOpen={isOpenTakeAway} onClose={onCloseTakeAway} />
-
         {/* Restaurant Modal */}
         <RestaurantModal
           isOpen={isRestaurantModalOpen}

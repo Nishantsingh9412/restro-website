@@ -11,7 +11,7 @@ import {
   UnorderedList,
   ListItem,
 } from "@chakra-ui/react";
-import { MdLocalShipping } from "react-icons/md";
+import { MdRestaurant } from "react-icons/md";
 
 const DineInOrder = ({ orderData, handleAllotWaiter }) => {
   const {
@@ -20,8 +20,6 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
     assignedWaiter,
     orderId,
     customerName,
-    phoneNumber,
-    emailAddress,
     numberOfGuests,
     specialRequests,
     totalPrice,
@@ -65,7 +63,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
             onClick={handleAllotWaiter}
             aria-label="Allot Waiter"
             title="Allot Waiter"
-            icon={<MdLocalShipping />}
+            icon={<MdRestaurant />}
             variant="outline"
             colorScheme="blue"
           />
@@ -74,13 +72,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
       <Divider mb="4" />
       <Stack spacing="3">
         <Text>
-          <Badge colorScheme="blue">Customer</Badge> {customerName || "N/A"}
-        </Text>
-        <Text>
-          <Badge colorScheme="blue">Phone</Badge> {phoneNumber || "N/A"}
-        </Text>
-        <Text>
-          <Badge colorScheme="blue">Email</Badge> {emailAddress || "N/A"}
+          <Badge colorScheme="blue">Name</Badge> {customerName || "N/A"}
         </Text>
         <Text>
           <Badge colorScheme="blue">Guests</Badge> {numberOfGuests || "N/A"}

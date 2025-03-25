@@ -7,6 +7,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { calculatePrice } from "../../../../utils/constant";
 
 function CartSummary({ cartItems, totalAmount }) {
   const textColor = useColorModeValue("gray.800", "white");
@@ -78,12 +79,18 @@ function CartSummary({ cartItems, totalAmount }) {
                     color={textColor}
                     isTruncated
                   >
-                    {item.quantity} X {item.priceVal} {item.priceUnit}
+                    {item.quantity} X{" "}
+                    {item.priceVal +
+                      item?.selectedSubItems?.reduce(
+                        (acc, item) => acc + item.price,
+                        0
+                      )}{" "}
+                    {item.priceUnit}
                   </Text>
                 </Box>
               </Box>
               <Text fontWeight="medium" color={textColor}>
-                {item.quantity * item.priceVal} {item.priceUnit}
+                {calculatePrice(item)} {item.priceUnit}
               </Text>
             </Flex>
           </Box>

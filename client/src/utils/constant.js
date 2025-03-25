@@ -107,5 +107,19 @@ const Dialog_Boxes = {
     }, 300);
   },
 };
+// Helper to calculate the Order Item Price
+const calculatePrice = (item, subItems = item?.selectedSubItems) => {
+  const { quantity, priceVal } = item;
+  const subItemPrice = subItems.reduce((prev, item) => prev + item.price, 0);
+  const totalPrice = priceVal + subItemPrice;
+  return quantity * totalPrice;
+};
 
-export { statuses, orderTypes, Dialog_Boxes, userTypes, employeesRoles };
+export {
+  statuses,
+  orderTypes,
+  Dialog_Boxes,
+  userTypes,
+  employeesRoles,
+  calculatePrice,
+};

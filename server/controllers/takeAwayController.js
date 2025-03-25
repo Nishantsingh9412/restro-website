@@ -4,6 +4,7 @@ import TakeAwayOrder from "../models/takeAwayOrder.js";
 import Chef from "../models/employees/chefModel.js";
 import Notification from "../models/notification.js";
 import { notifyUser, sendTakeawayOffer } from "../utils/socket.js";
+import { formatOrderItems } from "./dineInOrderController.js";
 
 // Define the schema for validating take-away orders
 const takeAwayOrderSchema = Joi.object({
@@ -30,15 +31,7 @@ export const createTakeAwayOrder = async (req, res) => {
     const { customerName, orderItems, totalPrice, created_by } = req.body;
 
     // Format the order items
-    const formattedOrderItems = orderItems.map((item) => ({
-      item: new mongoose.Types.ObjectId(item._id),
-      subItems: item.selectedSubItems?.map((subItem) => ({
-        _id: new mongoose.Types.ObjectId(subItem._id),
-        name: subItem.name,
-      })),
-      quantity: item.quantity,
-      total: item.priceVal * item.quantity,
-    }));
+    const formattedOrderItems = formatOrderItems(orderItems);
 
     const orderId = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(
       1000000 + Math.random() * 9000000
