@@ -32,7 +32,12 @@ router.patch(
 );
 
 // add restaurant details
-router.post("/add-restaurant", accessMiddleware(), addRestaurantByAdmin);
+router.post(
+  "/add-restaurant",
+  accessMiddleware(),
+  upload.fields([{ name: "businessLicense" }, { name: "tradeLicense" }]),
+  addRestaurantByAdmin
+);
 
 // update restaurant details
 router.patch("/update-restaurant", accessMiddleware(), updateRestaurantByAdmin);

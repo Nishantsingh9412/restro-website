@@ -18,6 +18,7 @@ import {
   TagLabel,
   TagCloseButton,
   Flex,
+  Text,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 const ItemModal = (props) => {
@@ -109,6 +110,46 @@ const ItemModal = (props) => {
       ...prevState,
       subItems: prevState.subItems.filter((_, i) => i !== index),
     }));
+  };
+
+  // Function to handle image upload
+  const postOrderImage = async (pics) => {
+    setLoading(true);
+    if (pics === undefined) {
+      showToast("Please upload a picture", "error");
+      setLoading(false);
+      return;
+    }
+    if (pics.type !== "image/jpeg" && pics.type !== "image/png") {
+      showToast("Invalid image format", "error");
+      setLoading(false);
+      return;
+    }
+    if (pics.size > 2000000) {
+      setLoading(false);
+      return showToast("Image size should be less than 2 MB ", "error");
+    }
+
+    const data = new FormData();
+    data.append("file", pics);
+    data.append("upload_preset", "restro-website");
+    data.append("cloud_name", "dezifvepx");
+    fetch("https://api.cloudinary.com/v1_1/dezifvepx/image/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setFormState((prevState) => ({
+          ...prevState,
+          pic: data.url.toString(),
+        }));
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        return showToast(err.message, "error");
+      });
   };
 
   const handleSubmit = (e) => {
@@ -282,7 +323,15 @@ const ItemModal = (props) => {
                   <option value="true">Yes</option>
                 </Select>
               </FormControl>
-
+              <FormControl id="pic">
+                <FormLabel>Upload Picture</FormLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => postOrderImage(e.target.files[0])}
+                />
+              </FormControl>
+              <Text>{formState.pic}</Text>
               <Button
                 mt="4"
                 colorScheme="blue"
