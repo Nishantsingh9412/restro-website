@@ -9,6 +9,7 @@ import {
   MdVideoLibrary,
   MdDashboard,
   MdOutlineDeliveryDining,
+  MdFoodBank,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
@@ -23,6 +24,7 @@ const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
 const LowStocks = lazy(() => import("./views/admin/lowStocks"));
 const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
+const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
 const OrderShipping = lazy(() => import("./views/admin/orderShipping"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
@@ -51,9 +53,6 @@ const ChefDashboard = lazy(() => import("./views/employees/Chef/Dashboard"));
 const ChefAvailableOrders = lazy(() =>
   import("./views/employees/Chef/AvailableOrders")
 );
-// // Auth Imports
-// import SignInCentered from "./views/auth/signIn";
-// import SignUpCentered from "./views/auth/signup";
 
 const commonRoutes = [
   {
@@ -196,18 +195,28 @@ const adminRoutes = [
   {
     name: "Orders",
     layout: "/admin",
-    path: "/orders",
+    path: "/create-orders",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
+        name: "Create Orders",
+        layout: "/admin",
+        path: "/create-orders",
+        icon: (
+          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
+        ),
+        component: <CreateOrders />,
+      },
+
+      {
         name: "Foods and Drinks",
         layout: "/admin",
         path: "/orders",
         icon: (
-          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
+          <Icon as={MdFoodBank} width="20px" height="20px" color="inherit" />
         ),
         component: <AllOrders />,
       },
