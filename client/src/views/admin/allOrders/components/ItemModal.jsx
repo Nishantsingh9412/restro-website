@@ -19,6 +19,7 @@ import {
   TagCloseButton,
   Flex,
   Text,
+  Switch,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 const ItemModal = (props) => {
@@ -30,14 +31,17 @@ const ItemModal = (props) => {
     priceVal: "",
     priceUnit: "",
     description: "",
+    preparationTime: "",
     isFavourite: "",
+    inStock: "",
   };
 
   const showToast = useToast();
   const { isOpen, onClose, onSubmitData, isDrink, data } = props;
   const [formState, setFormState] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const [subItemInput, setSubItemInput] = useState("");
+  const [subItemName, setSubItemName] = useState("");
+  const [subItemPrice, setSubItemPrice] = useState("");
 
   useEffect(() => {
     if (data) {
@@ -50,7 +54,9 @@ const ItemModal = (props) => {
         priceVal: data?.priceVal || "",
         priceUnit: data?.priceUnit || "",
         description: data?.description || "",
+        preparationTime: data?.preparationTime || "",
         isFavourite: data?.isFavourite || false,
+        inStock: data?.inStock || false,
         pic: data.pic,
         created_by: data.created_by,
       }));
@@ -77,16 +83,15 @@ const ItemModal = (props) => {
     }));
   };
 
-  const handleSubItemKeyPress = (e) => {
-    if (e.key !== "Enter" || !subItemInput.trim()) return;
+  const handleAddSubItem = () => {
+    if (!subItemName.trim() || !subItemPrice.trim()) {
+      showToast("Enter a valid sub-item name and price", "error");
+      return;
+    }
 
-    e.preventDefault();
-    const subItemData = subItemInput.trim().split(" ");
-    const subItemName = subItemData.slice(0, -1).join(" ");
-    const subItemPrice = parseFloat(subItemData[subItemData.length - 1]);
-
-    if (!subItemName || isNaN(subItemPrice)) {
-      showToast("Enter a valid sub-item name followed by its price", "error");
+    const price = parseFloat(subItemPrice);
+    if (isNaN(price)) {
+      showToast("Sub-item price must be a number", "error");
       return;
     }
 
@@ -97,12 +102,10 @@ const ItemModal = (props) => {
 
     setFormState((prevState) => ({
       ...prevState,
-      subItems: [
-        ...prevState.subItems,
-        { name: subItemName, price: subItemPrice },
-      ],
+      subItems: [...prevState.subItems, { name: subItemName, price }],
     }));
-    setSubItemInput("");
+    setSubItemName("");
+    setSubItemPrice("");
   };
 
   const removeSubItem = (index) => {
@@ -182,9 +185,9 @@ const ItemModal = (props) => {
         <ModalCloseButton />
         <ModalBody>
           <Box
-            maxW="sm"
+            maxW="md"
             m="auto"
-            p="4"
+            p="2"
             borderWidth="1px"
             borderRadius="lg"
             background={"whiteAlpha.100"}
@@ -225,105 +228,42 @@ const ItemModal = (props) => {
               </FormControl>
               {/* Sub Items (Tags inside Input) */}
               <FormControl mt={1} id="subItems">
-                <FormLabel>
-                  Sub Items{" "}
-                  <span style={{ fontWeight: "lighter", fontSize: "14px" }}>
-                    (Eg: XYZ 3.5)
-                  </span>
-                </FormLabel>
-                <Flex
-                  flexWrap="wrap"
-                  gap="2"
-                  px="1"
-                  borderWidth="1px"
-                  borderRadius="md"
-                  alignItems="center"
-                >
-                  {formState.subItems.map((item, index) => (
-                    <Tag
-                      key={index}
-                      size="md"
-                      borderRadius="full"
-                      variant="solid"
-                      colorScheme="blue"
-                      height="25px"
-                    >
-                      {/* {console.log(item)} */}
-                      <TagLabel>{item["name"]}</TagLabel>
-                      <TagLabel>{`: ${item["price"]}`}</TagLabel>
-                      <TagCloseButton onClick={() => removeSubItem(index)} />
-                    </Tag>
-                  ))}
+                <FormLabel>Sub Items</FormLabel>
+                <Flex gap={2}>
                   <Input
-                    p={0}
-                    m={0}
-                    pl={1}
                     type="text"
-                    placeholder={
-                      formState.subItems.length === 0
-                        ? "Enter a valid sub-item name followed by its price"
-                        : ""
-                    }
-                    value={subItemInput}
-                    onChange={(e) => setSubItemInput(e.target.value)}
-                    onKeyDown={handleSubItemKeyPress}
-                    border="none"
-                    outline="none"
-                    _focusVisible={{ outline: "none" }}
-                    flex="1"
+                    placeholder="Name"
+                    value={subItemName}
+                    onChange={(e) => setSubItemName(e.target.value)}
                   />
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    value={subItemPrice}
+                    onChange={(e) => setSubItemPrice(e.target.value)}
+                  />
+                  <Button onClick={handleAddSubItem} colorScheme="blue" px={6}>
+                    Add
+                  </Button>
                 </Flex>
               </FormControl>
-
-              <FormControl mt={1} id="priceVal" isRequired>
-                <FormLabel>Price Value</FormLabel>
-                <Input
-                  type="number"
-                  name="priceVal"
-                  placeholder="0.00"
-                  onChange={handleChange}
-                  step="0.01"
-                  min={0}
-                  value={formState.priceVal}
-                  required
-                />
-              </FormControl>
-
-              <FormControl mt={1} id="priceUnit" isRequired>
-                <FormLabel>Price Unit</FormLabel>
-                <Select
-                  name="priceUnit"
-                  onChange={handleChange}
-                  value={formState.priceUnit}
-                  required
-                >
-                  <option value="">Select Price Unit</option>
-                  <option value="Euro">Euro</option>
-                </Select>
-              </FormControl>
-
-              <FormControl id="description">
-                <FormLabel>Description</FormLabel>
-                <Textarea
-                  name="description"
-                  onChange={handleChange}
-                  value={formState.description}
-                />
-              </FormControl>
-
-              <FormControl id="isFavourite">
-                <FormLabel>Favourite</FormLabel>
-                <Select
-                  name="isFavourite"
-                  onChange={handleChange}
-                  value={formState.isFavourite}
-                >
-                  <option value="">Select Favourite</option>
-                  <option value="false">No</option>
-                  <option value="true">Yes</option>
-                </Select>
-              </FormControl>
-              <FormControl id="pic">
+              <Flex flexWrap="wrap" mt={2} gap={2}>
+                {formState.subItems.map((item, index) => (
+                  <Tag
+                    key={index}
+                    size="md"
+                    borderRadius="full"
+                    variant="solid"
+                    colorScheme="blue"
+                  >
+                    <TagLabel>
+                      {item.name}: {item.price}
+                    </TagLabel>
+                    <TagCloseButton onClick={() => removeSubItem(index)} />
+                  </Tag>
+                ))}
+              </Flex>
+              <FormControl id="pic" mt={1}>
                 <FormLabel>Upload Picture</FormLabel>
                 <Input
                   type="file"
@@ -332,7 +272,92 @@ const ItemModal = (props) => {
                 />
               </FormControl>
               <Text>{formState.pic}</Text>
+              <Flex gap={2}>
+                <FormControl mt={1} id="priceVal" isRequired>
+                  <FormLabel>Price Value</FormLabel>
+                  <Input
+                    type="number"
+                    name="priceVal"
+                    placeholder="0.00"
+                    onChange={handleChange}
+                    step="0.01"
+                    min={0}
+                    value={formState.priceVal}
+                    required
+                  />
+                </FormControl>
+
+                <FormControl mt={1} id="priceUnit" isRequired>
+                  <FormLabel>Price Unit</FormLabel>
+                  <Select
+                    name="priceUnit"
+                    onChange={handleChange}
+                    value={formState.priceUnit}
+                    required
+                  >
+                    <option value="">Select Price Unit</option>
+                    <option value="Euro">Euro</option>
+                  </Select>
+                </FormControl>
+              </Flex>
+              <FormControl id="description">
+                <FormLabel>Description</FormLabel>
+                <Textarea
+                  name="description"
+                  onChange={handleChange}
+                  value={formState.description}
+                />
+              </FormControl>
+              <FormControl id="preparationTime" mt={1}>
+                <FormLabel>Preparation Time</FormLabel>
+                <Input
+                  type="number"
+                  name="preparationTime"
+                  onChange={handleChange}
+                  placeholder="Prep Time (mins)"
+                  value={formState.preparationTime}
+                  required
+                />
+              </FormControl>
+              <Flex>
+                <FormControl
+                  width={"55%"}
+                  mt={4}
+                  display="flex"
+                  alignItems="center"
+                  id="isFavourite"
+                >
+                  <FormLabel mb="0">Favourite</FormLabel>
+                  <Switch
+                    isChecked={formState.isFavourite}
+                    onChange={() => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        isFavourite: !prevState.isFavourite,
+                      }));
+                    }}
+                  />
+                </FormControl>{" "}
+                <FormControl
+                  mt={4}
+                  display="flex"
+                  alignItems="center"
+                  id="inStock"
+                >
+                  <FormLabel mb="0">In-Stock</FormLabel>
+                  <Switch
+                    isChecked={formState.inStock}
+                    onChange={() => {
+                      setFormState((prev) => ({
+                        ...prev,
+                        inStock: !prev.inStock,
+                      }));
+                    }}
+                  />
+                </FormControl>
+              </Flex>
               <Button
+                width={"100%"}
                 mt="4"
                 colorScheme="blue"
                 type="submit"

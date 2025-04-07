@@ -39,11 +39,13 @@ const orderItemSchema = Joi.object({
     .optional()
     .allow(null, ""),
   priceVal: Joi.number().required(),
+  preparationTime: Joi.number().required(),
   priceUnit: Joi.string().required(),
   pic: Joi.string().optional().allow(null, ""),
   description: Joi.string().optional().allow(null, ""),
   isFavourite: Joi.boolean().optional().allow(null, ""),
   isDrink: Joi.boolean().optional(),
+  inStock: Joi.boolean().optional(),
   created_by: Joi.string().required(),
 });
 
@@ -65,11 +67,13 @@ export const AddOrderItem = async (req, res) => {
       orderName,
       category,
       subItems,
+      preparationTime,
       priceVal,
       priceUnit,
       pic,
       description,
       isFavourite,
+      inStock,
       isDrink,
     } = req.body;
 
@@ -85,9 +89,11 @@ export const AddOrderItem = async (req, res) => {
       subItems,
       priceVal,
       priceUnit,
+      preparationTime,
       pic,
       description,
       isFavourite,
+      inStock,
       isDrink,
       created_by: userId,
     });
@@ -179,11 +185,13 @@ export const updateOrderItem = async (req, res) => {
       category,
       subItems,
       priceVal,
+      preparationTime,
       priceUnit,
       pic,
       description,
       isFavourite,
       isDrink,
+      inStock,
     } = req.body;
     const updatedOrderItem = await OrderedItems.findByIdAndUpdate(
       _id,
@@ -193,12 +201,14 @@ export const updateOrderItem = async (req, res) => {
           orderName,
           category,
           subItems,
+          preparationTime,
           priceVal,
           priceUnit,
           pic,
           description,
           isFavourite,
           isDrink,
+          inStock,
         },
       },
       { new: true }
