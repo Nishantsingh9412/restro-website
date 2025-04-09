@@ -9,13 +9,11 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
-import CartItem from "../../allOrders/components/CartItem";
-import { useToast } from "../../../../contexts/useToast";
-import {
-  getAllOrderItemsAction,
-  // getDrinksOnlyAction,
-} from "../../../../redux/action/OrderItems";
-import EmptyCart from "../../allOrders/components/EmptyCart";
+import CartItem from "../allOrders/components/CartItem";
+import { useToast } from "../../../contexts/useToast";
+import { getAllOrderItemsAction } from "../../../redux/action/OrderItems";
+import EmptyCart from "../allOrders/components/EmptyCart";
+import ItemCard from "./components/ItemCard";
 
 const OrderMenu = () => {
   const dispatch = useDispatch();
@@ -125,45 +123,11 @@ const OrderMenu = () => {
         </Flex>
         <SimpleGrid columns={[1, 1, 2]} spacing={6}>
           {filteredMenu.map((result, index) => (
-            <Box
+            <ItemCard
               key={index}
-              p={5}
-              borderWidth="1px"
-              borderRadius="lg"
-              boxShadow="md"
-              bg="white"
-              _hover={{ transform: "scale(1.03)", transition: "0.3s" }}
-            >
-              <Flex alignItems="center" mb={4}>
-                <img
-                  style={{
-                    borderRadius: "0.5rem",
-                    width: "80px",
-                    height: "80px",
-                    objectFit: "cover",
-                    boxShadow: "0px 2px 8px rgba(0,0,0,0.2)",
-                  }}
-                  src={result?.pic || "/images/fallback.png"}
-                  alt={result?.orderName || "Food-Image"}
-                />
-                <Box ml={4} flex="1">
-                  <Text fontWeight="bold" fontSize="lg" color="teal.600">
-                    {result?.orderName}
-                  </Text>
-                  <Text fontSize="md" color="gray.600">
-                    {result?.priceVal} {result?.priceUnit}
-                  </Text>
-                </Box>
-              </Flex>
-              <Button
-                colorScheme="teal"
-                variant="solid"
-                w="full"
-                onClick={() => handleAddItemOrder(result)}
-              >
-                Add To Cart
-              </Button>
-            </Box>
+              item={result}
+              handleAddItemCart={handleAddItemOrder}
+            />
           ))}
         </SimpleGrid>
       </Box>
