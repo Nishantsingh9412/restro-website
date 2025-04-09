@@ -4,15 +4,15 @@ import OrderTypeCard from "./components/OrderTypeCard";
 import DineInForm from "./components/DineInForm";
 import TakeAwayForm from "./components/TakeAwayForm";
 import DeliveryOrderForm from "./components/DelOrderForm";
-import { useNavigate } from "react-router-dom";
+import OrderMenu from "./components/OrderMenu";
 
 const CreateOrders = () => {
-  const navigate = useNavigate();
   const orderTypes = ["Dine In", "TakeAway", "Delivery"];
   const [orderType, setOrderType] = useState(null);
+  const [showOrderMenu, setShowOrderMenu] = useState(false);
 
   const handleOnProceed = () => {
-    navigate("/admin/orders");
+    setShowOrderMenu(true);
   };
 
   const renderOrderTypeForm = () => {
@@ -31,6 +31,10 @@ const CreateOrders = () => {
   useEffect(() => {
     return () => setOrderType(null);
   }, []);
+
+  if (showOrderMenu) {
+    return <OrderMenu />;
+  }
 
   return (
     <>

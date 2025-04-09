@@ -149,20 +149,14 @@ export const GetSingleItemOrder = (id) =>
   API.get(`/orders/get-single-order-item/${id}`);
 // Get All Orders
 export const getAllOrderItems = () => API.get(`/orders/get-all-order-items`);
-// Get Drinks Only
-export const getDrinksOnly = () => API.get(`/orders/getDrinksOnly`);
+
 // Update Order Item
 export const UpdateSingleItemOrder = (id, updatedData) =>
   API.patch(`/orders/update-order-item/${id}`, updatedData);
 // Delete Order Item
 export const deleteSingleItemOrder = (id) =>
   API.delete(`/orders/delete-order-item/${id}`);
-// Search Order Item
-export const searchOrderItem = (orderNameData) =>
-  API.get(`/orders/search-order-items?orderName=${orderNameData}`);
-// Search Drinks Only
-export const searchDrinksOnly = (drinksData) =>
-  API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
+
 // Allot order to personnels (Delivery, Waiter, Chef)
 export const getPersonnelsBySupplier = (order, personnelsType) => {
   return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`);
@@ -245,7 +239,7 @@ export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
     deliveryBoyId,
   });
 // Send Delivery Offer
-export const sendDeliveryOfferAPI = ({id, deliveryBoyIds}) =>
+export const sendDeliveryOfferAPI = ({ id, deliveryBoyIds }) =>
   API.post(`/delivery-order/send-delivery-offer/${id}`, {
     deliveryBoyIds,
   });

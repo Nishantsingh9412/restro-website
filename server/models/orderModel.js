@@ -25,7 +25,7 @@ const OrderedItemsSchema = new Schema(
     description: { type: String },
     isFavourite: { type: Boolean, default: false },
     inStock: { type: Boolean, default: false },
-    isDrink: { type: Boolean, default: false },
+    // isDrink: { type: Boolean, default: false },
     created_by: {
       type: Schema.Types.ObjectId,
       ref: "Admin",

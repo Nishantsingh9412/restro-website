@@ -37,7 +37,7 @@ const ItemModal = (props) => {
   };
 
   const showToast = useToast();
-  const { isOpen, onClose, onSubmitData, isDrink, data } = props;
+  const { isOpen, onClose, onSubmitData, data } = props;
   const [formState, setFormState] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [subItemName, setSubItemName] = useState("");
@@ -172,7 +172,6 @@ const ItemModal = (props) => {
       formState.isFavourite = "false";
     }
 
-    formState.isDrink = isDrink;
     onSubmitData(formState);
     handleClose();
     setLoading(false);
@@ -308,7 +307,7 @@ const ItemModal = (props) => {
                   value={formState.description}
                 />
               </FormControl>
-              <FormControl id="preparationTime" mt={1}>
+              <FormControl id="preparationTime" mt={1} isRequired>
                 <FormLabel>Preparation Time</FormLabel>
                 <Input
                   type="number"
@@ -379,6 +378,5 @@ ItemModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmitData: PropTypes.func.isRequired,
-  isDrink: PropTypes.bool.isRequired,
   data: PropTypes.object,
 };

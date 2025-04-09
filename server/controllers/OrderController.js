@@ -44,7 +44,6 @@ const orderItemSchema = Joi.object({
   pic: Joi.string().optional().allow(null, ""),
   description: Joi.string().optional().allow(null, ""),
   isFavourite: Joi.boolean().optional().allow(null, ""),
-  isDrink: Joi.boolean().optional(),
   inStock: Joi.boolean().optional(),
   created_by: Joi.string().required(),
 });
@@ -133,7 +132,6 @@ export const getAllOrderItems = async (req, res) => {
 
   try {
     const allOrderItems = await OrderedItems.find({
-      isDrink: { $ne: true },
       created_by: userId,
     }).sort({ isFavourite: -1, orderName: 1 });
     if (!allOrderItems) {
@@ -143,28 +141,6 @@ export const getAllOrderItems = async (req, res) => {
     handleResponse(res, true, "All Order Items", allOrderItems);
   } catch (err) {
     handleError(res, err, "Error from getAllOrderItems Controller:");
-  }
-};
-
-// Controller to get all drinks for a specific user
-export const getDrinksOnly = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const drinks = await OrderedItems.find({
-      isDrink: true,
-      created_by: userId,
-    }).sort({ isFavourite: -1, orderName: 1 });
-    if (!drinks) {
-      return handleResponse(res, false, "Failed to get Drinks");
-    }
-
-    handleResponse(res, true, "All Drinks", drinks);
-  } catch (err) {
-    handleError(res, err, "Error from getDrinksOnly Controller:");
   }
 };
 
@@ -238,54 +214,5 @@ export const deleteOrderItem = async (req, res) => {
     handleResponse(res, true, "Deleted Order Item");
   } catch (err) {
     handleError(res, err, "Error from deleteOrderItem Controller:");
-  }
-};
-
-// Controller to search order items by name for a specific user
-export const searchOrderItems = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const { orderName } = req.query;
-    const searchResults = await OrderedItems.find({
-      orderName: { $regex: orderName, $options: "i" },
-      created_by: userId,
-    });
-
-    if (!searchResults) {
-      return handleResponse(res, false, "Failed to search Order Items");
-    }
-
-    handleResponse(res, true, "Searched Order Items", searchResults);
-  } catch (err) {
-    handleError(res, err, "Error from searchOrderItems Controller:");
-  }
-};
-
-// Controller to search drinks by name for a specific user
-export const searchDrinksOnly = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const { orderName } = req.query;
-    const searchResults = await OrderedItems.find({
-      orderName: { $regex: orderName, $options: "i" },
-      isDrink: true,
-      created_by: userId,
-    });
-
-    if (!searchResults) {
-      return handleResponse(res, false, "Failed to search Drinks");
-    }
-
-    handleResponse(res, true, "Searched Drinks", searchResults);
-  } catch (err) {
-    handleError(res, err, "Error from searchDrinksOnly Controller:");
   }
 };

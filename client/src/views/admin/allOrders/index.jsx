@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { MdCancel } from "react-icons/md";
 import { FaCartShopping } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
@@ -25,9 +25,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   AddOrderItemAction,
   getAllOrderItemsAction,
-  searchOrderItemAction,
-  searchDrinksOnlyAction,
-  getDrinksOnlyAction,
   deleteSingleItemOrderAction,
   updateSingleItemOrderAction,
 } from "../../../redux/action/OrderItems";
@@ -40,15 +37,6 @@ import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/useToast";
 
 export default function AllOrders() {
-  // Selector to get the length of all order items
-  const AllOrderItemsLength = useSelector(
-    (state) => state.OrderItemReducer?.length
-  );
-  // Get admin data from Redux store
-  const adminData = useSelector((state) => state?.userReducer?.data);
-  const showToast = useToast();
-
-  // Chakra UI hooks for modal and drawer states
   const {
     isOpen: isOpenItem,
     onOpen: onOpenItem,
@@ -60,77 +48,74 @@ export default function AllOrders() {
     onClose: onCloseCart,
   } = useDisclosure();
   const {
-    isOpen: isOpenDrinks,
-    onOpen: onOpenDrinks,
-    onClose: onCloseDrinks,
-  } = useDisclosure();
-  const {
     isOpen: isOpenDineIn,
     onOpen: onOpenDineIn,
     onClose: onCloseDineIn,
   } = useDisclosure();
-
   const {
     isOpen: isOpenTakeAway,
     onOpen: onOpenTakeAway,
     onClose: onCloseTakeAway,
   } = useDisclosure();
-
   const {
     isOpen: isRestaurantModalOpen,
     onOpen: onRestaurantModalOpen,
     onClose: onRestaurantModalClose,
   } = useDisclosure();
 
-  // Redux hooks
   const dispatch = useDispatch();
-  const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
+  const showToast = useToast();
+  const userId = useMemo(
+    () => JSON.parse(localStorage.getItem("ProfileData"))?.result?._id,
+    []
+  );
+  const adminData = useSelector((state) => state?.userReducer?.data);
+  const AllOrderItemsLength = useSelector(
+    (state) => state.OrderItemReducer?.length
+  );
 
-  // State variables
   const [searchState, setSearchState] = useState({
     searchTerm: "",
     searchResults: [],
     searchPerformed: false,
   });
-
-  const [searchStateDrinks, setSearchStateDrinks] = useState({
-    searchTerm: "",
-    searchResults: [],
-    searchPerformed: false,
-  });
-
-  const [allOrderTotal, setAllOrderTotal] = useState(0);
   const [allItemsData, setAllItemsData] = useState([]);
-  const [drinksData, setDrinksData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editItem, setEditItem] = useState(null);
-  const [editDrink, setEditDrink] = useState(null);
   const [IsCartClicked, setIsCartClicked] = useState(false);
   const [isVerified, setIsVerified] = useState(true);
   const [isPermitted, setIsPermitted] = useState(true);
 
-  // Function to handle search
-  const handleSearch = useCallback(
-    (isDrink) => {
-      const { searchTerm } = isDrink ? searchStateDrinks : searchState;
-      const action = isDrink ? searchDrinksOnlyAction : searchOrderItemAction;
+  const handleSearch = useCallback(() => {
+    const { searchTerm } = searchState;
 
-      dispatch(action(searchTerm)).then((res) => {
-        if (res.success) {
-          const setSearchStateFn = isDrink
-            ? setSearchStateDrinks
-            : setSearchState;
-          setSearchStateFn((prevState) => ({
-            ...prevState,
-            searchResults: res?.data,
-          }));
-        } else {
-          console.error("Search error: " + res.message);
-        }
-      });
-    },
-    [dispatch, searchState, searchStateDrinks]
-  );
+    if (!searchTerm.trim()) {
+      setSearchState((prevState) => ({
+        ...prevState,
+        searchResults: [],
+        searchPerformed: false,
+      }));
+      return;
+    }
+
+    const results = Object.values(allItemsData)
+      .flat()
+      .filter((item) =>
+        item.orderName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    setSearchState((prevState) => ({
+      ...prevState,
+      searchResults: results,
+      searchPerformed: true,
+    }));
+  }, [searchState, allItemsData]);
+
+  const handleAddItemOrder = (product) => {
+    if (product) {
+      dispatch({ type: "ADD_ORDER_ITEM_TEMP", data: product });
+    }
+  };
 
   const handleVerifyRestaurant = () => {
     onRestaurantModalOpen();
@@ -138,42 +123,28 @@ export default function AllOrders() {
   };
 
   const handleCartClick = (type) => {
-    //TODO: Check if restaurant is verified and handle the employee cases
     if (!adminData?.isVerified && adminData?.role === "admin") {
       setIsVerified(false);
       return;
     }
-    if (type === 1) {
-      onOpenDineIn();
-    } else if (type === 2) {
-      onOpenCart();
-    } else {
-      onOpenTakeAway();
-    }
+    if (type === 1) onOpenDineIn();
+    else if (type === 2) onOpenCart();
+    else onOpenTakeAway();
   };
 
-  // Function to handle submission of item order
   const handleSubmitItemOrder = (data) => {
     data.created_by = userId;
-    const isEdit = editItem || editDrink;
-    const actionPromise = isEdit
-      ? dispatch(updateSingleItemOrderAction(isEdit._id, data))
+    const actionPromise = editItem
+      ? dispatch(updateSingleItemOrderAction(editItem._id, data))
       : dispatch(AddOrderItemAction(data));
+
     setEditItem(null);
-    setEditDrink(null);
+
     const AddOrEditItemPromise = actionPromise.then((res) => {
       if (res.success) {
-        const action = data.isDrink
-          ? getDrinksOnlyAction
-          : getAllOrderItemsAction;
-        dispatch(action(userId)).then((res) => {
-          if (res.success) {
-            data.isDrink
-              ? setDrinksData(groupByCategory(res?.data))
-              : setAllItemsData(groupByCategory(res?.data));
-          } else {
-            console.error("Error fetching data");
-          }
+        dispatch(getAllOrderItemsAction(userId)).then((res) => {
+          if (res.success) setAllItemsData(groupByCategory(res?.data));
+          else showToast(res.message, "error");
         });
       } else {
         throw new Error(res.message);
@@ -181,91 +152,65 @@ export default function AllOrders() {
     });
 
     toast.promise(AddOrEditItemPromise, {
-      pending: isEdit
+      pending: editItem
         ? "Processing Edit of Item..."
         : "Processing Addition of Item...",
-      success: isEdit ? "Item Edited Successfully" : "Item Added Successfully",
+      success: editItem
+        ? "Item Edited Successfully"
+        : "Item Added Successfully",
       error: (err) => err.message,
     });
   };
 
-  // Function to handle adding item to order
-  const handleAddItemOrder = (product) => {
-    if (product) {
-      setAllOrderTotal(allOrderTotal + product.priceVal);
-      dispatch({ type: "ADD_ORDER_ITEM_TEMP", data: product });
-    }
+  const handleEditItem = (product) => {
+    setEditItem(product);
+    onOpenItem();
   };
 
-  // Function to handle editing an item
-  const handleEditItem = (product, isDrink) => {
-    isDrink ? setEditDrink(product) : setEditItem(product);
-    isDrink ? onOpenDrinks() : onOpenItem();
-  };
-
-  const handleClose = () => {
-    setEditItem(null);
-    setEditDrink(null);
-    onCloseItem();
-    onCloseDrinks();
-  };
-
-  // Function to handle deleting an item
-  const handleDeleteItem = (product, isDrink) => {
-    const action = isDrink ? setDrinksData : setAllItemsData;
-    const actionType = isDrink ? getDrinksOnlyAction : getAllOrderItemsAction;
+  const handleDeleteItem = (product) => {
     const deleteItemPromise = dispatch(
       deleteSingleItemOrderAction(product._id)
     ).then((res) => {
       if (res.success) {
-        dispatch(actionType(userId)).then((res) => {
-          if (res.success) {
-            action(res?.data);
-          } else {
-            console.error("Error fetching data");
-          }
+        dispatch(getAllOrderItemsAction(userId)).then((res) => {
+          if (res.success) setAllItemsData(groupByCategory(res?.data));
         });
         return res.message;
       } else {
         throw new Error("Error Deleting Item");
       }
     });
+
     toast.promise(deleteItemPromise, {
       pending: "Deleting Item...",
       success: "Item Deleted Successfully",
       error: "Error in Deleting Item",
     });
   };
-  // Group by category the coming data
-  const groupByCategory = (data) => {
-    return data.reduce((acc, item) => {
-      const category = item.category || "Uncategorized";
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(item);
-      return acc;
-    }, {});
-  };
 
-  // useEffect to fetch data on component mount
+  const groupByCategory = useMemo(
+    () => (data) => {
+      return data.reduce((acc, item) => {
+        const category = item.category || "Common";
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(item);
+        return acc;
+      }, {});
+    },
+    []
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [allItemsRes, drinksRes] = await Promise.all([
-          dispatch(getAllOrderItemsAction()),
-          dispatch(getDrinksOnlyAction()),
-        ]);
+        const allItemsRes = await dispatch(getAllOrderItemsAction());
 
-        if (!allItemsRes.success || !drinksRes.success) {
-          showToast(allItemsRes.message || drinksRes.message, "error");
-          if (allItemsRes.status === 403 || drinksRes.status === 403) {
-            setIsPermitted(false);
-          }
+        if (!allItemsRes.success) {
+          showToast(allItemsRes.message, "error");
+          if (allItemsRes.status === 403) setIsPermitted(false);
         } else {
           setAllItemsData(groupByCategory(allItemsRes.data));
-          setDrinksData(groupByCategory(drinksRes.data));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -275,16 +220,25 @@ export default function AllOrders() {
     };
 
     fetchData();
-  }, [dispatch, showToast, userId]);
+  }, [dispatch, showToast, userId, groupByCategory]);
 
-  if (!isPermitted) {
-    return <ForbiddenPage isPermitted={isPermitted} />;
+  if (!isPermitted) return <ForbiddenPage isPermitted={isPermitted} />;
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="50vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
   }
 
-  // Function to render search box
-  const renderSearchBox = (isDrink) => {
-    const { searchTerm } = isDrink ? searchStateDrinks : searchState;
-    const setSearchTerm = isDrink ? setSearchStateDrinks : setSearchState;
+  const renderSearchBox = () => {
+    const { searchTerm } = searchState;
 
     return (
       <InputGroup mb="1rem">
@@ -296,7 +250,7 @@ export default function AllOrders() {
             size={"20"}
             style={{ cursor: "pointer" }}
             onClick={() =>
-              setSearchTerm({ searchTerm: "", searchPerformed: false })
+              setSearchState({ searchTerm: "", searchPerformed: false })
             }
           />
         </InputRightElement>
@@ -307,24 +261,18 @@ export default function AllOrders() {
           value={searchTerm}
           onChange={(e) => {
             const term = e.target.value;
-            setSearchTerm({ searchTerm: term, searchPerformed: !!term });
-            if (term.trim()) handleSearch(isDrink);
+            setSearchState({ searchTerm: term, searchPerformed: !!term });
+            if (term.trim()) handleSearch();
           }}
         />
       </InputGroup>
     );
   };
 
-  // Function to render search results
-  const renderSearchResults = (data, isDrink) => {
-    const searchResults = isDrink
-      ? searchStateDrinks.searchResults
-      : searchState.searchResults;
-    const isSearchPerformed = isDrink
-      ? searchStateDrinks.searchPerformed
-      : searchState.searchPerformed;
+  const renderSearchResults = (data) => {
+    const { searchResults, searchPerformed } = searchState;
 
-    if (isSearchPerformed) {
+    if (searchPerformed) {
       return (
         <List mt={4}>
           {searchResults?.map((result, index) => (
@@ -361,13 +309,13 @@ export default function AllOrders() {
                     cursor="pointer"
                     fontSize="20px"
                     color="blue.500"
-                    onClick={() => handleEditItem(result, isDrink)}
+                    onClick={() => handleEditItem(result)}
                   />
                   <DeleteIcon
                     cursor="pointer"
                     fontSize="20px"
                     color="red.500"
-                    onClick={() => handleDeleteItem(result, isDrink)}
+                    onClick={() => handleDeleteItem(result)}
                   />
                 </Box>
               </Box>
@@ -401,7 +349,7 @@ export default function AllOrders() {
             </Text>
             <Box
               display="grid"
-              gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))"
+              gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
               gap={4}
             >
               {items.map((item) => (
@@ -466,13 +414,13 @@ export default function AllOrders() {
                         cursor="pointer"
                         fontSize="24px"
                         color="blue.500"
-                        onClick={() => handleEditItem(item, isDrink)}
+                        onClick={() => handleEditItem(item)}
                       />
                       <DeleteIcon
                         cursor="pointer"
                         fontSize="24px"
                         color="red.500"
-                        onClick={() => handleDeleteItem(item, isDrink)}
+                        onClick={() => handleDeleteItem(item)}
                       />
                     </Box>
                   </Box>
@@ -485,21 +433,6 @@ export default function AllOrders() {
     );
   };
 
-  // Render loading spinner if data is still loading
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-      >
-        <Spinner size="xl" />
-      </Box>
-    );
-  }
-
-  // Main component render
   return (
     <>
       {!isVerified && (
@@ -531,24 +464,26 @@ export default function AllOrders() {
           >
             Add Items
           </Button>
-          <Box position="relative">
-            <Button
-              leftIcon={<FaCartShopping />}
-              colorScheme="teal"
-              onClick={() => setIsCartClicked(!IsCartClicked)}
-            >
-              Cart
-            </Button>
-            <Badge
-              position="absolute"
-              top="-2"
-              right="-2"
-              colorScheme="teal"
-              borderRadius="full"
-            >
-              {AllOrderItemsLength}
-            </Badge>
-          </Box>
+          {!IsCartClicked && (
+            <Box position="relative">
+              <Button
+                leftIcon={<FaCartShopping />}
+                colorScheme="teal"
+                onClick={() => setIsCartClicked(!IsCartClicked)}
+              >
+                Cart
+              </Button>
+              <Badge
+                position="absolute"
+                top="-2"
+                right="-2"
+                colorScheme="teal"
+                borderRadius="full"
+              >
+                {AllOrderItemsLength}
+              </Badge>
+            </Box>
+          )}
           {IsCartClicked && (
             <Box>
               <Button
@@ -576,56 +511,32 @@ export default function AllOrders() {
               </Button>
             </Box>
           )}
-          <Button
-            leftIcon={<FiPlusCircle />}
-            colorScheme="teal"
-            onClick={onOpenDrinks}
-          >
-            Add Drinks
-          </Button>
         </Box>
-        {/* Food Modal */}
         <ItemModal
           isOpen={isOpenItem}
-          onClose={handleClose}
-          isDrink={false}
+          onClose={() => {
+            setEditItem(null);
+            onCloseItem();
+          }}
           onSubmitData={handleSubmitItemOrder}
           data={editItem}
         />
-        {/* Drink Modal */}
-        <ItemModal
-          isOpen={isOpenDrinks}
-          onClose={handleClose}
-          isDrink={true}
-          onSubmitData={handleSubmitItemOrder}
-          data={editDrink}
-        />
+
         <Box display="flex" gap="1rem">
           <Box flex="1">
-            {renderSearchBox(false)}
-            {console.log(allItemsData)}
-            {renderSearchResults(allItemsData, false)}
-          </Box>
-
-          {/* Custom divider */}
-          <Box width="2px" minHeight={"100px"} bgColor="gray.300" />
-
-          <Box flex="1">
-            {renderSearchBox(true)}
-            {renderSearchResults(drinksData, true)}
+            {renderSearchBox()}
+            {renderSearchResults(allItemsData)}
           </Box>
         </Box>
         <CartDrawer isOpen={isOpenCart} onClose={onCloseCart} />
         <DineInDrawer isOpen={isOpenDineIn} onClose={onCloseDineIn} />
         <TakeawayDrawer isOpen={isOpenTakeAway} onClose={onCloseTakeAway} />
-        {/* Restaurant Modal */}
         <RestaurantModal
           isOpen={isRestaurantModalOpen}
           onClose={onRestaurantModalClose}
         />
       </Box>
 
-      {/* CSS */}
       <style>
         {`
           @keyframes blinking {
