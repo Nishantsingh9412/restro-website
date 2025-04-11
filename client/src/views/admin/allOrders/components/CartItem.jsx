@@ -12,39 +12,35 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { BiSolidTrash } from "react-icons/bi";
-import { calculatePrice } from "../../../../utils/constant";
+// import { calculatePrice } from "../../../../utils/constant";
 
 // Helper function to format price with unit
 const formatPrice = (value, unit) =>
   `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : unit}`;
 
 const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
-  const dispatch = useDispatch();
-  const [selectedSubItems, setSelectedSubItems] = useState(
-    item?.subItems || []
-  );
+  // const dispatch = useDispatch();
 
-  const handleSubItemData = (subItems) => {
-    dispatch({
-      type: "UPDATE_ORDER_ITEM_TEMP_SUBITEM",
-      data: { parentId: item._id, subItems },
-    });
-  };
+  // const handleSubItemData = (subItems) => {
+  //   dispatch({
+  //     type: "UPDATE_ORDER_ITEM_TEMP_SUBITEM",
+  //     data: { parentId: item._id, subItems },
+  //   });
+  // };
 
-  const handleCheckboxChange = (subItem) => {
-    const updatedSubItems = selectedSubItems.some(
-      (selected) => selected._id === subItem._id
-    )
-      ? selectedSubItems.filter((selected) => selected._id !== subItem._id)
-      : [...selectedSubItems, subItem];
+  // const handleCheckboxChange = (subItem) => {
+  //   const updatedSubItems = selectedSubItems.some(
+  //     (selected) => selected._id === subItem._id
+  //   )
+  //     ? selectedSubItems.filter((selected) => selected._id !== subItem._id)
+  //     : [...selectedSubItems, subItem];
 
-    setSelectedSubItems(updatedSubItems);
-  };
+  //   setSelectedSubItems(updatedSubItems);
+  // };
 
-  useEffect(() => {
-    handleSubItemData(selectedSubItems);
-    console.log("up[datd1");
-  }, [selectedSubItems]);
+  // useEffect(() => {
+  //   handleSubItemData(selectedSubItems);
+  // }, [selectedSubItems]);
 
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={3}>
@@ -59,11 +55,11 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
             />
             <Box ml="1rem">
               <Text fontWeight="semibold" as="h4" isTruncated>
-                {item?.orderName}
+                {item?.itemName}
               </Text>
               <Text fontWeight="semibold" as="h4" isTruncated>
-                {item?.quantity} X{" "}
-                {formatPrice(item?.priceVal, item?.priceUnit)}
+                {item?.totalQuantity} X{" "}
+                {formatPrice(item?.totalPrice, item?.priceUnit)}
               </Text>
             </Box>
             <BiSolidTrash
@@ -96,13 +92,13 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
                 userSelect: "none",
                 fontSize: "24px",
               }}
-              onClick={() => onRemove(item._id)}
+              onClick={() => onRemove(item.cartItemId)}
             >
               -
             </Text>
           </Flex>
         </Flex>
-        <Flex justifyContent="space-between">
+        {/* <Flex justifyContent="space-between">
           {item?.subItems?.length > 0 && (
             <Box mt={2}>
               <Text fontSize="sm" fontWeight="bold">
@@ -126,9 +122,9 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
               </CheckboxGroup>
             </Box>
           )}
-        </Flex>
+        </Flex> */}
         <Box display="flex" justifyContent="end" mt="0.5rem">
-          {formatPrice(calculatePrice(item, selectedSubItems), item?.priceUnit)}
+          {formatPrice(item.totalPrice, item?.priceUnit)}
         </Box>
       </Box>
     </Box>

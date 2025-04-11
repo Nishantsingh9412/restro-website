@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-const ItemCard = ({ item, handleAddItemCart }) => {
+const ItemCard = ({ item, handleShowItem }) => {
   return (
     <Box
       p={5}
@@ -35,7 +35,7 @@ const ItemCard = ({ item, handleAddItemCart }) => {
         colorScheme="teal"
         variant="solid"
         w="full"
-        onClick={() => handleAddItemCart(item)}
+        onClick={() => handleShowItem(item)}
       >
         Show Item
       </Button>
@@ -47,5 +47,5 @@ export default ItemCard;
 
 ItemCard.propTypes = {
   item: PropTypes.object.isRequired,
-  handleAddItemCart: PropTypes.func.isRequired,
+  handleShowItem: PropTypes.func.isRequired,
 };

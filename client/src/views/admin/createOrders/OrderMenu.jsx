@@ -7,25 +7,33 @@ import {
   Input,
   Select,
   SimpleGrid,
+  Spinner,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { addToCart, removeFromCart } from "../../../redux/action/cartItems";
 import CartItem from "../allOrders/components/CartItem";
 import { useToast } from "../../../contexts/useToast";
 import { getAllOrderItemsAction } from "../../../redux/action/OrderItems";
 import EmptyCart from "../allOrders/components/EmptyCart";
 import ItemCard from "./components/ItemCard";
+import ShowItemModal from "./components/ItemModal";
 
 const OrderMenu = () => {
+  const showToast = useToast();
   const dispatch = useDispatch();
-  const allOrderItems = useSelector((state) => state?.OrderItemReducer);
-  const cartItems = allOrderItems?.items || [];
+  // const allOrderItems = useSelector((state) => state?.OrderItemReducer);
+  const cartItems = useSelector((state) => state?.cart.items);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [allItemsData, setAllItemsData] = useState({});
-  const toast = useToast();
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleAddItemOrder = (item) => {
-    dispatch({ type: "ADD_ORDER_ITEM_TEMP", data: item });
+    dispatch(addToCart(item));
+    showToast("Item added to cart", "success");
   };
 
   // Handler to remove an item completely from the order
@@ -38,7 +46,15 @@ const OrderMenu = () => {
   // Handler to remove one quantity of an item from the order
   const handleRemoveItemOrder = (id) => {
     if (id) {
-      dispatch({ type: "REMOVE_ORDER_ITEM_TEMP", data: id });
+      dispatch(removeFromCart(id));
+      showToast("Item removed from cart", "success");
+    }
+  };
+
+  const handleShowItem = (item) => {
+    if (item) {
+      setSelectedItem(item);
+      onOpen();
     }
   };
 
@@ -66,36 +82,55 @@ const OrderMenu = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const allItemsRes = await dispatch(getAllOrderItemsAction());
         if (!allItemsRes.success) {
-          toast({
-            title: "Error",
-            description: allItemsRes.message,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
+          showToast(allItemsRes.message, "error");
         } else {
           setAllItemsData(groupByCategory(allItemsRes.data));
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch data. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        showToast("Failed to fetch data", "error");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [dispatch, toast]);
+  }, [dispatch, showToast]);
+
+  if (loading) {
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Box>
+          <Spinner size="xl" color="teal.600" />
+        </Box>
+      </Flex>
+    );
+  }
+
+  if (!allItemsData) {
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Text fontSize="xl" color="teal.600">
+          No items available
+        </Text>
+      </Flex>
+    );
+  }
 
   return (
     <Flex p={6} gap={6} flexWrap="wrap" justifyContent="space-between">
+      {isOpen && (
+        <ShowItemModal
+          isOpen={isOpen}
+          onClose={onClose}
+          item={selectedItem}
+          handleAddToCart={handleAddItemOrder}
+        />
+      )}
       {/* Left: Menu List */}
       <Box flex="1" minW="300px" maxW="600px">
         <Flex mb={6} gap={4} alignItems="center">
@@ -126,7 +161,7 @@ const OrderMenu = () => {
             <ItemCard
               key={index}
               item={result}
-              handleAddItemCart={handleAddItemOrder}
+              handleShowItem={handleShowItem}
             />
           ))}
         </SimpleGrid>
@@ -151,7 +186,7 @@ const OrderMenu = () => {
           <SimpleGrid spacing={4}>
             {cartItems.map((item) => (
               <CartItem
-                key={item._id}
+                key={item.cartItemId}
                 item={item}
                 onRemoveCompletely={handleRemoveItemOrderCompletely}
                 onAdd={handleAddItemOrder}

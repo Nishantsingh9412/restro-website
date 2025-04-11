@@ -109,9 +109,9 @@ const Dialog_Boxes = {
 };
 // Helper to calculate the Order Item Price
 const calculatePrice = (item, subItems = item?.selectedSubItems) => {
-  const { quantity, priceVal } = item;
+  const { quantity, basePrice } = item;
   const subItemPrice = subItems.reduce((prev, item) => prev + item.price, 0);
-  const totalPrice = priceVal + subItemPrice;
+  const totalPrice = basePrice + subItemPrice;
   return quantity * totalPrice;
 };
 
