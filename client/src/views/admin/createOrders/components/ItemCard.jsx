@@ -20,14 +20,14 @@ const ItemCard = ({ item, handleAddItemCart }) => {
             boxShadow: "0px 2px 8px rgba(0,0,0,0.2)",
           }}
           src={item?.pic || "/images/fallback.png"}
-          alt={item?.orderName || "Food-Image"}
+          alt={item?.itemName || "Food-Image"}
         />
         <Box ml={4} flex="1">
           <Text fontWeight="bold" fontSize="lg" color="teal.600">
-            {item?.orderName}
+            {item?.itemName}
           </Text>
           <Text fontSize="md" color="gray.600">
-            {item?.priceVal} {item?.priceUnit}
+            {item?.basePrice} {item?.priceUnit}
           </Text>
         </Box>
       </Flex>
@@ -37,7 +37,7 @@ const ItemCard = ({ item, handleAddItemCart }) => {
         w="full"
         onClick={() => handleAddItemCart(item)}
       >
-        Add To Cart
+        Show Item
       </Button>
     </Box>
   );

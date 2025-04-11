@@ -57,7 +57,7 @@ const ItemModal = (props) => {
         preparationTime: data?.preparationTime || "",
         isFavourite: data?.isFavourite || false,
         inStock: data?.inStock || false,
-        pic: data.pic,
+        pic: data?.pic,
         created_by: data.created_by,
       }));
     }

@@ -60,7 +60,7 @@ const OrderMenu = () => {
     // eslint-disable-next-line no-unused-vars
     .flatMap(([_, items]) =>
       items.filter((item) =>
-        item.orderName.toLowerCase().includes(searchTerm.toLowerCase())
+        item.itemName?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
 

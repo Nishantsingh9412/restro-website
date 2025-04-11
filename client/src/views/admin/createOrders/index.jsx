@@ -4,7 +4,7 @@ import OrderTypeCard from "./components/OrderTypeCard";
 import DineInForm from "./components/DineInForm";
 import TakeAwayForm from "./components/TakeAwayForm";
 import DeliveryOrderForm from "./components/DelOrderForm";
-import OrderMenu from "./components/OrderMenu";
+import OrderMenu from "./OrderMenu";
 
 const CreateOrders = () => {
   const orderTypes = ["Dine In", "TakeAway", "Delivery"];

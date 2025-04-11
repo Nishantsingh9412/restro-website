@@ -29,12 +29,13 @@ import {
   updateSingleItemOrderAction,
 } from "../../../redux/action/OrderItems";
 import CartDrawer from "./components/CartDrawer";
-import ItemModal from "./components/ItemModal";
+// import ItemModal from "./components/ItemModal";
 import DineInDrawer from "./components/DineInDrawer";
 import TakeawayDrawer from "./components/TakeAwayDrawer";
 import RestaurantModal from "../../../components/restaurant/restaurantModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/useToast";
+import AddEditItemModal from "./components/AddEditItemModal";
 
 export default function AllOrders() {
   const {
@@ -133,7 +134,6 @@ export default function AllOrders() {
   };
 
   const handleSubmitItemOrder = (data) => {
-    data.created_by = userId;
     const actionPromise = editItem
       ? dispatch(updateSingleItemOrderAction(editItem._id, data))
       : dispatch(AddOrderItemAction(data));
@@ -384,7 +384,7 @@ export default function AllOrders() {
                       color="teal.600"
                       textAlign="center"
                     >
-                      {item?.orderName}
+                      {item?.itemName}
                     </Text>
                     <Text
                       fontSize="md"
@@ -392,7 +392,7 @@ export default function AllOrders() {
                       color="gray.600"
                       textAlign="center"
                     >
-                      {item?.priceVal} {item?.priceUnit}
+                      {item?.basePrice} {item?.priceUnit}
                     </Text>
                   </Box>
                   <Box
@@ -512,7 +512,7 @@ export default function AllOrders() {
             </Box>
           )}
         </Box>
-        <ItemModal
+        {/* <ItemModal
           isOpen={isOpenItem}
           onClose={() => {
             setEditItem(null);
@@ -520,6 +520,16 @@ export default function AllOrders() {
           }}
           onSubmitData={handleSubmitItemOrder}
           data={editItem}
+        /> */}
+
+        <AddEditItemModal
+          isOpen={isOpenItem}
+          itemData={editItem}
+          onSubmit={handleSubmitItemOrder}
+          onClose={() => {
+            setEditItem(null);
+            onCloseItem();
+          }}
         />
 
         <Box display="flex" gap="1rem">

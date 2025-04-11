@@ -24,31 +24,36 @@ const handleResponse = (res, success, message, result = null) => {
 
 // Joi schema for validating order items
 const orderItemSchema = Joi.object({
+  _id: Joi.string().optional(),
   itemId: Joi.string().required(),
-  orderName: Joi.string().required(),
+  itemName: Joi.string().required(),
   category: Joi.string().required(),
-  subItems: Joi.array()
+  customization: Joi.array()
     .items(
       Joi.object({
-        _id: Joi.string().optional().allow(null, ""),
-        name: Joi.string().required(),
-        price: Joi.number().required(),
-        pic: Joi.string().optional().allow(null, ""),
+        title: Joi.string().required(),
+        maxSelect: Joi.number().required(),
+        required: Joi.boolean().optional().default(false),
+        option: Joi.array()
+          .items(
+            Joi.object({
+              name: Joi.string().required(),
+              price: Joi.number().required(),
+            })
+          )
+          .required(),
       })
     )
     .optional()
     .allow(null, ""),
-  priceVal: Joi.number().required(),
-  preparationTime: Joi.number().required(),
+  basePrice: Joi.number().required(),
   priceUnit: Joi.string().required(),
+  prepTime: Joi.number().required(),
   pic: Joi.string().optional().allow(null, ""),
   description: Joi.string().optional().allow(null, ""),
-  isFavourite: Joi.boolean().optional().allow(null, ""),
-  inStock: Joi.boolean().optional(),
-  created_by: Joi.string().required(),
+  isFavourite: Joi.boolean().optional().default(false),
+  inStock: Joi.boolean().optional().default(false),
 });
-
-// Controller to add a new order item
 
 // Controller to add a new order item
 export const AddOrderItem = async (req, res) => {
@@ -63,17 +68,16 @@ export const AddOrderItem = async (req, res) => {
 
     const {
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      preparationTime,
-      priceVal,
+      prepTime,
+      basePrice,
       priceUnit,
       pic,
       description,
       isFavourite,
       inStock,
-      isDrink,
+      customization,
     } = req.body;
 
     const itemIdExist = await OrderedItems.findOne({ itemId });
@@ -83,17 +87,16 @@ export const AddOrderItem = async (req, res) => {
 
     const newOrderItem = await OrderedItems.create({
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      priceVal,
+      prepTime,
+      basePrice,
       priceUnit,
-      preparationTime,
       pic,
       description,
       isFavourite,
       inStock,
-      isDrink,
+      customization,
       created_by: userId,
     });
     if (!newOrderItem) {
@@ -150,41 +153,41 @@ export const updateOrderItem = async (req, res) => {
   if (!validateObjectId(_id, res, "Order Item")) return;
 
   try {
-    const { error } = orderItemSchema.validate(req.body);
+    const { error } = orderItemSchema.validate(req.body, {
+      allowUnknown: true,
+    });
     if (error) {
       return handleResponse(res, false, error.details[0].message);
     }
 
     const {
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      priceVal,
-      preparationTime,
+      prepTime,
+      basePrice,
       priceUnit,
       pic,
       description,
       isFavourite,
-      isDrink,
       inStock,
+      customization,
     } = req.body;
     const updatedOrderItem = await OrderedItems.findByIdAndUpdate(
       _id,
       {
         $set: {
           itemId,
-          orderName,
+          itemName,
           category,
-          subItems,
-          preparationTime,
-          priceVal,
+          prepTime,
+          basePrice,
           priceUnit,
           pic,
           description,
           isFavourite,
-          isDrink,
           inStock,
+          customization,
         },
       },
       { new: true }
