@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   Box,
-  Button,
   Flex,
   Input,
   Select,
@@ -11,45 +10,22 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { addToCart, removeFromCart } from "../../../redux/action/cartItems";
-import CartItem from "../allOrders/components/CartItem";
+import { addToCart } from "../../../redux/action/cartItems";
 import { useToast } from "../../../contexts/useToast";
 import { getAllOrderItemsAction } from "../../../redux/action/OrderItems";
-import EmptyCart from "../allOrders/components/EmptyCart";
 import ItemCard from "./components/ItemCard";
 import ShowItemModal from "./components/ItemModal";
+import CartDrawer from "./components/CartBox";
 
 const OrderMenu = () => {
   const showToast = useToast();
   const dispatch = useDispatch();
-  // const allOrderItems = useSelector((state) => state?.OrderItemReducer);
-  const cartItems = useSelector((state) => state?.cart.items);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [allItemsData, setAllItemsData] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
-
-  const handleAddItemOrder = (item) => {
-    dispatch(addToCart(item));
-    showToast("Item added to cart", "success");
-  };
-
-  // Handler to remove an item completely from the order
-  const handleRemoveItemOrderCompletely = (id) => {
-    if (id) {
-      dispatch({ type: "REMOVE_ORDER_ITEM_TEMP_COMPLETELY", data: id });
-    }
-  };
-
-  // Handler to remove one quantity of an item from the order
-  const handleRemoveItemOrder = (id) => {
-    if (id) {
-      dispatch(removeFromCart(id));
-      showToast("Item removed from cart", "success");
-    }
-  };
 
   const handleShowItem = (item) => {
     if (item) {
@@ -128,7 +104,7 @@ const OrderMenu = () => {
           isOpen={isOpen}
           onClose={onClose}
           item={selectedItem}
-          handleAddToCart={handleAddItemOrder}
+          handleAddToCart={(item) => dispatch(addToCart(item))}
         />
       )}
       {/* Left: Menu List */}
@@ -168,47 +144,7 @@ const OrderMenu = () => {
       </Box>
 
       {/* Right: Cart */}
-      <Box
-        flex="1"
-        minW="300px"
-        maxW="400px"
-        bg="gray.50"
-        p={5}
-        borderRadius="lg"
-        boxShadow="md"
-      >
-        <Text fontSize="xl" fontWeight="bold" mb={4} color="teal.600">
-          Your Cart
-        </Text>
-        {cartItems.length === 0 ? (
-          <EmptyCart />
-        ) : (
-          <SimpleGrid spacing={4}>
-            {cartItems.map((item) => (
-              <CartItem
-                key={item.cartItemId}
-                item={item}
-                onRemoveCompletely={handleRemoveItemOrderCompletely}
-                onAdd={handleAddItemOrder}
-                onRemove={handleRemoveItemOrder}
-              />
-            ))}
-          </SimpleGrid>
-        )}
-        {cartItems.length > 0 && (
-          <Button
-            mt={4}
-            colorScheme="teal"
-            w="full"
-            onClick={() => {
-              // Handle checkout logic here
-              console.log("Proceeding to checkout...");
-            }}
-          >
-            Checkout
-          </Button>
-        )}
-      </Box>
+      <CartDrawer />
     </Flex>
   );
 };

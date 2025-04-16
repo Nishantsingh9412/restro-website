@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import PropTypes from "prop-types";
 import {
@@ -65,8 +64,8 @@ const ShowItemModal = ({ item, isOpen, onClose, handleAddToCart }) => {
         selectedOptions,
       };
     });
-
-    const totalPrice =
+    // Calculate price with customisations
+    const price =
       item.basePrice +
       selectedCustomizations.reduce((acc, custom) => {
         return (
@@ -76,9 +75,10 @@ const ShowItemModal = ({ item, isOpen, onClose, handleAddToCart }) => {
 
     const finalOrder = {
       ...item,
-      cartItemId: uuidv4(),
       selectedCustomizations,
-      totalPrice,
+      price,
+      totalPrice: price,
+      totalQuantity: 1,
     };
     console.log("Final Order:", finalOrder);
     handleAddToCart(finalOrder);

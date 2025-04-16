@@ -8,30 +8,7 @@ import { BiSolidTrash } from "react-icons/bi";
 const formatPrice = (value, unit) =>
   `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : unit}`;
 
-const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
-  // const dispatch = useDispatch();
-
-  // const handleSubItemData = (subItems) => {
-  //   dispatch({
-  //     type: "UPDATE_ORDER_ITEM_TEMP_SUBITEM",
-  //     data: { parentId: item._id, subItems },
-  //   });
-  // };
-
-  // const handleCheckboxChange = (subItem) => {
-  //   const updatedSubItems = selectedSubItems.some(
-  //     (selected) => selected._id === subItem._id
-  //   )
-  //     ? selectedSubItems.filter((selected) => selected._id !== subItem._id)
-  //     : [...selectedSubItems, subItem];
-
-  //   setSelectedSubItems(updatedSubItems);
-  // };
-
-  // useEffect(() => {
-  //   handleSubItemData(selectedSubItems);
-  // }, [selectedSubItems]);
-
+const CartItem = ({ item, onUpdate, onRemove }) => {
   return (
     <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={3}>
       <Box p="6">
@@ -49,13 +26,13 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
               </Text>
               <Text fontWeight="semibold" as="h4" isTruncated>
                 {item?.totalQuantity} X{" "}
-                {formatPrice(item?.totalPrice, item?.priceUnit)}
+                {formatPrice(item?.price, item?.priceUnit)}
               </Text>
             </Box>
             <BiSolidTrash
               size="20"
               style={{ marginLeft: "8px", cursor: "pointer", color: "red" }}
-              onClick={() => onRemoveCompletely(item._id)}
+              onClick={() => onRemove(item.cartItemId)}
             />
           </Flex>
           <Flex
@@ -72,7 +49,7 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
                 userSelect: "none",
                 fontSize: "24px",
               }}
-              onClick={() => onAdd(item)}
+              onClick={() => onUpdate(item.cartItemId, 1)}
             >
               +
             </Text>
@@ -82,39 +59,15 @@ const CartItem = ({ item, onRemoveCompletely, onAdd, onRemove }) => {
                 userSelect: "none",
                 fontSize: "24px",
               }}
-              onClick={() => onRemove(item.cartItemId)}
+              onClick={() => onUpdate(item.cartItemId, -1)}
             >
               -
             </Text>
           </Flex>
         </Flex>
-        {/* <Flex justifyContent="space-between">
-          {item?.subItems?.length > 0 && (
-            <Box mt={2}>
-              <Text fontSize="sm" fontWeight="bold">
-                Select Sub Items:
-              </Text>
-              <CheckboxGroup>
-                <Stack direction="column" spacing={1} ml={1}>
-                  {item?.subItems.map((subItem) => (
-                    <Checkbox
-                      key={subItem._id}
-                      isChecked={selectedSubItems.some(
-                        (item) => item._id === subItem._id
-                      )}
-                      onChange={() => handleCheckboxChange(subItem)}
-                    >
-                      {subItem.name} &times;{" "}
-                      {formatPrice(subItem.price, item.priceUnit)}
-                    </Checkbox>
-                  ))}
-                </Stack>
-              </CheckboxGroup>
-            </Box>
-          )}
-        </Flex> */}
+
         <Box display="flex" justifyContent="end" mt="0.5rem">
-          {formatPrice(item.totalPrice, item?.priceUnit)}
+          {formatPrice(item?.totalPrice, item?.priceUnit)}
         </Box>
       </Box>
     </Box>
