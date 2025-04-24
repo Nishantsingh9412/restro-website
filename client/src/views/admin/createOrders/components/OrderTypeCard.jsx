@@ -5,21 +5,22 @@ import {
   MdDinnerDining,
   MdTakeoutDining,
 } from "react-icons/md";
+import { orderTypes } from "../../../../utils/constant";
 
-const OrderTypeCard = ({ type, setOrderType, isSelected }) => {
+const OrderTypeCard = ({ type, setSelectedOrderType, isSelected }) => {
   const getDescriptionAndIcon = (type) => {
     switch (type) {
-      case "Dine In":
+      case orderTypes.DINE_IN:
         return {
           description: "Enjoy your meal at our place",
           icon: MdDinnerDining,
         };
-      case "TakeAway":
+      case orderTypes.TAKE_AWAY:
         return {
           description: "Take your meal with you",
           icon: MdTakeoutDining,
         };
-      case "Delivery":
+      case orderTypes.DELIVERY:
         return {
           description: "Get your meal delivered",
           icon: MdDeliveryDining,
@@ -55,12 +56,12 @@ const OrderTypeCard = ({ type, setOrderType, isSelected }) => {
         transform: "scale(1.05)",
         boxShadow: "lg",
       }}
-      onClick={() => setOrderType(type)}
+      onClick={() => setSelectedOrderType(type)}
     >
       <Icon as={icon} w={12} h={12} color="blue.400" />
       <VStack spacing={2} mt={4}>
         <Text fontSize="lg" fontWeight="bold" color="gray.700">
-          {type}
+          {type[0]?.toUpperCase() + type.slice(1)}
         </Text>
         <Text fontSize="sm" color="gray.500" textAlign="center">
           {description}
@@ -71,7 +72,7 @@ const OrderTypeCard = ({ type, setOrderType, isSelected }) => {
 };
 OrderTypeCard.propTypes = {
   type: PropTypes.string.isRequired,
-  setOrderType: PropTypes.func.isRequired,
+  setSelectedOrderType: PropTypes.func.isRequired,
   isSelected: PropTypes.bool,
 };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Flex,
@@ -15,17 +15,41 @@ import { useToast } from "../../../contexts/useToast";
 import { getAllOrderItemsAction } from "../../../redux/action/OrderItems";
 import ItemCard from "./components/ItemCard";
 import ShowItemModal from "./components/ItemModal";
-import CartDrawer from "./components/CartBox";
+import CheckoutSummary from "./components/CheckoutSummary";
+import CartBox from "./components/CartBox";
+import GuestsCartBox from "./components/GuestsCartBox";
+import { guestTypes, orderMethods, orderTypes } from "../../../utils/constant";
 
 const OrderMenu = () => {
   const showToast = useToast();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isCheckoutOpen,
+    onOpen: onCheckoutOpen,
+    onClose: onCheckoutClose,
+  } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [allItemsData, setAllItemsData] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
+  const { orderMethod } = useSelector((state) => state.customerInfo.dineIn);
+  const { currentGuest, orderType } = useSelector((state) => state.cart);
+
+  const handleAddToCart = (item) => {
+    if (
+      orderType === orderTypes.DINE_IN &&
+      orderMethod === orderMethods.INDIVIDUAL &&
+      currentGuest === guestTypes.GUEST
+    ) {
+      showToast("Please select a guest to add items to the cart", "info");
+      return;
+    }
+    if (item) {
+      dispatch(addToCart(item));
+    }
+  };
 
   const handleShowItem = (item) => {
     if (item) {
@@ -104,8 +128,12 @@ const OrderMenu = () => {
           isOpen={isOpen}
           onClose={onClose}
           item={selectedItem}
-          handleAddToCart={(item) => dispatch(addToCart(item))}
+          handleAddToCart={handleAddToCart}
         />
+      )}
+      {/* Checkout Component */}
+      {isCheckoutOpen && (
+        <CheckoutSummary isOpen={isCheckoutOpen} onClose={onCheckoutClose} />
       )}
       {/* Left: Menu List */}
       <Box flex="1" minW="300px" maxW="600px">
@@ -144,7 +172,12 @@ const OrderMenu = () => {
       </Box>
 
       {/* Right: Cart */}
-      <CartDrawer />
+      {orderMethod === orderMethods.INDIVIDUAL &&
+      orderType === orderTypes.DINE_IN ? (
+        <GuestsCartBox handleOnProceed={onCheckoutOpen} />
+      ) : (
+        <CartBox handleOnProceed={onCheckoutOpen} />
+      )}
     </Flex>
   );
 };

@@ -12,9 +12,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
-import { SearchBar } from "./searchBar/SearchBar.jsx";
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { FaEthereum } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -92,12 +91,6 @@ export default function HeaderLinks({ secondary }) {
         borderRadius="30px"
         boxShadow={shadow}
       >
-        {/* Search Bar Component */}
-        <SearchBar
-          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-          me="10px"
-          borderRadius="30px"
-        />
         {/* Ethereum Info Box */}
         <Flex
           bg={ethBg}

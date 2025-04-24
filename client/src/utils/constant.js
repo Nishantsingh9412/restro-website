@@ -27,6 +27,16 @@ const orderTypes = {
   DELIVERY: "delivery",
 };
 
+const orderMethods = {
+  INDIVIDUAL: "individual",
+  TOGETHER: "together",
+};
+
+const guestTypes = {
+  DEFAULT: "default",
+  GUEST: "guest",
+};
+
 const employeesRoles = {
   CHEF: "Chef",
   WAITER: "Waiter",
@@ -115,6 +125,9 @@ const calculatePrice = (item, subItems = item?.selectedSubItems) => {
   return quantity * totalPrice;
 };
 
+const formatPrice = (value, unit) =>
+  `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : unit}`;
+
 export {
   statuses,
   orderTypes,
@@ -122,4 +135,7 @@ export {
   userTypes,
   employeesRoles,
   calculatePrice,
+  formatPrice,
+  orderMethods,
+  guestTypes,
 };

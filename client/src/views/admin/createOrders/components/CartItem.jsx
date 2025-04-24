@@ -65,10 +65,22 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
             </Text>
           </Flex>
         </Flex>
-
-        <Box display="flex" justifyContent="end" mt="0.5rem">
-          {formatPrice(item?.totalPrice, item?.priceUnit)}
-        </Box>
+        <Flex justifyContent={"space-between"}>
+          {item?.selectedCustomizations?.length > 0 ? (
+            <Text fontWeight="" as="h5" mt={2} ml={1} isTruncated>
+              (
+              {item?.selectedCustomizations
+                .flatMap((c) => c.selectedOptions.map((option) => option.name))
+                .join(", ")}
+              )
+            </Text>
+          ) : (
+            <Box></Box>
+          )}
+          <Box display="flex" justifyContent="end" mt={"0.5rem"}>
+            {formatPrice(item?.totalPrice, item?.priceUnit)}
+          </Box>
+        </Flex>
       </Box>
     </Box>
   );

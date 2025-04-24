@@ -9,25 +9,22 @@ import {
   Stack,
   Textarea,
   Button,
-  Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import MapInput from "../../../../components/mapInput/MapInput";
-import { setFormData } from "../../../../redux/action/stepperFormAction";
+import { setDeliveryInfo } from "../../../../redux/action/customerInfo";
 import { useToast } from "../../../../contexts/useToast";
 
 const DeliveryOrderForm = ({ onProceed }) => {
+  const toast = useToast();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
-  const userId = localData?.result?._id;
-  const formData = useSelector((state) => state.form);
+  const formData = useSelector((state) => state.customerInfo.delivery);
 
   const validate = () => {
     const requiredFields = [
-      "name",
+      "customerName",
       "phoneNumber",
       "address",
       "paymentMethod",
@@ -65,29 +62,16 @@ const DeliveryOrderForm = ({ onProceed }) => {
   const handleAddressSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    dispatch(setFormData({ created_by: userId }));
     onProceed();
   };
 
   const handleChange = (field, value) => {
-    dispatch(setFormData({ [field]: value }));
+    dispatch(
+      setDeliveryInfo({
+        [field]: value,
+      })
+    );
   };
-  //   const randomData = {
-  //     name: "John Doe",
-  //     phoneNumber: "1234567890",
-  //     address: "1234 Main St",
-  //     address2: "Apt 101",
-  //     zip: "12345",
-  //     paymentMethod: "cash",
-  //     deliveryMethod: "delivery",
-  //     // dropLocation: { lat: 40.712776, lng: -74.005974 },
-  //     // dropLocationName: "New York, NY, USA",
-  //     noteFromCustomer: "Leave at the front door.",
-  //   };
-  // For testing purposes
-  //   const handleAutoComplete = () => {
-  //     dispatch(setFormData(randomData));
-  //   };
 
   return (
     <Box p={4}>
@@ -98,14 +82,38 @@ const DeliveryOrderForm = ({ onProceed }) => {
               Drop Location
             </FormLabel>
           </FormControl>
-          <FormControl id="name" isRequired mt={4}>
+          <FormControl id="customerName" isRequired mt={4}>
             <FormLabel>Name</FormLabel>
             <Input
               type="text"
               placeholder="Customer Name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              value={formData.customerName}
+              onChange={(e) => handleChange("customerName", e.target.value)}
             />
+          </FormControl>
+          <FormControl id="droplocation" isRequired mt={4}>
+            <FormLabel>Drop Location</FormLabel>
+            {/* <Text>{formData?.dropLocationName}</Text> */}
+            <Button
+              borderRadius={"4px"}
+              bg={"#029CFF"}
+              color={"#fff"}
+              _hover={{ background: "blue.500" }}
+              onClick={onOpen}
+            >
+              Open Map Now
+            </Button>
+
+            {isOpen && (
+              <MapInput
+                data={{
+                  dropLocation: formData.dropLocation,
+                  dropLocationName: formData.dropLocationName || "",
+                }}
+                isOpen={isOpen}
+                onClose={onClose}
+              />
+            )}
           </FormControl>
 
           <FormControl id="address" isRequired mt={4}>
@@ -175,31 +183,6 @@ const DeliveryOrderForm = ({ onProceed }) => {
           </RadioGroup>
         </FormControl>
 
-        <FormControl id="droplocation" isRequired mt={4}>
-          <FormLabel>Drop Location</FormLabel>
-          <Text>{formData?.dropLocationName}</Text>
-          <Button
-            borderRadius={"4px"}
-            bg={"#029CFF"}
-            color={"#fff"}
-            _hover={{ background: "blue.500" }}
-            onClick={onOpen}
-          >
-            Open Map Now
-          </Button>
-
-          {isOpen && (
-            <MapInput
-              data={{
-                dropLocation: formData.dropLocation,
-                dropLocationName: formData.dropLocationName || "",
-              }}
-              isOpen={isOpen}
-              onClose={onClose}
-            />
-          )}
-        </FormControl>
-
         <FormControl id="note-from-customer" mt={4}>
           <FormLabel>Note from Customer</FormLabel>
           <Textarea
@@ -235,6 +218,7 @@ const DeliveryOrderForm = ({ onProceed }) => {
     </Box>
   );
 };
+
 DeliveryOrderForm.propTypes = {
   onProceed: PropTypes.func.isRequired,
 };

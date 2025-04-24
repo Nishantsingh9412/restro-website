@@ -9,21 +9,21 @@ import {
 import PropTypes from "prop-types";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setFormData } from "../../../../redux/action/takeAwayStepperForm";
+import { setTakeAwayInfo } from "../../../../redux/action/customerInfo";
 import { useToast } from "../../../../contexts/useToast";
-// TakeAwayForm component definition
+// TakeAwayForm component definition1 
+ 
 const TakeAwayForm = ({ onProceed }) => {
   const dispatch = useDispatch();
   const showToast = useToast();
   // Get form data from the Redux store
-  const formData = useSelector((state) => state.takeAwayForm);
-  // Destructure form data
+  const formData = useSelector((state) => state.customerInfo.takeAway);
   const { customerName } = formData;
 
   // Handle input changes and dispatch action to update form data in the Redux store
   const handleChange = useCallback(
     (field, value) => {
-      dispatch(setFormData({ [field]: value }));
+      dispatch(setTakeAwayInfo({ [field]: value }));
     },
     [dispatch]
   );
@@ -41,7 +41,6 @@ const TakeAwayForm = ({ onProceed }) => {
   const handleDineInSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    // console.log(formData);
     onProceed();
   };
 
@@ -71,7 +70,7 @@ const TakeAwayForm = ({ onProceed }) => {
           my={2}
           width={"100%"}
         >
-          Submit
+          Proceed To Menu
         </Button>
       </Box>
     </form>
