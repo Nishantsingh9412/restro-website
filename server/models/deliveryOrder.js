@@ -9,19 +9,15 @@ export const orderItemsSubDocsSchema = new Schema({
     ref: "OrderedItems", // Reference to the OrderedItems model
     required: true,
   },
-  subItems: [
+  selectedCustomizations: [
     {
-      _id: {
-        type: Schema.Types.ObjectId,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      price: {
-        type: Number,
-        required: true,
-      },
+      title: { type: String, required: true },
+      selectedOptions: [
+        {
+          name: { type: String, required: true },
+          price: { type: Number, required: true },
+        },
+      ],
     },
   ],
   quantity: {
@@ -39,7 +35,7 @@ export const orderItemsSubDocsSchema = new Schema({
 // Schema for the complete order
 const DeliveryOrder = new Schema(
   {
-    name: {
+    customerName: {
       type: String,
       required: true,
       trim: true, // Trim whitespace

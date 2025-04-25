@@ -95,6 +95,7 @@ const GuestsCartBox = ({ handleOnProceed }) => {
     if (Array.isArray(guests) && guests.length > 0) {
       handleRefreshGuestsCart();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guests]);
 
   return (

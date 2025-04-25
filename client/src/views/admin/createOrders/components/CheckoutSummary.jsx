@@ -20,13 +20,29 @@ import {
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { useMemo } from "react";
-import { formatPrice, guestTypes } from "../../../../utils/constant";
+import { useMemo, useState } from "react";
+import {
+  formatPrice,
+  guestTypes,
+  orderTypes,
+  userTypes,
+} from "../../../../utils/constant";
+import {
+  addTakeAwayOrderAPI,
+  addDineInOrderAPI,
+  addDeliveryOrderAPI,
+} from "../../../../api";
+import { useToast } from "../../../../contexts/useToast";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutSummary = ({ isOpen, onClose }) => {
+  const showToast = useToast();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const orderDetails = useSelector((state) => state.customerInfo);
   const orderType = useSelector((state) => state.cart.orderType);
   const { guestsCart } = useSelector((state) => state?.cart);
+  const role = useSelector((state) => state?.userReducer?.data?.role);
 
   // Memoized value for all cart items (either for all guests or a specific guest)
   const allCartItems = useMemo(() => {
@@ -81,17 +97,53 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
     return String(value);
   };
 
+  const getOrderAPICall = () => {
+    switch (orderType) {
+      case orderTypes.DELIVERY:
+        return addDeliveryOrderAPI;
+      case orderTypes.DINE_IN:
+        return addDineInOrderAPI;
+      case orderTypes.TAKE_AWAY:
+        return addTakeAwayOrderAPI;
+      default:
+        return null;
+    }
+  };
+
   const handleCompleteOrder = () => {
-    console.log(`Proceeding with ${orderType} order`);
-    // Add your order completion logic here
+    // Prepare the order data
     const orderData = {
       ...orderDetails[orderType],
       orderItems: allCartItems,
       totalPrice: allOrderItemsTotal,
       created_by: userId,
     };
-
-    console.log("Order Data:", orderData);
+    // You can dispatch an action or call an API to complete the order
+    const apiCall = getOrderAPICall();
+    if (!apiCall) {
+      showToast("Invalid order type", "error");
+      return;
+    }
+    setLoading(true);
+    // Call the API to complete the order
+    apiCall(orderData)
+      .then((res) => {
+        if (res.status === 201) {
+          showToast("Order completed successfully", "success");
+          navigate(
+            role === userTypes.ADMIN
+              ? "/admin/order-history"
+              : "/employee/order-history"
+          );
+        }
+      })
+      .catch((error) => {
+        showToast(
+          error?.response?.data?.message || "Error completing order",
+          "error"
+        );
+      });
+    setLoading(false);
   };
 
   return (
@@ -201,6 +253,8 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
                     bg: "blue.600",
                     color: "white",
                   }}
+                  isLoading={loading}
+                  loadingText="Processing..."
                 >
                   Confirm {orderType[0]?.toUpperCase() + orderType?.slice(1)}{" "}
                   Order

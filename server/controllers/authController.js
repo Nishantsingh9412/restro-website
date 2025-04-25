@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import ShortUniqueId from "short-unique-id";
-import handleApiCall from "../utils/utils.js";
 import Joi from "joi";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
