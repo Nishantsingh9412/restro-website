@@ -68,7 +68,7 @@ export const getTakeAwayOrders = async (req, res) => {
   }
   try {
     const allTakeAwayOrders = await TakeAwayOrder.find({
-      created_by: role === "admin" ? _id : created_by,
+      created_by: role === userTypes.ADMIN ? _id : created_by,
     })
       .populate("orderItems.item", "-customization")
       .populate("assignedChef", "name")
@@ -127,7 +127,7 @@ export const updateTakeAwayOrder = async (req, res) => {
       {
         ...req.body,
         created_by:
-          req.user.role === "admin" ? req.body.created_by : req.user.id,
+          req.user.role === userTypes.ADMIN ? req.body.created_by : req.user.id,
       },
       { new: true }
     );

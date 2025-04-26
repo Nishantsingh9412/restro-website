@@ -5,6 +5,7 @@ import ShortUniqueId from "short-unique-id";
 import Joi from "joi";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
+import { userTypes } from "../utils/utils.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -86,7 +87,7 @@ export const signUpAdminController = async (req, res) => {
         .json({ success: false, message: "Admin not created" });
     }
     const token = jwt.sign(
-      { email: newAdmin.email, id: newAdmin._id, role: "admin" },
+      { email: newAdmin.email, id: newAdmin._id, role: userTypes.ADMIN },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -118,7 +119,7 @@ export const loginAdminController = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { email: admin.email, id: admin._id, role: "admin" },
+      { email: admin.email, id: admin._id, role: userTypes.ADMIN },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );

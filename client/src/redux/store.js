@@ -38,7 +38,7 @@ const store = configureStore({
     QRItemsReducer,
     delBoyReducer,
     form: stepperFormReducer,
-    compOrder: deliveryOrderReducer,
+    deliveryOrder: deliveryOrderReducer,
     dineInOrder: dineInOrderReducer,
     takeAwayOrder: takeAwayOrderReducer,
     dineInForm: dineInStepperReducer,

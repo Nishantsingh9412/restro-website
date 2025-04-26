@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import OrderedItems from "../models/orderModel.js";
 import Joi from "joi";
+import { userTypes } from "../utils/utils.js";
 
 // Function to validate MongoDB ObjectId
 const validateObjectId = (id, res, entity = "Item") => {
@@ -64,7 +65,7 @@ export const AddOrderItem = async (req, res) => {
     }
 
     const { role, id, created_by } = req.user;
-    const userId = role === "admin" ? id : created_by;
+    const userId = role === userTypes.ADMIN ? id : created_by;
 
     const {
       itemId,
@@ -129,7 +130,7 @@ export const getSingleOrderItem = async (req, res) => {
 // Controller to get all order items for a specific user
 export const getAllOrderItems = async (req, res) => {
   const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
+  const userId = role === userTypes.ADMIN ? id : created_by;
 
   if (!validateObjectId(userId, res, "User")) return;
 

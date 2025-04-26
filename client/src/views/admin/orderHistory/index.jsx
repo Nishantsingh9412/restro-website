@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   Box,
   Flex,
@@ -11,14 +10,14 @@ import {
   Tab,
   TabPanel,
   Text,
+  Input,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
-import { useState } from "react";
-import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
 import { useToast } from "../../../contexts/useToast.jsx";
+import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
 import { allotDeliveryBoyAction } from "../../../redux/action/deliveryOrder.js";
+import { employeesRoles } from "../../../utils/constant.js";
 import {
   allotDineInOrderToWaiterAction,
   getDineInOrderAction,
@@ -27,29 +26,27 @@ import {
   allotTakeAwayOrderToChefAction,
   getTakeAwayOrderAction,
 } from "../../../redux/action/takeAwayOrder.js";
+import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
 import AllotPersonnelModal from "./components/AllotOrderModal.jsx";
 import AllotDeliveryModal from "./components/AllotDeliveryModal.jsx";
 import DineInOrder from "./components/DineInOrder.jsx";
 import TakeAwayOrder from "./components/TakeAwayOrder.jsx";
 import DeliveryOrders from "./components/DeliveryOrders.jsx";
-import { set } from "date-fns";
-import { employeesRoles } from "../../../utils/constant.js";
 
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const showToast = useToast();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState("");
-  const [selectedPersonnel, setSelectedPersonnel] = useState("");
-
-  const compOrderData = useSelector((state) => state?.compOrder?.data);
-  const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
-  const takeAwayOrderData = useSelector((state) => state?.takeAwayOrder?.order);
-
   const [isPermitted, setIsPermitted] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState("");
+  const [selectedPersonnel, setSelectedPersonnel] = useState("");
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const deliveryOrderData = useSelector((state) => state?.deliveryOrder?.data);
+  const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
+  const takeAwayOrderData = useSelector((state) => state?.takeAwayOrder?.order);
 
   const fetchCompleteOrders = useCallback(async () => {
     try {
@@ -124,6 +121,18 @@ const OrderHistory = () => {
     });
   };
 
+  // Filter orders based on search query
+  const filterOrders = (orders) => {
+    if (!searchQuery) return orders;
+    return orders.filter(
+      (order) =>
+        order?.customerName
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        order?.address?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   if (!isPermitted) return <ForbiddenPage isPermitted={isPermitted} />;
 
   if (loading) {
@@ -150,26 +159,37 @@ const OrderHistory = () => {
       />
       <Box mt="8" px="4">
         <Tabs variant="soft-rounded" colorScheme="blue">
-          <TabList>
-            <Tab>
-              <b>Delivery</b>
-            </Tab>
-            <Tab>
-              <b>Dine-In</b>
-            </Tab>
-            <Tab>
-              <b>TakeAway</b>
-            </Tab>
-          </TabList>
+          <Flex alignItems={"center"} justifyContent={"space-between"}>
+            <TabList>
+              <Tab>
+                <b>Delivery</b>
+              </Tab>
+              <Tab>
+                <b>Dine-In</b>
+              </Tab>
+              <Tab>
+                <b>TakeAway</b>
+              </Tab>
+            </TabList>
+            <Input
+              placeholder="Search by customer name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              mb="4"
+              backgroundColor={"white"}
+              width={["100%", "100%", "30%"]}
+              // ml="auto"
+            />
+          </Flex>
           <TabPanels>
             <TabPanel>
               <Box maxW="1200px" mx="auto" p="4">
                 <Heading as="h1" size="xl" mb="6" textAlign="center">
                   <b>Delivery Orders</b>
                 </Heading>
-                {compOrderData?.length ? (
+                {filterOrders(deliveryOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {compOrderData.map((order) => (
+                    {filterOrders(deliveryOrderData).map((order) => (
                       <DeliveryOrders
                         key={order._id}
                         orderData={order}
@@ -194,9 +214,9 @@ const OrderHistory = () => {
                 <Heading as="h2" size="lg" mb="6" textAlign="center">
                   <b>Dine-In Orders</b>
                 </Heading>
-                {dineInOrderData?.length ? (
+                {filterOrders(dineInOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {dineInOrderData.map((order) => (
+                    {filterOrders(dineInOrderData).map((order) => (
                       <DineInOrder
                         key={order._id}
                         orderData={order}
@@ -221,9 +241,9 @@ const OrderHistory = () => {
                 <Heading as="h2" size="lg" mb="6" textAlign="center">
                   <b>Takeaway Orders</b>
                 </Heading>
-                {takeAwayOrderData?.length ? (
+                {filterOrders(takeAwayOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {takeAwayOrderData.map((order) => (
+                    {filterOrders(takeAwayOrderData).map((order) => (
                       <TakeAwayOrder
                         key={order._id}
                         orderData={order}

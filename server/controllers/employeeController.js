@@ -10,6 +10,7 @@ import Manager from "../models/employees/managerModel.js";
 import Chef from "../models/employees/chefModel.js";
 import HelperEmployee from "../models/employees/helperEmpModel.js";
 import { onlineUsers } from "../server.js";
+import { userTypes } from "../utils/utils.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -71,7 +72,7 @@ export const addEmployee = async (req, res) => {
   const { email, phone } = empData;
 
   // Set the created_by field based on the user's role
-  empData.created_by = role === "admin" ? id : created_by;
+  empData.created_by = role === userTypes.ADMIN ? id : created_by;
 
   console.log(empData);
 
@@ -114,7 +115,7 @@ export const getAllEmployees = async (req, res) => {
   }
   try {
     const query =
-      role === "admin"
+      role === userTypes.ADMIN
         ? { created_by: id }
         : { created_by: req.user.created_by };
 
@@ -128,7 +129,7 @@ export const getAllEmployees = async (req, res) => {
 
     // Filter out the admin from the list of employees
     const result =
-      role === "admin"
+      role === userTypes.ADMIN
         ? allEmployees
         : allEmployees.filter((employee) => employee.id !== id);
 
@@ -155,7 +156,7 @@ export const getEmployeeById = async (req, res) => {
   try {
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     // Find the employee by ID
@@ -182,7 +183,7 @@ export const getOnlineEmployeesByRole = async (req, res) => {
   try {
     let { id: userId, role, created_by } = req.user;
     const { type } = req.params;
-    userId = role === "admin" ? userId : created_by;
+    userId = role === userTypes.ADMIN ? userId : created_by;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
@@ -225,7 +226,7 @@ export const updateEmployee = async (req, res) => {
   try {
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     // Check if the employee exists
@@ -240,7 +241,7 @@ export const updateEmployee = async (req, res) => {
 
     // Check Permission being updated by the admin or not
     if (
-      role !== "admin" &&
+      role !== userTypes.ADMIN &&
       updateData.permissions &&
       !updateData.permissions.every((perm) =>
         existingEmployee.permissions.some(
@@ -302,7 +303,7 @@ export const deleteEmployee = async (req, res) => {
   try {
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
     const deletedEmployee = await Employee.findOneAndDelete(filter);
 
@@ -386,7 +387,7 @@ export const getDeliveryEmployees = async (req, res) => {
   }
   try {
     const filter =
-      role === "admin"
+      role === userTypes.ADMIN
         ? { created_by: id, role: "Delivery Boy" }
         : { created_by: created_by, role: "Delivery Boy" };
 

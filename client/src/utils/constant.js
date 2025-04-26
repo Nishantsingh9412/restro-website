@@ -126,7 +126,7 @@ const calculatePrice = (item, subItems = item?.selectedSubItems) => {
 };
 
 const formatPrice = (value, unit) =>
-  `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : unit}`;
+  `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : ""}`;
 
 export {
   statuses,
