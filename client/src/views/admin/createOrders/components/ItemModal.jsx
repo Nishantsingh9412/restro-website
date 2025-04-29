@@ -80,7 +80,6 @@ const ShowItemModal = ({ item, isOpen, onClose, handleAddToCart }) => {
       totalPrice: price,
       totalQuantity: 1,
     };
-    console.log("Final Order:", finalOrder);
     handleAddToCart(finalOrder);
     onClose();
   };

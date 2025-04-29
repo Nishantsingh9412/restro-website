@@ -46,11 +46,14 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
 
   // Memoized value for all cart items (either for all guests or a specific guest)
   const allCartItems = useMemo(() => {
-    return Object.values(guestsCart).flatMap(
-      (guestCart) => guestCart.items || []
+    // Merge all guests' items into a single array
+    return Object.keys(guestsCart).flatMap((guestName) =>
+      (guestsCart[guestName].items || []).map((item) => ({
+        ...item,
+        guestName: guestName,
+      }))
     );
   }, [guestsCart]);
-
   // Memoized value for the total price of all order items
   const allOrderItemsTotal = useMemo(() => {
     // Calculate the total for all guests
@@ -158,7 +161,7 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
         </DrawerHeader>
         <DrawerBody bg="gray.50" p={6}>
           <HStack spacing={6} align="flex-start">
-            {/* /* /* Left Side: User Details  */}
+            {/* Left Side: User Details  */}
             <Box flex={1} bg="white" borderRadius="lg" boxShadow="md" p={6}>
               <Flex align="center" mb={4}>
                 <Icon as={FaUser} mr={2} color="blue.500" />

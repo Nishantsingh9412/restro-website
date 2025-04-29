@@ -38,8 +38,19 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
     totalPrice,
     tableNumber,
     orderItems,
+    guests,
   } = orderData;
 
+  const categorizedOrderItems = orderItems?.reduce((acc, item) => {
+    const guestName = item.guestName || "";
+    if (!acc[guestName]) {
+      acc[guestName] = [];
+    }
+    acc[guestName].push(item);
+    return acc;
+  }, {});
+
+  
   return (
     <>
       <Box
@@ -118,8 +129,13 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
               <Text>
                 <Badge colorScheme="blue">Guests</Badge>{" "}
                 {numberOfGuests || "N/A"}
-                {}
               </Text>
+              {guests?.length > 0 && (
+                <Text>
+                  <Badge colorScheme="blue">Guests List</Badge>{" "}
+                  {guests.map((guest) => guest.name).join(", ")}
+                </Text>
+              )}
               <Text>
                 <Badge colorScheme="blue">Note</Badge>{" "}
                 {specialRequests || "N/A"}
@@ -137,49 +153,76 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
                 {formatPrice(totalPrice, orderItems?.[0]?.item?.priceUnit) ||
                   "N/A"}
               </Text>
+              <Text>
+                <Badge colorScheme="blue">Waiter</Badge>{" "}
+                {assignedWaiter?.name || "N/A"}
+              </Text>
             </Stack>
             <Heading as="h3" size="sm" mt="6" mb="2">
               Order Items:
             </Heading>
-            <UnorderedList spacing={3}>
-              {orderItems?.map(
-                ({ _id, quantity, total, item, selectedCustomizations }) => (
-                  <ListItem
-                    key={_id}
-                    p={2}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    shadow="sm"
-                    bg="gray.50"
-                    _hover={{ bg: "gray.100", shadow: "md" }}
-                    listStyleType={"square"}
-                  >
-                    <Flex justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Text fontWeight="bold">{item?.itemName}</Text>
-                        {selectedCustomizations?.length > 0 && (
-                          <Text fontSize="sm" color="gray.600">
-                            (
-                            {selectedCustomizations
-                              .flatMap((c) =>
-                                c.selectedOptions.map((option) => option.name)
-                              )
-                              .join(", ")}
-                            )
-                          </Text>
-                        )}
-                      </Box>
-                      <Box textAlign="right">
-                        <Text fontWeight="bold">
-                          &times; {quantity} -{" "}
-                          {formatPrice(total, item?.priceUnit)}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </ListItem>
+            <Divider mb="2" />
+            <Box height="200px" overflowY={"auto"}>
+              {Object.entries(categorizedOrderItems).map(
+                ([guestName, items]) => (
+                  <Box key={guestName} mb={4}>
+                    <Heading as="h4" size="xs" mb={2}>
+                      {guestName}:
+                    </Heading>
+                    <UnorderedList spacing={3}>
+                      {items.map(
+                        ({
+                          _id,
+                          quantity,
+                          total,
+                          item,
+                          selectedCustomizations,
+                        }) => (
+                          <ListItem
+                            key={_id}
+                            p={2}
+                            borderWidth="1px"
+                            borderRadius="md"
+                            shadow="sm"
+                            bg="gray.50"
+                            _hover={{ bg: "gray.100", shadow: "md" }}
+                            listStyleType={"square"}
+                          >
+                            <Flex
+                              justifyContent="space-between"
+                              alignItems="center"
+                            >
+                              <Box>
+                                <Text fontWeight="bold">{item?.itemName}</Text>
+                                {selectedCustomizations?.length > 0 && (
+                                  <Text fontSize="sm" color="gray.600">
+                                    (
+                                    {selectedCustomizations
+                                      .flatMap((c) =>
+                                        c.selectedOptions.map(
+                                          (option) => option.name
+                                        )
+                                      )
+                                      .join(", ")}
+                                    )
+                                  </Text>
+                                )}
+                              </Box>
+                              <Box textAlign="right">
+                                <Text fontWeight="bold">
+                                  &times; {quantity} -{" "}
+                                  {formatPrice(total, item?.priceUnit)}
+                                </Text>
+                              </Box>
+                            </Flex>
+                          </ListItem>
+                        )
+                      )}
+                    </UnorderedList>
+                  </Box>
                 )
               )}
-            </UnorderedList>
+            </Box>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
@@ -205,6 +248,12 @@ DineInOrder.propTypes = {
     paymentMethod: PropTypes.string,
     totalPrice: PropTypes.number.isRequired,
     tableNumber: PropTypes.number,
+    guests: PropTypes.arrayOf(
+      PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      })
+    ),
     orderItems: PropTypes.arrayOf(
       PropTypes.shape({
         _id: PropTypes.string.isRequired,
@@ -223,6 +272,7 @@ DineInOrder.propTypes = {
             ),
           })
         ),
+        guestName: PropTypes.string,
       })
     ),
   }).isRequired,

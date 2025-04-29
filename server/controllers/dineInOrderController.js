@@ -67,6 +67,7 @@ export const createDineInOrder = async (req, res) => {
     const newDineInOrder = await DineInOrder.create({
       tableNumber,
       numberOfGuests,
+      guests,
       customerName,
       phoneNumber,
       emailAddress,
@@ -174,6 +175,7 @@ export const updateDineInOrder = async (req, res) => {
       orderItems,
       paymentMethod,
       totalPrice,
+      guests,
     } = req.body;
 
     // Format the order items
@@ -192,6 +194,7 @@ export const updateDineInOrder = async (req, res) => {
         orderItems: formattedOrderItems,
         paymentMethod,
         totalPrice,
+        guests,
         created_by: role === userTypes.ADMIN ? userId : adminID,
       },
       { new: true }

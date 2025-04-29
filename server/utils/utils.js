@@ -9,6 +9,7 @@ const formatOrderItems = (orderItems) => {
   const formattedOrderItems = orderItems.map((item) => ({
     item: new mongoose.Types.ObjectId(item._id),
     selectedCustomizations: item.selectedCustomizations,
+    guestName: item.guestName,
     quantity: item.totalQuantity,
     total: item.totalPrice,
   }));

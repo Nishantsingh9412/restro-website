@@ -1,3 +1,4 @@
+import React, { forwardRef } from "react";
 import {
   Box,
   Flex,
@@ -32,6 +33,8 @@ import AllotDeliveryModal from "./components/AllotDeliveryModal.jsx";
 import DineInOrder from "./components/DineInOrder.jsx";
 import TakeAwayOrder from "./components/TakeAwayOrder.jsx";
 import DeliveryOrders from "./components/DeliveryOrders.jsx";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const OrderHistory = () => {
   const dispatch = useDispatch();
@@ -43,6 +46,8 @@ const OrderHistory = () => {
   const [selectedPersonnel, setSelectedPersonnel] = useState("");
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const deliveryOrderData = useSelector((state) => state?.deliveryOrder?.data);
   const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
@@ -121,16 +126,20 @@ const OrderHistory = () => {
     });
   };
 
-  // Filter orders based on search query
+  // Filter orders based on search query and date range
   const filterOrders = (orders) => {
-    if (!searchQuery) return orders;
-    return orders.filter(
-      (order) =>
+    if (!orders) return [];
+    return orders.filter((order) => {
+      const matchesSearchQuery =
         order?.customerName
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        order?.address?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        order?.address?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDateRange =
+        (!startDate || new Date(order?.createdAt) >= startDate) &&
+        (!endDate || new Date(order?.createdAt) <= endDate);
+      return matchesSearchQuery && matchesDateRange;
+    });
   };
 
   if (!isPermitted) return <ForbiddenPage isPermitted={isPermitted} />;
@@ -159,7 +168,7 @@ const OrderHistory = () => {
       />
       <Box mt="8" px="4">
         <Tabs variant="soft-rounded" colorScheme="blue">
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
+          <Flex alignItems={"center"} justifyContent={"space-between"} mb="4">
             <TabList>
               <Tab>
                 <b>Delivery</b>
@@ -171,15 +180,57 @@ const OrderHistory = () => {
                 <b>TakeAway</b>
               </Tab>
             </TabList>
-            <Input
-              placeholder="Search by customer name"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              mb="4"
-              backgroundColor={"white"}
-              width={["100%", "100%", "30%"]}
-              // ml="auto"
-            />
+            <Flex alignItems="center">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => {
+                  if (endDate && date > endDate) {
+                    setEndDate(null); // Reset endDate if it becomes invalid
+                  }
+                  setStartDate(date);
+                }}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                placeholderText="Start Date"
+                isClearable
+                dateFormat="dd/MM/yyyy"
+                customInput={<ChakraDateInput />}
+              />
+              <Text mx="2" fontWeight={"medium"}>
+                TO
+              </Text>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => {
+                  if (!date) setEndDate(null);
+                  else if (startDate && date < startDate) {
+                    showToast(
+                      "End date cannot be earlier than start date",
+                      "error"
+                    );
+                    return;
+                  }
+                  setEndDate(date);
+                }}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                placeholderText="End Date"
+                isClearable
+                dateFormat="dd/MM/yyyy"
+                customInput={<ChakraDateInput />}
+              />
+
+              <Input
+                ml={4}
+                placeholder="Search by customer name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                backgroundColor={"white"}
+                width={["100%", "100%", "50%"]}
+              />
+            </Flex>
           </Flex>
           <TabPanels>
             <TabPanel>
@@ -266,5 +317,23 @@ const OrderHistory = () => {
     </>
   );
 };
+
+const ChakraDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
+  <Input
+    onClick={onClick}
+    ref={ref}
+    value={value}
+    readOnly
+    placeholder={placeholder}
+    padding="1rem"
+    borderRadius="md"
+    border="1px solid"
+    borderColor="gray.200"
+    _hover={{ borderColor: "gray.400" }}
+    _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
+    cursor="pointer"
+    background="white"
+  />
+));
 
 export default OrderHistory;

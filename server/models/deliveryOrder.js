@@ -20,6 +20,10 @@ export const orderItemsSubDocsSchema = new Schema({
       ],
     },
   ],
+  guestName: {
+    type: String,
+    trim: true, // Trim whitespace
+  },
   quantity: {
     type: Number,
     required: true,

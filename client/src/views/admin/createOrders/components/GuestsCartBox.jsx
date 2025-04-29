@@ -11,9 +11,10 @@ import {
 } from "../../../../redux/action/cartItems";
 import PropTypes from "prop-types";
 import { guestTypes } from "../../../../utils/constant";
-
+import { useToast } from "../../../../contexts/useToast";
 // Component to display the cart for guests
 const GuestsCartBox = ({ handleOnProceed }) => {
+  const showToast = useToast();
   const dispatch = useDispatch();
 
   // Access cart state from Redux store
@@ -78,16 +79,38 @@ const GuestsCartBox = ({ handleOnProceed }) => {
 
   // Handler to remove a guest from the cart which are not in guests list
   const handleRefreshGuestsCart = () => {
-    // Check if the guestsCart is consist more than the guests list or not updated
     const guestsInCart = Object.keys(guestsCart);
     const guestsInList = guests.map((guest) => guest.name);
     const guestsToRemove = guestsInCart.filter(
       (guest) => !guestsInList.includes(guest)
     );
-    // Remove guests that are not in the guests list
+    const guestsToAdd = guestsInList.filter(
+      (guest) => !guestsInCart.includes(guest)
+    );
+    // Add new guests to the cart
+    guestsToAdd.forEach((guest) => {
+      dispatch(switchGuest(guest));
+    });
     guestsToRemove.forEach((guest) => {
       dispatch(removeGuest(guest));
     });
+  };
+
+  // Handler to proceed to checkout
+  const handleOnSubmit = () => {
+    // Check if the every guest consist orders items atleast one
+    const allGuestsHaveItems = Object.entries(guestsCart).every(
+      ([guestName, guestCart]) =>
+        guestName === guestTypes.GUEST || guestCart.items.length > 0
+    );
+    if (!allGuestsHaveItems) {
+      showToast("Please add items to the cart for all guests", "info");
+      return;
+    }
+    // Proceed to checkout with the selected guest
+    if (selectedGuest === guestTypes.GUEST) {
+      handleOnProceed();
+    }
   };
 
   // Effect to refresh the guests cart when the component mounts
@@ -95,13 +118,12 @@ const GuestsCartBox = ({ handleOnProceed }) => {
     if (Array.isArray(guests) && guests.length > 0) {
       handleRefreshGuestsCart();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guests]);
 
   return (
     <Box
       height="75vh"
-      overflowY="auto"
       display="flex"
       flexDirection="column"
       flex={1}
@@ -113,7 +135,7 @@ const GuestsCartBox = ({ handleOnProceed }) => {
       borderRadius="md"
       boxShadow="lg"
     >
-      {/* /* Tabs to select a guest (only for dine-in individual orders) */}
+      {/* Tabs to select a guest */}
       {Array.isArray(guests) && guests.length > 0 && (
         <Box
           display="flex"
@@ -139,9 +161,9 @@ const GuestsCartBox = ({ handleOnProceed }) => {
             "&::-webkit-scrollbar-track": {
               backgroundColor: "#f0f0f0",
             },
-            scrollbarWidth: "none", // default hidden on Firefox
+            scrollbarWidth: "none",
             "&:hover": {
-              scrollbarWidth: "thin", // show on hover
+              scrollbarWidth: "thin",
             },
           }}
         >
@@ -167,12 +189,27 @@ const GuestsCartBox = ({ handleOnProceed }) => {
       )}
       {Array.isArray(allCartItems) && allCartItems.length > 0 ? (
         <>
-          <Box width="100%">
-            {/* Display items for all guests or a specific guest */}
+          <Box
+            width="100%"
+            flex={1}
+            overflowY="auto"
+            mb="1rem"
+            sx={{
+              "&::-webkit-scrollbar": {
+                width: "4px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#029CFF",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#f0f0f0",
+              },
+            }}
+          >
             {selectedGuest === guestTypes.GUEST
               ? Object.entries(guestsCart).map(
                   ([guestName, guestCart]) =>
-                    // Display items for each guest except the first one
                     guestName !== guestTypes.GUEST && (
                       <Box key={guestName} mb="1rem">
                         <Text
@@ -213,7 +250,6 @@ const GuestsCartBox = ({ handleOnProceed }) => {
           {/* Display subtotal and proceed to checkout button */}
           <Box
             width="100%"
-            mt="auto"
             bg="white"
             p="1rem"
             borderRadius="md"
@@ -241,7 +277,7 @@ const GuestsCartBox = ({ handleOnProceed }) => {
                 background="#029CFF"
                 color="white"
                 _hover={{ color: "#029CFF", bg: "gray.100" }}
-                onClick={handleOnProceed}
+                onClick={handleOnSubmit}
                 size="md"
                 borderRadius="full"
                 isDisabled={allOrderItemsTotal <= 0}
@@ -252,7 +288,6 @@ const GuestsCartBox = ({ handleOnProceed }) => {
           </Box>
         </>
       ) : (
-        // Display empty cart message if no items are present
         <EmptyCart />
       )}
     </Box>
