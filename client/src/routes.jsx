@@ -26,7 +26,7 @@ const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
-const OrderShipping = lazy(() => import("./views/admin/orderShipping"));
+const DeliveryTracking = lazy(() => import("./views/admin/deliveryTracking"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
 const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
 const Absence = lazy(() => import("./views/admin/absense"));
@@ -80,7 +80,7 @@ const commonRoutes = [
     icon: (
       <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
     ),
-    component: <OrderShipping />,
+    component: <DeliveryTracking />,
   },
   {
     name: "Foods and Drinks",
@@ -338,7 +338,7 @@ const adminRoutes = [
             color="inherit"
           />
         ),
-        component: <OrderShipping />,
+        component: <DeliveryTracking />,
       },
       // {
       //   name: "Delivery partners",
