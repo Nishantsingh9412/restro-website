@@ -68,13 +68,21 @@ export const hideDeliveryOffer = async (offerId) => {
   });
 };
 
-export const sendLiveLocation = async (adminId, delEmpId, locationData) => {
+export const sendLiveLocation = async (
+  adminId,
+  delEmpName,
+  delEmpId,
+  locationData
+) => {
   try {
     const admin = onlineUsers.get(adminId);
     if (admin) {
+      // Send live location to the admin
       io.to(admin.socketId).emit("liveLocation", {
         delEmpId,
+        delEmpName,
         locationData,
+        status: "online",
       });
       await DeliveryBoy.findByIdAndUpdate(delEmpId, {
         lastLocation: {
@@ -85,6 +93,31 @@ export const sendLiveLocation = async (adminId, delEmpId, locationData) => {
     }
   } catch (error) {
     console.error("Error sending live location:", error);
+  }
+};
+
+// Updates the live location status of a delivery employee
+export const updateLiveLocationStatus = async (delEmpId) => {
+  try {
+    const delEmp = await DeliveryBoy.findById(delEmpId);
+    if (!delEmp) return; // If delivery employee not found, return
+
+    // Get admin id from the delivery employee
+    const adminId = delEmp.created_by.toString();
+    if (!adminId) return; // If admin id not found, return
+    
+    const admin = onlineUsers.get(adminId);
+    if (admin) {
+      // Send live location to the admin
+      io.to(admin.socketId).emit("liveLocation", {
+        delEmpId,
+        delEmpName: delEmp?.name,
+        locationData: delEmp?.lastLocation,
+        status: "offline",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating live location status:", error);
   }
 };
 

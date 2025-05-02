@@ -13,14 +13,14 @@ const locationSlice = createSlice({
   initialState,
   reducers: {
     setDeliveryBoyLocation: (state, action) => {
-      const { _id, location } = action.payload;
+      const { _id, name, location, status } = action.payload;
       const existingIndex = state.deliveryBoyLocations.findIndex(
         (loc) => loc._id === _id
       );
       if (existingIndex >= 0) {
         state.deliveryBoyLocations[existingIndex].location = location;
       } else {
-        state.deliveryBoyLocations.push({ _id, location });
+        state.deliveryBoyLocations.push({ _id, name, location, status });
       }
     },
     setCurrentLocation: (state, action) => {

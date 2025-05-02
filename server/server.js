@@ -34,8 +34,12 @@ import commonRoutes from "./routes/employees/commonRoutes.js";
 import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
-import waiterRoutes from "./routes/employees/waiterRoutes.js";
-import { sendLiveLocation, acceptOfferOrder } from "./utils/socket.js";
+import waiterRoutes from "./routes/employees/waiterRoutes.js"
+import {
+  sendLiveLocation,
+  acceptOfferOrder,
+  updateLiveLocationStatus,
+} from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -159,8 +163,8 @@ io.on("connection", (socket) => {
   // Listen for send location from the delivery employee
   socket.on("sendLocation", (data) => {
     console.log("Location received:", data);
-    const { delEmpId, adminId, location } = data;
-    sendLiveLocation(adminId, delEmpId, location);
+    const { delEmpId, adminId, location, delEmpName } = data;
+    sendLiveLocation(adminId, delEmpName, delEmpId, location);
   });
 
   socket.on("acceptOrder", (data) => {
@@ -174,6 +178,8 @@ io.on("connection", (socket) => {
     for (let [userId, userData] of onlineUsers.entries()) {
       if (userData.socketId === socket.id) {
         onlineUsers.delete(userId);
+        // send live location update to the admin when the user disconnects
+        updateLiveLocationStatus(userId);
         console.log(`User ${userId} disconnected`);
       }
     }

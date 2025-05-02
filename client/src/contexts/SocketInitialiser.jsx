@@ -63,9 +63,14 @@ export default function SocketInitializer() {
     // handle updated live location
     const handleLiveLocationUpdate = (data) => {
       console.log("data location ", data);
-      const { delEmpId, locationData } = data;
+      const { delEmpId, delEmpName, locationData, status } = data;
       dispatch(
-        setDeliveryBoyLocation({ _id: delEmpId, location: locationData })
+        setDeliveryBoyLocation({
+          _id: delEmpId,
+          name: delEmpName,
+          location: locationData,
+          status: status,
+        })
       );
     };
 

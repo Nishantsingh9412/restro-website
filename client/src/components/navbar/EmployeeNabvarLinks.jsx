@@ -107,6 +107,7 @@ export default function EmployeeNavbarLinks() {
   const sendLocation = (location) => {
     dispatch(setCurrentLocation(location));
     socket.emit("sendLocation", {
+      delEmpName: empData?.name,
       delEmpId: empData?._id,
       adminId: empData?.created_by,
       location,
