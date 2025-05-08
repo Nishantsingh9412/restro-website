@@ -19,13 +19,16 @@ import { useLocation } from "react-router-dom";
 import { IoArrowForward, IoMenuOutline } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { getLoggedInUserData } from "../../redux/action/user";
+import { localStorageData } from "../../utils/constant";
 
 // Sidebar component for larger screens
 const Sidebar = ({ routes }) => {
   const sidebarBg = useColorModeValue("var(--primary)", "navy.800");
   const sidebarMargins = "0px";
   const dispatch = useDispatch();
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const role = localData?.result?.role;
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isResizing, setIsResizing] = useState(false);

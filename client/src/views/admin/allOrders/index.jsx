@@ -15,7 +15,7 @@ import { IoMdSearch } from "react-icons/io";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch } from "react-redux";
-
+import { localStorageData } from "../../../utils/constant";
 import {
   AddOrderItemAction,
   getAllOrderItemsAction,
@@ -28,7 +28,9 @@ import AddEditItemModal from "./components/AddEditItemModal";
 export default function AllOrders() {
   const dispatch = useDispatch();
   const userId = useMemo(
-    () => JSON.parse(localStorage.getItem("ProfileData"))?.result?._id,
+    () =>
+      JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))?.result
+        ?._id,
     []
   );
 

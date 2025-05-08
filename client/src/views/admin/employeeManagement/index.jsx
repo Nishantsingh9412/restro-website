@@ -18,6 +18,7 @@ import { useToast } from "../../../contexts/useToast.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import TaskModal from "./components/TaskModal";
 import Swal from "sweetalert2";
+import { localStorageData } from "../../../utils/constant.js";
 
 import {
   AllEmployeesAPI,
@@ -46,7 +47,9 @@ const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
 
   // Get local user data from localStorage
-  const localUser = JSON.parse(localStorage.getItem("ProfileData"));
+  const localUser = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const localUserId = localUser?.result?._id;
 
   // Handle slot selection in the calendar
@@ -161,7 +164,6 @@ const EmployeeManagement = () => {
     onOpen();
     setSelectedTask(event);
     setActionType("edit");
-    console.log(event);
   };
 
   const handleClose = () => {

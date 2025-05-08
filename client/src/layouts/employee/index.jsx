@@ -1,5 +1,4 @@
 import { Box, Flex, useDisclosure } from "@chakra-ui/react";
-import Footer from "../../components/footer/FooterAdmin.jsx";
 import Navbar from "../../components/navbar/EmployeeNavbar.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
@@ -16,6 +15,7 @@ import {
   helperRoutes,
 } from "../../routes.jsx";
 import OrderAcceptModal from "../../components/delivery/OrderAcceptModal.jsx";
+import { localStorageData } from "../../utils/constant.js";
 
 export default function EmployeeDashboard(props) {
   const { ...rest } = props;
@@ -24,7 +24,9 @@ export default function EmployeeDashboard(props) {
   const location = useLocation();
   const { onOpen } = useDisclosure();
   const [role, setRole] = useState(null);
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
 
   // Load role from localStorage
   useEffect(() => {
@@ -152,8 +154,6 @@ export default function EmployeeDashboard(props) {
         <Box mt="130px" p="20px">
           <Outlet />
         </Box>
-
-        <Footer />
       </Box>
 
       <SidebarRight />

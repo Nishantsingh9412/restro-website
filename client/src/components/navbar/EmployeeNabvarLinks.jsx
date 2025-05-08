@@ -34,7 +34,7 @@ import {
 import { socket } from "../../api/socket";
 import { clearEmpData } from "../../redux/action/user.js";
 import PropTypes from "prop-types";
-import { employeesRoles } from "../../utils/constant.js";
+import { employeesRoles, localStorageData } from "../../utils/constant.js";
 import { setCurrentLocation } from "../../redux/action/location.js";
 
 // Modal component for displaying different modals
@@ -68,7 +68,9 @@ export default function EmployeeNavbarLinks() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const empData = useSelector((state) => state?.userReducer?.data);
   const error = useSelector((state) => state?.employee?.error);
   const [onlineStatus, setOnlineStatus] = useState(empData?.is_online || false);

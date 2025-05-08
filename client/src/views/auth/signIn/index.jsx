@@ -31,6 +31,7 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { loginAdmin, loginEmployee } from "../../../redux/action/auth.js";
 import { useToast } from "../../../contexts/useToast.jsx";
+import { localStorageData } from "../../../utils/constant.js";
 
 function SignIn() {
   // Define color modes for different elements
@@ -60,7 +61,9 @@ function SignIn() {
   // Check if user is already logged in
   useEffect(() => {
     setLoading(true);
-    const user = JSON.parse(localStorage.getItem("ProfileData"));
+    const user = JSON.parse(
+      localStorage.getItem(localStorageData.PROFILE_DATA)
+    );
     const role = user?.result?.role;
     if (role === "admin" && user) {
       navigate("/admin/dashboards/default");

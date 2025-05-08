@@ -23,6 +23,7 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { signUpAdmin } from "../../../redux/action/auth.js";
 import { useToast } from "../../../contexts/useToast.jsx";
+import { localStorageData } from "../../../utils/constant.js";
 
 function SignUp() {
   // Chakra color mode
@@ -47,7 +48,9 @@ function SignUp() {
 
   // Check if user is already logged in
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("ProfileData"));
+    const user = JSON.parse(
+      localStorage.getItem(localStorageData.PROFILE_DATA)
+    );
     if (user) {
       navigate("/admin/dashboards/default");
     }
@@ -123,7 +126,6 @@ function SignUp() {
 
     dispatch(signUpAdmin(formData)).then((res) => {
       setLoading(false);
-      console.log(res);
       if (!res.payload.success) {
         // showToast(res.payload);
         showToast(res.payload, "error");

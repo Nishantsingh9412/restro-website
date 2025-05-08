@@ -28,6 +28,7 @@ import EmployeeModal from "./employeeModal";
 import { Spinner, Center } from "@chakra-ui/react";
 import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../../contexts/useToast";
+import { localStorageData } from "../../../../utils/constant";
 
 export default function EmployeeComponent() {
   const showToast = useToast();
@@ -61,7 +62,6 @@ export default function EmployeeComponent() {
   const getEmployeeDetail = async (id) => {
     const res = await dispatch(getEmployeeDetailApi(id));
     if (res.success) {
-      console.log(res);
       // Set the employee data and open the modal in edit mode
       setSelectedEmployee(res.data); // Set selected employee data
       setEmployeeId(id);
@@ -72,7 +72,9 @@ export default function EmployeeComponent() {
 
   // Function to add a new employee
   const addEmployee = async (formData) => {
-    const userId = JSON.parse(localStorage.getItem("ProfileData")).result._id;
+    const userId = JSON.parse(
+      localStorage.getItem(localStorageData.PROFILE_DATA)
+    ).result._id;
     const newEmployee = { ...formData, created_by: userId };
 
     try {

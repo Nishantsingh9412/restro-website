@@ -46,6 +46,7 @@ import BarcodeScanner from "./components/BarCodeScan";
 import ItemUseModal from "./components/ItemUseModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/useToast";
+import { localStorageData } from "../../../utils/constant";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -103,7 +104,8 @@ export default function ItemManagement() {
   // Get item data from Redux store
   const ItemData = useSelector((state) => state.itemsReducer.items);
   // Get user ID from local storage
-  const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
+  const userId = JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))
+    ?.result?._id;
 
   // Generate barcode for an item
   const handleGenerateBarcode = (item) => {

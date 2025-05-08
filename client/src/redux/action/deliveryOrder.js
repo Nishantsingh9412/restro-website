@@ -28,10 +28,7 @@ export const allotDeliveryBoyAction =
       });
       return { success: true, message: "Delivery boy allocated successfully" };
     } catch (err) {
-      console.log(
-        "Error from ALLOT_DELIVERY_BOY Action: " + err.message,
-        err.stack
-      );
+      
       return { success: false, message: err?.response?.data?.message };
     }
   };

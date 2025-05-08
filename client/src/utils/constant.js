@@ -43,6 +43,9 @@ const employeesRoles = {
   DELIVERY_BOY: "Delivery Boy",
 };
 
+const localStorageData = {
+  PROFILE_DATA: "ProfileData",
+};
 const Dialog_Boxes = {
   showAcceptConfirmation: (id, handleAccept) => {
     Swal.fire({
@@ -138,4 +141,5 @@ export {
   formatPrice,
   orderMethods,
   guestTypes,
+  localStorageData,
 };

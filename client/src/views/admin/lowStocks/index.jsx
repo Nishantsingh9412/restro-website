@@ -5,10 +5,12 @@ import {
   getAllStocksAction,
 } from "../../../redux/action/stocks";
 import LowStockItem from "./components/LowStockCard"; // Import the new LowStockItem component
+import { localStorageData } from "../../../utils/constant";
 
 const LowStockCard = () => {
   const dispatch = useDispatch();
-  const localData = JSON.parse(localStorage.getItem("ProfileData")) || {};
+  const localData =
+    JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA)) || {};
   const userId = localData?.result?._id;
 
   // Fetch stock items from Redux state

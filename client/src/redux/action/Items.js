@@ -3,7 +3,6 @@ import * as api from "../../api/index.js";
 // Helper function to handle errors
 // eslint-disable-next-line no-unused-vars
 const handleError = (err, actionName) => {
-  // console.log(`Error from ${actionName}: ${err.message}`, err.stack);
   return { success: false, message: err.response.data.error, status: err.response.status };  
 };
 
@@ -25,7 +24,6 @@ export const getAllItemsAction = (localStorageId) => async (dispatch) => {
     dispatch({ type: "GET_ALL_ITEMS", data: data.result });
     return { success: true, message: "Items Fetched Successfully" };
   } catch (err) {
-    console.log(err);
     return handleError(err, "GetAllItemsAction");
   }
 };

@@ -435,7 +435,6 @@ export default function AbsenseComponent() {
                                   // Format as "yyyy-MM-dd"
                                   const formattedDate = `${year}-${month}-${days}`;
 
-                                  // console.log("date", formattedDate);
                                   setActionType("add");
                                   setSelectedEmployeeId(emp._id);
                                   setSelectedAbsence({

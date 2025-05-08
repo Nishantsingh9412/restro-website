@@ -28,7 +28,6 @@ const supplierReducer = (state = initialState, action) => {
         ),
       };
     case "CLEAR_SELECTED_SUPPLIER":
-      // console.log('Clearing Data from reducrr ')
       return { ...state, seletectedSupplier: null };
 
     default:

@@ -28,8 +28,7 @@ import "react-phone-number-input/style.css";
 import React from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { userTypes } from "../../../../utils/constant";
-
-// Date conversion utilities
+import { localStorageData } from "../../../../utils/constant";// Date conversion utilities
 const formatDateForInput = (isoDate) => {
   if (!isoDate) return "";
   const date = new Date(isoDate);
@@ -79,8 +78,9 @@ export default function EmployeeModal({
   };
   const showToast = useToast();
   // Get the logged in user's role
-  const userRole = JSON.parse(localStorage.getItem("ProfileData"))?.result
-    ?.role;
+  const userRole = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  )?.result?.role;
 
   // State to manage form data
   const [formData, setFormData] = useState(initialFormState);

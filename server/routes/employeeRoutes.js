@@ -25,7 +25,6 @@ import {
 const router = express.Router();
 
 const employeeManagementAccess = accessMiddleware("Employee-Management");
-const foodAndDrinksAccess = accessMiddleware("Food-And-Drinks");
 
 router.post("/assign-task", assignTask);
 router.get("/tasks", getAllTasks);

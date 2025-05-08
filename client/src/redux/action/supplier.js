@@ -10,7 +10,6 @@ const handleApiCall = async (apiCall, dispatch, actionType) => {
     }
     return { success: true, message: data.message };
   } catch (error) {
-    // console.log(`Error in ${actionType}: `, error);
     return { success: false,message:error.response.data.error || "something went wrong",  status: error.response.status };
   }
 };
@@ -58,7 +57,6 @@ export const deleteSupplierAction = (id) => async () => {
     await api.DeleteSupplier(id);
     return { success: true, message: "Supplier Deleted Successfully" };
   } catch (error) {
-    // console.log("Error in DeleteSupplierAction: ", error);
     return { success: false, message: error.message };
   }
 };

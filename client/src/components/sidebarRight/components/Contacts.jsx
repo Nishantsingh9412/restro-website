@@ -8,7 +8,7 @@ import {
   useDisclosure,
   Spinner,
 } from "@chakra-ui/react";
-import { supplierContactsAPI } from "../../../api/index.js";
+import { getSupplierContacts } from "../../../api/index.js";
 import { useEffect, useState, useCallback } from "react";
 import ContactsModal from "./ContactsModal.jsx";
 
@@ -22,13 +22,12 @@ export default function Contacts() {
 
   // Function to fetch contacts data from API
   const ContactsAPIFetch = useCallback(() => {
-    supplierContactsAPI()
+    getSupplierContacts()
       .then((res) => {
         // Set contacts data from API response
         setContactsData(res?.data?.result);
         // Set loading to false after data is fetched
         setLoading(false);
-        console.log(contactsData);
       })
       .catch((err) => {
         // Log error if API call fails

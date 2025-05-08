@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -14,43 +14,11 @@ import {
   Flex,
   Center,
   Input,
-  Spinner,
 } from "@chakra-ui/react";
-import { searchContactsAPI } from "../../../api/index.js";
-import { debounce } from "lodash"; // Ensure lodash is installed for debouncing
 
 const ContactsModal = ({ isOpen, onClose, contactsData }) => {
   // State to manage the search query input by the user
   const [searchQuery, setSearchQuery] = useState("");
-  // State to store the search results from the API
-  const [searchResult, setSearchResult] = useState([]);
-  // State to manage the loading spinner visibility
-  const [loading, setLoading] = useState(false);
-
-  // Function to search contacts with debouncing to limit API calls
-  const searchContacts = useCallback(
-    debounce((query) => {
-      setLoading(true);
-      searchContactsAPI(query)
-        .then((res) => {
-          setSearchResult(res?.data?.result || []);
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 500),
-    [] // Adjust the debounce delay as needed
-  );
-
-  // Effect to trigger the search function when the search query changes
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      searchContacts(searchQuery);
-    }
-  }, [searchQuery, searchContacts]);
 
   // Handler for search input changes
   const handleSearchChange = (e) => {
@@ -59,19 +27,16 @@ const ContactsModal = ({ isOpen, onClose, contactsData }) => {
 
   // Memoized contacts list to avoid unnecessary re-renders
   const renderedContacts = useMemo(() => {
-    // Determine which contacts to display based on search query and loading state
-    const contacts = searchQuery.trim()
-      ? searchResult
-      : contactsData?.slice(0, 5);
-
-    // Show spinner while loading
-    if (loading) {
-      return <Spinner size="lg" />;
-    }
+    // Filter contacts based on the search query
+    const filteredContacts = searchQuery.trim()
+      ? contactsData.filter((contact) =>
+          contact.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : contactsData;
 
     // Render the list of contacts
-    if (contacts?.length > 0) {
-      return contacts.map((item, i) => (
+    if (filteredContacts?.length > 0) {
+      return filteredContacts.map((item, i) => (
         <Flex
           key={i}
           alignItems="center"
@@ -104,7 +69,7 @@ const ContactsModal = ({ isOpen, onClose, contactsData }) => {
         No contacts found
       </Text>
     );
-  }, [searchResult, contactsData, searchQuery, loading]);
+  }, [contactsData, searchQuery]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -125,7 +90,24 @@ const ContactsModal = ({ isOpen, onClose, contactsData }) => {
             }}
           />
           {/* Rendered Contacts */}
-          <Flex direction="column" gap="15px">
+          <Flex
+            direction="column"
+            gap="15px"
+            maxH="400px"
+            overflowY="auto"
+            css={{
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#ee7213",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "#d65f0c",
+              },
+            }}
+          >
             {renderedContacts}
           </Flex>
         </ModalBody>

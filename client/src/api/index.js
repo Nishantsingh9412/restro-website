@@ -1,68 +1,42 @@
 import axios from "axios";
+import { localStorageData } from "../utils/constant";
 const baseURL = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 
 const API = axios.create({ baseURL });
 
 API.interceptors.request.use(
   (req) => {
-    try {
-      const profile = localStorage.getItem("ProfileData");
-      if (profile) {
-        const { token } = JSON.parse(profile);
-        if (token) {
-          req.headers.Authorization = `Bearer ${token}`;
-        } else {
-          console.warn("Token is missing in ProfileData.");
-        }
-      } else {
-        console.warn("ProfileData not found in localStorage.");
-      }
-
-      // Automatically handle FormData and JSON
-      if (!(req.data instanceof FormData)) {
-        req.headers["Content-Type"] = "application/json";
-      }
-    } catch (error) {
-      console.error("Error processing request interceptor:", error);
+    const profile = localStorage.getItem(localStorageData.PROFILE_DATA);
+    if (profile) {
+      const { token } = JSON.parse(profile);
+      if (token) req.headers.Authorization = `Bearer ${token}`;
+    }
+    if (!(req.data instanceof FormData)) {
+      req.headers["Content-Type"] = "application/json";
     }
     return req;
   },
-  (error) => {
-    console.error("Request error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          console.error("Unauthorized: Clearing localStorage and redirecting.");
-          localStorage.removeItem("ProfileData");
-          window.location.href = "/";
-          break;
-        case 403:
-          console.error(
-            "Forbidden: You do not have permission to access this resource."
-          );
-          break;
-        case 404:
-          console.error(
-            "Not Found: The requested resource could not be found."
-          );
-          break;
-        case 500:
-          console.error("Internal Server Error: Please try again later.");
-          break;
-        default:
-          console.error(
-            `Error ${error.response.status}: ${error.response.statusText}`
-          );
+    const { response } = error;
+    if (response) {
+      const { status } = response;
+      if (status === 401) {
+        localStorage.removeItem(localStorageData.PROFILE_DATA);
+        window.location.href = "/";
+      } else if (status === 403) {
+        console.error("Forbidden: Access denied.");
+      } else if (status === 404) {
+        console.error("Not Found: Resource unavailable.");
+      } else if (status === 500) {
+        console.error("Server Error: Try again later.");
       }
     } else {
-      console.error("Network error or server did not respond.");
+      console.error("Network error or no response from server.");
     }
     return Promise.reject(error);
   }
@@ -87,6 +61,13 @@ export const updateAdminProfilePic = (updatedData) =>
 // Add Restaurant Details
 export const addRestaurantDetails = (newRestaurant) =>
   API.post("/admin/add-restaurant", newRestaurant);
+
+// Dashboard APIs
+export const getAdminDashboardData = () =>
+  API.get(`/dashboard/admin-dashboard`);
+// Get Contacts
+export const getSupplierContacts = () =>
+  API.get(`/dashboard/supplier-contacts`);
 
 //common apis
 // Get Employee
@@ -305,22 +286,6 @@ export const allotTakeAwayOrderToChef = (orderId, chefId) =>
 // Update Take-Away Order Status
 export const updateTakeAwayOrderStatus = (orderId, updatedData) =>
   API.patch(`/take-away/update-order-status/${orderId}`, updatedData);
-
-// Dashboard APIs
-// Total Stocks API
-export const totalStocksAPI = () => API.get("/dashboard/total-stocks-quantity");
-// Low Stocks API
-export const lowStocksAPI = () => API.get("/dashboard/low-stocks-quantity");
-// Expired Items API
-export const expiredItemsAPI = () => API.get("/dashboard/expired-items");
-// Supplier Location API
-export const supplierLocationAPI = () =>
-  API.get("/dashboard/supplier-location");
-// Supplier Contacts API
-export const supplierContactsAPI = () => API.get("/dashboard/contacts");
-// Search Contacts API
-export const searchContactsAPI = (contactData) =>
-  API.get(`dashboard/search-contacts?nameSearched=${contactData}`);
 
 // Employee Management APIs
 // Assign Task

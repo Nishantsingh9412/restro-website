@@ -34,6 +34,7 @@ import {
 } from "../../../../api";
 import { useToast } from "../../../../contexts/useToast";
 import { useNavigate } from "react-router-dom";
+import { localStorageData } from "../../../../utils/constant";
 
 const CheckoutSummary = ({ isOpen, onClose }) => {
   const showToast = useToast();
@@ -64,7 +65,9 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
   }, [guestsCart]);
 
   const userId = useMemo(
-    () => JSON.parse(localStorage.getItem("ProfileData"))?.result?._id,
+    () =>
+      JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))?.result
+        ?._id,
     []
   );
 

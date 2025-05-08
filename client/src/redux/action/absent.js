@@ -18,7 +18,6 @@ export const fetchAbsenceDetailsApi = (employeeId) => {
       };
     } catch (err) {
       // Handle any errors that occur during the API call
-      // // console.log("Error from Employee Action: " + err.message, err.stack);
       return { success: false, message: err.message };
     }
   };
@@ -74,7 +73,6 @@ export const deleteAbsenceApi = (dataemployee) => {
       };
     } catch (err) {
       // Handle any errors that occur during the API call
-      // // console.log('Error from Employee Action: ' + err.message, err.stack);
       return { success: false, message: err.message };
     }
   };
@@ -98,7 +96,6 @@ export const getAbsenceByEmpl = () => {
       };
     } catch (err) {
       // Handle any errors that occur during the API call
-      // console.log('Error from Employee Action: ' + err.message, err.stack);
       return { success: false, message: err.message };
     }
   };

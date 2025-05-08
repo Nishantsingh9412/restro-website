@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 import path from "path";
 import https from "https";
 import fs from "fs";
+import compression from "compression";
 import { Server } from "socket.io";
-
 // Route imports
 import itemRoutes from "./routes/item.js";
 import lowStockItems from "./routes/lowStocks.js";
@@ -15,7 +15,7 @@ import orderRoutes from "./routes/orders.js";
 import qrRoutes from "./routes/qr.js";
 import deliveryRoutes from "./routes/deliveryRoutes.js";
 import addressRoutes from "./routes/address.js";
-import compOrderRoutes from "./routes/compOrderRoutes.js";
+import deliveryOrderRoutes from "./routes/deliveryOrderRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import employeeShiftRoute from "./routes/employeeShiftRoute.js";
@@ -35,7 +35,11 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
-import { sendLiveLocation } from "./utils/socket.js";
+import {
+  sendLiveLocation,
+  acceptOfferOrder,
+  updateLiveLocationStatus,
+} from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -84,7 +88,7 @@ app.use("/qr-items", qrRoutes);
 // app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
-app.use("/complete-order", compOrderRoutes);
+app.use("/delivery-order", deliveryOrderRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/shift", employeeShiftRoute);
@@ -111,8 +115,14 @@ app.use("/staff", staffRoutes);
 const __dirname = path.resolve(); // Set the __dirname to current directory
 
 // Serve static files in production (e.g., frontend build files)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("./frontend/dist"));
+if (process.env.NODE_ENV !== "production") {
+  app.use(compression());
+  app.use(
+    express.static("./frontend/dist", {
+      maxAge: "1d",
+      etag: true,
+    })
+  );
 
   // Serve React app for any unknown routes in production
   app.get("*", (req, res) => {
@@ -166,8 +176,14 @@ io.on("connection", (socket) => {
   // Listen for send location from the delivery employee
   socket.on("sendLocation", (data) => {
     console.log("Location received:", data);
-    const { delEmpId, adminId, location } = data;
-    sendLiveLocation(adminId, delEmpId, location);
+    const { delEmpId, adminId, location, delEmpName } = data;
+    sendLiveLocation(adminId, delEmpName, delEmpId, location);
+  });
+
+  socket.on("acceptOrder", (data) => {
+    console.log("Order accepted:", data);
+    const { delEmpId, supplierId, orderId } = data;
+    acceptOfferOrder(orderId, delEmpId, supplierId);
   });
 
   // Handle user disconnect
@@ -175,6 +191,8 @@ io.on("connection", (socket) => {
     for (let [userId, userData] of onlineUsers.entries()) {
       if (userData.socketId === socket.id) {
         onlineUsers.delete(userId);
+        // send live location update to the admin when the user disconnects
+        updateLiveLocationStatus(userId);
         console.log(`User ${userId} disconnected`);
       }
     }
@@ -199,7 +217,7 @@ mongoose
       console.log(`Server running on port: ${PORT}`)
     );
   })
-  .catch((error) => {
+  .catch((error) => { 
     console.error("Database connection error:", error.message);
   });
 

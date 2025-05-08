@@ -9,10 +9,11 @@ import {
 } from "../redux/action/Employees/chef";
 import { addDineInOrderToWaiter } from "../redux/action/waiter";
 import { showDeliveryOffer } from "../redux/action/Employees/deliveryBoy";
+import { localStorageData } from "../utils/constant";
 
 export default function SocketInitializer() {
   const dispatch = useDispatch();
-  const user = localStorage.getItem("ProfileData");
+  const user = localStorage.getItem(localStorageData.PROFILE_DATA);
   const toast = useToast();
 
   useEffect(() => {

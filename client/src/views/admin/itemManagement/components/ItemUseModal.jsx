@@ -19,6 +19,7 @@ import {
 import { useToast } from "../../../../contexts/useToast";
 import { useDispatch } from "react-redux";
 import { updateSingleItemAction } from "../../../../redux/action/Items";
+import { localStorageData } from "../../../../utils/constant";
 import PropTypes from "prop-types";
 
 const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
@@ -39,7 +40,8 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
   const [filteredItems, setFilteredItems] = useState([]);
   const showToast = useToast();
   const dispatch = useDispatch();
-  const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
+  const userId = JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))
+    ?.result?._id;
 
   useEffect(() => {
     if (selectedItem) {

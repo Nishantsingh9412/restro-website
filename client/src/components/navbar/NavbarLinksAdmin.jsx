@@ -18,9 +18,8 @@ import { FaEthereum } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../redux/action/auth.js";
-import RestaurantModal from "../restaurant/restaurantModal.jsx";
-// import { logoutUser } from "../../redux/action/user.js";
-
+import RestaurantModal from "../restaurant/RestaurantModal.jsx";
+import { localStorageData } from "../../utils/constant.js";
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,7 +32,7 @@ export default function HeaderLinks({ secondary }) {
   // Fetching local data from local storage and handling potential parsing errors
   const localData = (() => {
     try {
-      return JSON.parse(localStorage.getItem("ProfileData"));
+      return JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA));
     } catch (error) {
       console.error("Failed to parse local storage data:", error);
       return null;

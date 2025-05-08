@@ -7,11 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDisclosure } from "@chakra-ui/react";
 import SupplierCards from "./components/SupplierCards";
 import { Button, Spinner } from "@chakra-ui/react";
+import { localStorageData } from "../../../utils/constant";
 
 // Import actions and components
-import {
-  getAllSuppliersAction,
-} from "../../../redux/action/supplier";
+import { getAllSuppliersAction } from "../../../redux/action/supplier";
 import SupplierModal from "./components/SupplierModal";
 
 export default function SupplierManagement() {
@@ -20,8 +19,9 @@ export default function SupplierManagement() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Get user ID from local storage
-  const localStorageId = JSON.parse(localStorage.getItem("ProfileData"))?.result
-    ?._id;
+  const localStorageId = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  )?.result?._id;
 
   // Get suppliers and selected supplier from Redux store
   const allSuppliers = useSelector((state) => state.supplierReducer.suppliers);
