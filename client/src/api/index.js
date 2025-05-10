@@ -81,7 +81,10 @@ export const updateEmployeeProfilePic = (updatedData) =>
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);
 
-// Items Management APIs
+// Inventory Management APIs
+//Get Inventory Dashboard Data
+export const getInventoryDashboardData = () =>
+  API.get("/inventory-dashboard/get-dashboard-data");
 // Add Item
 export const AddItem = (newItem) =>
   API.post("/item-management/additem", newItem);

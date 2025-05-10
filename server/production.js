@@ -35,6 +35,7 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
+import inventoryDashboardRoutes from "./routes/inventoryDashboardRoutes.js";
 import {
   sendLiveLocation,
   acceptOfferOrder,
@@ -80,12 +81,11 @@ app.use("/uploads", express.static("uploads"));
 
 // Route middleware
 app.use("/item-management", itemRoutes);
+app.use("/inventory-dashboard", inventoryDashboardRoutes);
 app.use("/stock-management", lowStockItems);
 app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
-// app.use("/auth", authRoutes);
-// app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
 app.use("/delivery-order", deliveryOrderRoutes);
@@ -217,7 +217,7 @@ mongoose
       console.log(`Server running on port: ${PORT}`)
     );
   })
-  .catch((error) => { 
+  .catch((error) => {
     console.error("Database connection error:", error.message);
   });
 

@@ -59,15 +59,9 @@ export const getAllItems = async (req, res) => {
   const { id, role } = req.user;
 
   try {
-    let filter = {};
-
-    if (role === userTypes.ADMIN) {
-      // Admin can fetch all items they created
-      filter = { created_by: id };
-    } else {
-      // Employees can fetch items created by their associated admin
-      filter = { created_by: req.user.created_by };
-    }
+    const filter = {
+      created_by: role === userTypes.ADMIN ? id : req.user.created_by,
+    };
 
     // Fetch items based on the filter
     const allItemsData = await ItemManagement.find(filter);

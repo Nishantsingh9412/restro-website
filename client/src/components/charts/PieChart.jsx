@@ -7,7 +7,12 @@ const PieChart = ({ chartData, chartOptions }) => {
 
   useEffect(() => {
     setData(chartData);
-    setOptions(chartOptions);
+    setOptions({
+      ...chartOptions,
+      dataLabels: {
+        enabled: false, // Disable labels
+      },
+    });
   }, [chartData, chartOptions]);
 
   return (
@@ -16,7 +21,7 @@ const PieChart = ({ chartData, chartOptions }) => {
       series={data}
       type="pie"
       width="100%"
-      height="55%"
+      height="100%"
     />
   );
 };

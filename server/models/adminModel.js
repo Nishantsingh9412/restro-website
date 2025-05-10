@@ -40,6 +40,7 @@ const adminSchema = new Schema(
     },
     // Unique identifier field, is required
     uniqueId: {
+      unique: true,
       type: String,
       required: true,
     },

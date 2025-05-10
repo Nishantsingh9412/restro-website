@@ -1,4 +1,4 @@
-import { Box, useDisclosure, Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 // import Footer from "../../components/footer/FooterAdmin.jsx";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
@@ -113,8 +113,8 @@ export default function Dashboard(props) {
     return activeNavbar;
   };
 
-  document.documentElement.dir = "ltr";
-  const { onOpen } = useDisclosure();
+  // document.documentElement.dir = "ltr";
+  // const { onOpen } = useDisclosure();
 
   return (
     <Flex bg="var(--primary-bg)" h="100%">
@@ -133,7 +133,7 @@ export default function Dashboard(props) {
         pb="80px"
       >
         <Navbar
-          onOpen={onOpen}
+          // onOpen={onOpen}
           logoText={"Horizon UI Dashboard PRO"}
           brandText={getActiveRoute(routes)}
           secondary={getActiveNavbar(routes)}

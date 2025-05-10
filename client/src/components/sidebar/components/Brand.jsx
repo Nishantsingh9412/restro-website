@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfilePicAction } from "../../../redux/action/user";
 import { useToast } from "../../../contexts/useToast";
-import { localStorageData } from "../../../utils/constant";
+import { localStorageData, userTypes } from "../../../utils/constant";
 // SidebarBrand component
 export function SidebarBrand() {
   // Toast notification function
@@ -86,15 +86,16 @@ export function SidebarBrand() {
         />
       </Box>
       {/* Membership ID display only for admin */}
-      {role === "admin" && (
+      {role === userTypes.ADMIN && (
         <Box
           display="flex"
           flexDirection="column"
           fontSize="larger"
           fontWeight="500"
+          alignItems="center"
         >
           Membership Id
-          <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
+          <Box letterSpacing="1px">{userProfileData?.uniqueId}</Box>
         </Box>
       )}
     </Flex>

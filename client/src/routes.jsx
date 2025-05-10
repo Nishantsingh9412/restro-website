@@ -21,6 +21,9 @@ import { lazy } from "react";
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
 const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
+const InventoryDashboard = lazy(() =>
+  import("./views/admin/inventoryDashboard")
+);
 const LowStocks = lazy(() => import("./views/admin/lowStocks"));
 const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
@@ -62,8 +65,6 @@ const commonRoutes = [
     icon: (
       <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
     ),
-    // type: 'link',
-    // component: () => <></>,
     component: <ItemManagement />,
   },
   {
@@ -125,6 +126,48 @@ const adminRoutes = [
         component: <MainDashboard />,
       },
       {
+        name: "Notifications",
+        layout: "/admin",
+        path: "/notifications",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        type: "link",
+        component: <AdminNotifications />,
+      },
+    ],
+  },
+  {
+    name: "Inventory",
+    layout: "/admin",
+    path: "/inventory-dashboards",
+    type: "list",
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    component: <InventoryDashboard />,
+    links: [
+      {
+        name: "Dashboard",
+        layout: "/admin",
+        path: "/inventory-dashboards",
+        icon: (
+          <Icon
+            as={HiDocumentChartBar}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        type: "link",
+        component: <InventoryDashboard />,
+      },
+      {
         name: "Item Management",
         layout: "/admin",
         path: "/item-management",
@@ -164,21 +207,6 @@ const adminRoutes = [
         ),
         type: "link",
         component: <SupplierManagement />,
-      },
-      {
-        name: "Notifications",
-        layout: "/admin",
-        path: "/dashboards/notifications",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
-        type: "link",
-        component: <AdminNotifications />,
       },
 
       // {
@@ -237,15 +265,6 @@ const adminRoutes = [
           <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
         ),
         component: <OrderHistory />,
-      },
-      {
-        name: "Create Deliveries",
-        layout: "/admin",
-        path: "/create-deliveries",
-        icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
-        ),
-        component: <>Coming Soon</>,
       },
     ],
   },
@@ -339,6 +358,15 @@ const adminRoutes = [
           />
         ),
         component: <DeliveryTracking />,
+      },
+      {
+        name: "Create Deliveries",
+        layout: "/admin",
+        path: "/create-deliveries",
+        icon: (
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+        ),
+        component: <>Coming Soon</>,
       },
       // {
       //   name: "Delivery partners",

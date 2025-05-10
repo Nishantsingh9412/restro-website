@@ -148,7 +148,7 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
     supplierData.created_by = localStorageId;
     const isItemsArray = Array.isArray(supplierData.items);
     if (!isItemsArray) {
-      supplierData.items = supplierData.items.split(", ");
+      supplierData.items = supplierData.items.split(",");
     }
 
     const id = isEdit ? selectedSupplierData._id : undefined;

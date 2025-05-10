@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import passport from "passport";
-import ShortUniqueId from "short-unique-id";
 import Joi from "joi";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
@@ -72,8 +71,16 @@ export const signUpAdminController = async (req, res) => {
         .json({ success: false, message: "Admin already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    const uid = new ShortUniqueId();
-    const uniqueId = uid.rnd(10);
+    // handling that must be unique id
+    let uniqueId;
+    let isUnique = false;
+    while (!isUnique) {
+      uniqueId = `D-${Math.floor(1000000 + Math.random() * 9000000)}`;
+      const existingAdmin = await Admin.findOne({ uniqueId });
+      if (!existingAdmin) {
+        isUnique = true;
+      }
+    }
     const newAdmin = await Admin.create({
       username: name,
       email,

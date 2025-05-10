@@ -16,6 +16,7 @@ import {
 import { nanoid } from "nanoid";
 import { useState, useEffect } from "react";
 import { useToast } from "../../../../contexts/useToast";
+
 export default function ItemManagementModal({
   isOpen,
   onClose,
@@ -32,14 +33,15 @@ export default function ItemManagementModal({
     existing_barcode_no: "",
     expiry_date: "",
     created_by: "",
-    //   usage_rate_value: "",
-    //   usage_rate_unit: "",
-    //   Last_Replenished: "",
+    purchase_price: 0,
+    supplier_name: "",
+    supplier_contact: "",
+    tags: "",
+    notes: "",
   };
   const [formData, setFormData] = useState(initialItemState);
   const showToast = useToast();
 
-  // Populate form for edit mode
   useEffect(() => {
     if (actionType !== "add" && itemData) {
       const {
@@ -50,6 +52,11 @@ export default function ItemManagementModal({
         bar_code,
         existing_barcode_no,
         expiry_date,
+        purchase_price,
+        supplier_name,
+        supplier_contact,
+        tags,
+        notes,
       } = itemData;
       setFormData(() => ({
         item_name: item_name || "",
@@ -59,20 +66,22 @@ export default function ItemManagementModal({
         bar_code: bar_code || "",
         existing_barcode_no: existing_barcode_no || "",
         expiry_date: expiry_date?.split("T")[0] || "",
+        purchase_price: purchase_price || 0,
+        supplier_name: supplier_name || "",
+        supplier_contact: supplier_contact || "",
+        tags: tags || "",
+        notes: notes || "",
       }));
     } else {
-      //Add barcode value if exists
       setFormData((prev) => ({ ...prev, bar_code: itemData?.bar_code || "" }));
     }
   }, [actionType, itemData]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Autofill default values for new items
   const autofillDefaults = () => {
     if (actionType === "add") {
       setFormData((prev) => ({
@@ -87,11 +96,15 @@ export default function ItemManagementModal({
         )
           .toISOString()
           .split("T")[0],
+        purchase_price: 0,
+        supplier_name: "Default Supplier",
+        supplier_contact: "1234567890",
+        tags: "default",
+        notes: "Default notes",
       }));
     }
   };
 
-  // Validate required fields
   const validate = () => {
     if (
       !formData.item_name ||
@@ -106,27 +119,22 @@ export default function ItemManagementModal({
     return true;
   };
 
-  // Handle form submission
   const handleSave = () => {
-    //The nanoid() function generate a unique id for the barcode
     if (actionType === "add" && !formData.bar_code) {
       formData.bar_code = nanoid(13);
     }
 
-    //if required field is empty it'll return;
     if (!validate()) return;
 
     handleSubmit(formData);
     handleClose();
   };
 
-  // Handle modal close action
   const handleClose = () => {
     setFormData(initialItemState);
     onClose();
   };
 
-  // Render input fields dynamically
   const renderInput = (
     label,
     name,
@@ -163,7 +171,6 @@ export default function ItemManagementModal({
     </>
   );
 
-  // Modal structure
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <ModalOverlay />
@@ -176,6 +183,7 @@ export default function ItemManagementModal({
           <Grid templateColumns="repeat(12, 1fr)" gap={4}>
             <GridItem colSpan={12}>
               {renderInput("Item Name", "item_name", "text", false, [], true)}
+              {renderInput("Category", "category", "text", false, [], true)}
               {renderInput(
                 "Item Unit",
                 "item_unit",
@@ -202,6 +210,18 @@ export default function ItemManagementModal({
               )}
               {renderInput("Expiry Date", "expiry_date", "date")}
               {renderInput("Existing Barcode No", "bar_code")}
+              {renderInput(
+                "Purchase Price",
+                "purchase_price",
+                "number",
+                false,
+                [],
+                true
+              )}
+              {renderInput("Supplier Name", "supplier_name", "text")}
+              {renderInput("Supplier Contact", "supplier_contact", "text")}
+              {renderInput("Tags", "tags", "text")}
+              {renderInput("Notes", "notes", "text")}
             </GridItem>
           </Grid>
         </ModalBody>

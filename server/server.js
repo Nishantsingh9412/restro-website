@@ -34,7 +34,8 @@ import commonRoutes from "./routes/employees/commonRoutes.js";
 import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
-import waiterRoutes from "./routes/employees/waiterRoutes.js"
+import waiterRoutes from "./routes/employees/waiterRoutes.js";
+import inventoryDashboardRoutes from "./routes/inventoryDashboardRoutes.js";
 import {
   sendLiveLocation,
   acceptOfferOrder,
@@ -65,13 +66,12 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use("/uploads", express.static("uploads"));
 
 // Route middleware
+app.use("/inventory-dashboard", inventoryDashboardRoutes);
 app.use("/item-management", itemRoutes);
 app.use("/stock-management", lowStockItems);
 app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
-// app.use("/auth", authRoutes);
-// app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
 app.use("/delivery-order", deliveryOrderRoutes);
