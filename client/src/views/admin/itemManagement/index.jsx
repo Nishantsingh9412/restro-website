@@ -300,7 +300,7 @@ export default function ItemManagement() {
                 <GridItem>Barcode No.</GridItem>
                 <GridItem>Last Replenished</GridItem>
                 <GridItem>Expiry Date</GridItem>
-                <GridItem>Action</GridItem>
+                <GridItem>Actions</GridItem>
               </Grid>
 
               {/* Table Rows */}

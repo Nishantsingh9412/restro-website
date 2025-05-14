@@ -30,12 +30,6 @@ const fetchInventoryData = async (userId) => {
       $expr: { $lt: ["$available_quantity", "$minimum_quantity"] },
     });
 
-    // Fetch total stock count
-    const allStockCount = await InventoryItems.aggregate([
-      { $match: { created_by: userId } },
-      { $group: { _id: null, total: { $sum: "$available_quantity" } } },
-    ]).then((res) => (res.length > 0 ? res[0].total : 0));
-
     // Fetch upcoming expiry items count (within the next 7 days)
     const upcomingExpiry = await InventoryItems.countDocuments({
       created_by: userId,
@@ -53,7 +47,6 @@ const fetchInventoryData = async (userId) => {
       expiredCount,
       upcomingExpiry,
       lowStockCount,
-      allStockCount, // Ensure this is included
     };
   } catch (error) {
     throw new Error("Error fetching inventory data: " + error.message); // Throw error for the caller to handle

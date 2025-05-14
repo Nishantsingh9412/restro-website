@@ -40,6 +40,8 @@ const Sidebar = ({ routes }) => {
   const resizeSidebar = useCallback(
     (e) => {
       if (isResizing) {
+        e.preventDefault(); // Prevent text selection
+        document.body.style.userSelect = "none"; // Disable text selection
         const newWidth = Math.max(200, Math.min(400, e.clientX)); // between 200px and 400px
         if (newWidth > 200 && newWidth < 500) {
           setSidebarWidth(newWidth);
@@ -53,6 +55,7 @@ const Sidebar = ({ routes }) => {
 
   const stopResizing = useCallback(() => {
     setIsResizing(false);
+    document.body.style.userSelect = ""; // Re-enable text selection
   }, []);
   // Function to reset sidebar width
   const resetSidebarWidth = () => {
