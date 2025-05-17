@@ -30,6 +30,7 @@ import adminRoutes, {
   bartenderRoutes,
   chefRoutes,
 } from "./routes";
+import NotFound from "./views/common/NotFound";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -64,7 +65,7 @@ root.render(
             <Router>
               <Suspense fallback={null}>
                 <Routes>
-                  <Route path="*" element={<h1>NOT FOUND</h1>} />
+                  <Route path="*" element={<NotFound />} />
                   <Route path="/" element={<SignIn />} />
                   <Route path="/auth/sign-up" element={<SignUp />} />
                   <Route

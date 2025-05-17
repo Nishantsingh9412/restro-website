@@ -45,18 +45,28 @@ const cartSlice = createSlice({
       }
     },
     addToCart: (state, action) => {
-      const { price, totalQuantity, selectedCustomizations } = action.payload;
+      const { price, totalQuantity, selectedCustomizations, itemName } =
+        action.payload;
       const currentGuest = state.guestsCart[state.currentGuest];
 
       // Ensure selectedCustomizations is not undefined
       const customizations = selectedCustomizations ?? {};
 
       // Check if an item with the same customizations exists
-      const existingItem = currentGuest.items.find(
-        (item) =>
+      const existingItem = currentGuest.items.find((item) => {
+        // If the item has no customizations, match by price and name
+        if (
+          Object.keys(customizations).length === 0 &&
+          Object.keys(item.selectedCustomizations || {}).length === 0
+        ) {
+          return item.price === price && item.itemName === itemName;
+        }
+        // Otherwise, match by customizations
+        return (
           JSON.stringify(item.selectedCustomizations) ===
           JSON.stringify(customizations)
-      );
+        );
+      });
 
       if (existingItem) {
         // Update the existing item

@@ -13,7 +13,6 @@ import {
   ModalHeader,
   NumberInput,
   NumberInputField,
-  Select,
   Stack,
   Switch,
   Text,
@@ -21,6 +20,10 @@ import {
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { useToast } from "../../../../contexts/useToast";
+import {
+  formatToGermanCurrency,
+  parseGermanCurrency,
+} from "../../../../utils/utils";
 
 const AddEditItemModal = (props) => {
   const initialState = {
@@ -29,10 +32,11 @@ const AddEditItemModal = (props) => {
     category: "",
     pic: "",
     basePrice: "",
-    priceUnit: "",
+    // priceUnit: "",
     prepTime: "",
     description: "",
-    inStock: false,
+    // inStock: false,
+    ingredients: "",
     isFavourite: false,
   };
 
@@ -74,6 +78,7 @@ const AddEditItemModal = (props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setItem((prev) => ({
       ...prev,
       [name]: value,
@@ -126,17 +131,69 @@ const AddEditItemModal = (props) => {
       });
   };
 
-  useEffect(() => {
-    if (itemData) {
-      setItem({
-        ...itemData,
-      });
-      setCustomization(itemData.customization || []);
+  // Function to validate the form data
+  const validate = () => {
+    const requiredFields = ["itemId", "itemName", "category", "basePrice"];
+    for (const field of requiredFields) {
+      if (
+        !item[field] ||
+        (typeof item[field] === "string" && item[field].trim() === "")
+      ) {
+        showToast(
+          `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
+          "error"
+        );
+        return true;
+      }
     }
-  }, [itemData]);
+    for (const group of customization) {
+      if (group.option.length === 0) {
+        showToast(
+          "Please add at least one option to each customization group",
+          "error"
+        );
+        return true;
+      }
+      for (const opt of group.option) {
+        if (
+          !opt.name ||
+          (typeof opt.name === "string" && opt.name.trim() === "")
+        ) {
+          showToast(`Please enter option name for ${group.title}`, "error");
+          return true;
+        }
+        if (
+          !opt.price ||
+          (typeof opt.price === "string" && opt.price.trim() === "")
+        ) {
+          showToast(`Please enter option price for ${group.title}`, "error");
+          return true;
+        }
+      }
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Convert the base price into a number
+    item.basePrice = parseGermanCurrency(item.basePrice);
+
+    // Convert the price of each option into a number
+    customization.forEach((group) => {
+      group.option.forEach((opt) => {
+        opt.price = parseGermanCurrency(opt.price);
+      });
+    });
+
+    // Convert the ingredients string into an array
+    item.ingredients = item.ingredients?.split(",").map((ing) => ing.trim());
+
+    // Check if all required fields are filled
+    if (validate()) {
+      showToast("Please fill all required fields", "error");
+      return;
+    }
+
     const payload = {
       ...item,
       customization,
@@ -144,6 +201,32 @@ const AddEditItemModal = (props) => {
     onSubmit(payload);
     handleClose();
   };
+
+  useEffect(() => {
+    if (itemData) {
+      // Set the item state with the provided itemData
+      setItem({
+        ...itemData,
+        basePrice: itemData?.basePrice
+          ? formatToGermanCurrency(itemData?.basePrice) // Format basePrice to German currency
+          : "", // Default to an empty string if basePrice is not provided
+        ingredients: itemData?.ingredients?.join(", ") || "", // Convert array to string
+      });
+
+      // Set the customization state with formatted prices
+      setCustomization(
+        Array.isArray(itemData?.customization) // Check if customization is an array
+          ? itemData.customization.map((group) => ({
+              ...group, // Spread the group properties
+              option: group.option.map((opt) => ({
+                ...opt, // Spread the option properties
+                price: formatToGermanCurrency(opt.price), // Format the price to German currency
+              })),
+            }))
+          : [] // Default to an empty array if customization is not provided
+      );
+    }
+  }, [itemData]);
 
   return (
     <Modal isCentered isOpen={isOpen} onClose={handleClose}>
@@ -160,7 +243,7 @@ const AddEditItemModal = (props) => {
                     type="text"
                     name="itemId"
                     onChange={handleChange}
-                    placeholder="Item ID"
+                    placeholder="e.g., 12345"
                     value={item.itemId}
                     required
                   />
@@ -170,7 +253,7 @@ const AddEditItemModal = (props) => {
                   <Input
                     type="text"
                     name="itemName"
-                    placeholder="Item Name"
+                    placeholder="e.g., Margherita Pizza"
                     value={item.itemName}
                     onChange={handleChange}
                     required
@@ -183,74 +266,32 @@ const AddEditItemModal = (props) => {
                     name="category"
                     value={item.category}
                     onChange={handleChange}
-                    placeholder="Item Category"
+                    placeholder="e.g., Pizza"
                     required
                   />
                 </FormControl>
                 <Flex gap={2}>
                   <FormControl id="basePrice" isRequired>
                     <FormLabel>Base Price</FormLabel>
-                    <NumberInput
+                    <Input
+                      type="text"
+                      name="basePrice"
                       value={item.basePrice}
-                      onChange={(valueString) =>
-                        handleChange({
-                          target: { name: "basePrice", value: valueString },
-                        })
-                      }
-                      min={0}
-                      step={0.01}
-                      placeholder="0.00"
-                      precision={2}
-                      required
-                    >
-                      <NumberInputField name="basePrice" />
-                    </NumberInput>
-                  </FormControl>
-                  <FormControl id="priceUnit" isRequired>
-                    <FormLabel>Price Unit</FormLabel>
-                    <Select
-                      name="priceUnit"
                       onChange={handleChange}
-                      value={item.priceUnit}
+                      placeholder="e.g., 12,50 €"
                       required
-                    >
-                      <option value="">Select Price Unit</option>
-                      <option value="Euro">Euro</option>
-                    </Select>
+                    />
                   </FormControl>
+                  <Button
+                    colorScheme="blue"
+                    onClick={handleAddCustomization}
+                    mt={2}
+                    width={"100%"}
+                    alignSelf={"end"}
+                  >
+                    Add Customization
+                  </Button>
                 </Flex>
-                <FormControl id="pic" mt={1}>
-                  <FormLabel>Upload Picture</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => postOrderImage(e.target.files[0])}
-                  />
-                </FormControl>
-                <Text>{item.pic}</Text>
-                <FormControl id="prepTime" isRequired>
-                  <FormLabel>Preparation Time</FormLabel>
-                  <Input
-                    type="text"
-                    name="prepTime"
-                    value={item.prepTime}
-                    onChange={handleChange}
-                    placeholder="Preparation Time (in minutes)"
-                    required
-                  />
-                </FormControl>
-                <FormControl id="description">
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    name="description"
-                    value={item.description}
-                    onChange={handleChange}
-                    placeholder="Description"
-                    rows={3}
-                    resize="vertical"
-                  />
-                </FormControl>
-
                 {customization.map((group, groupIndex) => (
                   <Box
                     key={groupIndex}
@@ -258,7 +299,24 @@ const AddEditItemModal = (props) => {
                     p={4}
                     borderRadius="md"
                     mt={2}
+                    position="relative"
                   >
+                    <Button
+                      p={0}
+                      size="xs"
+                      colorScheme="red"
+                      borderRadius={"50%"}
+                      position="absolute"
+                      top="-1.5px"
+                      right="-1.5px"
+                      onClick={() =>
+                        setCustomization((prev) =>
+                          prev.filter((_, index) => index !== groupIndex)
+                        )
+                      }
+                    >
+                      ✕
+                    </Button>
                     <Flex gap={2}>
                       <FormControl
                         id={`customizationGroup${groupIndex}`}
@@ -275,7 +333,8 @@ const AddEditItemModal = (props) => {
                               e.target.value
                             )
                           }
-                          placeholder="Enter Title"
+                          p
+                          placeholder="e.g., Toppings"
                           required
                         />
                       </FormControl>
@@ -317,7 +376,13 @@ const AddEditItemModal = (props) => {
                       />
                     </FormControl>
                     {group.option.map((opt, optionIndex) => (
-                      <Box key={optionIndex} display={"flex"} gap={2} mt={1}>
+                      <Box
+                        key={optionIndex}
+                        display={"flex"}
+                        gap={1}
+                        mt={2}
+                        alignItems={"center"}
+                      >
                         <FormControl id="optionName" isRequired>
                           <FormLabel>Option Name</FormLabel>
                           <Input
@@ -331,31 +396,47 @@ const AddEditItemModal = (props) => {
                                 e.target.value
                               )
                             }
-                            placeholder="Option Name"
+                            placeholder="e.g., Extra Cheese"
                             required
                           />
                         </FormControl>
+
                         <FormControl id="optionPrice" isRequired>
                           <FormLabel>Option Price</FormLabel>
-                          <NumberInput
+                          <Input
+                            type="text"
                             value={opt.price}
-                            onChange={(valueString) =>
+                            onChange={(e) =>
                               handleOptionChange(
                                 groupIndex,
                                 optionIndex,
                                 "price",
-                                valueString
+                                e.target.value
                               )
                             }
-                            min={0}
-                            step={0.01}
-                            precision={2}
-                            placeholder="0.00"
+                            placeholder="e.g., 2,50 €"
                             required
-                          >
-                            <NumberInputField />
-                          </NumberInput>
+                          />
                         </FormControl>
+                        {customization[groupIndex].option.length > 1 && (
+                          <Button
+                            p={0}
+                            size="xs"
+                            borderRadius={"50%"}
+                            colorScheme="red"
+                            top="15px"
+                            onClick={() => {
+                              const updatedOptions = [...customization];
+                              updatedOptions[groupIndex].option =
+                                updatedOptions[groupIndex].option.filter(
+                                  (_, index) => index !== optionIndex
+                                );
+                              setCustomization(updatedOptions);
+                            }}
+                          >
+                            ✕
+                          </Button>
+                        )}
                       </Box>
                     ))}
                     <Button
@@ -367,52 +448,66 @@ const AddEditItemModal = (props) => {
                     </Button>
                   </Box>
                 ))}
-                <Button
-                  colorScheme="blue"
-                  onClick={handleAddCustomization}
-                  mt={2}
-                  width={"50%"}
-                  alignSelf={"end"}
-                >
-                  Add Customization
-                </Button>
-                <Flex>
-                  <FormControl
-                    width={"55%"}
-                    mt={4}
-                    display="flex"
-                    alignItems="center"
-                    id="isFavourite"
-                  >
-                    <FormLabel mb="0">Favourite</FormLabel>
-                    <Switch
-                      isChecked={item.isFavourite}
-                      onChange={() => {
-                        setItem((prevState) => ({
-                          ...prevState,
-                          isFavourite: !prevState.isFavourite,
-                        }));
-                      }}
+                <FormControl id="pic" mt={1}>
+                  <FormLabel>Upload Picture</FormLabel>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => postOrderImage(e.target.files[0])}
+                  />
+                </FormControl>
+                <Text>{item.pic}</Text>
+                <Flex gap={2}>
+                  <FormControl id="ingredients">
+                    <FormLabel>Ingredients</FormLabel>
+                    <Input
+                      type="text"
+                      name="ingredients"
+                      value={item.ingredients}
+                      onChange={handleChange}
+                      placeholder="e.g., Cheese, Tomato, Basil"
                     />
-                  </FormControl>{" "}
-                  <FormControl
-                    mt={4}
-                    display="flex"
-                    alignItems="center"
-                    id="inStock"
-                  >
-                    <FormLabel mb="0">In-Stock</FormLabel>
-                    <Switch
-                      isChecked={item.inStock}
-                      onChange={() => {
-                        setItem((prev) => ({
-                          ...prev,
-                          inStock: !prev.inStock,
-                        }));
-                      }}
+                  </FormControl>
+                  <FormControl id="prepTime" isRequired>
+                    <FormLabel>Preparation Time</FormLabel>
+                    <Input
+                      type="text"
+                      name="prepTime"
+                      value={item.prepTime}
+                      onChange={handleChange}
+                      placeholder="e.g., 15 (in minutes)"
+                      required
                     />
                   </FormControl>
                 </Flex>
+                <FormControl id="description">
+                  <FormLabel>Description</FormLabel>
+                  <Textarea
+                    name="description"
+                    value={item.description}
+                    onChange={handleChange}
+                    placeholder="e.g., A classic pizza with fresh mozzarella and basil."
+                    rows={3}
+                    resize="vertical"
+                  />
+                </FormControl>
+                <FormControl
+                  mt={2}
+                  display="flex"
+                  alignItems="center"
+                  id="isFavourite"
+                >
+                  <FormLabel mb="0">Favourite</FormLabel>
+                  <Switch
+                    isChecked={item.isFavourite}
+                    onChange={() => {
+                      setItem((prevState) => ({
+                        ...prevState,
+                        isFavourite: !prevState.isFavourite,
+                      }));
+                    }}
+                  />
+                </FormControl>
                 <Button
                   mt={4}
                   colorScheme="teal"

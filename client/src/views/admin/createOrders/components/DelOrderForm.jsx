@@ -27,8 +27,6 @@ const DeliveryOrderForm = ({ onProceed }) => {
       "customerName",
       "phoneNumber",
       "address",
-      "paymentMethod",
-      "deliveryMethod",
       "dropLocation",
       "dropLocationName",
     ];
@@ -42,17 +40,28 @@ const DeliveryOrderForm = ({ onProceed }) => {
           `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
           "error"
         );
+        document.querySelector(`[name="${field}"]`)?.focus();
         return false;
       }
     }
 
-    if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      toast("Please enter a valid 10-digit phone number", "error");
+    if (!/^\d{11}$/.test(formData.phoneNumber)) {
+      toast("Please enter a valid 11-digit phone number", "error");
       return false;
     }
 
-    if (formData.zip && !/^\d{5}(-\d{4})?$/.test(formData.zip)) {
+    if (formData.zip && !/^\d{5} ?$/.test(formData.zip)) {
       toast("Please enter a valid 5 digit zip code", "error");
+      return false;
+    }
+
+    // Check if dropLocationName is not same with address, city, and zip
+    if (
+      formData.dropLocationName &&
+      (!formData.dropLocationName?.includes(formData.city) ||
+        !formData.dropLocationName?.includes(formData.zip))
+    ) {
+      toast("Drop location name should be same with  city, or zip", "error");
       return false;
     }
 
@@ -65,10 +74,11 @@ const DeliveryOrderForm = ({ onProceed }) => {
     onProceed();
   };
 
-  const handleChange = (field, value) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     dispatch(
       setDeliveryInfo({
-        [field]: value,
+        [name]: value,
       })
     );
   };
@@ -76,109 +86,118 @@ const DeliveryOrderForm = ({ onProceed }) => {
   return (
     <Box p={4}>
       <form onSubmit={handleAddressSubmit}>
-        <div className="flex flex-wrap gap-3 items-center">
-          <FormControl id="drop-location-heading">
-            <FormLabel fontSize="xl" fontWeight="bold">
-              Drop Location
-            </FormLabel>
-          </FormControl>
-          <FormControl id="customerName" isRequired mt={4}>
-            <FormLabel>Name</FormLabel>
-            <Input
-              type="text"
-              placeholder="Customer Name"
-              value={formData.customerName}
-              onChange={(e) => handleChange("customerName", e.target.value)}
-            />
-          </FormControl>
-          <FormControl id="droplocation" isRequired mt={4}>
-            <FormLabel>Drop Location</FormLabel>
-            {/* <Text>{formData?.dropLocationName}</Text> */}
-            <Button
-              borderRadius={"4px"}
-              bg={"#029CFF"}
-              color={"#fff"}
-              _hover={{ background: "blue.500" }}
-              onClick={onOpen}
-            >
-              Open Map Now
-            </Button>
+        <FormControl id="drop-location-heading">
+          <FormLabel fontSize="xl" fontWeight="bold">
+            Drop Location
+          </FormLabel>
+        </FormControl>
+        <FormControl id="customerName" isRequired mt={4}>
+          <FormLabel>Customer Name</FormLabel>
+          <Input
+            type="text"
+            name="customerName"
+            placeholder="Enter Full Name"
+            value={formData.customerName}
+            onChange={handleChange}
+            required={true}
+            maxLength={50}
+            minLength={3}
+          />
+        </FormControl>
+        <FormControl id="droplocation" isRequired mt={4}>
+          <FormLabel>Drop Location</FormLabel>
+          <Button
+            aria-label="Open Map"
+            borderRadius={"4px"}
+            bg={"#029CFF"}
+            color={"#fff"}
+            _hover={{ background: "blue.500" }}
+            onClick={onOpen}
+          >
+            Open Map Now
+          </Button>
+        </FormControl>
+        {/* Map Modal To Select Drop Location */}
+        {isOpen && (
+          <MapInput
+            data={{
+              dropLocation: formData.dropLocation,
+              dropLocationName: formData.dropLocationName || "",
+            }}
+            isOpen={isOpen}
+            onClose={onClose}
+          />
+        )}
+        <FormControl id="address" isRequired mt={4}>
+          <FormLabel>Address</FormLabel>
+          <Input
+            type="text"
+            name="address"
+            placeholder="1234 Main St"
+            value={formData.address}
+            onChange={handleChange}
+            required={true}
+            maxLength={100}
+            minLength={8}
+          />
+        </FormControl>
 
-            {isOpen && (
-              <MapInput
-                data={{
-                  dropLocation: formData.dropLocation,
-                  dropLocationName: formData.dropLocationName || "",
-                }}
-                isOpen={isOpen}
-                onClose={onClose}
-              />
-            )}
-          </FormControl>
+        <FormControl id="city">
+          <FormLabel>City</FormLabel>
+          <Input
+            name="city"
+            placeholder="Apartment, studio, or floor"
+            value={formData.city}
+            onChange={handleChange}
+            maxLength={20}
+            minLength={3}
+          />
+        </FormControl>
 
-          <FormControl id="address" isRequired mt={4}>
-            <FormLabel>Address Line 1</FormLabel>
-            <Input
-              type="text"
-              placeholder="1234 Main St"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl id="address2">
-            <FormLabel>Address Line 2</FormLabel>
-            <Input
-              placeholder="Apartment, studio, or floor"
-              value={formData.address2}
-              onChange={(e) => handleChange("address2", e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl id="zip" mt={4}>
-            <FormLabel>Zip</FormLabel>
-            <Input
-              placeholder="Zip"
-              type="number"
-              value={formData.zip}
-              onChange={(e) => handleChange("zip", e.target.value)}
-            />
-          </FormControl>
-        </div>
+        <FormControl id="zip" mt={4} isRequired>
+          <FormLabel>Zip</FormLabel>
+          <Input
+            name="zip"
+            placeholder="Zip Code"
+            type="text"
+            value={formData.zip}
+            onChange={handleChange}
+            required={true}
+            pattern="^\d{5}$"
+            title="Please enter a valid 5 digit zip code"
+            maxLength={5}
+            minLength={5}
+          />
+        </FormControl>
         <FormControl id="phone-number" mt={4} isRequired>
           <FormLabel>Phone Number</FormLabel>
           <Input
-            type="number"
-            placeholder="Phone Number"
+            type="text"
+            name="phoneNumber"
+            placeholder="+49 12345678901"
             value={formData.phoneNumber}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
+            onChange={handleChange}
+            required={true}
+            pattern="^\d{11}$"
+            title="Please enter a valid 10 digit phone number"
+            maxLength={11}
+            minLength={11}
           />
         </FormControl>
 
         <FormControl id="payment-method" mt={4}>
           <FormLabel>Payment Method</FormLabel>
           <RadioGroup
+            name="paymentMethod"
             value={formData.paymentMethod}
-            onChange={(value) => handleChange("paymentMethod", value)}
+            onChange={(value) =>
+              handleChange({ target: { name: "paymentMethod", value } })
+            }
           >
             <Stack direction="row">
               <Radio value="cash">Cash</Radio>
               <Radio value="card">Card</Radio>
-              <Radio value="alreadyPaid">Already Paid</Radio>
-              <Radio value="online">Online</Radio>
-              <Radio value="paypal">Paypal</Radio>
-            </Stack>
-          </RadioGroup>
-        </FormControl>
-        <FormControl id="delivery-method" mt={4}>
-          <FormLabel>Delivery Method</FormLabel>
-          <RadioGroup
-            value={formData.deliveryMethod}
-            onChange={(value) => handleChange("deliveryMethod", value)}
-          >
-            <Stack direction="row">
-              <Radio value="pickup">Pickup</Radio>
-              <Radio value="delivery">Delivery</Radio>
+              <Radio value="paypal">PayPal</Radio>
             </Stack>
           </RadioGroup>
         </FormControl>
@@ -187,8 +206,9 @@ const DeliveryOrderForm = ({ onProceed }) => {
           <FormLabel>Note from Customer</FormLabel>
           <Textarea
             type="text"
+            name="noteFromCustomer"
             value={formData.noteFromCustomer}
-            onChange={(e) => handleChange("noteFromCustomer", e.target.value)}
+            onChange={handleChange}
             placeholder="Any special instructions?"
           />
         </FormControl>
@@ -203,16 +223,6 @@ const DeliveryOrderForm = ({ onProceed }) => {
           >
             Proceed To Menu
           </Button>
-          {/* <Button
-            m={4}
-            width={"10%"}
-            background={"#029CFF"}
-            color={"white"}
-            _hover={{ color: "#029CFF", bg: "whitesmoke" }}
-            onClick={handleAutoComplete}
-          >
-            Auto Fill
-          </Button> */}
         </Box>
       </form>
     </Box>

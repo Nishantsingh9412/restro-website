@@ -1,5 +1,6 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { formatToGermanCurrency } from "../../../../utils/utils";
 const ItemCard = ({ item, handleShowItem }) => {
   return (
     <Box
@@ -27,7 +28,7 @@ const ItemCard = ({ item, handleShowItem }) => {
             {item?.itemName}
           </Text>
           <Text fontSize="md" color="gray.600">
-            {item?.basePrice} {item?.priceUnit}
+            {formatToGermanCurrency(item?.basePrice)}
           </Text>
         </Box>
       </Flex>

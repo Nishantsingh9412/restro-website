@@ -20,9 +20,9 @@ const OrderedItemsSchema = new Schema(
         ],
       },
     ],
+    ingredients: [{ type: String }],
     basePrice: { type: Number, required: true },
-    priceUnit: { type: String, required: true },
-    prepTime: { type: Number, required: true },
+    prepTime: { type: String, required: true },
     pic: {
       type: String,
       default:
@@ -33,7 +33,6 @@ const OrderedItemsSchema = new Schema(
     },
     description: { type: String },
     isFavourite: { type: Boolean, default: false },
-    inStock: { type: Boolean, default: false },
     created_by: {
       type: Schema.Types.ObjectId,
       ref: "Admin",

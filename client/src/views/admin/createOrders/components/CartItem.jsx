@@ -1,12 +1,7 @@
-// CartItem Component to avoid duplication in rendering cart items
-/* eslint-disable react/prop-types */
 import { Box, Image, Text, Flex } from "@chakra-ui/react";
 import { BiSolidTrash } from "react-icons/bi";
-// import { calculatePrice } from "../../../../utils/constant";
-
-// Helper function to format price with unit
-const formatPrice = (value, unit) =>
-  `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : unit}`;
+import { formatToGermanCurrency } from "../../../../utils/utils";
+import PropTypes from "prop-types";
 
 const CartItem = ({ item, onUpdate, onRemove }) => {
   return (
@@ -25,8 +20,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
                 {item?.itemName}
               </Text>
               <Text fontWeight="semibold" as="h4" isTruncated>
-                {item?.totalQuantity} X{" "}
-                {formatPrice(item?.price, item?.priceUnit)}
+                {item?.totalQuantity} X {formatToGermanCurrency(item?.price)}
               </Text>
             </Box>
             <BiSolidTrash
@@ -66,24 +60,45 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
           </Flex>
         </Flex>
         <Flex justifyContent={"space-between"}>
+          {console.log("cop", item?.selectedCustomizations?.length)}
+          {console.table(item?.selectedCustomizations)}
           {item?.selectedCustomizations?.length > 0 ? (
             <Text fontWeight="" as="h5" mt={2} ml={1} isTruncated>
-              (
               {item?.selectedCustomizations
                 .flatMap((c) => c.selectedOptions.map((option) => option.name))
                 .join(", ")}
-              )
             </Text>
           ) : (
             <Box></Box>
           )}
           <Box display="flex" justifyContent="end" mt={"0.5rem"}>
-            {formatPrice(item?.totalPrice, item?.priceUnit)}
+            {formatToGermanCurrency(item?.totalPrice)}
           </Box>
         </Flex>
       </Box>
     </Box>
   );
+};
+CartItem.propTypes = {
+  item: PropTypes.shape({
+    pic: PropTypes.string,
+    itemName: PropTypes.string,
+    totalQuantity: PropTypes.number,
+    price: PropTypes.number,
+    cartItemId: PropTypes.string,
+    selectedCustomizations: PropTypes.arrayOf(
+      PropTypes.shape({
+        selectedOptions: PropTypes.arrayOf(
+          PropTypes.shape({
+            name: PropTypes.string,
+          })
+        ),
+      })
+    ),
+    totalPrice: PropTypes.number,
+  }).isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
 };
 
 export default CartItem;

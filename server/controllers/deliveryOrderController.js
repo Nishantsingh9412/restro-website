@@ -80,7 +80,7 @@ export const createDeliveryOrder = async (req, res) => {
       dropLocation,
       dropLocationName,
       address,
-      address2,
+      city,
       zip,
       noteFromCustomer,
       orderItems,
@@ -120,7 +120,7 @@ export const createDeliveryOrder = async (req, res) => {
       dropLocationName,
       pickupLocation,
       address,
-      address2,
+      city,
       zip,
       noteFromCustomer,
       orderItems: formattedOrderItems,
@@ -237,7 +237,7 @@ export const allotOrderDelivery = async (req, res) => {
       deliveryLocation: delOrder.dropLocation,
       deliveryAddress: [
         delOrder.address,
-        delOrder.address2,
+        delOrder.city,
         delOrder.zip,
         defaultCountry,
       ]
@@ -312,7 +312,6 @@ export const updateDeliveryOrder = async (req, res) => {
     paymentMethod,
     deliveryMethod,
     address,
-    address2,
     city,
     state,
     zip,
@@ -332,7 +331,6 @@ export const updateDeliveryOrder = async (req, res) => {
         paymentMethod,
         deliveryMethod,
         address,
-        address2,
         city,
         state,
         zip,
@@ -595,7 +593,7 @@ export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
           deliveryLocation: delOrder.dropLocation,
           deliveryAddress: [
             delOrder.address,
-            delOrder.address2,
+            delOrder.city,
             delOrder.zip,
             defaultCountry,
           ]

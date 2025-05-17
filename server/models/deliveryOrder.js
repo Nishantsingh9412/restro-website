@@ -94,7 +94,7 @@ const DeliveryOrder = new Schema(
       required: true,
       trim: true, // Trim whitespace
     },
-    address2: {
+    city: {
       type: String,
       trim: true, // Trim whitespace
     },
@@ -103,7 +103,7 @@ const DeliveryOrder = new Schema(
       trim: true, // Trim whitespace
       validate: {
         validator: function (v) {
-          return /\d{5}(-\d{4})?/.test(v); // Validate zip code format
+          return /^\d{5}$/.test(v); // Exactly 5 digits
         },
         message: (props) => `${props.value} is not a valid zip code!`,
       },

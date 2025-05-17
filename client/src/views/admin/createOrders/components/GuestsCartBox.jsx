@@ -12,6 +12,7 @@ import {
 import PropTypes from "prop-types";
 import { guestTypes } from "../../../../utils/constant";
 import { useToast } from "../../../../contexts/useToast";
+import { formatToGermanCurrency } from "../../../../utils/utils";
 // Component to display the cart for guests
 const GuestsCartBox = ({ handleOnProceed }) => {
   const showToast = useToast();
@@ -123,7 +124,8 @@ const GuestsCartBox = ({ handleOnProceed }) => {
 
   return (
     <Box
-      height="75vh"
+      // height="75vh"
+      maxHeight={"600px"}
       display="flex"
       flexDirection="column"
       flex={1}
@@ -268,7 +270,7 @@ const GuestsCartBox = ({ handleOnProceed }) => {
                 Subtotal:
               </Text>
               <Text fontWeight="bold" fontSize="lg" color="#029CFF">
-                {parseFloat(allOrderItemsTotal || 0).toFixed(2)} €
+                {formatToGermanCurrency(allOrderItemsTotal)}
               </Text>
             </Box>
             {currentGuest === guestTypes.GUEST && (

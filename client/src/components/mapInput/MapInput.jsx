@@ -149,10 +149,11 @@ export default function MapInput({ data, isOpen, onClose }) {
         },
         dropLocationName: utils.locationName,
         address: street,
-        address2: city,
+        city: city,
         zip: zip,
       })
     );
+    // Close the modal
     onClose();
   };
 

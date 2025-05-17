@@ -22,7 +22,6 @@ import {
   Tab,
   TabIndicator,
   useColorModeValue,
-  Spinner,
 } from "@chakra-ui/react";
 import DefaultAuth from "../../../layouts/auth/Default.jsx";
 import illustration from "../../../assets/img/auth/login-img.png";
@@ -31,9 +30,13 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { loginAdmin, loginEmployee } from "../../../redux/action/auth.js";
 import { useToast } from "../../../contexts/useToast.jsx";
-import { localStorageData } from "../../../utils/constant.js";
+import { localStorageData, userTypes } from "../../../utils/constant.js";
 
 function SignIn() {
+  // Redux dispatch and navigation hooks
+  const showToast = useToast();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   // Define color modes for different elements
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
@@ -42,8 +45,10 @@ function SignIn() {
   const brandStars = useColorModeValue("brand.500", "brand.400");
 
   // State variables
-  const [role, setRole] = useState("admin");
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [checkedAuth, setCheckedAuth] = useState(false);
+  const [role, setRole] = useState(userTypes.ADMIN);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -51,26 +56,20 @@ function SignIn() {
     phone: "",
     memberId: "",
   });
-  const [loading, setLoading] = useState(false);
-  const showToast = useToast();
-
-  // Redux dispatch and navigation hooks
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // Check if user is already logged in
   useEffect(() => {
-    setLoading(true);
     const user = JSON.parse(
       localStorage.getItem(localStorageData.PROFILE_DATA)
     );
     const role = user?.result?.role;
-    if (role === "admin" && user) {
+    if (role === userTypes.ADMIN && user) {
       navigate("/admin/dashboards/default");
     } else if (user) {
       handleRouteByRole(role);
+    } else {
+      setCheckedAuth(true);
     }
-    setLoading(false);
   }, [navigate]);
 
   // Toggle password visibility
@@ -281,7 +280,7 @@ function SignIn() {
   // Render employee boy login form
   const renderEmployeeForm = () => (
     <form onSubmit={handleLoginEmployee}>
-      <FormControl id="phone">
+      <FormControl id="phone" isRequired>
         <FormLabel
           display="flex"
           ms="4px"
@@ -290,7 +289,7 @@ function SignIn() {
           color={textColor}
           mb="8px"
         >
-          Phone<Text color={brandStars}>*</Text>
+          Phone
         </FormLabel>
         <Box mb="24px" borderRadius="md" overflow="hidden">
           <PhoneInput
@@ -363,70 +362,66 @@ function SignIn() {
     </form>
   );
 
-  // Render loader
-  // eslint-disable-next-line no-unused-vars
-  const renderLoader = () => (
-    <Flex justifyContent="center" alignItems="center" h="100vh">
-      <Spinner size="xl" color="blue.500" />
-    </Flex>
-  );
-
-  // if (loading) return renderLoader();
-
   return (
-    <DefaultAuth illustrationBackground={illustration} image={illustration}>
-      <ToastContainer />
-      <Flex
-        maxW={{ base: "100%", md: "max-content" }}
-        w="100%"
-        mx={{ base: "auto", lg: "0px" }}
-        me="auto"
-        h="100%"
-        alignItems="start"
-        justifyContent="center"
-        mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
-        mt={{ base: "40px", md: "14vh" }}
-        flexDirection="column"
-      >
-        <Box me="auto" mb="24px">
-          <Heading color={textColor} fontSize="36px" mb="20px">
-            Sign In
-          </Heading>
-          <Tabs
-            position="relative"
-            variant="unstyled"
-            mt="10px"
-            onChange={(index) => setRole(index === 0 ? "admin" : "employee")}
-          >
-            <TabList>
-              <Tab _selected={{ boxShadow: "none" }}>Admin</Tab>
-              <Tab _selected={{ boxShadow: "none" }}>Employee</Tab>
-            </TabList>
-            <TabIndicator
-              mt="-1.5px"
-              height="2px"
-              bg={role === "admin" ? "blue.500" : "green.500"}
-              borderRadius="1px"
-            />
-          </Tabs>
-        </Box>
-
+    checkedAuth && (
+      <DefaultAuth illustrationBackground={illustration} image={illustration}>
+        <ToastContainer />
         <Flex
-          zIndex="2"
-          direction="column"
-          w={{ base: "100%", md: "420px" }}
-          maxW="100%"
-          background="transparent"
-          borderRadius="15px"
-          mx={{ base: "auto", lg: "unset" }}
+          maxW={{ base: "100%", md: "max-content" }}
+          w="100%"
+          mx={{ base: "auto", lg: "0px" }}
           me="auto"
-          mb={{ base: "20px", md: "auto" }}
+          h="100%"
+          alignItems="start"
+          justifyContent="center"
+          mb={{ base: "30px", md: "60px" }}
+          px={{ base: "25px", md: "0px" }}
+          mt={{ base: "40px", md: "14vh" }}
+          flexDirection="column"
         >
-          {role === "admin" ? renderAdminForm() : renderEmployeeForm()}
+          <Box me="auto" mb="24px">
+            <Heading color={textColor} fontSize="36px" mb="20px">
+              Sign In
+            </Heading>
+            <Tabs
+              position="relative"
+              variant="unstyled"
+              mt="10px"
+              onChange={(index) =>
+                setRole(index === 0 ? userTypes.ADMIN : userTypes.EMPLOYEE)
+              }
+            >
+              <TabList>
+                <Tab _selected={{ boxShadow: "none" }}>Admin</Tab>
+                <Tab _selected={{ boxShadow: "none" }}>Employee</Tab>
+              </TabList>
+              <TabIndicator
+                mt="-1.5px"
+                height="2px"
+                bg={role === userTypes.ADMIN ? "blue.500" : "green.500"}
+                borderRadius="1px"
+              />
+            </Tabs>
+          </Box>
+
+          <Flex
+            zIndex="2"
+            direction="column"
+            w={{ base: "100%", md: "420px" }}
+            maxW="100%"
+            background="transparent"
+            borderRadius="15px"
+            mx={{ base: "auto", lg: "unset" }}
+            me="auto"
+            mb={{ base: "20px", md: "auto" }}
+          >
+            {role === userTypes.ADMIN
+              ? renderAdminForm()
+              : renderEmployeeForm()}
+          </Flex>
         </Flex>
-      </Flex>
-    </DefaultAuth>
+      </DefaultAuth>
+    )
   );
 }
 

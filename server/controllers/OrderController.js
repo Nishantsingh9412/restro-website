@@ -48,12 +48,11 @@ const orderItemSchema = Joi.object({
     .optional()
     .allow(null, ""),
   basePrice: Joi.number().required(),
-  priceUnit: Joi.string().required(),
-  prepTime: Joi.number().required(),
+  prepTime: Joi.string().optional().allow(null, ""),
   pic: Joi.string().optional().allow(null, ""),
   description: Joi.string().optional().allow(null, ""),
   isFavourite: Joi.boolean().optional().default(false),
-  inStock: Joi.boolean().optional().default(false),
+  ingredients: Joi.array().optional().allow(null, ""),
 });
 
 // Controller to add a new order item
@@ -73,12 +72,11 @@ export const AddOrderItem = async (req, res) => {
       category,
       prepTime,
       basePrice,
-      priceUnit,
       pic,
       description,
       isFavourite,
-      inStock,
       customization,
+      ingredients,
     } = req.body;
 
     const itemIdExist = await OrderedItems.findOne({ itemId });
@@ -92,11 +90,10 @@ export const AddOrderItem = async (req, res) => {
       category,
       prepTime,
       basePrice,
-      priceUnit,
       pic,
       description,
       isFavourite,
-      inStock,
+      ingredients,
       customization,
       created_by: userId,
     });
@@ -167,11 +164,10 @@ export const updateOrderItem = async (req, res) => {
       category,
       prepTime,
       basePrice,
-      priceUnit,
       pic,
       description,
       isFavourite,
-      inStock,
+      ingredients,
       customization,
     } = req.body;
     const updatedOrderItem = await OrderedItems.findByIdAndUpdate(
@@ -183,11 +179,10 @@ export const updateOrderItem = async (req, res) => {
           category,
           prepTime,
           basePrice,
-          priceUnit,
           pic,
           description,
           isFavourite,
-          inStock,
+          ingredients,
           customization,
         },
       },

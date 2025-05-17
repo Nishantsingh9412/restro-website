@@ -20,8 +20,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { MdRestaurant } from "react-icons/md";
-import { formatPrice } from "../../../../utils/constant";
 import PropTypes from "prop-types";
+import { formatToGermanCurrency } from "../../../../utils/utils";
 
 const DineInOrder = ({ orderData, handleAllotWaiter }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,7 +50,6 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
     return acc;
   }, {});
 
-  
   return (
     <>
       <Box
@@ -104,7 +103,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
           </Text>
           <Text>
             <Badge colorScheme="blue">Total</Badge>{" "}
-            {formatPrice(totalPrice, orderItems?.[0]?.item?.priceUnit) || "N/A"}
+            {formatToGermanCurrency(totalPrice) || "N/A"}
           </Text>
         </Stack>
         <Button mt="4" colorScheme="blue" onClick={onOpen} width={"100%"}>
@@ -150,8 +149,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
               </Text>
               <Text>
                 <Badge colorScheme="blue">Total</Badge>{" "}
-                {formatPrice(totalPrice, orderItems?.[0]?.item?.priceUnit) ||
-                  "N/A"}
+                {formatToGermanCurrency(totalPrice) || "N/A"}
               </Text>
               <Text>
                 <Badge colorScheme="blue">Waiter</Badge>{" "}
@@ -211,7 +209,7 @@ const DineInOrder = ({ orderData, handleAllotWaiter }) => {
                               <Box textAlign="right">
                                 <Text fontWeight="bold">
                                   &times; {quantity} -{" "}
-                                  {formatPrice(total, item?.priceUnit)}
+                                  {formatToGermanCurrency(total)}
                                 </Text>
                               </Box>
                             </Flex>
@@ -261,7 +259,6 @@ DineInOrder.propTypes = {
         total: PropTypes.number.isRequired,
         item: PropTypes.shape({
           itemName: PropTypes.string.isRequired,
-          priceUnit: PropTypes.string,
         }),
         selectedCustomizations: PropTypes.arrayOf(
           PropTypes.shape({

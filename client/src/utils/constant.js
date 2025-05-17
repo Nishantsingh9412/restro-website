@@ -46,6 +46,12 @@ const employeesRoles = {
 const localStorageData = {
   PROFILE_DATA: "ProfileData",
 };
+
+const addressTypes = {
+  MAP: "map",
+  MANUAL: "manual",
+};
+
 const Dialog_Boxes = {
   showAcceptConfirmation: (id, handleAccept) => {
     Swal.fire({
@@ -104,6 +110,18 @@ const Dialog_Boxes = {
       confirmButtonColor: "skyblue",
     });
   },
+  showDeleteConfirmation: (handleDelete) => {
+    Swal.fire({
+      title: "Delete Item?",
+      text: "Are you sure you want to delete this item?",
+      icon: "warning",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleDelete();
+    });
+  },
   showCustomAlert: (title, text, position = "center", handleFunction) => {
     setTimeout(() => {
       Swal.fire({
@@ -120,16 +138,6 @@ const Dialog_Boxes = {
     }, 300);
   },
 };
-// Helper to calculate the Order Item Price
-const calculatePrice = (item, subItems = item?.selectedSubItems) => {
-  const { quantity, basePrice } = item;
-  const subItemPrice = subItems.reduce((prev, item) => prev + item.price, 0);
-  const totalPrice = basePrice + subItemPrice;
-  return quantity * totalPrice;
-};
-
-const formatPrice = (value, unit) =>
-  `${parseFloat(value).toFixed(2)} ${unit === "Euro" ? "€" : ""}`;
 
 export {
   statuses,
@@ -137,8 +145,7 @@ export {
   Dialog_Boxes,
   userTypes,
   employeesRoles,
-  calculatePrice,
-  formatPrice,
+  addressTypes,
   orderMethods,
   guestTypes,
   localStorageData,

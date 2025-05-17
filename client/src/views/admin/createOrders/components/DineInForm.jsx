@@ -21,9 +21,9 @@ import { orderMethods } from "../../../../utils/constant";
 import { clearCart } from "../../../../redux/action/cartItems";
 
 const DineInForm = ({ onProceed }) => {
+  const showToast = useToast();
   const dispatch = useDispatch();
   const formData = useSelector((state) => state.customerInfo.dineIn);
-  const showToast = useToast();
 
   const {
     customerName,
@@ -34,11 +34,17 @@ const DineInForm = ({ onProceed }) => {
     orderMethod,
   } = formData;
 
+  // Function to handle input changes
   const handleChange = (e) => {
     if (e.target.id === "numberOfGuests") {
       const numberOfGuests = parseInt(e.target.value, 10);
       if (numberOfGuests === 1) {
-        dispatch(setDineInInfo({ orderMethod: orderMethods.TOGETHER }));
+        dispatch(
+          setDineInInfo({
+            orderMethod: orderMethods.TOGETHER,
+            customerName: "",
+          })
+        );
       }
       if (numberOfGuests > 20) {
         showToast("Number of guests should be between 1 and 20", "error");
@@ -49,20 +55,57 @@ const DineInForm = ({ onProceed }) => {
     const { id, value } = e.target;
     dispatch(setDineInInfo({ [id]: value }));
   };
-  const validate = () => {
-    const requiredFields = [
-      "customerName",
-      "numberOfGuests",
-      "tableNumber",
-      "paymentMethod",
-      "orderMethod",
-    ];
 
+  // Function to handle order method change
+  const handleOrderMethodChange = (value) => {
+    // If the order method is changed to individual with 1 guest, show an error
+    if (numberOfGuests && numberOfGuests < 2) {
+      showToast(
+        "Order method cannot be changed to individual with 1 guest",
+        "info"
+      );
+      return;
+    }
+    dispatch(setDineInInfo({ orderMethod: value }));
+    // Clear cart if order method is changed to individual
+    if (value === orderMethods.INDIVIDUAL) {
+      dispatch(clearCart());
+    } else {
+      dispatch(setDineInInfo({ customerName: "", guests: [] }));
+    }
+  };
+
+  const handleGuestNameChange = (index) => (e) => {
+    const { value } = e.target;
+    const trimmedValue = value.trim();
+
+    if (trimmedValue === "") {
+      dispatch(updateDineInGuestName({ index, name: value }));
+      return;
+    }
+
+    // Check for duplicate names
+    const duplicateName = formData.guests.some(
+      (guest, guestIndex) =>
+        guestIndex !== index &&
+        guest?.name?.trim().toLowerCase() === trimmedValue.toLowerCase() &&
+        trimmedValue.length >= 3
+    );
+    if (duplicateName) {
+      showToast(
+        `Guest name "${value}" is already taken. Please use a unique name.`,
+        "error"
+      );
+      return;
+    }
+    dispatch(updateDineInGuestName({ index, name: value }));
+  };
+
+  // Function to validate the form data
+  const validate = () => {
+    const requiredFields = ["numberOfGuests", "orderMethod"];
     for (const field of requiredFields) {
-      if (
-        !formData[field] ||
-        (typeof formData[field] === "string" && formData[field].trim() === "")
-      ) {
+      if (!formData[field]?.toString().trim()) {
         showToast(
           `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
           "error"
@@ -73,12 +116,18 @@ const DineInForm = ({ onProceed }) => {
 
     if (orderMethod === orderMethods.INDIVIDUAL && numberOfGuests > 1) {
       const invalidGuest = formData.guests.some(
-        (guest) => !guest || !guest.name || !guest.name.trim()
+        (guest) => !guest?.name?.trim() || guest.name.trim().length < 3
       );
       if (invalidGuest) {
-        showToast("Each guest must have a name", "error");
+        showToast(
+          "Each guest must have a name with at least 3 characters",
+          "error"
+        );
         return false;
       }
+    } else if (orderMethod === orderMethods.TOGETHER && !customerName) {
+      showToast("Please enter customer name", "error");
+      return false;
     }
 
     return true;
@@ -89,37 +138,14 @@ const DineInForm = ({ onProceed }) => {
     if (!validate()) {
       return;
     }
-    // dispatch(setDineInInfo(formData));
+    // Proceed to the next step if validation passes
     onProceed();
   };
-
-  // const handleAutoFill = () => {
-  //   dispatch(
-  //     setDineInInfo({
-  //       customerName: "John Doe",
-  //       specialRequests: "Window seat",
-  //       tableNumber: 5,
-  //       numberOfGuests: 2,
-  //       paymentMethod: "card",
-  //       orderMethod: "individual",
-  //     })
-  //   );
-  // };
 
   return (
     <form onSubmit={handleSubmit}>
       <Box mt={5} mx={1}>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-          <FormControl id="customerName" mb={1} isRequired>
-            <FormLabel>Customer Name</FormLabel>
-            <Input
-              type="text"
-              placeholder="Enter Customer Name"
-              value={customerName}
-              onChange={handleChange}
-              required={true}
-            />
-          </FormControl>
           {/* Number of Guests Input */}
           <FormControl id="numberOfGuests" mb={1} isRequired>
             <FormLabel>Number of Guests</FormLabel>
@@ -134,7 +160,7 @@ const DineInForm = ({ onProceed }) => {
             />
           </FormControl>
           {/* Table Number Input */}
-          <FormControl id="tableNumber" mb={1} isRequired>
+          <FormControl id="tableNumber" mb={1}>
             <FormLabel>Table Number</FormLabel>
             <Input
               type="number"
@@ -142,21 +168,24 @@ const DineInForm = ({ onProceed }) => {
               value={tableNumber}
               onChange={handleChange}
               min={1}
-              required={true}
             />
           </FormControl>
-
-          <FormControl id="specialRequests" mb={1}>
-            <FormLabel>Special Request</FormLabel>
-            <Input
-              type="text"
-              placeholder="Enter any special request"
-              value={specialRequests}
-              onChange={handleChange}
-            />
+          {/* Order Method Radio Group */}
+          <FormControl id="orderMethod" mb={3} isRequired>
+            <FormLabel>Order Method</FormLabel>
+            <RadioGroup
+              value={orderMethod}
+              name="orderMethod"
+              onChange={handleOrderMethodChange}
+            >
+              <Stack direction="row">
+                <Radio value="together">Order Together</Radio>
+                <Radio value="individual">Order Individual</Radio>
+              </Stack>
+            </RadioGroup>
           </FormControl>
-
-          <FormControl id="paymentMethod" mb={3} isRequired>
+          {/* Payment Method Radio Group */}
+          <FormControl id="paymentMethod" mb={3}>
             <FormLabel>Payment Method</FormLabel>
             <RadioGroup
               value={paymentMethod}
@@ -168,72 +197,55 @@ const DineInForm = ({ onProceed }) => {
               <Stack direction="row">
                 <Radio value="cash">Cash</Radio>
                 <Radio value="card">Card</Radio>
-                <Radio value="online">Online</Radio>
-                <Radio value="paypal">Paypal</Radio>
+                <Radio value="paypal">PayPal</Radio>
               </Stack>
             </RadioGroup>
           </FormControl>
-          <FormControl id="orderMethod" mb={3} isRequired>
-            <FormLabel>Order Method</FormLabel>
-            <RadioGroup
-              value={orderMethod}
-              name="orderMethod"
-              onChange={(value) => {
-                dispatch(setDineInInfo({ orderMethod: value }));
-                // Clear cart if order method is changed to individual
-                if (value === orderMethods.INDIVIDUAL) {
-                  dispatch(clearCart());
-                } else {
-                  dispatch(setDineInInfo({ guests: [] }));
-                }
-              }}
-            >
-              <Stack direction="row">
-                <Radio value="together">Order Together</Radio>
-                <Radio value="individual">Order Individual</Radio>
-              </Stack>
-            </RadioGroup>
-          </FormControl>
+
+          {/* Customer Name Input */}
+          {orderMethod === orderMethods.TOGETHER && (
+            <FormControl id="customerName" mb={1} isRequired>
+              <FormLabel>Customer Name</FormLabel>
+              <Input
+                type="text"
+                placeholder="Enter Full Name"
+                value={customerName}
+                onChange={handleChange}
+                required={true}
+                minLength={3}
+                maxLength={50}
+                pattern="^[a-zA-Z\s]+$"
+              />
+            </FormControl>
+          )}
           {orderMethod === orderMethods.INDIVIDUAL &&
             numberOfGuests > 1 &&
             Array.from({ length: numberOfGuests }, (_, index) => (
               <Box key={index}>
-                <Text fontWeight="bold" mb={1}>
-                  Guest {index + 1}
-                </Text>
                 <FormControl id={`guestName-${index}`} mb={1} isRequired>
-                  <FormLabel>Guest Name</FormLabel>
+                  <FormLabel>Guest&apos;s {index + 1} Name</FormLabel>
                   <Input
                     value={formData.guests[index]?.name || ""}
                     type="text"
                     placeholder={`Enter name for Guest ${index + 1}`}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      const duplicateName = formData.guests.some(
-                        (guest, guestIndex) =>
-                          guestIndex !== index &&
-                          guest?.name?.trim().toLowerCase() ===
-                            value.trim().toLowerCase()
-                      );
-                      if (duplicateName) {
-                        showToast(
-                          `Guest name "${value}" is already taken. Please use a unique name.`,
-                          "error"
-                        );
-                        return;
-                      }
-                      dispatch(
-                        updateDineInGuestName({
-                          index,
-                          name: value,
-                        })
-                      );
-                    }}
+                    onChange={handleGuestNameChange(index)}
                     required={true}
+                    minLength={3}
+                    maxLength={50}
+                    pattern="^[a-zA-Z\s]+$"
                   />
                 </FormControl>
               </Box>
             ))}
+          <FormControl id="specialRequests" mb={1}>
+            <FormLabel>Special Request</FormLabel>
+            <Input
+              type="text"
+              placeholder="Enter any special request"
+              value={specialRequests}
+              onChange={handleChange}
+            />
+          </FormControl>
         </SimpleGrid>
         <Button
           mt={6}

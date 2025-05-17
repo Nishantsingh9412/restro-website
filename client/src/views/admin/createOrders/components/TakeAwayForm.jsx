@@ -11,8 +11,8 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTakeAwayInfo } from "../../../../redux/action/customerInfo";
 import { useToast } from "../../../../contexts/useToast";
-// TakeAwayForm component definition1 
- 
+// TakeAwayForm component definition1
+
 const TakeAwayForm = ({ onProceed }) => {
   const dispatch = useDispatch();
   const showToast = useToast();
@@ -22,16 +22,17 @@ const TakeAwayForm = ({ onProceed }) => {
 
   // Handle input changes and dispatch action to update form data in the Redux store
   const handleChange = useCallback(
-    (field, value) => {
-      dispatch(setTakeAwayInfo({ [field]: value }));
+    (e) => {
+      const { name, value } = e.target;
+      dispatch(setTakeAwayInfo({ [name]: value }));
     },
     [dispatch]
   );
 
   // validate the form data
   const validate = () => {
-    if (!customerName) {
-      showToast("Please enter customer name", "error");
+    if (!customerName || customerName.trim().length < 3) {
+      showToast("Please enter customer name with at least 3 chars", "error");
       return false;
     }
     return true;
@@ -53,10 +54,13 @@ const TakeAwayForm = ({ onProceed }) => {
             <FormLabel>Customer Name</FormLabel>
             <Input
               type="text"
+              name="customerName"
               placeholder="Enter customer name"
               value={customerName}
-              onChange={(e) => handleChange("customerName", e.target.value)}
+              onChange={handleChange}
               required={true}
+              maxLength={50}
+              minLength={3}
             />
           </FormControl>
         </SimpleGrid>

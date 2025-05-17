@@ -9,7 +9,7 @@ const initialState = {
   },
   dropLocationName: "",
   address: "",
-  address2: "",
+  city: "",
   zip: "",
   noteFromCustomer: "",
 };

@@ -15,7 +15,7 @@ import { IoMdSearch } from "react-icons/io";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch } from "react-redux";
-import { localStorageData } from "../../../utils/constant";
+import { Dialog_Boxes, localStorageData } from "../../../utils/constant";
 import {
   AddOrderItemAction,
   getAllOrderItemsAction,
@@ -24,6 +24,7 @@ import {
 } from "../../../redux/action/OrderItems";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import AddEditItemModal from "./components/AddEditItemModal";
+import { formatToGermanCurrency } from "../../../utils/utils";
 
 export default function AllOrders() {
   const dispatch = useDispatch();
@@ -218,7 +219,7 @@ export default function AllOrders() {
                     {item?.itemName} ({item?.category})
                   </Text>
                   <Text fontSize="md" color="gray.600">
-                    {item?.basePrice} {item?.priceUnit}
+                    {formatToGermanCurrency(item?.basePrice)}
                   </Text>
                 </Box>
               </Box>
@@ -236,7 +237,11 @@ export default function AllOrders() {
                   cursor="pointer"
                   fontSize="20px"
                   color="red.500"
-                  onClick={() => handleDeleteItem(item)}
+                  onClick={() =>
+                    Dialog_Boxes.showDeleteConfirmation(() =>
+                      handleDeleteItem(item)
+                    )
+                  }
                 />
               </Box>
             </Box>

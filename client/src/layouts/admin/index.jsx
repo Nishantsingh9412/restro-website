@@ -1,5 +1,4 @@
 import { Box, Flex } from "@chakra-ui/react";
-// import Footer from "../../components/footer/FooterAdmin.jsx";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
@@ -112,9 +111,6 @@ export default function Dashboard(props) {
     }
     return activeNavbar;
   };
-
-  // document.documentElement.dir = "ltr";
-  // const { onOpen } = useDisclosure();
 
   return (
     <Flex bg="var(--primary-bg)" h="100%">

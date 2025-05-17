@@ -84,7 +84,7 @@ const commonRoutes = [
     component: <DeliveryTracking />,
   },
   {
-    name: "Foods and Drinks",
+    name: "Create Menu",
     layout: "/employee",
     path: "/orders",
     icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
@@ -240,7 +240,7 @@ const adminRoutes = [
       },
 
       {
-        name: "Foods and Drinks",
+        name: "Create Menu",
         layout: "/admin",
         path: "/orders",
         icon: (
@@ -411,59 +411,7 @@ const adminRoutes = [
   // },
   //   ],
   // },
-  {
-    name: "Warehouse",
-    layout: "/admin",
-    path: "/warehouse",
-    type: "list",
-    icon: (
-      <>
-        <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-      </>
-    ),
-    links: [
-      {
-        name: "Contact Sales",
-        layout: "/admin",
-        path: "/warehouse/contact-sales",
-        icon: (
-          <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
-        ),
-        type: "link",
-        component: <></>,
-      },
-      // {
-      //   name: 'Cost Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/cost-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={FaMoneyBillTrendUp}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-      // {
-      //   name: 'Waste Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/waste-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={GiNuclearWaste}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-    ],
-  },
+
   {
     name: "Invoices",
     layout: "/admin",
@@ -525,6 +473,59 @@ const adminRoutes = [
   //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
   //   component: SignUpCentered,
   // },
+  {
+    name: "Warehouse",
+    layout: "/admin",
+    path: "/warehouse",
+    type: "list",
+    icon: (
+      <>
+        <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+      </>
+    ),
+    links: [
+      {
+        name: "Contact Sales",
+        layout: "/admin",
+        path: "/warehouse/contact-sales",
+        icon: (
+          <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
+        ),
+        type: "link",
+        component: <></>,
+      },
+      // {
+      //   name: 'Cost Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/cost-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={FaMoneyBillTrendUp}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
+      // {
+      //   name: 'Waste Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/waste-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={GiNuclearWaste}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
+    ],
+  },
 ];
 
 export const deliveryRoutes = [

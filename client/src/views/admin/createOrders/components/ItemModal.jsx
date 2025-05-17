@@ -109,8 +109,22 @@ const ShowItemModal = ({ item, isOpen, onClose, handleAddToCart }) => {
               h="200px"
             />
           </Box>
-          <Text mb={4} fontSize="md" color="gray.600">
-            {item.description}
+          {/* Description */}
+          <Text fontWeight="bold">
+            Description: <span>📖</span>
+          </Text>
+          <Text mb={2} fontSize="md" color="gray.500">
+            {item.description || "No description available."}
+          </Text>
+
+          {/* Display Ingredients */}
+          <Text fontWeight="bold">
+            Ingredients: <span>🍴</span>
+          </Text>
+          <Text fontSize="md" color="gray.500" mb={4}>
+            {item.ingredients?.length > 0
+              ? item.ingredients.join(", ")
+              : "No ingredients listed."}
           </Text>
 
           {item.customization.map((custom) => (
@@ -124,7 +138,7 @@ const ShowItemModal = ({ item, isOpen, onClose, handleAddToCart }) => {
                 )}
                 <Text as="span" color="gray.500" fontSize="sm">
                   {" "}
-                  (Max: {custom.maxSelect})
+                  (Max: {custom.maxSelect})<span> ⚙️ </span>
                 </Text>
               </Text>
               <Divider mb={2} />
@@ -207,6 +221,7 @@ ShowItemModal.propTypes = {
         ).isRequired,
       })
     ).isRequired,
+    ingredients: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

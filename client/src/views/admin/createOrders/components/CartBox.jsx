@@ -1,4 +1,4 @@
-import { useMemo } from "react"; // Ensure React is imported
+import { memo, useMemo } from "react"; // Ensure React is imported
 import { Box, Text, Button } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import CartItem from "./CartItem";
@@ -9,11 +9,12 @@ import {
   // switchGuest,
 } from "../../../../redux/action/cartItems"; // Update the import path if needed
 import PropTypes from "prop-types";
+import { formatToGermanCurrency } from "../../../../utils/utils";
 // import { orderTypes } from "../../../../utils/constant";
 
-const CartBox = ({ handleOnProceed }) => {
+const CartBox = memo(({ handleOnProceed }) => {
   const dispatch = useDispatch();
-  
+
   const cart = useSelector(
     (state) =>
       state?.cart?.guestsCart?.guest || { items: [], totalOrderPrice: 0 }
@@ -33,7 +34,7 @@ const CartBox = ({ handleOnProceed }) => {
 
   return (
     <Box
-      height="70vh"
+      maxHeight={"600px"}
       overflowY="auto"
       display="flex"
       flexDirection="column"
@@ -79,10 +80,7 @@ const CartBox = ({ handleOnProceed }) => {
                 Subtotal:
               </Text>
               <Text fontWeight="bold" fontSize="lg" color="#029CFF">
-                {Number.isFinite(allOrderItemsTotal)
-                  ? parseFloat(allOrderItemsTotal).toFixed(2)
-                  : "0.00"}{" "}
-                €
+                {formatToGermanCurrency(allOrderItemsTotal)}
               </Text>
             </Box>
             <Button
@@ -106,10 +104,12 @@ const CartBox = ({ handleOnProceed }) => {
       )}
     </Box>
   );
-};
+});
 
 CartBox.propTypes = {
   handleOnProceed: PropTypes.func.isRequired,
 };
+
+CartBox.displayName = "CartBox";
 
 export default CartBox;

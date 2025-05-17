@@ -20,8 +20,8 @@ import {
   ModalBody,
 } from "@chakra-ui/react";
 import { MdRestaurant } from "react-icons/md";
-import { formatPrice } from "../../../../utils/constant";
 import PropTypes from "prop-types";
+import { formatToGermanCurrency } from "../../../../utils/utils";
 
 const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -88,7 +88,7 @@ const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
           </Text>
           <Text>
             <Badge colorScheme="blue">Total</Badge>{" "}
-            {formatPrice(totalPrice, orderItems?.[0]?.item?.priceUnit) || "N/A"}
+            {formatToGermanCurrency(totalPrice) || "N/A"}
           </Text>
         </Stack>
         <Button mt="4" colorScheme="blue" onClick={onOpen} width={"100%"}>
@@ -112,8 +112,7 @@ const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
               </Text>
               <Text>
                 <Badge colorScheme="blue">Total</Badge>{" "}
-                {formatPrice(totalPrice, orderItems?.[0]?.item?.priceUnit) ||
-                  "N/A"}
+                {formatToGermanCurrency(totalPrice) || "N/A"}
               </Text>
               <Divider />
               <Heading as="h3" size="sm" mt="6" mb="2">
@@ -149,8 +148,7 @@ const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
                         </Box>
                         <Box textAlign="right">
                           <Text fontWeight="bold">
-                            &times; {quantity} -{" "}
-                            {formatPrice(total, item?.priceUnit)}
+                            &times; {quantity} - {formatToGermanCurrency(total)}
                           </Text>
                         </Box>
                       </Flex>
@@ -179,9 +177,21 @@ TakeAwayOrder.propTypes = {
     customerName: PropTypes.string,
     orderItems: PropTypes.arrayOf(
       PropTypes.shape({
+        _id: PropTypes.string,
+        quantity: PropTypes.number,
+        total: PropTypes.number,
         item: PropTypes.shape({
-          priceUnit: PropTypes.string,
+          itemName: PropTypes.string,
         }),
+        selectedCustomizations: PropTypes.arrayOf(
+          PropTypes.shape({
+            selectedOptions: PropTypes.arrayOf(
+              PropTypes.shape({
+                name: PropTypes.string,
+              })
+            ),
+          })
+        ),
       })
     ),
     totalPrice: PropTypes.number,

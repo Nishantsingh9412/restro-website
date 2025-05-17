@@ -136,7 +136,7 @@ const OrderMenu = () => {
         <CheckoutSummary isOpen={isCheckoutOpen} onClose={onCheckoutClose} />
       )}
       {/* Left: Menu List */}
-      <Box flex="1" minW="300px" maxW="600px">
+      <Box flex="1">
         <Flex mb={6} gap={4} alignItems="center">
           <Input
             placeholder="Search items..."
@@ -160,7 +160,7 @@ const OrderMenu = () => {
             ))}
           </Select>
         </Flex>
-        <SimpleGrid columns={[1, 1, 2]} spacing={6}>
+        <SimpleGrid columns={[1, 2, 3, 4]} spacing={6} minChildWidth="300px">
           {filteredMenu.map((result, index) => (
             <ItemCard
               key={index}
@@ -170,8 +170,7 @@ const OrderMenu = () => {
           ))}
         </SimpleGrid>
       </Box>
-
-      {/* Right: Cart */}
+      {/*  Right: Cart */}
       {orderMethod === orderMethods.INDIVIDUAL &&
       orderType === orderTypes.DINE_IN ? (
         <GuestsCartBox handleOnProceed={onCheckoutOpen} />
