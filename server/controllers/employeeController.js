@@ -27,7 +27,7 @@ const schema = Joi.object({
   healthInsurance: Joi.string().optional(),
   dateOfJoining: Joi.date().optional().allow(null),
   endOfEmployment: Joi.date().optional().allow(null),
-  type: Joi.string().optional(),
+  empType: Joi.string().optional(),
   workingHoursPerWeek: Joi.number().optional(),
   variableWorkingHours: Joi.boolean().optional(),
   annualHolidayEntitlement: Joi.number().optional(),
@@ -73,8 +73,6 @@ export const addEmployee = async (req, res) => {
 
   // Set the created_by field based on the user's role
   empData.created_by = role === userTypes.ADMIN ? id : created_by;
-
-  console.log(empData);
 
   // Check if an employee with the same email or phone already exists
   const existingEmployee = await Employee.findOne({

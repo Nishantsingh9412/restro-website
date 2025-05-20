@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+
 /**
  * Converts a camelCase string to Sentence case.
  *
@@ -44,6 +46,28 @@ export function formatToGermanCurrency(value) {
   });
 }
 
+// Function to format a date for input (e.g., "YYYY-MM-DD")
+// This function takes an ISO date string and formats it to "YYYY-MM-DD" format
+export const formatDateForInput = (isoDate) => {
+  if (!isoDate) return "";
+  const date = new Date(isoDate);
+  if (isNaN(date)) return "";
+  return date.toISOString().split("T")[0];
+};
+
+// Function to format date for display
+export const formatInputToISO = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (isNaN(date)) return null;
+  return date.toISOString();
+};
+
+// Utility to get nested values from form data
+export const getNestedValue = (obj, path) => {
+  return path.split(".").reduce((prev, key) => prev?.[key], obj);
+};
+
 // Function to format the key for display
 export const formatKey = (key) =>
   key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, " $1");
@@ -76,4 +100,13 @@ export const formatValue = (value) => {
   }
 
   return String(value);
+};
+
+// Custom hook to get logged-in user ID and role
+export const useUserIdAndRole = () => {
+  const user = useSelector((state) => state.userReducer?.data);
+  return {
+    userId: user?._id,
+    role: user?.role,
+  };
 };

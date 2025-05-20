@@ -321,21 +321,21 @@ export const getbirthdayapidata = () =>
 export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
-export const getemployeedata = () => API.get(`/employee/get-all-employee`);
+export const getEmployeeAPI = () => API.get(`/employee/get-all-employee`);
 // Get Online Employees by role
 export const getOnlineEmployeesByRole = (role) =>
   API.get(`/employee/get-online-employees/${role}`);
 // Add Employee Data
-export const postemployeedata = (data) =>
+export const addNewEmployeeAPI = (data) =>
   API.post("/employee/add-employee", data);
 // Update Employee Data
-export const updateemployeedata = (employeedataId, data) =>
+export const updateEmployeeAPI = (employeedataId, data) =>
   API.put(`/employee/update-employee/${employeedataId}`, data);
 // Delete Employee Data
-export const deleteemployeedata = (employeedataId) =>
+export const deleteEmployeeAPI = (employeedataId) =>
   API.delete(`/employee/delete-employee/${employeedataId}`);
 // Get Employee Detail Data
-export const employeedetaildata = (employeedataId) =>
+export const getEmployeeDetailsAPI = (employeedataId) =>
   API.get(`/employee/get-employee/${employeedataId}`);
 
 // Absence Management APIs

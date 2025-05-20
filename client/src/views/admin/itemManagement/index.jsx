@@ -48,7 +48,7 @@ import BarcodeScanner from "./components/BarCodeScan";
 import ItemUseModal from "./components/ItemUseModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/useToast";
-import { localStorageData } from "../../../utils/constant";
+import { actionTypes, localStorageData } from "../../../utils/constant";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -193,7 +193,7 @@ export default function ItemManagement() {
     });
   };
   const handleAddMode = () => {
-    setActionType("add");
+    setActionType(actionTypes.ADD);
     handleAddItemModalOpen();
   };
 
@@ -521,8 +521,14 @@ export default function ItemManagement() {
           isOpen={isAddItemModalOpen}
           onClose={handleOnItemModalClose}
           actionType={actionType}
-          handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
-          itemData={actionType === "edit" ? selectedItemData : selectedItemData}
+          handleSubmit={
+            actionType === actionTypes.ADD ? handleSubmit : handleUpdate
+          }
+          itemData={
+            actionType === actionTypes.EDIT
+              ? selectedItemData
+              : selectedItemData
+          }
         />
       )}
       {isScannerModalOpen && (

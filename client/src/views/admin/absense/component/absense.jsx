@@ -23,6 +23,7 @@ import {
 import { useDispatch } from "react-redux";
 import AbsenceModal from "./absenceModal";
 import { Spinner } from "@chakra-ui/react";
+import { actionTypes } from "../../../../utils/constant";
 
 // Define the different views for the calendar
 const views = ["Daily", "Weekly", "Monthly"];
@@ -435,7 +436,7 @@ export default function AbsenseComponent() {
                                   // Format as "yyyy-MM-dd"
                                   const formattedDate = `${year}-${month}-${days}`;
 
-                                  setActionType("add");
+                                  setActionType(actionTypes.ADD);
                                   setSelectedEmployeeId(emp._id);
                                   setSelectedAbsence({
                                     emp_name: emp.name,

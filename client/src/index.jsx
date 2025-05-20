@@ -30,7 +30,7 @@ import adminRoutes, {
   bartenderRoutes,
   chefRoutes,
 } from "./routes";
-import NotFound from "./views/common/NotFound";
+import NotFound from "./components/NotFoundPage/NotFound";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

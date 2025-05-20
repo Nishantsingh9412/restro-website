@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+import React from "react";
 import {
   Modal,
   ModalOverlay,
@@ -21,32 +21,31 @@ import {
   MenuItem,
   Checkbox,
 } from "@chakra-ui/react";
+import {
+  formatDateForInput,
+  formatInputToISO,
+  getNestedValue,
+} from "../../../../utils/utils";
 import { useState, useEffect } from "react";
 import { useToast } from "../../../../contexts/useToast";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import React from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { userTypes } from "../../../../utils/constant";
-import { localStorageData } from "../../../../utils/constant";// Date conversion utilities
-const formatDateForInput = (isoDate) => {
-  if (!isoDate) return "";
-  const date = new Date(isoDate);
-  return date.toISOString().split("T")[0]; // Extract 'yyyy-MM-dd'
-};
-
-const formatInputToISO = (dateString) => {
-  if (!dateString) return null;
-  const date = new Date(dateString);
-  return date.toISOString(); // Convert 'yyyy-MM-dd' back to full ISO format
-};
+import {
+  actionTypes,
+  employeePermissions,
+  employeesRoles,
+  userTypes,
+} from "../../../../utils/constant";
+import PropTypes from "prop-types";
+import { useUser } from "../../../../hooks/useUser";
 
 export default function EmployeeModal({
   isOpen,
   onClose,
   actionType,
   employeeData,
-  handleSubmit,
+  onSubmit,
 }) {
   // Initial state for the form
   const initialFormState = {
@@ -69,34 +68,21 @@ export default function EmployeeModal({
     dateOfJoining: "",
     endOfEmployment: "",
     role: "",
-    type: "",
+    empType: "",
     workingHoursPerWeek: 30,
     variableWorkingHours: false,
     annualHolidayEntitlement: "",
     notes: "",
     is_online: false,
   };
+
   const showToast = useToast();
-  // Get the logged in user's role
-  const userRole = JSON.parse(
-    localStorage.getItem(localStorageData.PROFILE_DATA)
-  )?.result?.role;
-
-  // State to manage form data
+  const { userRole } = useUser();
   const [formData, setFormData] = useState(initialFormState);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-  // Effect to populate form data when editing an employee
-  useEffect(() => {
-    if (actionType !== "add" && employeeData) {
-      setFormData({
-        ...employeeData,
-        birthday: formatDateForInput(employeeData.birthday),
-        dateOfJoining: formatDateForInput(employeeData.dateOfJoining),
-        endOfEmployment: formatDateForInput(employeeData.endOfEmployment),
-      });
-      setSelectedPermissions(employeeData.permissions.map((role) => role.id));
-    }
-  }, [actionType, employeeData]);
+  // Check if a permission is selected
+  const isChecked = (id) => selectedPermissions.includes(id);
 
   // Handle input changes for form fields
   const handleInputChange = (e) => {
@@ -124,6 +110,16 @@ export default function EmployeeModal({
       variableWorkingHours: value === "variable",
     }));
   };
+
+  // Handle permission toggle
+  const handleToggle = (id) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(id)
+        ? prev.filter((optionId) => optionId !== id)
+        : [...prev, id]
+    );
+  };
+
   // Handle phone input change and update phone number and country code
   const handlePhoneInputChange = (phoneNumber) => {
     setFormData((prevData) => ({
@@ -132,28 +128,48 @@ export default function EmployeeModal({
     }));
 
     if (typeof phoneNumber === "string") {
-      const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
-      if (parsedPhoneNumber) {
-        setFormData((prevData) => ({
-          ...prevData,
-          country_code: parsedPhoneNumber.countryCallingCode,
-        }));
+      try {
+        const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
+        if (parsedPhoneNumber) {
+          setFormData((prevData) => ({
+            ...prevData,
+            country_code: parsedPhoneNumber.countryCallingCode,
+          }));
+        }
+      } catch (e) {
+        // Optionally show a toast or ignore
+        console.error("Error parsing phone number:", e);
       }
     }
   };
 
+  // Handle modal close action
+  const handleClose = () => {
+    setFormData(initialFormState);
+    setSelectedPermissions([]);
+    onClose();
+  };
+
   // Validate required fields
   const validate = () => {
-    if (
-      formData.name === "" ||
-      formData.email === "" ||
-      formData.phone === "" ||
-      formData.type === "" ||
-      formData.role === ""
-    ) {
-      showToast("All required fields must be filled out", "error");
+    const requiredFields = ["name", "email", "phone", "role", "empType"];
+
+    // Check if all required fields are filled
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        showToast(
+          `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
+          "error"
+        );
+        return false;
+      }
+    }
+    // Check if phone number is valid
+    if (formData.phone && !parsePhoneNumber(formData.phone)) {
+      showToast("Invalid phone number", "error");
       return false;
     }
+
     return true;
   };
 
@@ -161,12 +177,13 @@ export default function EmployeeModal({
   const handleSave = () => {
     if (!validate()) return;
 
-    const selectedPermissionsAccess = Permissions.filter((role) =>
-      selectedPermissions.includes(role.id)
-    ).map((role) => ({
-      id: role.id,
-      label: role.label.split(" ").join("-"),
-    }));
+    // Convert selected permissions to the required format
+    const selectedPermissionsAccess = employeePermissions
+      .filter((role) => selectedPermissions.includes(role.id))
+      .map((role) => ({
+        id: role.id,
+        label: role.label.split(" ").join("-"),
+      }));
 
     // Convert date fields back to ISO format and submit the form data
     const dataToSubmit = {
@@ -177,47 +194,26 @@ export default function EmployeeModal({
       endOfEmployment: formatInputToISO(formData.endOfEmployment),
     };
 
-    handleSubmit(dataToSubmit);
+    onSubmit(dataToSubmit);
     handleClose();
   };
 
-  // Handle modal close action
-  const handleClose = () => {
-    setFormData(initialFormState);
-    setSelectedPermissions([]);
-    onClose();
-  };
-
-  const Permissions = [
-    { id: 1, label: "Inventory Management" },
-    { id: 2, label: "Employee Management" },
-    { id: 3, label: "Food And Drinks" },
-    { id: 4, label: "Delivery Tracking" },
-  ];
-
-  const autoFillform = () => {
-    setFormData({
-      name: "John Doe",
-      email: "nizamji100@gmail.com",
-      country_code: "91",
-      phone: "+911234567890",
-      address: {
-        street: "123 Main St",
-        city: "New York",
-        zipCode: "10001",
-      },
-      birthday: "1990-01-01",
-      role: "Waiter",
-      type: "Full-Time",
-      workingHoursPerWeek: 40,
-      annualHolidayEntitlement: 20,
-    });
-  };
-
-  // Utility to get nested values from form data
-  const getNestedValue = (obj, path) => {
-    return path.split(".").reduce((prev, key) => prev?.[key], obj);
-  };
+  // Effect to populate form data when editing an employee
+  useEffect(() => {
+    if (actionType !== actionTypes.ADD && employeeData) {
+      setFormData({
+        ...employeeData,
+        birthday: formatDateForInput(employeeData.birthday),
+        dateOfJoining: formatDateForInput(employeeData.dateOfJoining),
+        endOfEmployment: formatDateForInput(employeeData.endOfEmployment),
+      });
+      setSelectedPermissions(
+        Array.isArray(employeeData.permissions)
+          ? employeeData.permissions.map((role) => role.id)
+          : []
+      );
+    }
+  }, [actionType, employeeData]);
 
   // Render input fields
   const renderInput = (
@@ -225,12 +221,13 @@ export default function EmployeeModal({
     name,
     type = "text",
     isSelect = false,
-    Permissions = [],
+    options = [],
     isRequired = false
   ) => (
     <>
-      {label} {isRequired && <span style={{ color: "red" }}>*</span>}
-      <label></label>
+      <label>
+        {label} {isRequired && <span style={{ color: "red" }}>*</span>}
+      </label>
       {isSelect ? (
         <Select
           name={name}
@@ -238,8 +235,9 @@ export default function EmployeeModal({
           mb={4}
           onChange={handleInputChange}
           value={getNestedValue(formData, name) || ""}
+          isReadOnly={actionType === actionTypes.VIEW}
         >
-          {Permissions.map((option) => (
+          {options?.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -249,31 +247,16 @@ export default function EmployeeModal({
         <Input
           name={name}
           type={type}
+          isRequired={isRequired}
+          placeholder={`Enter ${label.toLowerCase()}`}
           mb={4}
           onChange={handleInputChange}
           value={getNestedValue(formData, name) || ""}
+          isReadOnly={actionType === actionTypes.VIEW}
         />
       )}
     </>
   );
-
-  const CustomInput = React.forwardRef(({ inputProps, ...props }, ref) => {
-    return <Input ref={ref} {...inputProps} {...props} />;
-  });
-  CustomInput.displayName = "CustomInput";
-
-  // Render the modal
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
-
-  const isChecked = (id) => selectedPermissions.includes(id);
-
-  const handleToggle = (id) => {
-    setSelectedPermissions((prev) =>
-      prev.includes(id)
-        ? prev.filter((optionId) => optionId !== id)
-        : [...prev, id]
-    );
-  };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -281,14 +264,19 @@ export default function EmployeeModal({
       <ModalContent maxWidth={{ base: "90%", md: "70%" }}>
         <ModalCloseButton />
         <ModalHeader>
-          {actionType === "edit" ? "Edit Employee" : "Add New Employee"}
+          {actionType === actionTypes.EDIT
+            ? "Edit Employee"
+            : "Add New Employee"}
         </ModalHeader>
+        {/* <form onSubmit={handleSave}> */}
         <ModalBody>
           <Grid templateColumns="repeat(12, 1fr)" gap={4}>
             <GridItem colSpan={{ base: 12, md: 6 }}>
               {renderInput("Employee name", "name", "text", false, [], true)}
               {renderInput("Email", "email", "email", false, [], true)}
-              {/* {renderInput("Phone", "phone", "text", false, [], true)} */}
+              <label>
+                Phone number <span style={{ color: "red" }}>*</span>
+              </label>
               <PhoneInput
                 international
                 defaultCountry="DE"
@@ -296,10 +284,11 @@ export default function EmployeeModal({
                 onChange={handlePhoneInputChange}
                 placeholder="Enter phone number"
                 inputComponent={CustomInput}
+                readOnly={actionType === actionTypes.VIEW}
                 inputProps={{
                   _focus: {
-                    borderColor: "#ee7213",
-                    boxShadow: "0 0 0 1px #ee7213",
+                    borderColor: "blue.500",
+                    boxShadow: "0 0 0 1px blue.500",
                   },
                 }}
                 style={{ width: "100%" }}
@@ -325,20 +314,12 @@ export default function EmployeeModal({
                 "role",
                 "text",
                 true,
-                [
-                  "Waiter",
-                  "Manager",
-                  "Chef",
-                  "Delivery Boy",
-                  "Bar Tender",
-                  "Kitchen Staff",
-                  "Custom",
-                ],
+                Object.values(employeesRoles),
                 true
               )}
               {renderInput(
-                "Type",
-                "type",
+                "Employee type",
+                "empType",
                 "text",
                 true,
                 ["Full-Time", "Part-Time", "Contract"],
@@ -386,7 +367,7 @@ export default function EmployeeModal({
                 Select Role Access
               </MenuButton>
               <MenuList>
-                {Permissions.map((option) => (
+                {employeePermissions.map((option) => (
                   <MenuItem key={option.id}>
                     <Checkbox
                       isChecked={isChecked(option.id)}
@@ -401,26 +382,34 @@ export default function EmployeeModal({
           )}
         </ModalBody>
         <ModalFooter>
-          {actionType !== "view" ? (
-            <>
-              <Button colorScheme="yellow" mr={3} onClick={autoFillform}>
-                Auto Fill
-              </Button>
-              <Button colorScheme="blue" mr={3} onClick={handleClose}>
-                Close
-              </Button>
-              <Button
-                variant="ghost"
-                backgroundColor="rgb(33, 180, 152)"
-                color="white"
-                onClick={handleSave}
-              >
-                {actionType === "edit" ? "Update" : "Save"}
-              </Button>
-            </>
-          ) : null}
+          {actionType !== actionTypes.VIEW && (
+            <Button colorScheme="blue" mr={3} onClick={handleSave}>
+              {actionType === actionTypes.ADD ? "Add" : "Update"}
+            </Button>
+          )}
+          <Button variant="ghost" onClick={handleClose}>
+            {actionType === actionTypes.VIEW ? "Close" : "Cancel"}
+          </Button>
         </ModalFooter>
+        {/* </form> */}
       </ModalContent>
     </Modal>
   );
 }
+
+const CustomInput = React.forwardRef(({ inputProps, ...props }, ref) => {
+  return <Input ref={ref} {...inputProps} {...props} />;
+});
+CustomInput.displayName = "CustomInput";
+
+CustomInput.propTypes = {
+  inputProps: PropTypes.object,
+};
+
+EmployeeModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  actionType: PropTypes.string.isRequired,
+  employeeData: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+};

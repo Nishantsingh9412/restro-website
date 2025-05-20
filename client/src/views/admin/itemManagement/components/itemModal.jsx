@@ -16,6 +16,7 @@ import {
 import { nanoid } from "nanoid";
 import { useState, useEffect } from "react";
 import { useToast } from "../../../../contexts/useToast";
+import { actionTypes } from "../../../../utils/constant";
 
 export default function ItemManagementModal({
   isOpen,
@@ -43,7 +44,7 @@ export default function ItemManagementModal({
   const showToast = useToast();
 
   useEffect(() => {
-    if (actionType !== "add" && itemData) {
+    if (actionType !== actionTypes.ADD && itemData) {
       const {
         item_name,
         item_unit,
@@ -83,7 +84,7 @@ export default function ItemManagementModal({
   };
 
   const autofillDefaults = () => {
-    if (actionType === "add") {
+    if (actionType === actionTypes.ADD) {
       setFormData((prev) => ({
         ...prev,
         item_name: "New Item",
@@ -120,7 +121,7 @@ export default function ItemManagementModal({
   };
 
   const handleSave = () => {
-    if (actionType === "add" && !formData.bar_code) {
+    if (actionType === actionTypes.ADD && !formData.bar_code) {
       formData.bar_code = nanoid(13);
     }
 

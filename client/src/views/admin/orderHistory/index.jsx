@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import {
   Box,
   Flex,
@@ -318,6 +318,7 @@ const OrderHistory = () => {
   );
 };
 
+import PropTypes from "prop-types";
 const ChakraDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
   <Input
     onClick={onClick}
@@ -335,5 +336,13 @@ const ChakraDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
     background="white"
   />
 ));
+
+ChakraDateInput.displayName = "ChakraDateInput";
+
+ChakraDateInput.propTypes = {
+  value: PropTypes.string,
+  onClick: PropTypes.func,
+  placeholder: PropTypes.string,
+};
 
 export default OrderHistory;

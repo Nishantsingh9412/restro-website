@@ -16,6 +16,24 @@ const statuses = {
   REJECTED: "Rejected",
 };
 
+export const employeePermissions = [
+  { id: 1, label: "Inventory Management" },
+  { id: 2, label: "Employee Management" },
+  { id: 3, label: "Food And Drinks" },
+  { id: 4, label: "Delivery Tracking" },
+];
+
+export const actionTypes = {
+  ADD: "add",
+  EDIT: "edit",
+  VIEW: "view",
+  DELETE: "delete",
+  CANCEL: "cancel",
+  REJECT: "reject",
+  ACCEPT: "accept",
+  UPDATE: "update",
+  COMPLETE: "complete",
+};
 const userTypes = {
   EMPLOYEE: "employee",
   ADMIN: "admin",
@@ -41,6 +59,10 @@ const employeesRoles = {
   CHEF: "Chef",
   WAITER: "Waiter",
   DELIVERY_BOY: "Delivery Boy",
+  MANAGER: "Manager",
+  KITCHEN_STAFF: "Kitchen Staff",
+  BAR_TENDER: "Bar Tender",
+  CUSTOM: "Custom",
 };
 
 const localStorageData = {

@@ -18,6 +18,7 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from "prop-types";
+import { actionTypes } from "../../../../utils/constant";
 
 const TaskModal = ({
   isOpen,
@@ -67,7 +68,9 @@ const TaskModal = ({
     <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{actionType === "add" ? "Assign New Task" : "Update Task"}</ModalHeader>
+        <ModalHeader>
+          {actionType === actionTypes.ADD ? "Assign New Task" : "Update Task"}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={6}>
@@ -138,9 +141,11 @@ const TaskModal = ({
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" onClick={onSubmit} mr={3}>
-            {actionType === "add" ? "Assign Task" : "Update Task"}
+            {actionType === actionTypes.ADD ? "Assign Task" : "Update Task"}
           </Button>
-          <Button variant="ghost" onClick={handleClose}>Cancel</Button>
+          <Button variant="ghost" onClick={handleClose}>
+            Cancel
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
