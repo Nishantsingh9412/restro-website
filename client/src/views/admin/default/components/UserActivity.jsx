@@ -1,4 +1,3 @@
-// TODO: Delete this file
 // Chakra imports
 import { Box, Flex, Select, Text, useColorModeValue } from "@chakra-ui/react";
 import Card from "../../../../components/card/Card.jsx";
@@ -62,8 +61,8 @@ export default function UserActivity(props) {
         <Text
           me="auto"
           color={textColor}
-          fontSize="xl"
-          fontWeight="700"
+          fontSize="lg"
+          fontWeight="500"
           lineHeight="100%"
         >
           User Activity

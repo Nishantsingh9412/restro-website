@@ -9,10 +9,11 @@ import {
 } from "../redux/action/Employees/chef";
 import { addDineInOrderToWaiter } from "../redux/action/waiter";
 import { showDeliveryOffer } from "../redux/action/Employees/deliveryBoy";
+import { localStorageData } from "../utils/constant";
 
 export default function SocketInitializer() {
   const dispatch = useDispatch();
-  const user = localStorage.getItem("ProfileData");
+  const user = localStorage.getItem(localStorageData.PROFILE_DATA);
   const toast = useToast();
 
   useEffect(() => {
@@ -63,9 +64,14 @@ export default function SocketInitializer() {
     // handle updated live location
     const handleLiveLocationUpdate = (data) => {
       console.log("data location ", data);
-      const { delEmpId, locationData } = data;
+      const { delEmpId, delEmpName, locationData, status } = data;
       dispatch(
-        setDeliveryBoyLocation({ _id: delEmpId, location: locationData })
+        setDeliveryBoyLocation({
+          _id: delEmpId,
+          name: delEmpName,
+          location: locationData,
+          status: status,
+        })
       );
     };
 

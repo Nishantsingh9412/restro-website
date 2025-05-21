@@ -41,7 +41,6 @@ const BarcodeScanner = ({
   // Handle scan result
   const handleResultScanned = (result) => {
     if (result) {
-      console.log("Barcode scan result:", result);
       setScanResult(result.text);
       setIsScanning(false); // Stop scanning once a barcode is detected
       handleAfterScanned(result.text);

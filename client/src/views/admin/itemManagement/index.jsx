@@ -2,18 +2,6 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-} from "@chakra-ui/react";
-import "react-toastify/dist/ReactToastify.css";
-import Swal from "sweetalert2";
-import bwipjs from "bwip-js";
-import {
   Box,
   Button,
   useDisclosure,
@@ -22,10 +10,24 @@ import {
   Grid,
   GridItem,
   Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
+import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
+import bwipjs from "bwip-js";
 
 import { IoMdQrScanner, IoMdTrash } from "react-icons/io";
-import { IoPencil } from "react-icons/io5";
+import { IoEllipsisVerticalSharp, IoPencil } from "react-icons/io5";
 import { BiBarcodeReader } from "react-icons/bi";
 import { IoMdAnalytics } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,6 +48,7 @@ import BarcodeScanner from "./components/BarCodeScan";
 import ItemUseModal from "./components/ItemUseModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
 import { useToast } from "../../../contexts/useToast";
+import { actionTypes, localStorageData } from "../../../utils/constant";
 
 export default function ItemManagement() {
   const dispatch = useDispatch();
@@ -103,7 +106,8 @@ export default function ItemManagement() {
   // Get item data from Redux store
   const ItemData = useSelector((state) => state.itemsReducer.items);
   // Get user ID from local storage
-  const userId = JSON.parse(localStorage.getItem("ProfileData"))?.result?._id;
+  const userId = JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))
+    ?.result?._id;
 
   // Generate barcode for an item
   const handleGenerateBarcode = (item) => {
@@ -137,7 +141,6 @@ export default function ItemManagement() {
       }
     } catch (e) {
       showToast(e.message, "error");
-      // console.error(e);
     }
   };
 
@@ -190,7 +193,7 @@ export default function ItemManagement() {
     });
   };
   const handleAddMode = () => {
-    setActionType("add");
+    setActionType(actionTypes.ADD);
     handleAddItemModalOpen();
   };
 
@@ -238,7 +241,7 @@ export default function ItemManagement() {
         }
       })
       .finally(() => setLoading(false));
-  }, [dispatch, userId]);
+  }, [dispatch, showToast, userId]);
 
   useEffect(() => {
     setItemDataArray(ItemData);
@@ -258,7 +261,7 @@ export default function ItemManagement() {
   }
 
   return (
-    <div style={{ marginTop: "5vw", padding: "0 2vw" }}>
+    <div style={{ marginTop: "2vw" }}>
       <Box overflowX="auto">
         <Box px={{ base: 4, md: 8 }} py={6}>
           <ToastContainer />
@@ -297,7 +300,7 @@ export default function ItemManagement() {
                 <GridItem>Barcode No.</GridItem>
                 <GridItem>Last Replenished</GridItem>
                 <GridItem>Expiry Date</GridItem>
-                <GridItem>Action</GridItem>
+                <GridItem>Actions</GridItem>
               </Grid>
 
               {/* Table Rows */}
@@ -336,53 +339,49 @@ export default function ItemManagement() {
                       ? new Date(item.expiry_date).toLocaleDateString("en-GB")
                       : "--"}
                   </GridItem>
-
-                  <Grid templateColumns={"repeat(2, 0fr)"} mx={3} gap={1}>
-                    <GridItem display="flex" justifyContent="center">
-                      <IconButton
-                        aria-label="Delete Item"
-                        colorScheme="red"
-                        size="sm"
-                        icon={<IoMdTrash />}
-                        onClick={() => handleDeleteItem(item._id)}
+                  <GridItem>
+                    <Menu>
+                      <MenuButton
+                        as={IconButton}
+                        aria-label="Options"
+                        icon={<IoEllipsisVerticalSharp />}
+                        variant="ghost"
                       />
-                    </GridItem>
-                    <GridItem>
-                      <IconButton
-                        aria-label="Edit Item"
-                        colorScheme="yellow"
-                        size="sm"
-                        icon={<IoPencil />}
-                        onClick={() => handleEditItem(item)}
-                      />
-                    </GridItem>
-
-                    <GridItem>
-                      <IconButton
-                        aria-label="Generate Barcode"
-                        colorScheme="blue"
-                        size="sm"
-                        icon={<BiBarcodeReader />}
-                        onClick={() => {
-                          handleGenerateBarcode(item);
-                          setbarCodeData(item);
-                          onOpenBarCode();
-                        }}
-                      />
-                    </GridItem>
-                    <GridItem>
-                      <IconButton
-                        aria-label="Analytics"
-                        colorScheme="teal"
-                        size="sm"
-                        icon={<IoMdAnalytics />}
-                        onClick={() => {
-                          setAnalyticsId(item._id);
-                          onOpenAnalytics();
-                        }}
-                      />
-                    </GridItem>
-                  </Grid>
+                      <MenuList>
+                        <MenuItem
+                          icon={<IoPencil />}
+                          onClick={() => handleEditItem(item)}
+                        >
+                          Edit Item
+                        </MenuItem>
+                        <MenuItem
+                          icon={<IoMdTrash />}
+                          onClick={() => handleDeleteItem(item._id)}
+                        >
+                          Delete Item
+                        </MenuItem>
+                        <MenuItem
+                          icon={<BiBarcodeReader />}
+                          onClick={() => {
+                            handleGenerateBarcode(item);
+                            setbarCodeData(item);
+                            onOpenBarCode();
+                          }}
+                        >
+                          Generate Barcode
+                        </MenuItem>
+                        <MenuItem
+                          icon={<IoMdAnalytics />}
+                          onClick={() => {
+                            setAnalyticsId(item._id);
+                            onOpenAnalytics();
+                          }}
+                        >
+                          View Analytics
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </GridItem>
                 </Grid>
               ))}
             </Box>
@@ -522,8 +521,14 @@ export default function ItemManagement() {
           isOpen={isAddItemModalOpen}
           onClose={handleOnItemModalClose}
           actionType={actionType}
-          handleSubmit={actionType === "add" ? handleSubmit : handleUpdate}
-          itemData={actionType === "edit" ? selectedItemData : selectedItemData}
+          handleSubmit={
+            actionType === actionTypes.ADD ? handleSubmit : handleUpdate
+          }
+          itemData={
+            actionType === actionTypes.EDIT
+              ? selectedItemData
+              : selectedItemData
+          }
         />
       )}
       {isScannerModalOpen && (

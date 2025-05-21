@@ -7,13 +7,18 @@ import Admin from "../models/adminModel.js";
 // validate restaurant data
 const validateRestaurant = (restaurant) => {
   const schema = Joi.object({
-    name: Joi.string().required(),
-    address: Joi.string().required(),
-    phone: Joi.string().required().allow(null),
-    coordinates: Joi.object({
-      lat: Joi.number().required(),
-      lng: Joi.number().required(),
-    }).required(),
+    restaurantName: Joi.string().min(3).max(100).required(),
+    ownerName: Joi.string().min(3).max(100).required(),
+    email: Joi.string().email().required(),
+    location: Joi.string().min(3).max(200).required(),
+    taxNumber: Joi.string().min(3).max(50).required(),
+    address: Joi.string().min(10).max(200).required(),
+    phone: Joi.string()
+      .pattern(/^[0-9]{10}$/)
+      .required()
+      .allow(null),
+    lat: Joi.number().min(-90).max(90).required(),
+    lng: Joi.number().min(-180).max(180).required(),
   });
   return schema.validate(restaurant);
 };
@@ -21,6 +26,14 @@ const validateRestaurant = (restaurant) => {
 // Add Restaurant by Admin
 export const addRestaurantByAdmin = async (req, res) => {
   const adminId = req.user.id;
+  const tradeLicense =
+    req.files && req.files["tradeLicense"]
+      ? req.files["tradeLicense"][0].path
+      : null;
+  const businessLicense =
+    req.files && req.files["businessLicense"]
+      ? req.files["businessLicense"][0].path
+      : null;
   // Validate required fields
   const { error } = validateRestaurant(req.body);
   if (error) {
@@ -29,7 +42,17 @@ export const addRestaurantByAdmin = async (req, res) => {
       .json({ success: false, message: error.details[0].message });
   }
 
-  const { name, address, phone, coordinates } = req.body;
+  const {
+    restaurantName,
+    ownerName,
+    email,
+    location,
+    taxNumber,
+    address,
+    phone,
+    lat,
+    lng,
+  } = req.body;
   try {
     // Check if admin already has a restaurant
     const existingRestaurant = await Restaurant.findOne({ adminId });
@@ -38,10 +61,19 @@ export const addRestaurantByAdmin = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Admin can only add one restaurant" });
     }
-
+    const coordinates = {
+      lat: lat,
+      lng: lng,
+    };
     // Create and save new restaurant
     const newRestaurant = new Restaurant({
-      name,
+      restaurantName,
+      ownerName,
+      email,
+      location,
+      taxNumber,
+      tradeLicense,
+      businessLicense,
       address,
       phone,
       coordinates,
@@ -69,7 +101,12 @@ export const addRestaurantByAdmin = async (req, res) => {
 export const updateRestaurantByAdmin = async (req, res) => {
   const adminId = req.user.id;
   const restaurantId = req.params.id;
-
+  const tradeLicense = req.files["tradeLicense"]
+    ? req.files["tradeLicense"][0].path
+    : null;
+  const businessLicense = req.files["businessLicense"]
+    ? req.files["businessLicense"][0].path
+    : null;
   // Validate required fields
   const { error } = validateRestaurant(req.body);
   if (error) {
@@ -78,7 +115,17 @@ export const updateRestaurantByAdmin = async (req, res) => {
       .json({ success: false, message: error.details[0].message });
   }
 
-  const { name, address, phone, coordinates } = req.body;
+  const {
+    restaurantName,
+    ownerName,
+    email,
+    location,
+    taxNumber,
+    address,
+    phone,
+    lat,
+    lng,
+  } = req.body;
 
   try {
     // Find restaurant by ID
@@ -86,7 +133,10 @@ export const updateRestaurantByAdmin = async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
-
+    const coordinates = {
+      lat: lat,
+      lng: lng,
+    };
     // Check authorization
     if (restaurant.adminId.toString() !== adminId) {
       return res
@@ -95,7 +145,18 @@ export const updateRestaurantByAdmin = async (req, res) => {
     }
 
     // Update and save restaurant
-    Object.assign(restaurant, { name, address, phone, coordinates });
+    Object.assign(restaurant, {
+      restaurantName,
+      ownerName,
+      email,
+      location,
+      taxNumber,
+      tradeLicense,
+      businessLicense,
+      address,
+      phone,
+      coordinates,
+    });
     const updatedRestaurant = await restaurant.save();
     return res.status(200).json({ success: true, result: updatedRestaurant });
   } catch (error) {

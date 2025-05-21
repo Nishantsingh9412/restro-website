@@ -1,70 +1,52 @@
 import axios from "axios";
+import { localStorageData } from "../utils/constant";
 const baseURL = import.meta.env.VITE_APP_BASE_URL_FOR_APIS;
 
 const API = axios.create({ baseURL });
 
 API.interceptors.request.use(
   (req) => {
-    try {
-      const profile = localStorage.getItem("ProfileData");
-      if (profile) {
-        const { token } = JSON.parse(profile);
-        if (token) {
-          req.headers.Authorization = `Bearer ${token}`;
-        } else {
-          console.warn("Token is missing in ProfileData.");
-        }
-      } else {
-        console.warn("ProfileData not found in localStorage.");
-      }
-
-      // Automatically handle FormData and JSON
-      if (!(req.data instanceof FormData)) {
-        req.headers["Content-Type"] = "application/json";
-      }
-    } catch (error) {
-      console.error("Error processing request interceptor:", error);
+    const profile = localStorage.getItem(localStorageData.PROFILE_DATA);
+    if (profile) {
+      const { token } = JSON.parse(profile);
+      if (token) req.headers.Authorization = `Bearer ${token}`;
+    }
+    if (!(req.data instanceof FormData)) {
+      req.headers["Content-Type"] = "application/json";
     }
     return req;
   },
-  (error) => {
-    console.error("Request error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          console.error("Unauthorized: Clearing localStorage and redirecting.");
-          localStorage.removeItem("ProfileData");
-          window.location.href = "/";
-          break;
-        case 403:
-          console.error(
-            "Forbidden: You do not have permission to access this resource."
-          );
-          break;
-        case 404:
-          console.error(
-            "Not Found: The requested resource could not be found."
-          );
-          break;
-        case 500:
-          console.error("Internal Server Error: Please try again later.");
-          break;
-        default:
-          console.error(
-            `Error ${error.response.status}: ${error.response.statusText}`
-          );
+    const { response } = error;
+    if (response) {
+      const { status, data } = response;
+      if (status === 401) {
+        localStorage.removeItem(localStorageData.PROFILE_DATA);
+        window.location.href = "/";
+      } else if (status === 403) {
+        console.error("Forbidden: Access denied.");
+      } else if (status === 404) {
+        console.error("Not Found: Resource unavailable.");
+      } else if (status === 500) {
+        // Log server error message if available
+        if (data && data.message) {
+          console.error(`Server Error: ${data.message}`);
+        } else {
+          console.error("Server Error: Try again later.");
+        }
+      } else if (data && data.message) {
+        // Log any other server error messages
+        console.error(`Error: ${data.message}`);
       }
     } else {
-      console.error("Network error or server did not respond.");
+      console.error("Network error or no response from server.");
     }
-    return Promise.reject(error);
+    return Promise.reject(error?.response?.data || error);
   }
 );
 
@@ -88,6 +70,13 @@ export const updateAdminProfilePic = (updatedData) =>
 export const addRestaurantDetails = (newRestaurant) =>
   API.post("/admin/add-restaurant", newRestaurant);
 
+// Dashboard APIs
+export const getAdminDashboardData = () =>
+  API.get(`/dashboard/admin-dashboard`);
+// Get Contacts
+export const getSupplierContacts = () =>
+  API.get(`/dashboard/supplier-contacts`);
+
 //common apis
 // Get Employee
 export const getEmployeeData = () => API.get(`/common/get-employee`);
@@ -100,7 +89,10 @@ export const updateEmployeeProfilePic = (updatedData) =>
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);
 
-// Items Management APIs
+// Inventory Management APIs
+//Get Inventory Dashboard Data
+export const getInventoryDashboardData = () =>
+  API.get("/inventory-dashboard/get-dashboard-data");
 // Add Item
 export const AddItem = (newItem) =>
   API.post("/item-management/additem", newItem);
@@ -149,20 +141,14 @@ export const GetSingleItemOrder = (id) =>
   API.get(`/orders/get-single-order-item/${id}`);
 // Get All Orders
 export const getAllOrderItems = () => API.get(`/orders/get-all-order-items`);
-// Get Drinks Only
-export const getDrinksOnly = () => API.get(`/orders/getDrinksOnly`);
+
 // Update Order Item
 export const UpdateSingleItemOrder = (id, updatedData) =>
   API.patch(`/orders/update-order-item/${id}`, updatedData);
 // Delete Order Item
 export const deleteSingleItemOrder = (id) =>
   API.delete(`/orders/delete-order-item/${id}`);
-// Search Order Item
-export const searchOrderItem = (orderNameData) =>
-  API.get(`/orders/search-order-items?orderName=${orderNameData}`);
-// Search Drinks Only
-export const searchDrinksOnly = (drinksData) =>
-  API.get(`/orders/search-drinks-only?orderName=${drinksData}`);
+
 // Allot order to personnels (Delivery, Waiter, Chef)
 export const getPersonnelsBySupplier = (order, personnelsType) => {
   return API.get(`/orders/get-personnels-by-role/${personnelsType}/${order}`);
@@ -245,7 +231,7 @@ export const allotDeliveryBoyAPI = (orderId, deliveryBoyId) =>
     deliveryBoyId,
   });
 // Send Delivery Offer
-export const sendDeliveryOfferAPI = ({id, deliveryBoyIds}) =>
+export const sendDeliveryOfferAPI = ({ id, deliveryBoyIds }) =>
   API.post(`/delivery-order/send-delivery-offer/${id}`, {
     deliveryBoyIds,
   });
@@ -312,22 +298,6 @@ export const allotTakeAwayOrderToChef = (orderId, chefId) =>
 export const updateTakeAwayOrderStatus = (orderId, updatedData) =>
   API.patch(`/take-away/update-order-status/${orderId}`, updatedData);
 
-// Dashboard APIs
-// Total Stocks API
-export const totalStocksAPI = () => API.get("/dashboard/total-stocks-quantity");
-// Low Stocks API
-export const lowStocksAPI = () => API.get("/dashboard/low-stocks-quantity");
-// Expired Items API
-export const expiredItemsAPI = () => API.get("/dashboard/expired-items");
-// Supplier Location API
-export const supplierLocationAPI = () =>
-  API.get("/dashboard/supplier-location");
-// Supplier Contacts API
-export const supplierContactsAPI = () => API.get("/dashboard/contacts");
-// Search Contacts API
-export const searchContactsAPI = (contactData) =>
-  API.get(`dashboard/search-contacts?nameSearched=${contactData}`);
-
 // Employee Management APIs
 // Assign Task
 export const assignTaskAPI = (newTask) =>
@@ -359,21 +329,21 @@ export const getbirthdayapidata = () =>
 export const getupcomingbirthdayapidata = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
-export const getemployeedata = () => API.get(`/employee/get-all-employee`);
+export const getEmployeeAPI = () => API.get(`/employee/get-all-employee`);
 // Get Online Employees by role
 export const getOnlineEmployeesByRole = (role) =>
   API.get(`/employee/get-online-employees/${role}`);
 // Add Employee Data
-export const postemployeedata = (data) =>
+export const addNewEmployeeAPI = (data) =>
   API.post("/employee/add-employee", data);
 // Update Employee Data
-export const updateemployeedata = (employeedataId, data) =>
+export const updateEmployeeAPI = (employeedataId, data) =>
   API.put(`/employee/update-employee/${employeedataId}`, data);
 // Delete Employee Data
-export const deleteemployeedata = (employeedataId) =>
+export const deleteEmployeeAPI = (employeedataId) =>
   API.delete(`/employee/delete-employee/${employeedataId}`);
 // Get Employee Detail Data
-export const employeedetaildata = (employeedataId) =>
+export const getEmployeeDetailsAPI = (employeedataId) =>
   API.get(`/employee/get-employee/${employeedataId}`);
 
 // Absence Management APIs
@@ -381,7 +351,7 @@ export const employeedetaildata = (employeedataId) =>
 export const fetchabsencedetailsdata = (employeedataId) =>
   API.get(`/absence/get-employee-leave/${employeedataId}`);
 // Add Absence Data
-export const addAbsencedata = (data) =>
+export const addAbsenceData = (data) =>
   API.post("/absence/add-employee-leave", data);
 // Edit Absence Data
 export const editAbsenceData = (data) =>
@@ -395,10 +365,10 @@ export const deleteAbsenceData = (data) =>
 
 // Shift Management APIs
 // Add Shift Data
-export const addshiftdata = (data) =>
+export const addShiftData = (data) =>
   API.post("/shift/add-employee-shift", data);
 // Edit Shift Data
-export const editshiftdata = (data) =>
+export const editShiftData = (data) =>
   API.post("/shift/edit-employee-shift", data);
 // Delete Shift Data
 export const deleteShiftData = (data) =>

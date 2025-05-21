@@ -8,8 +8,6 @@ if (!baseUrl) {
   throw new Error("Base URL for APIs is not defined");
 }
 
-// console.log("API Base URL:", baseUrl); // Optional: Log base URL for debugging
-
 // Create and configure socket connection
 export const socket = io(baseUrl, {
   path: "/socket.io/",
@@ -42,6 +40,3 @@ export const connectSocketIfDisconnected = () => {
     socket.connect(); // Manually trigger the connection
   }
 };
-
-// Ensure socket is connected
-// connectSocketIfDisconnected();

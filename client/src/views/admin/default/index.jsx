@@ -7,59 +7,59 @@ import DashboardCard from "./components/Cards";
 import DailyTraffic from "./components/DailyTraffic";
 import PieCard from "./components/PieCard";
 import TotalSpent from "./components/TotalSpent";
-// import SalesGrowth from "./components/SalesGrowth";
-// import CustomerSatisfaction from "./components/CustomerSatisfaction";
-// import WeeklyRevenue from "./components/WeeklyRevenue";
+import UserActivity from "./components/UserActivity.jsx";
+import OrdersChart from "./components/OrderData.jsx";
+import { MdCrisisAlert, MdInventory } from "react-icons/md";
+import { IoMdAlert } from "react-icons/io";
 
 // API imports
-import {
-  totalStocksAPI,
-  lowStocksAPI,
-  expiredItemsAPI,
-} from "../../../api/index.js";
-import UserActivity from "./components/UserActivity.jsx";
-import Conversion from "./components/Tasks.jsx";
-import OrdersChart from "./components/OrderData.jsx";
+import { getAdminDashboardData } from "../../../api/index.js";
 
-export default function UserReports() {
+export default function AdminDashboard() {
   // State variables to store API data
-  const [data, setData] = useState({
+  const [dashboardData, setDashboardData] = useState({
     totalStocksQuantity: 0,
     lowStocksQuantity: 0,
-    expiredItems: 0,
+    expiredItems: { total: 0 },
+    suppliersByLocation: [],
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all stock data (optimized approach)
-  const fetchStockData = async () => {
+  // Fetch dashboard data from API
+  const fetchDashboardData = async () => {
     try {
-      // Fetch data from multiple APIs concurrently
-      const [totalRes, lowRes, expiredRes] = await Promise.all([
-        totalStocksAPI(),
-        lowStocksAPI(),
-        expiredItemsAPI(),
-      ]);
+      const response = await getAdminDashboardData();
 
-      // Update state with fetched data
-      setData({
-        totalStocksQuantity: totalRes?.data?.result || 0,
-        lowStocksQuantity: lowRes?.data?.result || 0,
-        expiredItems: expiredRes?.data?.result?.total || 0,
-      });
-    } catch (err) {
-      console.error("Error fetching stock data:", err);
+      if (response?.status === 200 && response?.data?.result) {
+        const {
+          totalStocksQuantity = 0,
+          lowStocksQuantity = 0,
+          expiredItems = { total: 0 },
+          suppliersByLocation = [],
+        } = response.data.result;
+
+        setDashboardData({
+          totalStocksQuantity,
+          lowStocksQuantity,
+          expiredItems,
+          suppliersByLocation,
+        });
+      } else {
+        console.warn("Unexpected API response structure:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
     } finally {
-      // Set loading state to false after data is fetched
       setIsLoading(false);
     }
   };
 
-  // useEffect to call APIs on component mount
+  // Fetch data on component mount
   useEffect(() => {
-    fetchStockData();
+    fetchDashboardData();
   }, []);
 
-  // Loader component to show while data is being fetched
+  // Loader component
   if (isLoading) {
     return (
       <Flex justifyContent="center" alignItems="center" height="50vh">
@@ -70,10 +70,10 @@ export default function UserReports() {
 
   // Render the dashboard
   return (
-    <Flex direction="column" gap="20px" pt={{ base: "130px", md: "80px" }}>
+    <Flex direction="column" gap="20px" pt={{ base: "130px", md: "20px" }}>
       {/* Header section */}
       <Flex justifyContent="space-between" alignItems="center" fontWeight="500">
-        <Text color="var(--primary)" fontSize={"28px"}>
+        <Text color="var(--primary)" fontSize="28px">
           Overview
         </Text>
       </Flex>
@@ -85,24 +85,24 @@ export default function UserReports() {
           bg="#ffbbee"
           border="#fee1f9"
           label="Total Stock Quantity"
-          value={data.totalStocksQuantity}
-          // growth="+11.02%"
+          value={dashboardData.totalStocksQuantity}
+          icon={MdInventory}
         />
         <DashboardCard
           color="#e27e35"
           bg="#ffdcbc"
           border="#ffebd8"
           label="Low Stock Alert"
-          value={data.lowStocksQuantity}
-          // growth="-0.03%"
+          value={dashboardData.lowStocksQuantity}
+          icon={IoMdAlert}
         />
         <DashboardCard
           color="#035d5d"
           bg="#9ef6f7"
           border="#d7f7f7"
           label="Expiry Alert"
-          value={data.expiredItems}
-          // growth="+15.03%"
+          value={dashboardData.expiredItems.total}
+          icon={MdCrisisAlert}
         />
       </SimpleGrid>
 
@@ -112,16 +112,10 @@ export default function UserReports() {
       {/* Additional charts section */}
       <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap="20px">
         <DailyTraffic />
-        <PieCard />
-        {/* <SalesGrowth />
-        <CustomerSatisfaction /> */}
-        {/* <Conversion /> */}
+        <PieCard totalPieChartData={dashboardData.suppliersByLocation} />
         <OrdersChart />
         <UserActivity />
       </SimpleGrid>
-
-      {/* Weekly revenue section */}
-      {/* <WeeklyRevenue /> */}
     </Flex>
   );
 }

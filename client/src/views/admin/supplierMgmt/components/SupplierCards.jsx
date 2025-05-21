@@ -48,6 +48,11 @@ const SupplierCards = ({ data: allSuppliers, localStorageId }) => {
     [onOpenEdit]
   );
 
+  const handleOnItemModalClose = () => {
+    setSelectedId(null);
+    onCloseEdit();
+  };
+
   // Handle confirm delete supplier action
   const handleConfirmDeleteSupplier = useCallback(
     (deleteId) => {
@@ -209,7 +214,7 @@ const SupplierCards = ({ data: allSuppliers, localStorageId }) => {
       <EditSupplier
         isOpen={isOpenEdit}
         onOpen={onOpenEdit}
-        onClose={onCloseEdit}
+        onClose={handleOnItemModalClose}
         selectedId={selectedId}
         isEdit={true}
       />

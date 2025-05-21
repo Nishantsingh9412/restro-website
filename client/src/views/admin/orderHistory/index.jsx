@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+import { forwardRef } from "react";
 import {
   Box,
   Flex,
@@ -11,14 +11,14 @@ import {
   Tab,
   TabPanel,
   Text,
+  Input,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
-import { useState } from "react";
-import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
 import { useToast } from "../../../contexts/useToast.jsx";
+import { getDeliveryOrderAction } from "../../../redux/action/deliveryOrder.js";
 import { allotDeliveryBoyAction } from "../../../redux/action/deliveryOrder.js";
+import { employeesRoles } from "../../../utils/constant.js";
 import {
   allotDineInOrderToWaiterAction,
   getDineInOrderAction,
@@ -27,29 +27,31 @@ import {
   allotTakeAwayOrderToChefAction,
   getTakeAwayOrderAction,
 } from "../../../redux/action/takeAwayOrder.js";
+import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage.jsx";
 import AllotPersonnelModal from "./components/AllotOrderModal.jsx";
 import AllotDeliveryModal from "./components/AllotDeliveryModal.jsx";
 import DineInOrder from "./components/DineInOrder.jsx";
 import TakeAwayOrder from "./components/TakeAwayOrder.jsx";
 import DeliveryOrders from "./components/DeliveryOrders.jsx";
-import { set } from "date-fns";
-import { employeesRoles } from "../../../utils/constant.js";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const OrderHistory = () => {
   const dispatch = useDispatch();
   const showToast = useToast();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState("");
-  const [selectedPersonnel, setSelectedPersonnel] = useState("");
-
-  const compOrderData = useSelector((state) => state?.compOrder?.data);
-  const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
-  const takeAwayOrderData = useSelector((state) => state?.takeAwayOrder?.order);
-
   const [isPermitted, setIsPermitted] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState("");
+  const [selectedPersonnel, setSelectedPersonnel] = useState("");
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const deliveryOrderData = useSelector((state) => state?.deliveryOrder?.data);
+  const dineInOrderData = useSelector((state) => state?.dineInOrder?.order);
+  const takeAwayOrderData = useSelector((state) => state?.takeAwayOrder?.order);
 
   const fetchCompleteOrders = useCallback(async () => {
     try {
@@ -124,6 +126,22 @@ const OrderHistory = () => {
     });
   };
 
+  // Filter orders based on search query and date range
+  const filterOrders = (orders) => {
+    if (!orders) return [];
+    return orders.filter((order) => {
+      const matchesSearchQuery =
+        order?.customerName
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        order?.address?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDateRange =
+        (!startDate || new Date(order?.createdAt) >= startDate) &&
+        (!endDate || new Date(order?.createdAt) <= endDate);
+      return matchesSearchQuery && matchesDateRange;
+    });
+  };
+
   if (!isPermitted) return <ForbiddenPage isPermitted={isPermitted} />;
 
   if (loading) {
@@ -150,26 +168,79 @@ const OrderHistory = () => {
       />
       <Box mt="8" px="4">
         <Tabs variant="soft-rounded" colorScheme="blue">
-          <TabList>
-            <Tab>
-              <b>Delivery</b>
-            </Tab>
-            <Tab>
-              <b>Dine-In</b>
-            </Tab>
-            <Tab>
-              <b>TakeAway</b>
-            </Tab>
-          </TabList>
+          <Flex alignItems={"center"} justifyContent={"space-between"} mb="4">
+            <TabList>
+              <Tab>
+                <b>Delivery</b>
+              </Tab>
+              <Tab>
+                <b>Dine-In</b>
+              </Tab>
+              <Tab>
+                <b>TakeAway</b>
+              </Tab>
+            </TabList>
+            <Flex alignItems="center">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => {
+                  if (endDate && date > endDate) {
+                    setEndDate(null); // Reset endDate if it becomes invalid
+                  }
+                  setStartDate(date);
+                }}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                placeholderText="Start Date"
+                isClearable
+                dateFormat="dd/MM/yyyy"
+                customInput={<ChakraDateInput />}
+              />
+              <Text mx="2" fontWeight={"medium"}>
+                TO
+              </Text>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => {
+                  if (!date) setEndDate(null);
+                  else if (startDate && date < startDate) {
+                    showToast(
+                      "End date cannot be earlier than start date",
+                      "error"
+                    );
+                    return;
+                  }
+                  setEndDate(date);
+                }}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                placeholderText="End Date"
+                isClearable
+                dateFormat="dd/MM/yyyy"
+                customInput={<ChakraDateInput />}
+              />
+
+              <Input
+                ml={4}
+                placeholder="Search by customer name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                backgroundColor={"white"}
+                width={["100%", "100%", "50%"]}
+              />
+            </Flex>
+          </Flex>
           <TabPanels>
             <TabPanel>
               <Box maxW="1200px" mx="auto" p="4">
                 <Heading as="h1" size="xl" mb="6" textAlign="center">
                   <b>Delivery Orders</b>
                 </Heading>
-                {compOrderData?.length ? (
+                {filterOrders(deliveryOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {compOrderData.map((order) => (
+                    {filterOrders(deliveryOrderData).map((order) => (
                       <DeliveryOrders
                         key={order._id}
                         orderData={order}
@@ -194,9 +265,9 @@ const OrderHistory = () => {
                 <Heading as="h2" size="lg" mb="6" textAlign="center">
                   <b>Dine-In Orders</b>
                 </Heading>
-                {dineInOrderData?.length ? (
+                {filterOrders(dineInOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {dineInOrderData.map((order) => (
+                    {filterOrders(dineInOrderData).map((order) => (
                       <DineInOrder
                         key={order._id}
                         orderData={order}
@@ -221,9 +292,9 @@ const OrderHistory = () => {
                 <Heading as="h2" size="lg" mb="6" textAlign="center">
                   <b>Takeaway Orders</b>
                 </Heading>
-                {takeAwayOrderData?.length ? (
+                {filterOrders(takeAwayOrderData)?.length ? (
                   <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                    {takeAwayOrderData.map((order) => (
+                    {filterOrders(takeAwayOrderData).map((order) => (
                       <TakeAwayOrder
                         key={order._id}
                         orderData={order}
@@ -245,6 +316,33 @@ const OrderHistory = () => {
       </Box>
     </>
   );
+};
+
+import PropTypes from "prop-types";
+const ChakraDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
+  <Input
+    onClick={onClick}
+    ref={ref}
+    value={value}
+    readOnly
+    placeholder={placeholder}
+    padding="1rem"
+    borderRadius="md"
+    border="1px solid"
+    borderColor="gray.200"
+    _hover={{ borderColor: "gray.400" }}
+    _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
+    cursor="pointer"
+    background="white"
+  />
+));
+
+ChakraDateInput.displayName = "ChakraDateInput";
+
+ChakraDateInput.propTypes = {
+  value: PropTypes.string,
+  onClick: PropTypes.func,
+  placeholder: PropTypes.string,
 };
 
 export default OrderHistory;

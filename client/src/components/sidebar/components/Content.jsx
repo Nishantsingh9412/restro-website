@@ -1,10 +1,9 @@
-import { Box, Flex, Stack } from "@chakra-ui/react";
+import { Box, Flex, Stack, Text } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 import Brand from "./Brand";
 import Links from "./Links";
-import SidebarCard from "./SidebarCard";
 
 // SidebarContent component definition
-// eslint-disable-next-line react/prop-types
 function SidebarContent({ routes }) {
   return (
     <Flex
@@ -19,17 +18,21 @@ function SidebarContent({ routes }) {
 
       {/* Links section */}
       <Stack direction="column" mb="auto" mt="8px">
-        <Box ps="20px">
+        <Box ps="25px">
           <Links routes={routes} />
         </Box>
       </Stack>
 
-      {/* SidebarCard component at the bottom of the sidebar */}
-      <Box mt="60px" mb="40px" borderRadius="30px">
-        <SidebarCard />
+      <Box mt="10px" mb="40px" borderRadius="30px">
+        <Text color={"#fff"} fontSize="sm" textAlign="center">
+          {"Upgrade to PRO"}
+        </Text>
       </Box>
     </Flex>
   );
 }
+SidebarContent.propTypes = {
+  routes: PropTypes.array.isRequired,
+};
 
 export default SidebarContent;

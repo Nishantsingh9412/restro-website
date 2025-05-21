@@ -8,18 +8,51 @@ const restaurantSchema = new mongoose.Schema(
       ref: "Admin",
       required: [true, "A restaurant must have an admin"],
     },
-    name: {
+    restaurantName: {
       type: String,
       required: [true, "A restaurant must have a name"],
       trim: true,
+    },
+    ownerName: {
+      type: String,
+      required: [true, "A restaurant must have an Owner Name"],
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "A restaurant must have a phone number"],
+    },
+    email: {
+      type: String,
+      required: [true, "A restaurant must have an email"],
+      unique: true,
+      lowercase: true,
+      validate: {
+        validator: function (v) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        },
+        message: "Please provide a valid email address",
+      },
+    },
+    location: {
+      type: String,
+      required: [true, "A restaurant must have a location"],
     },
     address: {
       type: String,
       required: [true, "A restaurant must have an address"],
     },
-    phone: {
+    taxNumber: {
       type: String,
-      required: [true, "A restaurant must have a phone number"],
+      required: [true, "A restaurant must have an Tax Number"],
+    },
+    tradeLicense: {
+      type: String,
+      required: [true, "A restaurant must have a trade license"],
+    },
+    businessLicense: {
+      type: String,
+      required: [true, "A restaurant must have a business license"],
     },
     verified: {
       type: Boolean,

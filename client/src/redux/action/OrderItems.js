@@ -10,8 +10,6 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
       throw new Error("No data returned from API");
     }
   } catch (err) {
-    // console.log(err);
-    // console.error(`Error in ${actionType}: ${err.message}`, err.stack);
     return {
       success: false,
       message: err.response.data.error,
@@ -47,15 +45,6 @@ export const getAllOrderItemsAction = () => async (dispatch) => {
   );
 };
 
-export const getDrinksOnlyAction = () => async (dispatch) => {
-  return handleApiCall(
-    api.getDrinksOnly(),
-    dispatch,
-    "GET_DRINKS_ONLY",
-    "Drinks fetched Successfully"
-  );
-};
-
 export const updateSingleItemOrderAction =
   (id, updatedData) => async (dispatch) => {
     return handleApiCall(
@@ -78,24 +67,6 @@ export const deleteSingleItemOrderAction = (id) => async (dispatch) => {
     );
     return { success: false, message: err.message };
   }
-};
-
-export const searchOrderItemAction = (orderNameData) => async (dispatch) => {
-  return handleApiCall(
-    api.searchOrderItem(orderNameData),
-    dispatch,
-    "SEARCH_ORDER_ITEM",
-    "Order Item Searched Successfully"
-  );
-};
-
-export const searchDrinksOnlyAction = (drinksData) => async (dispatch) => {
-  return handleApiCall(
-    api.searchDrinksOnly(drinksData),
-    dispatch,
-    "SEARCH_DRINKS_ONLY",
-    "Drinks Searched Successfully"
-  );
 };
 
 export const ResetOrderItemAction = () => async (dispatch) => {

@@ -16,6 +16,24 @@ const statuses = {
   REJECTED: "Rejected",
 };
 
+export const employeePermissions = [
+  { id: 1, label: "Inventory Management" },
+  { id: 2, label: "Employee Management" },
+  { id: 3, label: "Food And Drinks" },
+  { id: 4, label: "Delivery Tracking" },
+];
+
+export const actionTypes = {
+  ADD: "add",
+  EDIT: "edit",
+  VIEW: "view",
+  DELETE: "delete",
+  CANCEL: "cancel",
+  REJECT: "reject",
+  ACCEPT: "accept",
+  UPDATE: "update",
+  COMPLETE: "complete",
+};
 const userTypes = {
   EMPLOYEE: "employee",
   ADMIN: "admin",
@@ -27,10 +45,33 @@ const orderTypes = {
   DELIVERY: "delivery",
 };
 
+const orderMethods = {
+  INDIVIDUAL: "individual",
+  TOGETHER: "together",
+};
+
+const guestTypes = {
+  DEFAULT: "default",
+  GUEST: "guest",
+};
+
 const employeesRoles = {
   CHEF: "Chef",
   WAITER: "Waiter",
   DELIVERY_BOY: "Delivery Boy",
+  MANAGER: "Manager",
+  KITCHEN_STAFF: "Kitchen Staff",
+  BAR_TENDER: "Bar Tender",
+  CUSTOM: "Custom",
+};
+
+const localStorageData = {
+  PROFILE_DATA: "ProfileData",
+};
+
+const addressTypes = {
+  MAP: "map",
+  MANUAL: "manual",
 };
 
 const Dialog_Boxes = {
@@ -91,6 +132,18 @@ const Dialog_Boxes = {
       confirmButtonColor: "skyblue",
     });
   },
+  showDeleteConfirmation: (handleDelete) => {
+    Swal.fire({
+      title: "Delete Item?",
+      text: "Are you sure you want to delete this item?",
+      icon: "warning",
+      confirmButtonColor: "red",
+      confirmButtonText: "Yes",
+      showCancelButton: true,
+    }).then((result) => {
+      if (result.isConfirmed) handleDelete();
+    });
+  },
   showCustomAlert: (title, text, position = "center", handleFunction) => {
     setTimeout(() => {
       Swal.fire({
@@ -107,13 +160,6 @@ const Dialog_Boxes = {
     }, 300);
   },
 };
-// Helper to calculate the Order Item Price
-const calculatePrice = (item, subItems = item?.selectedSubItems) => {
-  const { quantity, priceVal } = item;
-  const subItemPrice = subItems.reduce((prev, item) => prev + item.price, 0);
-  const totalPrice = priceVal + subItemPrice;
-  return quantity * totalPrice;
-};
 
 export {
   statuses,
@@ -121,5 +167,8 @@ export {
   Dialog_Boxes,
   userTypes,
   employeesRoles,
-  calculatePrice,
+  addressTypes,
+  orderMethods,
+  guestTypes,
+  localStorageData,
 };

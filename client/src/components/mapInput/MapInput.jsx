@@ -16,13 +16,12 @@ import {
 } from "@chakra-ui/react";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import tt from "@tomtom-international/web-sdk-maps";
-import { setFormData } from "../../redux/action/stepperFormAction";
+import { setDeliveryInfo } from "../../redux/action/customerInfo";
 
 export default function MapInput({ data, isOpen, onClose }) {
   const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
   const COUNTRY_CODE = import.meta.env.VITE_APP_COUNTRY_CODE || "DE";
   const dispatch = useDispatch();
-  // const [loading, setLoading] = useState(false);
   const [utils, setUtils] = useState({
     position: [
       data.dropLocation?.lat || 50.95042,
@@ -143,17 +142,18 @@ export default function MapInput({ data, isOpen, onClose }) {
   const handleFinalSubmit = () => {
     const { street, zip, city } = splitAddress(utils.locationName);
     dispatch(
-      setFormData({
+      setDeliveryInfo({
         dropLocation: {
           lat: utils.position[0],
           lng: utils.position[1],
         },
         dropLocationName: utils.locationName,
         address: street,
-        address2: city,
+        city: city,
         zip: zip,
       })
     );
+    // Close the modal
     onClose();
   };
 
@@ -161,7 +161,6 @@ export default function MapInput({ data, isOpen, onClose }) {
   useEffect(() => {
     setTimeout(() => {
       if (isOpen && mapContainer.current) {
-        // setLoading(true);
         if (!mapRef.current) {
           mapRef.current = tt.map({
             key: TOMTOM_API_KEY,
@@ -200,6 +199,7 @@ export default function MapInput({ data, isOpen, onClose }) {
         };
       }
     }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   return (

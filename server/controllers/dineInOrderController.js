@@ -9,6 +9,7 @@ import {
   sendDineInOfferToChef,
   sendDineInOfferToWaiter,
 } from "../utils/socket.js";
+import { formatOrderItems, userTypes } from "../utils/utils.js";
 
 // Define the schema for validating dine-in orders
 const dineInOrderSchema = Joi.object({
@@ -19,8 +20,11 @@ const dineInOrderSchema = Joi.object({
   emailAddress: Joi.string().optional().allow(""),
   specialRequests: Joi.string().optional().allow(""),
   orderItems: Joi.array().required(),
+  paymentMethod: Joi.string().required(),
+  orderMethod: Joi.string().required(),
   totalPrice: Joi.number().required(),
   created_by: Joi.string().required(),
+  guests: Joi.array().optional().allow(""),  
 });
 
 // Function to validate dine-in order data against the schema
@@ -29,30 +33,6 @@ const validateDineInOrder = (data) => {
   if (error) {
     throw new Error(error.details[0].message);
   }
-};
-
-const calculateItemOrderPrice = (item) => {
-  const { quantity, priceVal, selectedSubItems } = item;
-  const subItemPrice = selectedSubItems.reduce(
-    (prev, item) => prev + item.price,
-    0
-  );
-  const totalPrice = priceVal + subItemPrice;
-  return quantity * totalPrice;
-};
-//TODO: ADD To Constant UTILS Folder
-export const formatOrderItems = (orderItems) => {
-  const formattedOrderItems = orderItems.map((item) => ({
-    item: new mongoose.Types.ObjectId(item._id),
-    subItems: item.selectedSubItems?.map((subItem) => ({
-      _id: new mongoose.Types.ObjectId(subItem._id),
-      name: subItem.name,
-      price: subItem.price,
-    })),
-    quantity: item.quantity,
-    total: calculateItemOrderPrice(item),
-  }));
-  return formattedOrderItems;
 };
 
 // Controller function to create a new dine-in order
@@ -70,8 +50,9 @@ export const createDineInOrder = async (req, res) => {
       emailAddress,
       specialRequests,
       orderItems,
+      paymentMethod,
       totalPrice,
-      created_by,
+      guests,
     } = req.body;
 
     // Format the order items
@@ -86,13 +67,15 @@ export const createDineInOrder = async (req, res) => {
     const newDineInOrder = await DineInOrder.create({
       tableNumber,
       numberOfGuests,
+      guests,
       customerName,
       phoneNumber,
       emailAddress,
       specialRequests,
       orderItems: formattedOrderItems,
+      paymentMethod,
       totalPrice,
-      created_by: role === "admin" ? _id : adminID,
+      created_by: role === userTypes.ADMIN ? _id : adminID,
       orderId,
     });
 
@@ -120,9 +103,9 @@ export const getDineInOrders = async (req, res) => {
   try {
     // Find dine-in orders by user ID and populate order items
     const dineInOrders = await DineInOrder.find({
-      created_by: role === "admin" ? _id : created_by,
+      created_by: role === userTypes.ADMIN ? _id : created_by,
     })
-      .populate("orderItems.item", "-subItems")
+      .populate("orderItems.item", "-customization")
       .populate("assignedWaiter", "name")
       .populate("assignedChef", "name")
       .sort({ createdAt: -1 });
@@ -190,7 +173,9 @@ export const updateDineInOrder = async (req, res) => {
       emailAddress,
       specialRequests,
       orderItems,
+      paymentMethod,
       totalPrice,
+      guests,
     } = req.body;
 
     // Format the order items
@@ -207,8 +192,10 @@ export const updateDineInOrder = async (req, res) => {
         emailAddress,
         specialRequests,
         orderItems: formattedOrderItems,
+        paymentMethod,
         totalPrice,
-        created_by: role === "admin" ? userId : adminID,
+        guests,
+        created_by: role === userTypes.ADMIN ? userId : adminID,
       },
       { new: true }
     );
@@ -239,7 +226,7 @@ export const deleteDineInOrder = async (req, res) => {
     // Find and delete the dine-in order by ID
     const deletedDineInOrder = await DineInOrder.findOneAndDelete({
       _id,
-      created_by: role === "admin" ? userId : adminID,
+      created_by: role === userTypes.ADMIN ? userId : adminID,
     });
 
     // Respond with success message and the deleted order

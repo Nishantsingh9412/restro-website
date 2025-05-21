@@ -12,7 +12,7 @@ import {
 } from "../utils/socket.js";
 import { getRestaurantCoordinates } from "./employees/commonController.js";
 import { onlineUsers } from "../server.js";
-import { formatOrderItems } from "./dineInOrderController.js";
+import { formatOrderItems, userTypes } from "../utils/utils.js";
 const defaultCountry = "Germany";
 
 // Function to get coordinates from address using TomTom API
@@ -70,17 +70,17 @@ const getRouteData = async (start, end) => {
 // Controller to create a complete order
 export const createDeliveryOrder = async (req, res) => {
   const { id, role, created_by } = req.user;
-  const supplier = role === "admin" ? id : created_by;
+  const supplier = role === userTypes.ADMIN ? id : created_by;
   try {
     const {
-      name,
+      customerName,
       phoneNumber,
       paymentMethod,
       deliveryMethod,
       dropLocation,
       dropLocationName,
       address,
-      address2,
+      city,
       zip,
       noteFromCustomer,
       orderItems,
@@ -88,9 +88,15 @@ export const createDeliveryOrder = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!name || !phoneNumber || !address || !totalPrice || !dropLocation) {
+    if (
+      !customerName ||
+      !phoneNumber ||
+      !address ||
+      !totalPrice ||
+      !dropLocation
+    ) {
       return res
-        .status(401)
+        .status(400)
         .json({ success: false, message: "All fields are required" });
     }
 
@@ -106,7 +112,7 @@ export const createDeliveryOrder = async (req, res) => {
     // Create new complete order
     const newDeliveryOrder = await DeliveryOrder.create({
       orderId,
-      name,
+      customerName,
       phoneNumber,
       paymentMethod,
       deliveryMethod,
@@ -114,7 +120,7 @@ export const createDeliveryOrder = async (req, res) => {
       dropLocationName,
       pickupLocation,
       address,
-      address2,
+      city,
       zip,
       noteFromCustomer,
       orderItems: formattedOrderItems,
@@ -149,9 +155,9 @@ export const getDeliveryOrders = async (req, res) => {
   }
   try {
     const deliveryOrders = await DeliveryOrder.find({
-      created_by: role === "admin" ? id : created_by,
+      created_by: role === userTypes.ADMIN ? id : created_by,
     })
-      .populate("orderItems.item", "-subItems")
+      .populate("orderItems.item", "-customization")
       .sort({ createdAt: -1 });
 
     // Add assigned delivery boy information to each order
@@ -188,7 +194,7 @@ export const getDeliveryOrders = async (req, res) => {
 export const allotOrderDelivery = async (req, res) => {
   const { id, role, created_by } = req.user;
   const { id: orderId } = req.params;
-  const supplier = role === "admin" ? id : created_by;
+  const supplier = role === userTypes.ADMIN ? id : created_by;
   const { deliveryBoyId } = req.body;
   try {
     // Validate required fields
@@ -231,7 +237,7 @@ export const allotOrderDelivery = async (req, res) => {
       deliveryLocation: delOrder.dropLocation,
       deliveryAddress: [
         delOrder.address,
-        delOrder.address2,
+        delOrder.city,
         delOrder.zip,
         defaultCountry,
       ]
@@ -239,7 +245,7 @@ export const allotOrderDelivery = async (req, res) => {
         .join(", "),
       distance: routeInfo?.distance,
       estimatedTime: routeInfo?.duration,
-      customerName: delOrder.name,
+      customerName: delOrder.customerName,
       customerContact: delOrder.phoneNumber,
       paymentType: delOrder.paymentMethod,
       created_by: supplier,
@@ -301,12 +307,11 @@ export const updateDeliveryOrder = async (req, res) => {
   const { id: _id } = req.params;
   const { id, role, created_by } = req.user;
   const {
-    name,
+    customerName,
     phoneNumber,
     paymentMethod,
     deliveryMethod,
     address,
-    address2,
     city,
     state,
     zip,
@@ -321,19 +326,18 @@ export const updateDeliveryOrder = async (req, res) => {
     const updatedOrder = await DeliveryOrder.findByIdAndUpdate(
       { _id },
       {
-        name,
+        customerName,
         phoneNumber,
         paymentMethod,
         deliveryMethod,
         address,
-        address2,
         city,
         state,
         zip,
         noteFromCustomer,
         orderItems,
         totalPrice,
-        created_by: role === "admin" ? id : created_by,
+        created_by: role === userTypes.ADMIN ? id : created_by,
       },
       { new: true }
     );
@@ -477,7 +481,7 @@ const getSortedDeliveryBoys = async (
 export const getOnlineDeliveryBoys = async (req, res) => {
   const { orderId } = req.params;
   const { id, role, created_by } = req.user;
-  const supplier = role === "admin" ? id : created_by;
+  const supplier = role === userTypes.ADMIN ? id : created_by;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ success: false, message: "Invalid Id" });
@@ -524,7 +528,7 @@ export const sendDeliveryOrderOffer = async (req, res) => {
   const { id: orderId } = req.params;
   const { id, role, created_by } = req.user;
   const { deliveryBoyIds } = req.body;
-  const supplier = role === "admin" ? id : created_by;
+  const supplier = role === userTypes.ADMIN ? id : created_by;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ success: false, message: "Invalid Id" });
@@ -589,7 +593,7 @@ export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
           deliveryLocation: delOrder.dropLocation,
           deliveryAddress: [
             delOrder.address,
-            delOrder.address2,
+            delOrder.city,
             delOrder.zip,
             defaultCountry,
           ]
@@ -597,7 +601,7 @@ export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
             .join(", "),
           distance: routeInfo?.distance,
           estimatedTime: routeInfo?.duration,
-          customerName: delOrder.name,
+          customerName: delOrder.customerName,
           customerContact: delOrder.phoneNumber,
           paymentType: delOrder.paymentMethod,
           created_by: supplier,

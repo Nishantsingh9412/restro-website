@@ -16,7 +16,12 @@ const storage = multer.diskStorage({
 
 // File filter to allow only jpeg and png files
 const fileFilter = (req, file, cb) => {
-  const allowedMimeTypes = ["image/jpeg", "image/jpg", "image/png"];
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+  ];
   cb(null, allowedMimeTypes.includes(file.mimetype));
 };
 

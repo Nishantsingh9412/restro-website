@@ -11,7 +11,6 @@ const handleApiCall = async (apiFunc, dispatch, actionType, successMessage) => {
     return { success: true, message: successMessage };
   } catch (err) {
     // Log the error message and stack trace
-    // console.log(`Error from ${actionType} Action: ${err?.message}`, err?.stack);
     // Return error message
     return {
       success: false,

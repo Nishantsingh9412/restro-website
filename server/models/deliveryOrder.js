@@ -9,21 +9,21 @@ export const orderItemsSubDocsSchema = new Schema({
     ref: "OrderedItems", // Reference to the OrderedItems model
     required: true,
   },
-  subItems: [
+  selectedCustomizations: [
     {
-      _id: {
-        type: Schema.Types.ObjectId,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      price: {
-        type: Number,
-        required: true,
-      },
+      title: { type: String, required: true },
+      selectedOptions: [
+        {
+          name: { type: String, required: true },
+          price: { type: Number, required: true },
+        },
+      ],
     },
   ],
+  guestName: {
+    type: String,
+    trim: true, // Trim whitespace
+  },
   quantity: {
     type: Number,
     required: true,
@@ -39,7 +39,7 @@ export const orderItemsSubDocsSchema = new Schema({
 // Schema for the complete order
 const DeliveryOrder = new Schema(
   {
-    name: {
+    customerName: {
       type: String,
       required: true,
       trim: true, // Trim whitespace
@@ -94,7 +94,7 @@ const DeliveryOrder = new Schema(
       required: true,
       trim: true, // Trim whitespace
     },
-    address2: {
+    city: {
       type: String,
       trim: true, // Trim whitespace
     },
@@ -103,7 +103,7 @@ const DeliveryOrder = new Schema(
       trim: true, // Trim whitespace
       validate: {
         validator: function (v) {
-          return /\d{5}(-\d{4})?/.test(v); // Validate zip code format
+          return /^\d{5}$/.test(v); // Exactly 5 digits
         },
         message: (props) => `${props.value} is not a valid zip code!`,
       },

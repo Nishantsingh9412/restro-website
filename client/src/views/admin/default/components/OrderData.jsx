@@ -63,8 +63,8 @@ export default function OrdersChart(props) {
         <Text
           me="auto"
           color={textColor}
-          fontSize="xl"
-          fontWeight="700"
+          fontSize="lg"
+          fontWeight="500"
           lineHeight="100%"
         >
           Orders Data

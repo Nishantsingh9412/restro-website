@@ -4,7 +4,8 @@ import TakeAwayOrder from "../models/takeAwayOrder.js";
 import Chef from "../models/employees/chefModel.js";
 import Notification from "../models/notification.js";
 import { notifyUser, sendTakeawayOffer } from "../utils/socket.js";
-import { formatOrderItems } from "./dineInOrderController.js";
+import { formatOrderItems, userTypes } from "../utils/utils.js";
+// import { formatOrderItems } from "./dineInOrderController.js";
 
 // Define the schema for validating take-away orders
 const takeAwayOrderSchema = Joi.object({
@@ -43,7 +44,7 @@ export const createTakeAwayOrder = async (req, res) => {
       customerName,
       orderItems: formattedOrderItems,
       totalPrice,
-      created_by: req.user.role === "admin" ? created_by : req.user.id,
+      created_by: req.user.role === userTypes.ADMIN ? created_by : req.user.id,
     });
 
     res.status(201).json({
@@ -67,9 +68,9 @@ export const getTakeAwayOrders = async (req, res) => {
   }
   try {
     const allTakeAwayOrders = await TakeAwayOrder.find({
-      created_by: role === "admin" ? _id : created_by,
+      created_by: role === userTypes.ADMIN ? _id : created_by,
     })
-      .populate("orderItems.item", "-subItems")
+      .populate("orderItems.item", "-customization")
       .populate("assignedChef", "name")
       .sort({ createdAt: -1 });
     res.status(200).json({
@@ -126,7 +127,7 @@ export const updateTakeAwayOrder = async (req, res) => {
       {
         ...req.body,
         created_by:
-          req.user.role === "admin" ? req.body.created_by : req.user.id,
+          req.user.role === userTypes.ADMIN ? req.body.created_by : req.user.id,
       },
       { new: true }
     );

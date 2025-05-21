@@ -23,6 +23,8 @@ import employeeReducer from "./action/Employees/employee";
 import locationReducer from "./action/location";
 import chefReducer from "./action/Employees/chef";
 import deliveryBoyReducer from "./action/Employees/deliveryBoy";
+import cartReducer from "./action/cartItems";
+import customerInfoReducer from "./action/customerInfo";
 
 const store = configureStore({
   reducer: {
@@ -36,7 +38,7 @@ const store = configureStore({
     QRItemsReducer,
     delBoyReducer,
     form: stepperFormReducer,
-    compOrder: deliveryOrderReducer,
+    deliveryOrder: deliveryOrderReducer,
     dineInOrder: dineInOrderReducer,
     takeAwayOrder: takeAwayOrderReducer,
     dineInForm: dineInStepperReducer,
@@ -49,6 +51,8 @@ const store = configureStore({
     location: locationReducer,
     chef: chefReducer,
     deliveryBoy: deliveryBoyReducer,
+    cart: cartReducer,
+    customerInfo: customerInfoReducer,
   },
 });
 

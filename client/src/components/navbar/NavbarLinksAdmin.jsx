@@ -2,7 +2,6 @@
 import {
   Avatar,
   Flex,
-  Icon,
   Menu,
   MenuButton,
   MenuItem,
@@ -12,16 +11,13 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { jwtDecode } from "jwt-decode";
-import { SearchBar } from "./searchBar/SearchBar.jsx";
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
-import { FaEthereum } from "react-icons/fa";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../redux/action/auth.js";
-import RestaurantModal from "../restaurant/restaurantModal.jsx";
-// import { logoutUser } from "../../redux/action/user.js";
-
+import RestaurantModal from "../restaurant/RestaurantModal.jsx";
+import { localStorageData } from "../../utils/constant.js";
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,7 +30,7 @@ export default function HeaderLinks({ secondary }) {
   // Fetching local data from local storage and handling potential parsing errors
   const localData = (() => {
     try {
-      return JSON.parse(localStorage.getItem("ProfileData"));
+      return JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA));
     } catch (error) {
       console.error("Failed to parse local storage data:", error);
       return null;
@@ -46,9 +42,6 @@ export default function HeaderLinks({ secondary }) {
 
   // Chakra UI color mode values
   const menuBg = useColorModeValue("white", "navy.800");
-  const ethColor = useColorModeValue("gray.700", "white");
-  const ethBg = useColorModeValue("secondaryGray.300", "navy.900");
-  const ethBox = useColorModeValue("white", "navy.800");
   const borderColor = useColorModeValue("#E6ECFA", "rgba(135, 140, 189, 0.3)");
   const shadow = useColorModeValue(
     "14px 17px 40px 4px rgba(112, 144, 176, 0.18)",
@@ -65,9 +58,8 @@ export default function HeaderLinks({ secondary }) {
   // Effect to handle user data fetching and token expiration
   useEffect(() => {
     if (localData) {
-      // Dispatch action to fetch single user data
-
       const token = localData?.token;
+      
       if (token) {
         const decodedToken = jwtDecode(token);
         // Logout if the token is expired
@@ -92,48 +84,6 @@ export default function HeaderLinks({ secondary }) {
         borderRadius="30px"
         boxShadow={shadow}
       >
-        {/* Search Bar Component */}
-        <SearchBar
-          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-          me="10px"
-          borderRadius="30px"
-        />
-        {/* Ethereum Info Box */}
-        <Flex
-          bg={ethBg}
-          display={secondary ? "flex" : "none"}
-          borderRadius="30px"
-          ms="auto"
-          p="6px"
-          align="center"
-          me="6px"
-        >
-          <Flex
-            align="center"
-            justify="center"
-            bg={ethBox}
-            h="29px"
-            w="29px"
-            borderRadius="30px"
-            me="7px"
-          >
-            <Icon color={ethColor} w="9px" h="14px" as={FaEthereum} />
-          </Flex>
-          <Text
-            w="max-content"
-            color={ethColor}
-            fontSize="sm"
-            fontWeight="700"
-            me="6px"
-          >
-            1,924
-            <Text as="span" display={{ base: "none", md: "unset" }}>
-              {" "}
-              ETH
-            </Text>
-          </Text>
-        </Flex>
-
         {/* User Menu */}
         <Menu>
           <MenuButton p="0px">

@@ -30,7 +30,7 @@ const SidebarRight = () => {
       {/* Uncomment if needed */}
       {/* <Logs data={data.logs} /> */}
       {/* Render Contacts component with data */}
-      <Contacts data={data.contacts} />
+      <Contacts />
     </Box>
   );
 };

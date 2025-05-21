@@ -29,12 +29,14 @@ import {
   addNewSupplierAction,
   getSingleSupplierAction,
 } from "../../../../redux/action/supplier";
+import { localStorageData } from "../../../../utils/constant";
 
 // SupplierModal component definition
 const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
   // Get user ID from local storage
-  const localStorageId = JSON.parse(localStorage.getItem("ProfileData"))?.result
-    ?._id;
+  const localStorageId = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  )?.result?._id;
 
   // Initial state for supplier data
   const initialSupplierState = {
@@ -146,7 +148,7 @@ const SupplierModal = ({ selectedId, isOpen, onClose, isEdit }) => {
     supplierData.created_by = localStorageId;
     const isItemsArray = Array.isArray(supplierData.items);
     if (!isItemsArray) {
-      supplierData.items = supplierData.items.split(", ");
+      supplierData.items = supplierData.items.split(",");
     }
 
     const id = isEdit ? selectedSupplierData._id : undefined;

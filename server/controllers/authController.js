@@ -1,11 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import passport from "passport";
-import ShortUniqueId from "short-unique-id";
-import handleApiCall from "../utils/utils.js";
 import Joi from "joi";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
+import { userTypes } from "../utils/utils.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -72,8 +71,16 @@ export const signUpAdminController = async (req, res) => {
         .json({ success: false, message: "Admin already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    const uid = new ShortUniqueId();
-    const uniqueId = uid.rnd(10);
+    // handling that must be unique id
+    let uniqueId;
+    let isUnique = false;
+    while (!isUnique) {
+      uniqueId = `D-${Math.floor(1000000 + Math.random() * 9000000)}`;
+      const existingAdmin = await Admin.findOne({ uniqueId });
+      if (!existingAdmin) {
+        isUnique = true;
+      }
+    }
     const newAdmin = await Admin.create({
       username: name,
       email,
@@ -87,7 +94,7 @@ export const signUpAdminController = async (req, res) => {
         .json({ success: false, message: "Admin not created" });
     }
     const token = jwt.sign(
-      { email: newAdmin.email, id: newAdmin._id, role: "admin" },
+      { email: newAdmin.email, id: newAdmin._id, role: userTypes.ADMIN },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -119,7 +126,7 @@ export const loginAdminController = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { email: admin.email, id: admin._id, role: "admin" },
+      { email: admin.email, id: admin._id, role: userTypes.ADMIN },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );

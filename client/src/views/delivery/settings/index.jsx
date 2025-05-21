@@ -3,9 +3,12 @@ import { Button, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { MdEdit } from "react-icons/md";
 import LiveLocationModal from "./components/LiveLocationModal";
 import { useSelector } from "react-redux";
+import { localStorageData } from "../../../utils/constant";
 
 export default function DeliverySettings() {
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const singleUserData = useSelector((state) => state.userReducer?.data);
 
   const [settings, setSettings] = useState(singleUserData);

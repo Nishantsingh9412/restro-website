@@ -35,7 +35,12 @@ import helperEmpRoutes from "./routes/employees/helperEmpRoutes.js";
 import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
-import { sendLiveLocation, acceptOfferOrder } from "./utils/socket.js";
+import inventoryDashboardRoutes from "./routes/inventoryDashboardRoutes.js";
+import {
+  sendLiveLocation,
+  acceptOfferOrder,
+  updateLiveLocationStatus,
+} from "./utils/socket.js";
 
 // Initialize express app
 const app = express();
@@ -61,13 +66,12 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use("/uploads", express.static("uploads"));
 
 // Route middleware
+app.use("/inventory-dashboard", inventoryDashboardRoutes);
 app.use("/item-management", itemRoutes);
 app.use("/stock-management", lowStockItems);
 app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);
-// app.use("/auth", authRoutes);
-// app.use("/delivery-person", deliveryRoutes);
 app.use("/delivery-person", deliveryPersonnelRoutes);
 app.use("/address", addressRoutes);
 app.use("/delivery-order", deliveryOrderRoutes);
@@ -159,8 +163,8 @@ io.on("connection", (socket) => {
   // Listen for send location from the delivery employee
   socket.on("sendLocation", (data) => {
     console.log("Location received:", data);
-    const { delEmpId, adminId, location } = data;
-    sendLiveLocation(adminId, delEmpId, location);
+    const { delEmpId, adminId, location, delEmpName } = data;
+    sendLiveLocation(adminId, delEmpName, delEmpId, location);
   });
 
   socket.on("acceptOrder", (data) => {
@@ -174,6 +178,8 @@ io.on("connection", (socket) => {
     for (let [userId, userData] of onlineUsers.entries()) {
       if (userData.socketId === socket.id) {
         onlineUsers.delete(userId);
+        // send live location update to the admin when the user disconnects
+        updateLiveLocationStatus(userId);
         console.log(`User ${userId} disconnected`);
       }
     }

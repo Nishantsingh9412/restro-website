@@ -17,15 +17,16 @@ import { SidebarResponsive } from "../sidebar/Sidebar";
 import routes from "../../routes.jsx";
 import profileImg from "../../assets/img/profile/profile.png";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminNavbar({
   secondary,
   message,
   brandText,
-  onOpen,
   logoText,
   fixed,
 }) {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const adminData = useSelector((state) => state.userReducer.data);
 
@@ -134,14 +135,50 @@ export default function AdminNavbar({
             {brandText}
           </Link>
         </Box>
-        <Box ms="auto" w={{ sm: "100%", md: "unset" }}>
+        <Box
+          ms="auto"
+          w={{ sm: "100%", md: "unset" }}
+          display="flex"
+          alignItems="center"
+        >
           <AdminNavbarLinks
-            onOpen={onOpen}
             logoText={logoText}
             secondary={secondary}
             fixed={fixed}
             scrolled={scrolled}
           />
+          <Box
+            as="button"
+            bg="transparent"
+            border="none"
+            cursor="pointer"
+            position="relative"
+            onClick={() => navigate("notifications")}
+          >
+            <Img
+              src="https://img.icons8.com/ios-filled/50/ffffff/appointment-reminders.png"
+              alt="Notifications"
+              w="28px"
+              h="28px"
+            />
+            <Box
+              position="absolute"
+              top="-2px"
+              right="-2px"
+              bg="red.500"
+              color="white"
+              fontSize="10px"
+              fontWeight="bold"
+              borderRadius="full"
+              w="16px"
+              h="16px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              3
+            </Box>
+          </Box>
         </Box>
       </Flex>
       {secondary && <Text color="white">{message}</Text>}

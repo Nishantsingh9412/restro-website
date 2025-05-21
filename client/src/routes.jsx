@@ -9,6 +9,7 @@ import {
   MdVideoLibrary,
   MdDashboard,
   MdOutlineDeliveryDining,
+  MdFoodBank,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
@@ -20,11 +21,15 @@ import { lazy } from "react";
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
 const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
+const InventoryDashboard = lazy(() =>
+  import("./views/admin/inventoryDashboard")
+);
 const LowStocks = lazy(() => import("./views/admin/lowStocks"));
 const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
+const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
-const OrderShipping = lazy(() => import("./views/admin/orderShipping"));
+const DeliveryTracking = lazy(() => import("./views/admin/deliveryTracking"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
 const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
 const Absence = lazy(() => import("./views/admin/absense"));
@@ -51,9 +56,6 @@ const ChefDashboard = lazy(() => import("./views/employees/Chef/Dashboard"));
 const ChefAvailableOrders = lazy(() =>
   import("./views/employees/Chef/AvailableOrders")
 );
-// // Auth Imports
-// import SignInCentered from "./views/auth/signIn";
-// import SignUpCentered from "./views/auth/signup";
 
 const commonRoutes = [
   {
@@ -63,8 +65,6 @@ const commonRoutes = [
     icon: (
       <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
     ),
-    // type: 'link',
-    // component: () => <></>,
     component: <ItemManagement />,
   },
   {
@@ -81,10 +81,10 @@ const commonRoutes = [
     icon: (
       <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
     ),
-    component: <OrderShipping />,
+    component: <DeliveryTracking />,
   },
   {
-    name: "Foods and Drinks",
+    name: "Create Menu",
     layout: "/employee",
     path: "/orders",
     icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
@@ -124,6 +124,48 @@ const adminRoutes = [
         ),
         type: "link",
         component: <MainDashboard />,
+      },
+      {
+        name: "Notifications",
+        layout: "/admin",
+        path: "/notifications",
+        icon: (
+          <Icon
+            as={IoMdNotificationsOutline}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        type: "link",
+        component: <AdminNotifications />,
+      },
+    ],
+  },
+  {
+    name: "Inventory",
+    layout: "/admin",
+    path: "/inventory-dashboards",
+    type: "list",
+    icon: (
+      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+    ),
+    component: <InventoryDashboard />,
+    links: [
+      {
+        name: "Dashboard",
+        layout: "/admin",
+        path: "/inventory-dashboards",
+        icon: (
+          <Icon
+            as={HiDocumentChartBar}
+            color="inherit"
+            width="20px"
+            height="20px"
+          />
+        ),
+        type: "link",
+        component: <InventoryDashboard />,
       },
       {
         name: "Item Management",
@@ -166,21 +208,6 @@ const adminRoutes = [
         type: "link",
         component: <SupplierManagement />,
       },
-      {
-        name: "Notifications",
-        layout: "/admin",
-        path: "/dashboards/notifications",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
-        type: "link",
-        component: <AdminNotifications />,
-      },
 
       // {
       //   name: 'Barcode Generator',
@@ -196,18 +223,28 @@ const adminRoutes = [
   {
     name: "Orders",
     layout: "/admin",
-    path: "/orders",
+    path: "/create-orders",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Foods and Drinks",
+        name: "Create Orders",
+        layout: "/admin",
+        path: "/create-orders",
+        icon: (
+          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
+        ),
+        component: <CreateOrders />,
+      },
+
+      {
+        name: "Create Menu",
         layout: "/admin",
         path: "/orders",
         icon: (
-          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
+          <Icon as={MdFoodBank} width="20px" height="20px" color="inherit" />
         ),
         component: <AllOrders />,
       },
@@ -228,15 +265,6 @@ const adminRoutes = [
           <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
         ),
         component: <OrderHistory />,
-      },
-      {
-        name: "Create Deliveries",
-        layout: "/admin",
-        path: "/create-deliveries",
-        icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
-        ),
-        component: <>Coming Soon</>,
       },
     ],
   },
@@ -329,7 +357,16 @@ const adminRoutes = [
             color="inherit"
           />
         ),
-        component: <OrderShipping />,
+        component: <DeliveryTracking />,
+      },
+      {
+        name: "Create Deliveries",
+        layout: "/admin",
+        path: "/create-deliveries",
+        icon: (
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+        ),
+        component: <>Coming Soon</>,
       },
       // {
       //   name: "Delivery partners",
@@ -374,59 +411,7 @@ const adminRoutes = [
   // },
   //   ],
   // },
-  {
-    name: "Warehouse",
-    layout: "/admin",
-    path: "/warehouse",
-    type: "list",
-    icon: (
-      <>
-        <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-      </>
-    ),
-    links: [
-      {
-        name: "Contact Sales",
-        layout: "/admin",
-        path: "/warehouse/contact-sales",
-        icon: (
-          <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
-        ),
-        type: "link",
-        component: <></>,
-      },
-      // {
-      //   name: 'Cost Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/cost-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={FaMoneyBillTrendUp}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-      // {
-      //   name: 'Waste Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/waste-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={GiNuclearWaste}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-    ],
-  },
+
   {
     name: "Invoices",
     layout: "/admin",
@@ -488,6 +473,59 @@ const adminRoutes = [
   //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
   //   component: SignUpCentered,
   // },
+  {
+    name: "Warehouse",
+    layout: "/admin",
+    path: "/warehouse",
+    type: "list",
+    icon: (
+      <>
+        <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+      </>
+    ),
+    links: [
+      {
+        name: "Contact Sales",
+        layout: "/admin",
+        path: "/warehouse/contact-sales",
+        icon: (
+          <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
+        ),
+        type: "link",
+        component: <></>,
+      },
+      // {
+      //   name: 'Cost Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/cost-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={FaMoneyBillTrendUp}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
+      // {
+      //   name: 'Waste Tracking',
+      //   layout: '/admin',
+      //   path: '/tracking/waste-tracking',
+      //   icon: (
+      //     <Icon
+      //       as={GiNuclearWaste}
+      //       color="inherit"
+      //       width="20px"
+      //       height="20px"
+      //     />
+      //   ),
+      //   type: 'link',
+      //   component: () => <></>,
+      // },
+    ],
+  },
 ];
 
 export const deliveryRoutes = [

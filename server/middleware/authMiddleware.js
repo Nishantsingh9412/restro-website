@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Admin from "../models/adminModel.js";
 import Employee from "../models/employeeModel.js";
+import { userTypes } from "../utils/utils.js";
 
 const verifyTokenAndAccess = async (req, res, requiredPermission = null) => {
   const token = req.header("Authorization")?.split(" ")[1];
@@ -16,7 +17,7 @@ const verifyTokenAndAccess = async (req, res, requiredPermission = null) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userModel = decoded.role === "admin" ? Admin : Employee;
+    const userModel = decoded.role === userTypes.ADMIN ? Admin : Employee;
     const user = await userModel.findById(decoded.id);
 
     if (!user) {

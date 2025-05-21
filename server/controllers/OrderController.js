@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import OrderedItems from "../models/orderModel.js";
 import Joi from "joi";
+import { userTypes } from "../utils/utils.js";
 
 // Function to validate MongoDB ObjectId
 const validateObjectId = (id, res, entity = "Item") => {
@@ -24,30 +25,35 @@ const handleResponse = (res, success, message, result = null) => {
 
 // Joi schema for validating order items
 const orderItemSchema = Joi.object({
+  _id: Joi.string().optional(),
   itemId: Joi.string().required(),
-  orderName: Joi.string().required(),
+  itemName: Joi.string().required(),
   category: Joi.string().required(),
-  subItems: Joi.array()
+  customization: Joi.array()
     .items(
       Joi.object({
-        _id: Joi.string().optional().allow(null, ""),
-        name: Joi.string().required(),
-        price: Joi.number().required(),
-        pic: Joi.string().optional().allow(null, ""),
+        title: Joi.string().required(),
+        maxSelect: Joi.number().required(),
+        required: Joi.boolean().optional().default(false),
+        option: Joi.array()
+          .items(
+            Joi.object({
+              name: Joi.string().required(),
+              price: Joi.number().required(),
+            })
+          )
+          .required(),
       })
     )
     .optional()
     .allow(null, ""),
-  priceVal: Joi.number().required(),
-  priceUnit: Joi.string().required(),
+  basePrice: Joi.number().required(),
+  prepTime: Joi.string().optional().allow(null, ""),
   pic: Joi.string().optional().allow(null, ""),
   description: Joi.string().optional().allow(null, ""),
-  isFavourite: Joi.boolean().optional().allow(null, ""),
-  isDrink: Joi.boolean().optional(),
-  created_by: Joi.string().required(),
+  isFavourite: Joi.boolean().optional().default(false),
+  ingredients: Joi.array().optional().allow(null, ""),
 });
-
-// Controller to add a new order item
 
 // Controller to add a new order item
 export const AddOrderItem = async (req, res) => {
@@ -58,19 +64,19 @@ export const AddOrderItem = async (req, res) => {
     }
 
     const { role, id, created_by } = req.user;
-    const userId = role === "admin" ? id : created_by;
+    const userId = role === userTypes.ADMIN ? id : created_by;
 
     const {
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      priceVal,
-      priceUnit,
+      prepTime,
+      basePrice,
       pic,
       description,
       isFavourite,
-      isDrink,
+      customization,
+      ingredients,
     } = req.body;
 
     const itemIdExist = await OrderedItems.findOne({ itemId });
@@ -80,15 +86,15 @@ export const AddOrderItem = async (req, res) => {
 
     const newOrderItem = await OrderedItems.create({
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      priceVal,
-      priceUnit,
+      prepTime,
+      basePrice,
       pic,
       description,
       isFavourite,
-      isDrink,
+      ingredients,
+      customization,
       created_by: userId,
     });
     if (!newOrderItem) {
@@ -121,13 +127,12 @@ export const getSingleOrderItem = async (req, res) => {
 // Controller to get all order items for a specific user
 export const getAllOrderItems = async (req, res) => {
   const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
+  const userId = role === userTypes.ADMIN ? id : created_by;
 
   if (!validateObjectId(userId, res, "User")) return;
 
   try {
     const allOrderItems = await OrderedItems.find({
-      isDrink: { $ne: true },
       created_by: userId,
     }).sort({ isFavourite: -1, orderName: 1 });
     if (!allOrderItems) {
@@ -140,65 +145,45 @@ export const getAllOrderItems = async (req, res) => {
   }
 };
 
-// Controller to get all drinks for a specific user
-export const getDrinksOnly = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const drinks = await OrderedItems.find({
-      isDrink: true,
-      created_by: userId,
-    }).sort({ isFavourite: -1, orderName: 1 });
-    if (!drinks) {
-      return handleResponse(res, false, "Failed to get Drinks");
-    }
-
-    handleResponse(res, true, "All Drinks", drinks);
-  } catch (err) {
-    handleError(res, err, "Error from getDrinksOnly Controller:");
-  }
-};
-
 // Controller to update an order item by ID
 export const updateOrderItem = async (req, res) => {
   const { id: _id } = req.params;
   if (!validateObjectId(_id, res, "Order Item")) return;
 
   try {
-    const { error } = orderItemSchema.validate(req.body);
+    const { error } = orderItemSchema.validate(req.body, {
+      allowUnknown: true,
+    });
     if (error) {
       return handleResponse(res, false, error.details[0].message);
     }
 
     const {
       itemId,
-      orderName,
+      itemName,
       category,
-      subItems,
-      priceVal,
-      priceUnit,
+      prepTime,
+      basePrice,
       pic,
       description,
       isFavourite,
-      isDrink,
+      ingredients,
+      customization,
     } = req.body;
     const updatedOrderItem = await OrderedItems.findByIdAndUpdate(
       _id,
       {
         $set: {
           itemId,
-          orderName,
+          itemName,
           category,
-          subItems,
-          priceVal,
-          priceUnit,
+          prepTime,
+          basePrice,
           pic,
           description,
           isFavourite,
-          isDrink,
+          ingredients,
+          customization,
         },
       },
       { new: true }
@@ -228,54 +213,5 @@ export const deleteOrderItem = async (req, res) => {
     handleResponse(res, true, "Deleted Order Item");
   } catch (err) {
     handleError(res, err, "Error from deleteOrderItem Controller:");
-  }
-};
-
-// Controller to search order items by name for a specific user
-export const searchOrderItems = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const { orderName } = req.query;
-    const searchResults = await OrderedItems.find({
-      orderName: { $regex: orderName, $options: "i" },
-      created_by: userId,
-    });
-
-    if (!searchResults) {
-      return handleResponse(res, false, "Failed to search Order Items");
-    }
-
-    handleResponse(res, true, "Searched Order Items", searchResults);
-  } catch (err) {
-    handleError(res, err, "Error from searchOrderItems Controller:");
-  }
-};
-
-// Controller to search drinks by name for a specific user
-export const searchDrinksOnly = async (req, res) => {
-  const { role, id, created_by } = req.user;
-  const userId = role === "admin" ? id : created_by;
-
-  if (!validateObjectId(userId, res, "User")) return;
-
-  try {
-    const { orderName } = req.query;
-    const searchResults = await OrderedItems.find({
-      orderName: { $regex: orderName, $options: "i" },
-      isDrink: true,
-      created_by: userId,
-    });
-
-    if (!searchResults) {
-      return handleResponse(res, false, "Failed to search Drinks");
-    }
-
-    handleResponse(res, true, "Searched Drinks", searchResults);
-  } catch (err) {
-    handleError(res, err, "Error from searchDrinksOnly Controller:");
   }
 };

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import ItemManagement from "../models/itemManage.js";
 import Joi from "joi";
+import { userTypes } from "../utils/utils.js";
 
 // Validation schema for item data
 const itemSchema = Joi.object({
@@ -38,7 +39,7 @@ export const addItem = async (req, res) => {
     // Set `created_by` field based on the user's role
     const itemData = {
       ...value,
-      created_by: role === "admin" ? id : created_by, // Admin uses their own ID; employees use their associated admin's ID
+      created_by: role === userTypes.ADMIN ? id : created_by, // Admin uses their own ID; employees use their associated admin's ID
     };
 
     // Create new item in the database
@@ -52,22 +53,15 @@ export const addItem = async (req, res) => {
   }
 };
 
-
 // Controller to get all items created by a specific user
 // Updated Controller to get all items created by admin or accessible to employees
 export const getAllItems = async (req, res) => {
   const { id, role } = req.user;
 
   try {
-    let filter = {};
-
-    if (role === "admin") {
-      // Admin can fetch all items they created
-      filter = { created_by: id };
-    } else {
-      // Employees can fetch items created by their associated admin
-      filter = { created_by: req.user.created_by };
-    }
+    const filter = {
+      created_by: role === userTypes.ADMIN ? id : req.user.created_by,
+    };
 
     // Fetch items based on the filter
     const allItemsData = await ItemManagement.find(filter);
@@ -99,7 +93,7 @@ export const getItemById = async (req, res) => {
     // Find the item and ensure it's accessible by the user
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     const singleItemData = await ItemManagement.findOne(filter);
@@ -137,7 +131,7 @@ export const updateItem = async (req, res) => {
     // Ensure the user has access to update the item
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     const updateSingleItem = await ItemManagement.findOneAndUpdate(
@@ -175,7 +169,7 @@ export const deleteItem = async (req, res) => {
     // Ensure the user has access to delete the item
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     const deleteSingleItem = await ItemManagement.findOneAndDelete(filter);
@@ -198,7 +192,7 @@ export const deleteAllItems = async (req, res) => {
   try {
     let filter = {};
 
-    if (role === "admin") {
+    if (role === userTypes.ADMIN) {
       // Admin can delete all items they created
       filter = { created_by: userId };
     } else {

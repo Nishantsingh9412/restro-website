@@ -68,7 +68,7 @@ const employeeSchema = new Schema(
       enum: ["Single", "Married", "Divorced", "Widowed"],
       default: "Single",
     },
-    children: {
+    childrens: {
       type: Number,
       default: 0,
     },
@@ -101,7 +101,7 @@ const employeeSchema = new Schema(
       ],
       default: "Delivery Boy",
     },
-    type: {
+    empType: {
       type: String,
       enum: ["Full-Time", "Part-Time", "Intern", "Contract"],
       default: "Full-Time",
@@ -146,7 +146,7 @@ const employeeSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true } // Automatically manage createdAt and updatedAt fields
+  { timestamps: true }
 );
 
 // Add a custom validation for `dateOfJoining` and `endOfEmployment`

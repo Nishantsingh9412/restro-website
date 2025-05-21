@@ -54,6 +54,15 @@ const dineInOrderSchema = new Schema(
       required: true,
       min: [1, "Number of guests must be at least 1"], // Minimum number of guests
     },
+    guests: [
+      {
+        name: {
+          type: String,
+          required: true,
+          trim: true, // Trim whitespace
+        },
+      },
+    ],
     customerName: {
       type: String,
       trim: true, // Trim whitespace
@@ -78,6 +87,11 @@ const dineInOrderSchema = new Schema(
         },
         message: "Order must have at least one item.",
       },
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ["cash", "card", "online", "paypal"], // Possible payment methods
     },
     totalPrice: {
       type: Number,

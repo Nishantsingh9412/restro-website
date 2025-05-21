@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfilePicAction } from "../../../redux/action/user";
 import { useToast } from "../../../contexts/useToast";
-
+import { localStorageData, userTypes } from "../../../utils/constant";
 // SidebarBrand component
 export function SidebarBrand() {
   // Toast notification function
@@ -16,7 +16,9 @@ export function SidebarBrand() {
   // Redux dispatch function
   const dispatch = useDispatch();
   // Retrieve local profile data from localStorage
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const role = localData?.result?.role;
   // Retrieve user profile data from Redux store
   const userProfileData = useSelector((state) => state?.userReducer?.data);
@@ -84,15 +86,16 @@ export function SidebarBrand() {
         />
       </Box>
       {/* Membership ID display only for admin */}
-      {role === "admin" && (
+      {role === userTypes.ADMIN && (
         <Box
           display="flex"
           flexDirection="column"
           fontSize="larger"
           fontWeight="500"
+          alignItems="center"
         >
           Membership Id
-          <Box letterSpacing="2px">{userProfileData?.uniqueId}</Box>
+          <Box letterSpacing="1px">{userProfileData?.uniqueId}</Box>
         </Box>
       )}
     </Flex>

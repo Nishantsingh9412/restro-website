@@ -10,6 +10,7 @@ import Manager from "../models/employees/managerModel.js";
 import Chef from "../models/employees/chefModel.js";
 import HelperEmployee from "../models/employees/helperEmpModel.js";
 import { onlineUsers } from "../server.js";
+import { userTypes } from "../utils/utils.js";
 
 // Define validation schema using Joi
 const schema = Joi.object({
@@ -19,22 +20,23 @@ const schema = Joi.object({
   country_code: Joi.string().required(),
   role: Joi.string().required(),
   address: Joi.object().optional(),
-  birthday: Joi.date().optional(),
-  nationality: Joi.string().optional(),
-  maritalStatus: Joi.string().optional(),
-  children: Joi.number().optional(),
-  healthInsurance: Joi.string().optional(),
+  birthday: Joi.date().optional().allow(null),
+  nationality: Joi.string().optional().allow("", null),
+  maritalStatus: Joi.string().optional().allow("", null),
+  children: Joi.number().optional().allow("", null),
+  healthInsurance: Joi.string().optional().allow("", null),
+  socialSecurityNumber: Joi.string().optional().allow("", null),
+  taxId: Joi.string().optional().allow("", null),
   dateOfJoining: Joi.date().optional().allow(null),
   endOfEmployment: Joi.date().optional().allow(null),
-  type: Joi.string().optional(),
-  workingHoursPerWeek: Joi.number().optional(),
-  variableWorkingHours: Joi.boolean().optional(),
-  annualHolidayEntitlement: Joi.number().optional(),
-  notes: Joi.string().optional(),
-  created_by: Joi.string().required(),
+  empType: Joi.string().required(),
+  workingHoursPerWeek: Joi.number().optional().allow("", null),
+  variableWorkingHours: Joi.boolean().optional().allow("", null),
+  annualHolidayEntitlement: Joi.number().optional().allow("", null),
+  notes: Joi.string().optional().allow("", null),
   is_online: Joi.boolean().optional(),
   permissions: Joi.array().optional(),
-});
+}).unknown(true);
 
 // Mapping roles to their respective CASES
 export const ROLE_CASES = {
@@ -54,9 +56,121 @@ const handleError = (res, error, message = "Internal Server Error") => {
   return res.status(500).json({ success: false, message });
 };
 
+// Get employees by restaurant based on userId or id
+export const getAllEmployees = async (req, res) => {
+  const { id, role } = req.user;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ success: false, message: "Invalid User ID" });
+  }
+  try {
+    const query =
+      role === userTypes.ADMIN
+        ? { created_by: id }
+        : { created_by: req.user.created_by };
+
+    const allEmployees = await Employee.find(query);
+
+    if (allEmployees.length === 0) {
+      return res
+        .status(200)
+        .json({ success: false, message: "No Employees Found", result: [] });
+    }
+
+    // Filter out the admin from the list of employees
+    const result =
+      role === userTypes.ADMIN
+        ? allEmployees
+        : allEmployees.filter((employee) => employee.id !== id);
+
+    // Return the list of employees
+    return res.status(200).json({
+      success: true,
+      message: "All Employees",
+      result,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in getEmployeesByRestaurant");
+  }
+};
+
+// Get employee by ID
+export const getEmployeeById = async (req, res) => {
+  const { id: _id } = req.params;
+  const { id: userId, role } = req.user;
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
+  try {
+    const filter = {
+      _id,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
+    };
+
+    // Find the employee by ID
+    const singleEmployee = await Employee.findOne(filter);
+
+    if (!singleEmployee) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employee Not Found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Single Employee",
+      result: singleEmployee,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in getEmployeeById");
+  }
+};
+
+// Get online employees by role
+export const getOnlineEmployeesByRole = async (req, res) => {
+  try {
+    let { id: userId, role, created_by } = req.user;
+    const { type } = req.params;
+    userId = role === userTypes.ADMIN ? userId : created_by;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    if (!ROLE_CASES[type]) {
+      return res.status(400).json({ message: "Invalid type parameter" });
+    }
+
+    const onlineEmployees = Array.from(onlineUsers.keys());
+    const Model = ROLE_CASES[type];
+
+    const onlineRoleEmployees = await Model.find({
+      _id: { $in: onlineEmployees },
+      created_by: userId,
+      is_online: true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Online ${type}s`,
+      result: onlineRoleEmployees,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in GetOnlineEmployeesByRole");
+  }
+};
+
 // Add a new employee to the database
 export const addEmployee = async (req, res) => {
   const { role, id, created_by } = req.user;
+
+  // Check if the provided ID is valid
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
 
   // Validate request body against schema
   const { error } = schema.validate(req.body);
@@ -71,9 +185,7 @@ export const addEmployee = async (req, res) => {
   const { email, phone } = empData;
 
   // Set the created_by field based on the user's role
-  empData.created_by = role === "admin" ? id : created_by;
-
-  console.log(empData);
+  empData.created_by = role === userTypes.ADMIN ? id : created_by;
 
   // Check if an employee with the same email or phone already exists
   const existingEmployee = await Employee.findOne({
@@ -105,127 +217,33 @@ const createEmployee = (empData) => {
   return EmployeeModel.create(empData);
 };
 
-// Get employees by restaurant based on userId or id
-export const getAllEmployees = async (req, res) => {
-  const { id, role } = req.user;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ success: false, message: "Invalid User ID" });
-  }
-  try {
-    const query =
-      role === "admin"
-        ? { created_by: id }
-        : { created_by: req.user.created_by };
-
-    const allEmployees = await Employee.find(query);
-
-    if (allEmployees.length === 0) {
-      return res
-        .status(200)
-        .json({ success: false, message: "No Employees Found", result: [] });
-    }
-
-    // Filter out the admin from the list of employees
-    const result =
-      role === "admin"
-        ? allEmployees
-        : allEmployees.filter((employee) => employee.id !== id);
-
-    // Return the list of employees
-    return res.status(200).json({
-      success: true,
-      message: "All Employees",
-      result,
-    });
-  } catch (error) {
-    return handleError(res, error, "Error in getEmployeesByRestaurant");
-  }
-};
-
-// Get employee by ID
-export const getEmployeeById = async (req, res) => {
-  const { id: _id } = req.params;
-  const { id: userId, role } = req.user;
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid Employee ID" });
-  }
-  try {
-    const filter = {
-      _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
-    };
-
-    // Find the employee by ID
-    const singleEmployee = await Employee.findOne(filter);
-
-    if (!singleEmployee) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Employee Not Found" });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Single Employee",
-      result: singleEmployee,
-    });
-  } catch (error) {
-    return handleError(res, error, "Error in getEmployeeById");
-  }
-};
-
-// Get online employees by role
-export const getOnlineEmployeesByRole = async (req, res) => {
-  try {
-    let { id: userId, role, created_by } = req.user;
-    const { type } = req.params;
-    userId = role === "admin" ? userId : created_by;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-
-    if (!ROLE_CASES[type]) {
-      return res.status(400).json({ message: "Invalid type parameter" });
-    }
-
-    const onlineEmployees = Array.from(onlineUsers.keys());
-    const Model = ROLE_CASES[type];
-
-    const onlineRoleEmployees = await Model.find({
-      _id: { $in: onlineEmployees },
-      created_by: userId,
-      is_online: true,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: `Online ${type}s`,
-      result: onlineRoleEmployees,
-    });
-  } catch (error) {
-    return handleError(res, error, "Error in GetOnlineEmployeesByRole");
-  }
-};
-
 // Update an existing employee's details
 export const updateEmployee = async (req, res) => {
   const { id: _id } = req.params;
   const { id: userId, role } = req.user;
-  const updateData = req.body;
 
+  // Check if the provided ID is valid
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid Employee ID" });
   }
 
+  // Validate request body against schema
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
+  }
+
+  // Extract the required fields from the request body
+  const updatedData = req.body;
+
   try {
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
 
     // Check if the employee exists
@@ -236,13 +254,11 @@ export const updateEmployee = async (req, res) => {
         .json({ success: false, message: "Employee not found" });
     }
 
-    console.log(updateData.permissions, existingEmployee.permissions);
-
     // Check Permission being updated by the admin or not
     if (
-      role !== "admin" &&
-      updateData.permissions &&
-      !updateData.permissions.every((perm) =>
+      role !== userTypes.ADMIN &&
+      updatedData.permissions &&
+      !updatedData.permissions.every((perm) =>
         existingEmployee.permissions.some(
           (existingPerm) => existingPerm.id === perm.id
         )
@@ -252,16 +268,16 @@ export const updateEmployee = async (req, res) => {
         .status(403)
         .json({ success: false, message: "Permission Denied" });
     }
-    // Check if role is being updated
 
-    if (updateData.role && updateData.role !== existingEmployee.role) {
+    // Check if role is being updated
+    if (updatedData.role && updatedData.role !== existingEmployee.role) {
       // Remove the old employee document
       await Employee.findByIdAndDelete(_id);
 
       // Create a new employee document in the new role
       const newEmployee = await createEmployee({
         ...existingEmployee.toObject(),
-        ...updateData, // Override with updated fields
+        ...updatedData, // Override with updated fields
         __t: undefined, // Remove the discriminator key
       });
 
@@ -273,7 +289,7 @@ export const updateEmployee = async (req, res) => {
     }
 
     // Update the existing employee document
-    const employee = await Employee.findByIdAndUpdate(_id, updateData, {
+    const employee = await Employee.findByIdAndUpdate(_id, updatedData, {
       new: true,
     });
 
@@ -302,7 +318,7 @@ export const deleteEmployee = async (req, res) => {
   try {
     const filter = {
       _id,
-      created_by: role === "admin" ? userId : req.user.created_by,
+      created_by: role === userTypes.ADMIN ? userId : req.user.created_by,
     };
     const deletedEmployee = await Employee.findOneAndDelete(filter);
 
@@ -386,7 +402,7 @@ export const getDeliveryEmployees = async (req, res) => {
   }
   try {
     const filter =
-      role === "admin"
+      role === userTypes.ADMIN
         ? { created_by: id, role: "Delivery Boy" }
         : { created_by: created_by, role: "Delivery Boy" };
 

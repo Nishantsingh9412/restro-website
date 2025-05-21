@@ -9,6 +9,13 @@ import Joi from "joi";
 const parseDateTime = (date, time) => {
   return new Date(`${moment(date).format("YYYY-MM-DD")}T${time}:00Z`);
 };
+// Centralized error handling
+const handleError = (res, error) => {
+  console.error("Server Error:", error);
+  return res
+    .status(500)
+    .json({ message: "Server Error", error: error.message, status: 500 });
+};
 
 // Validation schema
 const shiftSchema = Joi.object({
@@ -21,7 +28,7 @@ const shiftSchema = Joi.object({
 });
 
 // Edit Employee Shift
-export const editEmployeeShift = async (req, res, next) => {
+export const editEmployeeShift = async (req, res) => {
   try {
     const { error, value } = shiftSchema.validate(req.body);
     if (error)
@@ -56,7 +63,7 @@ export const editEmployeeShift = async (req, res, next) => {
       .status(200)
       .json({ success: true, message: "Shift edited", result: shift });
   } catch (err) {
-    next(err);
+    return handleError(res, err);
   }
 };
 
@@ -73,7 +80,7 @@ export const deleteEmployeeShift = async (req, res, next) => {
       .status(200)
       .json({ message: "Shift deleted successfully.", success: true });
   } catch (err) {
-    next(err);
+    return handleError(res, err);
   }
 };
 
@@ -108,7 +115,7 @@ export const addShiftOfEmployee = async (req, res, next) => {
       .status(201)
       .json({ message: "Shift added", success: true, result: shift });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };
 
@@ -129,7 +136,7 @@ export const getEmployeeShift = async (req, res, next) => {
       .status(200)
       .json({ message: "Shift fetched", success: true, result: shifts });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };
 
@@ -148,7 +155,7 @@ export const getTodaysShift = async (req, res, next) => {
       .status(200)
       .json({ message: "Shift fetched", success: true, result: shifts });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };
 
@@ -176,7 +183,7 @@ export const getCurrentMonthShifts = async (req, res, next) => {
       .status(200)
       .json({ message: "Shift fetched", success: true, result: shifts });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };
 
@@ -201,7 +208,7 @@ export const getShiftByIdAndDate = async (req, res, next) => {
       .status(200)
       .json({ message: "Shift fetched", success: true, result: shift });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };
 
@@ -233,6 +240,6 @@ export const getEmployeesWithShiftsByUser = async (req, res, next) => {
       result: employeesWithShifts,
     });
   } catch (error) {
-    next(error);
+    return handleError(res, error);
   }
 };

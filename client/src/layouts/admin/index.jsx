@@ -1,5 +1,4 @@
-import { Box, useDisclosure, Flex } from "@chakra-ui/react";
-import Footer from "../../components/footer/FooterAdmin.jsx";
+import { Box, Flex } from "@chakra-ui/react";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
@@ -7,12 +6,15 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import routes from "../../routes.jsx";
 import { connectSocketIfDisconnected, socket } from "../../api/socket.js";
+import { localStorageData } from "../../utils/constant.js";
 
 export default function Dashboard(props) {
   const { ...rest } = props;
   const [fixed] = useState(false);
   const location = useLocation(); // Hook to get the current location
-  const localData = JSON.parse(localStorage.getItem("ProfileData"));
+  const localData = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
 
   useEffect(() => {
     //Socket Initializer
@@ -110,9 +112,6 @@ export default function Dashboard(props) {
     return activeNavbar;
   };
 
-  document.documentElement.dir = "ltr";
-  const { onOpen } = useDisclosure();
-
   return (
     <Flex bg="var(--primary-bg)" h="100%">
       <Sidebar routes={routes} display="none" {...rest} />
@@ -130,7 +129,7 @@ export default function Dashboard(props) {
         pb="80px"
       >
         <Navbar
-          onOpen={onOpen}
+          // onOpen={onOpen}
           logoText={"Horizon UI Dashboard PRO"}
           brandText={getActiveRoute(routes)}
           secondary={getActiveNavbar(routes)}
@@ -142,7 +141,7 @@ export default function Dashboard(props) {
         <Box mt="130px" p="20px">
           <Outlet />
         </Box>
-        <Footer />
+        {/* <Footer /> */}
       </Box>
       <SidebarRight />
     </Flex>

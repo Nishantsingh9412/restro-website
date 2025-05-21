@@ -6,7 +6,6 @@ const initialState = {
 const takeAwayOrderReducer = (state = initialState, action) => {
   switch (action.type) {
     case "ALLOT_CHEF_TAKE_AWAY":
-      console.log("action", action.data);
       return {
         ...state,
         order: state.order.map((item) =>

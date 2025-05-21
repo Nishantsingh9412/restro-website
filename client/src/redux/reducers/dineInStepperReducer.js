@@ -3,9 +3,8 @@ const initialState = {
   tableNumber: "",
   numberOfGuests: "",
   customerName: "",
-  phoneNumber: "",
-  emailAddress: "",
   specialRequests: "",
+  paymentMethod: "",
 };
 
 // Reducer function to handle dine-in form actions

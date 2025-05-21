@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "../../api/index.js";
+import { localStorageData } from "../../utils/constant.js";
 
 const handleAdminAction = async (apiCall, user) => {
   try {
     const { data } = await apiCall(user);
-    localStorage.setItem("ProfileData", JSON.stringify(data));
+    localStorage.setItem(localStorageData.PROFILE_DATA, JSON.stringify(data));
     return { data, success: true, message: "Operation successful" };
   } catch (err) {
     const errorMessage =
@@ -58,7 +59,7 @@ const authSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       state.profile = null;
-      localStorage.removeItem("ProfileData");
+      localStorage.removeItem(localStorageData.PROFILE_DATA);
       console.log("Logged out", state);
     },
   },

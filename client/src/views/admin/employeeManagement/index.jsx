@@ -18,6 +18,7 @@ import { useToast } from "../../../contexts/useToast.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import TaskModal from "./components/TaskModal";
 import Swal from "sweetalert2";
+import { actionTypes, localStorageData } from "../../../utils/constant.js";
 
 import {
   AllEmployeesAPI,
@@ -41,12 +42,14 @@ const EmployeeManagement = () => {
   // State to manage task details
   const [selectedTask, setSelectedTask] = useState(null);
   // State to manage action type
-  const [actionType, setActionType] = useState("add");
+  const [actionType, setActionType] = useState(actionTypes.ADD);
   // State to manage employees list
   const [employees, setEmployees] = useState([]);
 
   // Get local user data from localStorage
-  const localUser = JSON.parse(localStorage.getItem("ProfileData"));
+  const localUser = JSON.parse(
+    localStorage.getItem(localStorageData.PROFILE_DATA)
+  );
   const localUserId = localUser?.result?._id;
 
   // Handle slot selection in the calendar
@@ -87,7 +90,9 @@ const EmployeeManagement = () => {
   const handleSubmit = async (taskData) => {
     const { id, ...rest } = { ...taskData, created_by: localUserId };
     const apiCall =
-      actionType === "add" ? assignTaskAPI(rest) : updateTaskAPI(id, rest);
+      actionType === actionTypes.ADD
+        ? assignTaskAPI(rest)
+        : updateTaskAPI(id, rest);
 
     try {
       const { status, data } = await apiCall;
@@ -160,14 +165,13 @@ const EmployeeManagement = () => {
   const handleEdit = (event) => {
     onOpen();
     setSelectedTask(event);
-    setActionType("edit");
-    console.log(event);
+    setActionType(actionTypes.EDIT);
   };
 
   const handleClose = () => {
     onClose();
     setSelectedTask(null);
-    setActionType("add");
+    setActionType(actionTypes.ADD);
   };
 
   // Fetch tasks and employees on component mount

@@ -20,13 +20,13 @@ const OrderAcceptModal = () => {
   const deliveryOfferState = useSelector(
     (state) => state.deliveryBoy?.deliveryOffer
   );
+  const [countdown, setCountdown] = useState(10);
   const userData = useSelector((state) => state.userReducer.data);
   const { isOfferModalOpen, orderOfferDetails, supplierId } =
     deliveryOfferState;
   const { orderId, name, dropLocationName, noteFromCustomer } =
     orderOfferDetails;
 
-  const [countdown, setCountdown] = useState(10);
 
   const onModalClose = () => {
     dispatch(hideDeliveryOffer());
