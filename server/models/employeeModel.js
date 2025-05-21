@@ -68,7 +68,7 @@ const employeeSchema = new Schema(
       enum: ["Single", "Married", "Divorced", "Widowed"],
       default: "Single",
     },
-    children: {
+    childrens: {
       type: Number,
       default: 0,
     },

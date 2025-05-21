@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-
 /**
  * Converts a camelCase string to Sentence case.
  *
@@ -102,11 +100,36 @@ export const formatValue = (value) => {
   return String(value);
 };
 
-// Custom hook to get logged-in user ID and role
-export const useUserIdAndRole = () => {
-  const user = useSelector((state) => state.userReducer?.data);
-  return {
-    userId: user?._id,
-    role: user?.role,
-  };
+// Generate a range of date for calendar
+export const getDateRangeForView = (view, dateStr) => {
+  const currentDate = new Date(dateStr);
+
+  switch (view) {
+    case "Weekly": {
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+      return Array.from({ length: 7 }, (_, i) => {
+        const day = new Date(startOfWeek);
+        day.setDate(startOfWeek.getDate() + i);
+        return day;
+      });
+    }
+    case "Monthly": {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      return Array.from(
+        { length: daysInMonth },
+        (_, i) => new Date(year, month, i + 1)
+      );
+    }
+    default:
+      return [currentDate];
+  }
+};
+
+export const isFutureDate = (day) => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return new Date(day) > tomorrow;
 };

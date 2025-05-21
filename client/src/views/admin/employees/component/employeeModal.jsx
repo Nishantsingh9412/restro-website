@@ -20,6 +20,9 @@ import {
   MenuList,
   MenuItem,
   Checkbox,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import {
   formatDateForInput,
@@ -60,11 +63,11 @@ export default function EmployeeModal({
     },
     birthday: "",
     nationality: "",
-    maritalStatus: "",
-    children: "",
+    maritalStatus: null,
+    childrens: 0,
     healthInsurance: "",
     socialSecurityNumber: "",
-    taxID: "",
+    taxId: "",
     dateOfJoining: "",
     endOfEmployment: "",
     role: "",
@@ -78,6 +81,8 @@ export default function EmployeeModal({
 
   const showToast = useToast();
   const { userRole } = useUser();
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
 
@@ -86,6 +91,7 @@ export default function EmployeeModal({
 
   // Handle input changes for form fields
   const handleInputChange = (e) => {
+    // Destructure name and value from the event target
     const { name, value } = e.target;
 
     // Handle address fields separately
@@ -108,6 +114,8 @@ export default function EmployeeModal({
     setFormData((prev) => ({
       ...prev,
       variableWorkingHours: value === "variable",
+      workingHoursPerWeek:
+        value === "variable" ? null : prev.workingHoursPerWeek,
     }));
   };
 
@@ -143,40 +151,50 @@ export default function EmployeeModal({
     }
   };
 
-  // Handle modal close action
+  // Handle modal close and Reset form data and selected permissions
   const handleClose = () => {
     setFormData(initialFormState);
     setSelectedPermissions([]);
     onClose();
   };
 
-  // Validate required fields
+  // Enhanced validate function to set errors
   const validate = () => {
     const requiredFields = ["name", "email", "phone", "role", "empType"];
+    const newErrors = {};
 
-    // Check if all required fields are filled
+    // Check for required fields
     for (const field of requiredFields) {
       if (!formData[field]) {
-        showToast(
-          `Please enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
-          "error"
-        );
-        return false;
+        newErrors[field] = `Please enter ${field
+          .replace(/([A-Z])/g, " $1")
+          .toLowerCase()}`;
       }
     }
-    // Check if phone number is valid
+    // Validate phone number format
     if (formData.phone && !parsePhoneNumber(formData.phone)) {
-      showToast("Invalid phone number", "error");
-      return false;
+      newErrors.phone = "Invalid phone number";
+    }
+    // Validate email format
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Invalid email address";
     }
 
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      showToast("Please fix the errors in the form.", "error");
+      return false;
+    }
     return true;
   };
 
   // Handle save action
-  const handleSave = () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
+    // Validate form data before submission
     if (!validate()) return;
 
+    setIsLoading(true);
     // Convert selected permissions to the required format
     const selectedPermissionsAccess = employeePermissions
       .filter((role) => selectedPermissions.includes(role.id))
@@ -194,8 +212,13 @@ export default function EmployeeModal({
       endOfEmployment: formatInputToISO(formData.endOfEmployment),
     };
 
-    onSubmit(dataToSubmit);
-    handleClose();
+    // Call the onSubmit function passed as a prop
+    const res = await onSubmit(dataToSubmit);
+    // Show success or error message based on the response
+    setIsLoading(false);
+    if (res.success) {
+      handleClose();
+    }
   };
 
   // Effect to populate form data when editing an employee
@@ -215,7 +238,123 @@ export default function EmployeeModal({
     }
   }, [actionType, employeeData]);
 
-  // Render input fields
+  const autoFill = () => {
+    // Utility to generate a random number string
+    function randomNumberString(length = 6) {
+      const nums = "0123456789";
+      return Array.from(
+        { length },
+        () => nums[Math.floor(Math.random() * nums.length)]
+      ).join("");
+    }
+
+    // Utility to pick a random item from an array
+    function randomPick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    const firstNames = [
+      "John",
+      "Jane",
+      "Alex",
+      "Maria",
+      "Chris",
+      "Sara",
+      "Max",
+      "Lina",
+    ];
+    const lastNames = [
+      "Smith",
+      "Doe",
+      "Brown",
+      "Müller",
+      "Schmidt",
+      "Fischer",
+      "Weber",
+      "Becker",
+    ];
+    const cities = ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"];
+    const streets = [
+      "Main St",
+      "Park Ave",
+      "Bahnhofstrasse",
+      "Hauptstrasse",
+      "Ringstrasse",
+    ];
+    const nationalities = ["German", "French", "Italian", "Spanish", "Turkish"];
+    const maritalStatuses = ["Single", "Married", "Divorced"];
+    const roles = Object.values(employeesRoles);
+    const empTypes = ["Full-Time", "Part-Time", "Contract"];
+
+    const firstName = randomPick(firstNames);
+    const lastName = randomPick(lastNames);
+    const name = `${firstName} ${lastName}`;
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomNumberString(
+      2
+    )}@example.com`;
+    const phone = `+4915${randomNumberString(8)}`;
+    const country_code = "49";
+    const street = `${randomNumberString(2)} ${randomPick(streets)}`;
+    const city = randomPick(cities);
+    const zipCode = randomNumberString(5);
+    const birthday = `${1980 + Math.floor(Math.random() * 25)}-${String(
+      1 + Math.floor(Math.random() * 12)
+    ).padStart(2, "0")}-${String(1 + Math.floor(Math.random() * 28)).padStart(
+      2,
+      "0"
+    )}`;
+    const nationality = randomPick(nationalities);
+    const maritalStatus = randomPick(maritalStatuses);
+    const childrens = String(Math.floor(Math.random() * 4));
+    const healthInsurance = randomPick(["AOK", "TK", "Barmer", "DAK"]);
+    const socialSecurityNumber = randomNumberString(10);
+    const taxId = randomNumberString(11);
+    const dateOfJoining = `20${String(
+      10 + Math.floor(Math.random() * 15)
+    ).padStart(2, "0")}-${String(1 + Math.floor(Math.random() * 12)).padStart(
+      2,
+      "0"
+    )}-${String(1 + Math.floor(Math.random() * 28)).padStart(2, "0")}`;
+    const endOfEmployment = "";
+    const role = randomPick(roles);
+    const empType = randomPick(empTypes);
+    const workingHoursPerWeek = [20, 30, 35, 40][Math.floor(Math.random() * 4)];
+    const variableWorkingHours = Math.random() > 0.5;
+    const annualHolidayEntitlement = String(
+      20 + Math.floor(Math.random() * 11)
+    );
+    const notes = "Auto-generated employee";
+    const is_online = Math.random() > 0.5;
+
+    setFormData({
+      name,
+      email,
+      phone,
+      country_code,
+      address: {
+        street,
+        city,
+        zipCode,
+      },
+      birthday,
+      nationality,
+      maritalStatus,
+      childrens,
+      healthInsurance,
+      socialSecurityNumber,
+      taxId,
+      dateOfJoining,
+      endOfEmployment,
+      role,
+      empType,
+      workingHoursPerWeek,
+      variableWorkingHours,
+      annualHolidayEntitlement,
+      notes,
+      is_online,
+    });
+  };
+
+  // Updated renderInput to use FormControl and FormLabel
   const renderInput = (
     label,
     name,
@@ -224,15 +363,17 @@ export default function EmployeeModal({
     options = [],
     isRequired = false
   ) => (
-    <>
-      <label>
-        {label} {isRequired && <span style={{ color: "red" }}>*</span>}
-      </label>
+    <FormControl
+      isInvalid={!!errors[name]}
+      isRequired={isRequired}
+      mb={4}
+      isReadOnly={actionType === actionTypes.VIEW}
+    >
+      <FormLabel>{label}</FormLabel>
       {isSelect ? (
         <Select
           name={name}
           placeholder="Select option"
-          mb={4}
           onChange={handleInputChange}
           value={getNestedValue(formData, name) || ""}
           isReadOnly={actionType === actionTypes.VIEW}
@@ -247,15 +388,39 @@ export default function EmployeeModal({
         <Input
           name={name}
           type={type}
-          isRequired={isRequired}
+          required={isRequired}
           placeholder={`Enter ${label.toLowerCase()}`}
-          mb={4}
           onChange={handleInputChange}
           value={getNestedValue(formData, name) || ""}
           isReadOnly={actionType === actionTypes.VIEW}
         />
       )}
-    </>
+      <FormErrorMessage>{errors[name]}</FormErrorMessage>
+    </FormControl>
+  );
+
+  // Phone input with FormControl
+  const renderPhoneInput = () => (
+    <FormControl isInvalid={!!errors.phone} isRequired mb={4}>
+      <FormLabel>Phone number</FormLabel>
+      <PhoneInput
+        international
+        defaultCountry="DE"
+        value={formData.phone}
+        onChange={handlePhoneInputChange}
+        placeholder="Enter phone number"
+        inputComponent={CustomInput}
+        readOnly={actionType === actionTypes.VIEW}
+        inputProps={{
+          _focus: {
+            borderColor: "blue.500",
+            boxShadow: "0 0 0 1px blue.500",
+          },
+        }}
+        style={{ width: "100%" }}
+      />
+      <FormErrorMessage>{errors.phone}</FormErrorMessage>
+    </FormControl>
   );
 
   return (
@@ -269,129 +434,118 @@ export default function EmployeeModal({
             : "Add New Employee"}
         </ModalHeader>
         {/* <form onSubmit={handleSave}> */}
-        <ModalBody>
-          <Grid templateColumns="repeat(12, 1fr)" gap={4}>
-            <GridItem colSpan={{ base: 12, md: 6 }}>
-              {renderInput("Employee name", "name", "text", false, [], true)}
-              {renderInput("Email", "email", "email", false, [], true)}
-              <label>
-                Phone number <span style={{ color: "red" }}>*</span>
-              </label>
-              <PhoneInput
-                international
-                defaultCountry="DE"
-                value={formData.phone}
-                onChange={handlePhoneInputChange}
-                placeholder="Enter phone number"
-                inputComponent={CustomInput}
-                readOnly={actionType === actionTypes.VIEW}
-                inputProps={{
-                  _focus: {
-                    borderColor: "blue.500",
-                    boxShadow: "0 0 0 1px blue.500",
-                  },
-                }}
-                style={{ width: "100%" }}
-              />
-              {renderInput("Street", "address.street")}
-              {renderInput("City", "address.city")}
-              {renderInput("Zip code", "address.zipCode", "number")}
-              {renderInput("Birthday", "birthday", "date")}
-              {renderInput("Nationality", "nationality")}
-              {renderInput("Marital status", "maritalStatus", "text", true, [
-                "Single",
-                "Married",
-                "Divorced",
-              ])}
-              {renderInput("Children", "children", "number")}
-            </GridItem>
-            <GridItem colSpan={{ base: 12, md: 6 }}>
-              {renderInput("Date of joining", "dateOfJoining", "date")}
-              {renderInput("End of employment", "endOfEmployment", "date")}
-
-              {renderInput(
-                "Role",
-                "role",
-                "text",
-                true,
-                Object.values(employeesRoles),
-                true
-              )}
-              {renderInput(
-                "Employee type",
-                "empType",
-                "text",
-                true,
-                ["Full-Time", "Part-Time", "Contract"],
-                true
-              )}
-              <RadioGroup
-                onChange={handleRadioChange}
-                value={formData.variableWorkingHours ? "variable" : "fixed"}
-              >
-                <HStack>
-                  <Radio value="fixed">
-                    Fixed working hours per week
-                    <Input
-                      name="workingHoursPerWeek"
-                      type="number"
-                      value={
-                        formData.variableWorkingHours
-                          ? ""
-                          : formData.workingHoursPerWeek
-                      }
-                      onChange={handleInputChange}
-                    />
-                  </Radio>
-                  <Radio value="variable">Variable working hours</Radio>
-                </HStack>
-              </RadioGroup>
-              {renderInput(
-                "Annual holiday entitlement (days)",
-                "annualHolidayEntitlement",
-                "number"
-              )}
-              {renderInput("Health insurance", "healthInsurance")}
-              {renderInput(
-                "Social security number",
-                "socialSecurityNumber",
-                "number"
-              )}
-              {renderInput("Tax ID", "taxID", "number")}
-              {renderInput("Notes", "notes")}
-            </GridItem>
-          </Grid>
-          {userRole === userTypes.ADMIN && (
-            <Menu closeOnSelect={false}>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                Select Role Access
-              </MenuButton>
-              <MenuList>
-                {employeePermissions.map((option) => (
-                  <MenuItem key={option.id}>
-                    <Checkbox
-                      isChecked={isChecked(option.id)}
-                      onChange={() => handleToggle(option.id)}
-                    >
-                      {option.label}
-                    </Checkbox>
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          {actionType !== actionTypes.VIEW && (
-            <Button colorScheme="blue" mr={3} onClick={handleSave}>
-              {actionType === actionTypes.ADD ? "Add" : "Update"}
+        <form onSubmit={handleSave}>
+          <ModalBody>
+            <Grid templateColumns="repeat(12, 1fr)" gap={4}>
+              <GridItem colSpan={{ base: 12, md: 6 }}>
+                {renderInput("Employee name", "name", "text", false, [], true)}
+                {renderInput("Email", "email", "email", false, [], true)}
+                {renderPhoneInput()}
+                {renderInput("Street", "address.street")}
+                {renderInput("City", "address.city")}
+                {renderInput("Zip code", "address.zipCode", "number")}
+                {renderInput("Birthday", "birthday", "date")}
+                {renderInput("Nationality", "nationality")}
+                {renderInput("Marital status", "maritalStatus", "text", true, [
+                  "Single",
+                  "Married",
+                  "Divorced",
+                ])}
+                {renderInput("Children", "childrens", "number")}
+              </GridItem>
+              <GridItem colSpan={{ base: 12, md: 6 }}>
+                {renderInput("Date of joining", "dateOfJoining", "date")}
+                {renderInput("End of employment", "endOfEmployment", "date")}
+                {renderInput(
+                  "Role",
+                  "role",
+                  "text",
+                  true,
+                  Object.values(employeesRoles),
+                  true
+                )}
+                {renderInput(
+                  "Employee type",
+                  "empType",
+                  "text",
+                  true,
+                  ["Full-Time", "Part-Time", "Contract"],
+                  true
+                )}
+                <RadioGroup
+                  onChange={handleRadioChange}
+                  value={formData.variableWorkingHours ? "variable" : "fixed"}
+                >
+                  <FormControl mb={4}>
+                    <FormLabel>Working Hours Type</FormLabel>
+                    <HStack>
+                      <Radio value="fixed">Fixed</Radio>
+                      <Radio value="variable">Variable</Radio>
+                    </HStack>
+                  </FormControl>
+                </RadioGroup>
+                {!formData.variableWorkingHours &&
+                  renderInput(
+                    "Working Hours (weekly)",
+                    "workingHoursPerWeek",
+                    "number"
+                  )}
+                {renderInput(
+                  "Annual holiday entitlement (days)",
+                  "annualHolidayEntitlement",
+                  "number"
+                )}
+                {renderInput("Health insurance", "healthInsurance")}
+                {renderInput(
+                  "Social security number",
+                  "socialSecurityNumber",
+                  "number"
+                )}
+                {renderInput("Tax ID", "taxId", "number")}
+                {renderInput("Notes", "notes")}
+              </GridItem>
+            </Grid>
+            {userRole === userTypes.ADMIN && (
+              <Menu closeOnSelect={false}>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                  Select Role Access
+                </MenuButton>
+                <MenuList>
+                  {employeePermissions.map((option) => (
+                    <MenuItem key={option.id}>
+                      <Checkbox
+                        isChecked={isChecked(option.id)}
+                        onChange={() => handleToggle(option.id)}
+                      >
+                        {option.label}
+                      </Checkbox>
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            {actionType !== actionTypes.VIEW && (
+              <>
+                <Button variant="ghost" onClick={autoFill} type="button">
+                  AUTO FILL
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  mr={3}
+                  type="submit"
+                  isLoading={isLoading}
+                >
+                  {actionType === actionTypes.ADD ? "Add" : "Update"}
+                </Button>
+              </>
+            )}
+            <Button variant="ghost" onClick={handleClose}>
+              {actionType === actionTypes.VIEW ? "Close" : "Cancel"}
             </Button>
-          )}
-          <Button variant="ghost" onClick={handleClose}>
-            {actionType === actionTypes.VIEW ? "Close" : "Cancel"}
-          </Button>
-        </ModalFooter>
-        {/* </form> */}
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

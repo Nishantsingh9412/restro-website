@@ -50,7 +50,7 @@ export function useEmployees() {
   //Search an employee
   const filterEmployees = () => {
     return employees?.filter((employee) =>
-      employee.name.toLowerCase().includes(searchQuery.toLowerCase())
+      employee?.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     );
   };
 
@@ -58,27 +58,23 @@ export function useEmployees() {
   const addEmployee = async (formData) => {
     const newEmployee = { ...formData, created_by: userId };
     try {
-      setIsLoading(true);
       const res = await addNewEmployeeAPI(newEmployee);
       if (res.status === 200) {
         showToast("Employee added successfully", "success");
-        setEmployees((prev) => [...prev, res.data]);
-        setIsModalOpen(false);
+        setEmployees((prev) => [...prev, res?.data?.result]);
       } else {
         showToast(res.message, "error");
       }
     } catch (error) {
       showToast(error.message, "error");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Update an existing employee
   const updateEmployee = async (formData) => {
     if (!employeeId) return;
+
     try {
-      setIsLoading(true);
       const res = await updateEmployeeAPI(employeeId, formData);
       if (res.status === 200) {
         showToast("Employee updated successfully", "success");
@@ -89,14 +85,13 @@ export function useEmployees() {
               : employee
           )
         );
-        setIsModalOpen(false);
       } else {
+        console.log(res);
         showToast(res.message, "error");
       }
     } catch (error) {
+      console.error("Error updating employee:", error);
       showToast(error.message, "error");
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
 import {
   Modal,
   ModalOverlay,
@@ -15,26 +13,18 @@ import {
   Select,
   HStack,
 } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useToast } from "../../../../contexts/useToast";
+import { formatDateForInput } from "../../../../utils/utils";
 
-// Utility function to format date
-const formatDateForInput = (isoDate) => {
-  if (!isoDate) return "";
-  const date = new Date(isoDate);
-  return date.toISOString().split("T")[0]; // Extract 'yyyy-MM-dd'
-};
-
-// Main component for Leave Request Modal
 export default function LeaveRequestModal({
-  isOpen, // Boolean to control modal visibility
-  onClose, // Function to close the modal
-  actionType, // Type of action: 'edit' or 'create'
-  leaveData, // Data for the leave request
-  handleSubmit, // Function to handle form submission
-  deleteLeaveRequest, // Function to handle leave request deletion
+  isOpen,
+  onClose,
+  leaveData,
+  onSubmit,
+  onDelete,
 }) {
-  // Initial state for the form
   const initialFormState = {
     employeeId: "",
     type: "",
@@ -45,136 +35,105 @@ export default function LeaveRequestModal({
     declineAssignedShifts: true,
   };
 
-  // State to manage form data
-  const [formData, setFormData] = useState(initialFormState);
   const showToast = useToast();
-  // Effect to populate form data when editing
-  useEffect(() => {
-    if (actionType === "edit" && leaveData) {
-      // Destructure to exclude unnecessary fields
-      const { createdAt, emp_name, updatedAt, __v, ...requiredData } =
-        leaveData;
-      setFormData({
-        ...requiredData,
-        startDate: formatDateForInput(leaveData?.startDate),
-        endDate: formatDateForInput(leaveData?.endDate),
-      });
-    } else
-      setFormData((prev) => ({
-        ...prev,
-        startDate: leaveData?.startDate,
-      }));
-  }, [actionType, leaveData]);
+  const isEdit = Boolean(leaveData && leaveData._id);
+  const [formData, setFormData] = useState(initialFormState);
 
-  // Handle input change for form fields
+  // Handle input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Validate form data before submission
-  const validate = () => {
-    const { leaveType, startDate, endDate, type } = formData;
-    if (!leaveType || !startDate || !endDate || !type) {
-      showToast("All required fields must be filled out", "error");
-      return false;
-    }
-    if (new Date(startDate) >= new Date(endDate)) {
-      showToast("End date must be greater than start date", "error");
-      return false;
-    }
-    return true;
-  };
-
-  // Handle form save action
+  // Save handler
   const handleSave = () => {
     if (!validate()) return;
-
-    handleSubmit(formData);
+    onSubmit(formData);
     handleClose();
   };
 
-  // Handle modal close action
+  // Close and reset
   const handleClose = () => {
     setFormData(initialFormState);
     onClose();
   };
 
-  // Render input fields with labels
-  const renderInput = (
-    label, // Label for the input
-    name, // Name attribute for the input
-    type = "text", // Type of the input
-    isSelect = false, // Boolean to determine if input is a select dropdown
-    options = [], // Options for select dropdown
-    isRequired = true // Boolean to determine if input is required
-  ) => (
-    <>
-      <FormLabel>
-        {label} {isRequired && <span style={{ color: "red" }}>*</span>}
-      </FormLabel>
-      {isSelect ? (
-        <Select
-          name={name}
-          placeholder="Select option"
-          mb={4}
-          onChange={handleInputChange}
-          value={formData[name] || ""}
-        >
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </Select>
-      ) : (
-        <Input
-          name={name}
-          type={type}
-          mb={4}
-          onChange={handleInputChange}
-          value={formData[name] || ""}
-        />
-      )}
-    </>
-  );
+  // Validate required fields and date logic
+  const validate = () => {
+    const { type, leaveType, startDate, endDate } = formData;
+    if (!type || !leaveType || !startDate || !endDate) {
+      showToast("All required fields must be filled out", "error");
+      return false;
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      showToast("End date must be after start date", "error");
+      return false;
+    }
+    return true;
+  };
 
-  // Render the modal component
+  // Populate form for edit, or reset for add
+  useEffect(() => {
+    if (leaveData) {
+      setFormData((prev) => ({
+        ...prev,
+        employeeId: leaveData?.employeeId || "",
+        type: leaveData?.type || "",
+        leaveType: leaveData?.leaveType || "",
+        startDate: formatDateForInput(leaveData?.startDate),
+        endDate: formatDateForInput(leaveData?.endDate),
+        notes: leaveData?.notes || "",
+      }));
+    }
+  }, [leaveData, isOpen]);
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />
-      <ModalContent maxWidth="40%">
-        <ModalHeader
-          bg="#00a7c4"
-          color="white"
-          textAlign="center"
-          borderTopRadius="8px"
-        >
-          {actionType === "edit" ? "Edit Leave Request" : "Request Leave"}
+      <ModalContent maxW="400px">
+        <ModalHeader textAlign="center">
+          {isEdit ? "Edit Leave Request" : "Request Leave"}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody pb={6}>
-          <FormLabel>Employee Name</FormLabel>
-          <Input
-            name="name"
-            type="text"
-            mb={4}
-            value={leaveData?.emp_name}
-            readOnly={true}
-          />
-          {renderInput("Vacation Type", "type", "text", true, [
-            "Paid vacation",
-            "Sick leave",
-            "Special leave",
-            "Unpaid vacation",
-          ])}
-          {renderInput("Leave Type", "leaveType", "text", true, [
-            "All Day",
-            "First Half",
-            "Second Half",
-          ])}
-          <HStack spacing={4} mt={4}>
-            <FormControl>
+        <ModalBody pb={4}>
+          <FormControl mb={3}>
+            <FormLabel>Employee Name</FormLabel>
+            <Input
+              name="name"
+              type="text"
+              value={leaveData?.empName || ""}
+              readOnly
+            />
+          </FormControl>
+          <FormControl mb={3} isRequired>
+            <FormLabel>Vacation Type</FormLabel>
+            <Select
+              name="type"
+              placeholder="Select type"
+              value={formData.type}
+              onChange={handleInputChange}
+            >
+              <option value="Paid vacation">Paid vacation</option>
+              <option value="Sick leave">Sick leave</option>
+              <option value="Special leave">Special leave</option>
+              <option value="Unpaid vacation">Unpaid vacation</option>
+            </Select>
+          </FormControl>
+          <FormControl mb={3} isRequired>
+            <FormLabel>Leave Type</FormLabel>
+            <Select
+              name="leaveType"
+              placeholder="Select leave type"
+              value={formData.leaveType}
+              onChange={handleInputChange}
+            >
+              <option value="All Day">All Day</option>
+              <option value="First Half">First Half</option>
+              <option value="Second Half">Second Half</option>
+            </Select>
+          </FormControl>
+          <HStack spacing={3} mb={3}>
+            <FormControl isRequired>
               <FormLabel>Start Date</FormLabel>
               <Input
                 type="date"
@@ -183,7 +142,7 @@ export default function LeaveRequestModal({
                 onChange={handleInputChange}
               />
             </FormControl>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>End Date</FormLabel>
               <Input
                 type="date"
@@ -193,29 +152,30 @@ export default function LeaveRequestModal({
               />
             </FormControl>
           </HStack>
-          {renderInput("Notes", "notes", "text", false, [], false)}
+          <FormControl mb={2}>
+            <FormLabel>Notes</FormLabel>
+            <Input
+              name="notes"
+              type="text"
+              value={formData.notes}
+              onChange={handleInputChange}
+            />
+          </FormControl>
         </ModalBody>
         <ModalFooter>
-          {actionType === "edit" && (
+          {isEdit && (
             <Button
-              mr={3}
+              mr={2}
               colorScheme="red"
-              onClick={deleteLeaveRequest}
+              onClick={() => {
+                onDelete(leaveData._id);
+              }}
               borderRadius="8px"
             >
               Delete
             </Button>
           )}
           <Button
-            mr={3}
-            colorScheme="gray"
-            onClick={handleClose}
-            borderRadius="8px"
-          >
-            Cancel
-          </Button>
-          <Button
-            mr={3}
             colorScheme="teal"
             onClick={handleSave}
             borderRadius="8px"
@@ -228,3 +188,11 @@ export default function LeaveRequestModal({
     </Modal>
   );
 }
+
+LeaveRequestModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  leaveData: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
+};

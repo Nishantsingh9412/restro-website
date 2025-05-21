@@ -24,7 +24,7 @@ API.interceptors.response.use(
   (error) => {
     const { response } = error;
     if (response) {
-      const { status } = response;
+      const { status, data } = response;
       if (status === 401) {
         localStorage.removeItem(localStorageData.PROFILE_DATA);
         window.location.href = "/";
@@ -33,12 +33,20 @@ API.interceptors.response.use(
       } else if (status === 404) {
         console.error("Not Found: Resource unavailable.");
       } else if (status === 500) {
-        console.error("Server Error: Try again later.");
+        // Log server error message if available
+        if (data && data.message) {
+          console.error(`Server Error: ${data.message}`);
+        } else {
+          console.error("Server Error: Try again later.");
+        }
+      } else if (data && data.message) {
+        // Log any other server error messages
+        console.error(`Error: ${data.message}`);
       }
     } else {
       console.error("Network error or no response from server.");
     }
-    return Promise.reject(error);
+    return Promise.reject(error?.response?.data || error);
   }
 );
 
@@ -343,7 +351,7 @@ export const getEmployeeDetailsAPI = (employeedataId) =>
 export const fetchabsencedetailsdata = (employeedataId) =>
   API.get(`/absence/get-employee-leave/${employeedataId}`);
 // Add Absence Data
-export const addAbsencedata = (data) =>
+export const addAbsenceData = (data) =>
   API.post("/absence/add-employee-leave", data);
 // Edit Absence Data
 export const editAbsenceData = (data) =>
@@ -357,10 +365,10 @@ export const deleteAbsenceData = (data) =>
 
 // Shift Management APIs
 // Add Shift Data
-export const addshiftdata = (data) =>
+export const addShiftData = (data) =>
   API.post("/shift/add-employee-shift", data);
 // Edit Shift Data
-export const editshiftdata = (data) =>
+export const editShiftData = (data) =>
   API.post("/shift/edit-employee-shift", data);
 // Delete Shift Data
 export const deleteShiftData = (data) =>

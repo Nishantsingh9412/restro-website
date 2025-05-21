@@ -20,22 +20,23 @@ const schema = Joi.object({
   country_code: Joi.string().required(),
   role: Joi.string().required(),
   address: Joi.object().optional(),
-  birthday: Joi.date().optional(),
-  nationality: Joi.string().optional(),
-  maritalStatus: Joi.string().optional(),
-  children: Joi.number().optional(),
-  healthInsurance: Joi.string().optional(),
+  birthday: Joi.date().optional().allow(null),
+  nationality: Joi.string().optional().allow("", null),
+  maritalStatus: Joi.string().optional().allow("", null),
+  children: Joi.number().optional().allow("", null),
+  healthInsurance: Joi.string().optional().allow("", null),
+  socialSecurityNumber: Joi.string().optional().allow("", null),
+  taxId: Joi.string().optional().allow("", null),
   dateOfJoining: Joi.date().optional().allow(null),
   endOfEmployment: Joi.date().optional().allow(null),
-  empType: Joi.string().optional(),
-  workingHoursPerWeek: Joi.number().optional(),
-  variableWorkingHours: Joi.boolean().optional(),
-  annualHolidayEntitlement: Joi.number().optional(),
-  notes: Joi.string().optional(),
-  created_by: Joi.string().required(),
+  empType: Joi.string().required(),
+  workingHoursPerWeek: Joi.number().optional().allow("", null),
+  variableWorkingHours: Joi.boolean().optional().allow("", null),
+  annualHolidayEntitlement: Joi.number().optional().allow("", null),
+  notes: Joi.string().optional().allow("", null),
   is_online: Joi.boolean().optional(),
   permissions: Joi.array().optional(),
-});
+}).unknown(true);
 
 // Mapping roles to their respective CASES
 export const ROLE_CASES = {
@@ -53,55 +54,6 @@ export const ROLE_CASES = {
 const handleError = (res, error, message = "Internal Server Error") => {
   console.error(message, error.message);
   return res.status(500).json({ success: false, message });
-};
-
-// Add a new employee to the database
-export const addEmployee = async (req, res) => {
-  const { role, id, created_by } = req.user;
-
-  // Validate request body against schema
-  const { error } = schema.validate(req.body);
-  if (error) {
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
-  }
-
-  // Extract the required fields from the request body
-  const empData = req.body;
-  const { email, phone } = empData;
-
-  // Set the created_by field based on the user's role
-  empData.created_by = role === userTypes.ADMIN ? id : created_by;
-
-  // Check if an employee with the same email or phone already exists
-  const existingEmployee = await Employee.findOne({
-    $or: [{ email }, { phone }],
-  });
-  if (existingEmployee) {
-    return res.status(400).json({
-      success: false,
-      message: "Employee with this email or phone number already exists",
-    });
-  }
-
-  try {
-    // Create a new employee based on the role
-    const newEmployee = await createEmployee(empData);
-    return res.status(200).json({
-      success: true,
-      message: "Employee created successfully",
-      result: newEmployee,
-    });
-  } catch (error) {
-    return handleError(res, error, "Error in Add Employee");
-  }
-};
-
-// Create a new employee based on the role
-const createEmployee = (empData) => {
-  const EmployeeModel = ROLE_CASES[empData?.role] || Employee;
-  return EmployeeModel.create(empData);
 };
 
 // Get employees by restaurant based on userId or id
@@ -209,17 +161,84 @@ export const getOnlineEmployeesByRole = async (req, res) => {
   }
 };
 
+// Add a new employee to the database
+export const addEmployee = async (req, res) => {
+  const { role, id, created_by } = req.user;
+
+  // Check if the provided ID is valid
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid Employee ID" });
+  }
+
+  // Validate request body against schema
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
+  }
+
+  // Extract the required fields from the request body
+  const empData = req.body;
+  const { email, phone } = empData;
+
+  // Set the created_by field based on the user's role
+  empData.created_by = role === userTypes.ADMIN ? id : created_by;
+
+  // Check if an employee with the same email or phone already exists
+  const existingEmployee = await Employee.findOne({
+    $or: [{ email }, { phone }],
+  });
+  if (existingEmployee) {
+    return res.status(400).json({
+      success: false,
+      message: "Employee with this email or phone number already exists",
+    });
+  }
+
+  try {
+    // Create a new employee based on the role
+    const newEmployee = await createEmployee(empData);
+    return res.status(200).json({
+      success: true,
+      message: "Employee created successfully",
+      result: newEmployee,
+    });
+  } catch (error) {
+    return handleError(res, error, "Error in Add Employee");
+  }
+};
+
+// Create a new employee based on the role
+const createEmployee = (empData) => {
+  const EmployeeModel = ROLE_CASES[empData?.role] || Employee;
+  return EmployeeModel.create(empData);
+};
+
 // Update an existing employee's details
 export const updateEmployee = async (req, res) => {
   const { id: _id } = req.params;
   const { id: userId, role } = req.user;
-  const updateData = req.body;
 
+  // Check if the provided ID is valid
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid Employee ID" });
   }
+
+  // Validate request body against schema
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
+  }
+
+  // Extract the required fields from the request body
+  const updatedData = req.body;
 
   try {
     const filter = {
@@ -235,13 +254,11 @@ export const updateEmployee = async (req, res) => {
         .json({ success: false, message: "Employee not found" });
     }
 
-    console.log(updateData.permissions, existingEmployee.permissions);
-
     // Check Permission being updated by the admin or not
     if (
       role !== userTypes.ADMIN &&
-      updateData.permissions &&
-      !updateData.permissions.every((perm) =>
+      updatedData.permissions &&
+      !updatedData.permissions.every((perm) =>
         existingEmployee.permissions.some(
           (existingPerm) => existingPerm.id === perm.id
         )
@@ -251,16 +268,16 @@ export const updateEmployee = async (req, res) => {
         .status(403)
         .json({ success: false, message: "Permission Denied" });
     }
-    // Check if role is being updated
 
-    if (updateData.role && updateData.role !== existingEmployee.role) {
+    // Check if role is being updated
+    if (updatedData.role && updatedData.role !== existingEmployee.role) {
       // Remove the old employee document
       await Employee.findByIdAndDelete(_id);
 
       // Create a new employee document in the new role
       const newEmployee = await createEmployee({
         ...existingEmployee.toObject(),
-        ...updateData, // Override with updated fields
+        ...updatedData, // Override with updated fields
         __t: undefined, // Remove the discriminator key
       });
 
@@ -272,7 +289,7 @@ export const updateEmployee = async (req, res) => {
     }
 
     // Update the existing employee document
-    const employee = await Employee.findByIdAndUpdate(_id, updateData, {
+    const employee = await Employee.findByIdAndUpdate(_id, updatedData, {
       new: true,
     });
 

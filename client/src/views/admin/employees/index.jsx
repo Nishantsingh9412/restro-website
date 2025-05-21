@@ -48,6 +48,19 @@ export default function EmployeeComponent() {
   // Get filtered employees based on search query
   const employees = filterEmployees();
 
+  // Handle form submission for adding or updating employee
+  const handleSubmit = async (formData) => {
+    const submitAction =
+      actionType === actionTypes.ADD ? addEmployee : updateEmployee;
+    try {
+      await submitAction(formData);
+      return { success: true };
+    } catch (error) {
+      console.error("Submission Error:", error);
+      return { success: false };
+    }
+  };
+
   // Show loading spinner while data is being fetched
   if (isLoading) {
     return (
@@ -90,7 +103,11 @@ export default function EmployeeComponent() {
         />
       </Flex>
       {/* Employee Table */}
-      <TableContainer style={{ backgroundColor: "white", padding: "10px" }}>
+      <TableContainer
+        style={{ backgroundColor: "white", padding: "10px" }}
+        overflowY={"auto"}
+        maxHeight={"75vh"}
+      >
         <Table variant="bordered">
           <Thead>
             <Tr>
@@ -112,7 +129,7 @@ export default function EmployeeComponent() {
                 <Tr key={emp._id}>
                   <Td>{emp.name}</Td>
                   <Td>{emp.role}</Td>
-                  <Td>{emp.type}</Td>
+                  <Td>{emp.empType}</Td>
                   <Td>{emp.phone}</Td>
                   <Td>
                     {emp.workingHoursPerWeek
@@ -166,7 +183,7 @@ export default function EmployeeComponent() {
         onClose={onModalClose}
         actionType={actionType}
         employeeData={selectedEmployee}
-        onSubmit={actionType === actionTypes.ADD ? addEmployee : updateEmployee}
+        onSubmit={handleSubmit}
       />
     </>
   );
