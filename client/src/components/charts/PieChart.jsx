@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import ReactApexChart from "react-apexcharts";
 
 const PieChart = ({ chartData, chartOptions }) => {
@@ -24,6 +25,10 @@ const PieChart = ({ chartData, chartOptions }) => {
       height="100%"
     />
   );
+};
+PieChart.propTypes = {
+  chartData: PropTypes.array.isRequired,
+  chartOptions: PropTypes.object.isRequired,
 };
 
 export default PieChart;

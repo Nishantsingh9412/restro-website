@@ -1,21 +1,21 @@
 import PropTypes from "prop-types";
 import { Box, Heading, Card, CardBody, Text } from "@chakra-ui/react";
-import PieChart from "../../../../components/charts/PieChart";
+import MonthlyCalendarHeatmap from "../../../../components/charts/HeatMapChart";
 
-const PieCard = ({ title, chartData }) => {
+const HeatMapCard = ({ title, chartData }) => {
   return (
-    <Card width={{ base: "100%", md: "80%" }}>
+    <Card width={"100%"} minHeight={"250px"}>
       <CardBody>
-        <Heading as="h6" size="md" mb={4} textAlign="center">
+        <Heading as="h6" size="md" mb={4}>
           {title}
         </Heading>
-        {chartData?.data?.length === 0 ? (
+        {chartData?.length === 0 ? (
           <Box
             textAlign="center"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            height="80%"
+            height={"80%"}
           >
             <Text fontSize="lg" textAlign="center">
               No Data Available
@@ -23,22 +23,16 @@ const PieCard = ({ title, chartData }) => {
           </Box>
         ) : (
           <Box>
-            <PieChart
-              chartData={chartData?.data}
-              chartOptions={chartData?.options}
-            />
+            <MonthlyCalendarHeatmap chartData={chartData} />
           </Box>
         )}
       </CardBody>
     </Card>
   );
 };
-PieCard.propTypes = {
+HeatMapCard.propTypes = {
   title: PropTypes.string.isRequired,
-  chartData: PropTypes.shape({
-    data: PropTypes.array.isRequired,
-    options: PropTypes.object.isRequired,
-  }).isRequired,
+  chartData: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-export default PieCard;
+export default HeatMapCard;

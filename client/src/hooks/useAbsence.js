@@ -108,7 +108,7 @@ const useAbsence = () => {
     try {
       const res = await deleteAbsenceData({ _id: absenceId });
       if (res && res.status === 200) {
-        showToast("absence deleted successfully", "success");
+        showToast("Absence deleted successfully", "success");
         await fetchData();
         handleModalClose();
       } else if (res && res.message) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import ReactApexChart from "react-apexcharts";
 
-// eslint-disable-next-line react/prop-types
 const DonutChart = ({ chartData, chartOptions }) => {
   // State to hold chart data and options
   const [data, setData] = useState(chartData);
@@ -22,6 +22,10 @@ const DonutChart = ({ chartData, chartOptions }) => {
       height="100%"
     />
   );
+};
+DonutChart.propTypes = {
+  chartData: PropTypes.array.isRequired,
+  chartOptions: PropTypes.object.isRequired,
 };
 
 export default DonutChart;

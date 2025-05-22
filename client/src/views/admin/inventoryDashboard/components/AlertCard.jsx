@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import { Box, Heading, Text, Card, CardBody, Stack } from "@chakra-ui/react";
 
 const AlertCard = ({ lowStock, expired, upcomingExpiry }) => {
@@ -49,6 +49,11 @@ const AlertCard = ({ lowStock, expired, upcomingExpiry }) => {
       </CardBody>
     </Card>
   );
+};
+AlertCard.propTypes = {
+  lowStock: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  expired: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  upcomingExpiry: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 export default AlertCard;
