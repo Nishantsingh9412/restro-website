@@ -1,4 +1,4 @@
-import InventoryItems from "../models/itemManage.js";
+import InventoryItems from "../models/inventoryItem.js";
 import { userTypes } from "../utils/utils.js";
 
 // Centralized error handler
@@ -27,7 +27,7 @@ const fetchInventoryData = async (userId) => {
     // Fetch low stock items count
     const lowStockCount = await InventoryItems.countDocuments({
       created_by: userId,
-      $expr: { $lt: ["$available_quantity", "$minimum_quantity"] },
+      $expr: { $lt: ["$availableQuantity", "$lowStockQuantity"] },
     });
 
     // Fetch upcoming expiry items count (within the next 7 days)
@@ -39,7 +39,7 @@ const fetchInventoryData = async (userId) => {
     // Fetch item names and available quantities
     const items = await InventoryItems.find(
       { created_by: userId },
-      "item_name available_quantity"
+      "itemName availableQuantity"
     );
 
     return {

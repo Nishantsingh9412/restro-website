@@ -8,7 +8,7 @@ import fs from "fs";
 import compression from "compression";
 import { Server } from "socket.io";
 // Route imports
-import itemRoutes from "./routes/item.js";
+import inventoryRoutes from "./routes/inventoryManagement.js";
 import lowStockItems from "./routes/lowStocks.js";
 import supplierRoutes from "./routes/suppliers.js";
 import orderRoutes from "./routes/orders.js";
@@ -80,7 +80,7 @@ app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
 app.use("/uploads", express.static("uploads"));
 
 // Route middleware
-app.use("/item-management", itemRoutes);
+app.use("/inventory", inventoryRoutes);
 app.use("/inventory-dashboard", inventoryDashboardRoutes);
 app.use("/stock-management", lowStockItems);
 app.use("/supplier", supplierRoutes);

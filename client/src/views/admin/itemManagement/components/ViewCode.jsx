@@ -9,15 +9,14 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 
-const ViewCode = ({ isOpen, onClose, barCodeData, barcodeDataUrl }) => (
+const ViewCode = ({ isOpen, onClose, barCodeData }) => (
   <Modal isOpen={isOpen} onClose={onClose}>
     <ModalOverlay />
     <ModalContent>
-      <ModalHeader>{barCodeData.item_name}</ModalHeader>
+      <ModalHeader>{barCodeData?.item?.itemName}</ModalHeader>
       <ModalCloseButton />
       <ModalBody marginTop="10px">
-        <img src={barcodeDataUrl} alt="Barcode" />
-        {/* <p>{barCodeData}</p> */}
+        <img src={barCodeData?.url} alt="Barcode" />
       </ModalBody>
       <ModalFooter></ModalFooter>
     </ModalContent>

@@ -1,251 +1,60 @@
 // Import necessary libraries and components
-import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
 import {
   Box,
   Button,
-  useDisclosure,
   IconButton,
   Flex,
   Grid,
   GridItem,
   Spinner,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import "react-toastify/dist/ReactToastify.css";
-import Swal from "sweetalert2";
-import bwipjs from "bwip-js";
-
-import { IoMdQrScanner, IoMdTrash } from "react-icons/io";
-import { IoEllipsisVerticalSharp, IoPencil } from "react-icons/io5";
-import { BiBarcodeReader } from "react-icons/bi";
-import { IoMdAnalytics } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  addItemAction,
-  getAllItemsAction,
-  deleteSingleItemAction,
-  updateSingleItemAction,
-} from "../../../redux/action/Items";
-// import ViewItem from "./components/ViewItem";
-// import EdiItem from "./components/EditItem";
 import ViewCode from "./components/ViewCode";
-import ViewAnalytics from "./components/ViewAnalytics";
-import ItemManagementModal from "./components/itemModal";
-import BarCodePrinter from "./components/BarCodePrinter";
-import BarcodeScanner from "./components/BarCodeScan";
+import { IoMdAdd, IoMdAnalytics } from "react-icons/io";
+import { Dialog_Boxes } from "../../../utils/constant";
 import ItemUseModal from "./components/ItemUseModal";
+import BarCodeScanner from "./components/BarCodeScan";
+import ViewAnalytics from "./components/ViewAnalytics";
+import BarCodePrinter from "./components/BarCodePrinter";
+import ItemAddEditModal from "./components/itemModal";
 import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
-import { useToast } from "../../../contexts/useToast";
-import { actionTypes, localStorageData } from "../../../utils/constant";
+import { IoMdQrScanner, IoMdTrash } from "react-icons/io";
+import { IoCart, IoEllipsisVerticalSharp, IoPencil } from "react-icons/io5";
+import { useInventory } from "../../../hooks/useInventory";
+import { MdBarcodeReader } from "react-icons/md";
+import ActionModeModal from "./components/ActionModeModal";
 
-export default function ItemManagement() {
-  const dispatch = useDispatch();
-  const showToast = useToast();
-
-  // Manage modal states
+export default function InventoryManagement() {
   const {
-    isOpen: isAddItemModalOpen,
-    onOpen: handleAddItemModalOpen,
-    onClose: handleAddItemModalClose,
-  } = useDisclosure();
+    modals,
+    loading,
+    isPermitted,
+    barCodeData,
+    inventoryItems,
+    selectedItem,
+    setSelectedItem,
+    supplierData,
+    handleEditButton,
+    handleAddItem,
+    handleUseItem,
+    handleUpdateItem,
+    handleDeleteItem,
+    handleAfterScanned,
+    handleOnItemModalClose,
+    handleGenerateBarCode,
+  } = useInventory();
+
   const {
-    isOpen: isOpenBarCode,
-    onOpen: onOpenBarCode,
-    onClose: onCloseBarCode,
-  } = useDisclosure();
-  const {
-    isOpen: isOpenAnalytics,
-    onOpen: onOpenAnalytics,
-    onClose: onCloseAnalytics,
-  } = useDisclosure();
-
-  // Mode Modal
-  const {
-    isOpen: isModeModalOpen,
-    onOpen: handleModeModalOpen,
-    onClose: handleModeModalClose,
-  } = useDisclosure();
-
-  //Barcode Scanner Modal
-  const {
-    isOpen: isScannerModalOpen,
-    onOpen: handleScannerModalOpen,
-    onClose: handleScannerModalClose,
-  } = useDisclosure();
-
-  // Item use modal state
-  const {
-    isOpen: isItemUseModalOpen,
-    onOpen: handleItemUseModalOpen,
-    onClose: handleItemUseModalClose,
-  } = useDisclosure();
-
-  // State variables
-  const [itemDataArray, setItemDataArray] = useState([]);
-  const [actionType, setActionType] = useState(null);
-  const [selectedItemId, setSelectedItemId] = useState(null);
-  const [analyticsId, setAnalyticsId] = useState(null);
-  const [selectedItemData, setSelectedItemData] = useState(null);
-  const [barCodeData, setbarCodeData] = useState("");
-  const [barcodeDataUrl, setBarcodeDataUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isPermitted, setIsPermitted] = useState(true);
-
-  // Get item data from Redux store
-  const ItemData = useSelector((state) => state.itemsReducer.items);
-  // Get user ID from local storage
-  const userId = JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))
-    ?.result?._id;
-
-  // Generate barcode for an item
-  const handleGenerateBarcode = (item) => {
-    try {
-      let canvas = bwipjs.toCanvas("mycanvas", {
-        bcid: "code128", // Barcode type
-        text: item.bar_code, // Text to encode
-        scale: 3, // 3x scaling factor
-        height: 10, // Bar height, in millimeters
-        includetext: true, // Show human-readable text
-        textxalign: "center", // Always good to set this
-      });
-      // Convert the canvas to a data URL and save it in the state
-      let dataUrl = canvas.toDataURL();
-      setBarcodeDataUrl(dataUrl);
-    } catch (e) {
-      console.log("Error in generating barcode", e);
-    }
-  };
-
-  // Handle item submission
-  const handleSubmit = async (formData) => {
-    formData.created_by = userId;
-    try {
-      const res = await dispatch(addItemAction(formData));
-      if (res.success) {
-        handleOnItemModalClose();
-        showToast(res.message, "success");
-      } else {
-        throw new Error("Error Adding Item");
-      }
-    } catch (e) {
-      showToast(e.message, "error");
-    }
-  };
-
-  const handleUpdate = async (formData) => {
-    formData.created_by = userId;
-    try {
-      const res = await dispatch(
-        updateSingleItemAction(selectedItemId, formData)
-      );
-      if (res.success) {
-        handleOnItemModalClose();
-        showToast(res.message, "success");
-      } else {
-        throw new Error("Error Updating Item");
-      }
-    } catch (e) {
-      showToast(e.message, "error");
-      console.error(e);
-    }
-  };
-
-  // Confirm item deletion
-  const handleDeleteItem = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const deleteItemPromise = dispatch(deleteSingleItemAction(id)).then(
-          (res) => {
-            if (res.success) {
-              dispatch(getAllItemsAction(userId));
-              return res.message;
-            } else {
-              throw new Error("Error Deleting Item");
-            }
-          }
-        );
-        toast.promise(deleteItemPromise, {
-          pending: "Deleting Item...",
-          success: "Item Deleted Successfully",
-          error: "Error in Deleting Item",
-        });
-      }
-    });
-  };
-  const handleAddMode = () => {
-    setActionType(actionTypes.ADD);
-    handleAddItemModalOpen();
-  };
-
-  const handleUpdateMode = () => {
-    setActionType("edit");
-    handleAddItemModalOpen();
-  };
-
-  const handleEditItem = (item) => {
-    setActionType("edit");
-    setSelectedItemId(item?._id);
-    setSelectedItemData(item);
-    handleAddItemModalOpen();
-  };
-
-  const handleOnItemModalClose = () => {
-    handleAddItemModalClose();
-    handleItemUseModalClose();
-    setActionType(null);
-    setSelectedItemId(null);
-    setSelectedItemData(null);
-  };
-
-  const handleAfterScanned = (value) => {
-    const item = ItemData.find((item) => item.bar_code === value);
-    setSelectedItemData(item ? item : { bar_code: value });
-    setSelectedItemId(item?._id);
-    toast.info(
-      item
-        ? "Item already exists, you can edit it"
-        : "Item does not exist, you can add it"
-    );
-    handleModeModalOpen();
-  };
-
-  useEffect(() => {
-    // Fetch all items when the component mounts
-    dispatch(getAllItemsAction(userId))
-      .then((res) => {
-        if (!res.success) {
-          showToast(res.message, "error");
-          if (res.status === 403) {
-            setIsPermitted(false);
-          }
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [dispatch, showToast, userId]);
-
-  useEffect(() => {
-    setItemDataArray(ItemData);
-  }, [ItemData]);
+    scannerModal,
+    itemAddEditModal,
+    itemUseModal,
+    barCodeModal,
+    analyticsModal,
+    actionModeModal,
+  } = modals;
 
   if (!isPermitted) {
     return <ForbiddenPage isPermitted={isPermitted} />;
@@ -261,310 +70,313 @@ export default function ItemManagement() {
   }
 
   return (
-    <div style={{ marginTop: "2vw" }}>
-      <Box overflowX="auto">
-        <Box px={{ base: 4, md: 8 }} py={6}>
-          <ToastContainer />
-          <Flex justify="space-between" mb={2}>
+    <Box overflowX="auto">
+      {/* Canvas for view barcode */}
+      <canvas id="mycanvas" style={{ display: "none" }}></canvas>
+      <Box px={{ base: 4, md: 8 }} py={6}>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          justify="space-between"
+          align={{ base: "stretch", md: "center" }}
+          mt={4}
+          gap={{ base: 2, md: 0 }}
+        >
+          <Button
+            leftIcon={<IoMdQrScanner />}
+            colorScheme="teal"
+            variant="solid"
+            p={4}
+            onClick={scannerModal.onOpen}
+            w={{ base: "100%", md: "auto" }}
+            mb={{ base: 2, md: 0 }}
+          >
+            Open Scanner
+          </Button>
+          <Flex
+            direction={{ base: "column", md: "row" }}
+            gap={{ base: 2, md: 2 }}
+            w={{ base: "100%", md: "auto" }}
+          >
             <Button
-              leftIcon={<IoMdQrScanner />}
+              leftIcon={<IoMdAdd />}
               colorScheme="teal"
               variant="solid"
               p={4}
-              onClick={handleScannerModalOpen}
+              onClick={itemAddEditModal.onOpen}
               w={{ base: "100%", md: "auto" }}
-              mx={2}
+              mb={{ base: 2, md: 0 }}
             >
-              Open Scanner
+              Add Item
+            </Button>
+            <Button
+              leftIcon={<IoCart />}
+              colorScheme="teal"
+              variant="solid"
+              p={4}
+              onClick={itemUseModal.onOpen}
+              w={{ base: "100%", md: "auto" }}
+            >
+              Use Item
             </Button>
           </Flex>
+        </Flex>
 
-          <Box overflowX="auto">
-            {/* Table Header */}
-            <Box display={{ base: "none", lg: "block" }} mt="10px">
+        <Box overflowX="auto">
+          {/* Table Header */}
+          <Box display={{ base: "none", lg: "block" }} mt="10px">
+            <Grid
+              templateColumns="repeat(8, 1fr)"
+              gap={6}
+              bg="gray.100"
+              p={2}
+              borderRadius="md"
+              textAlign="center"
+              fontWeight="bold"
+              fontSize="md"
+              className="tableHeader"
+            >
+              <GridItem>Item Name</GridItem>
+              <GridItem>Unit</GridItem>
+              <GridItem>Available</GridItem>
+              <GridItem>Minimum</GridItem>
+              <GridItem>BarCode No.</GridItem>
+              <GridItem>Last Replenished</GridItem>
+              <GridItem>Expiry Date</GridItem>
+              <GridItem>Actions</GridItem>
+            </Grid>
+
+            {/* Table Rows */}
+            {inventoryItems?.map((item, index) => (
               <Grid
                 templateColumns="repeat(8, 1fr)"
-                gap={6}
-                bg="gray.100"
-                p={2}
+                gap={2}
+                my={1}
+                key={index}
+                bg={index % 2 === 0 ? "white" : "gray.50"}
+                py={2}
                 borderRadius="md"
+                alignItems="center"
+                className="tableRow"
                 textAlign="center"
-                fontWeight="bold"
-                fontSize="md"
-                className="tableHeader"
+                fontWeight={500}
               >
-                <GridItem>Item Name</GridItem>
-                <GridItem>Unit</GridItem>
-                <GridItem>Available</GridItem>
-                <GridItem>Minimum</GridItem>
-                <GridItem>Barcode No.</GridItem>
-                <GridItem>Last Replenished</GridItem>
-                <GridItem>Expiry Date</GridItem>
-                <GridItem>Actions</GridItem>
+                <GridItem mx={1}>
+                  {item.itemName && item.itemName.length > 18
+                    ? `${item.itemName.substring(0, 18)}...`
+                    : item.itemName || "-"}
+                </GridItem>
+                <GridItem>{item.itemUnit || "-"}</GridItem>
+                <GridItem>{item.availableQuantity ?? "-"}</GridItem>
+                <GridItem>{item.lowStockQuantity ?? "-"}</GridItem>
+                <GridItem>
+                  <BarCodePrinter barCodeValue={item?.barCode} /> <br />
+                  {item.barCode || "--"}
+                </GridItem>
+                <GridItem>
+                  {item.updatedAt
+                    ? new Date(item.updatedAt).toLocaleDateString("en-GB")
+                    : "--"}
+                </GridItem>
+                <GridItem>
+                  {item.expiryDate
+                    ? new Date(item.expiryDate).toLocaleDateString("en-GB")
+                    : "--"}
+                </GridItem>
+                <GridItem>
+                  <Menu>
+                    <MenuButton
+                      as={IconButton}
+                      aria-label="Options"
+                      icon={<IoEllipsisVerticalSharp />}
+                      variant="ghost"
+                    />
+                    <MenuList>
+                      <MenuItem
+                        icon={<IoPencil />}
+                        onClick={() => handleEditButton(item)}
+                      >
+                        Edit Item
+                      </MenuItem>
+                      <MenuItem
+                        icon={<IoMdTrash />}
+                        onClick={() =>
+                          Dialog_Boxes.showDeleteConfirmation(() =>
+                            handleDeleteItem(item._id)
+                          )
+                        }
+                      >
+                        Delete Item
+                      </MenuItem>
+                      <MenuItem
+                        icon={<MdBarcodeReader />}
+                        onClick={() => handleGenerateBarCode(item)}
+                      >
+                        Generate BarCode
+                      </MenuItem>
+                      <MenuItem
+                        icon={<IoMdAnalytics />}
+                        onClick={analyticsModal.onOpen}
+                      >
+                        View Analytics
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                </GridItem>
               </Grid>
-
-              {/* Table Rows */}
-              {itemDataArray?.map((item, index) => (
-                <Grid
-                  templateColumns="repeat(8, 1fr)"
-                  gap={2}
-                  my={1}
-                  key={index}
-                  bg={index % 2 === 0 ? "white" : "gray.50"}
-                  py={2}
-                  borderRadius="md"
-                  alignItems="center"
-                  className="tableRow"
-                  textAlign="center"
-                  fontWeight={500}
-                >
-                  <GridItem mx={1}>
-                    {item.item_name.length > 18
-                      ? `${item.item_name.substring(0, 18)}...`
-                      : item.item_name}
-                  </GridItem>
-                  <GridItem>{item.item_unit ?? "-"}</GridItem>
-                  <GridItem>{item.available_quantity ?? "-"}</GridItem>
-                  <GridItem>{item.minimum_quantity ?? "-"}</GridItem>
-                  <GridItem>
-                    <BarCodePrinter barCodeValue={item?.bar_code} /> <br />
-                    {item.existing_barcode_no || item.bar_code || "--"}
-                  </GridItem>
-                  <GridItem>
-                    {new Date(item.updatedAt).toLocaleDateString("en-GB")}{" "}
-                    {/* Converts to DD-MM-YYYY */}
-                  </GridItem>
-                  <GridItem>
-                    {item.expiry_date
-                      ? new Date(item.expiry_date).toLocaleDateString("en-GB")
-                      : "--"}
-                  </GridItem>
-                  <GridItem>
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        aria-label="Options"
-                        icon={<IoEllipsisVerticalSharp />}
-                        variant="ghost"
-                      />
-                      <MenuList>
-                        <MenuItem
-                          icon={<IoPencil />}
-                          onClick={() => handleEditItem(item)}
-                        >
-                          Edit Item
-                        </MenuItem>
-                        <MenuItem
-                          icon={<IoMdTrash />}
-                          onClick={() => handleDeleteItem(item._id)}
-                        >
-                          Delete Item
-                        </MenuItem>
-                        <MenuItem
-                          icon={<BiBarcodeReader />}
-                          onClick={() => {
-                            handleGenerateBarcode(item);
-                            setbarCodeData(item);
-                            onOpenBarCode();
-                          }}
-                        >
-                          Generate Barcode
-                        </MenuItem>
-                        <MenuItem
-                          icon={<IoMdAnalytics />}
-                          onClick={() => {
-                            setAnalyticsId(item._id);
-                            onOpenAnalytics();
-                          }}
-                        >
-                          View Analytics
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </GridItem>
-                </Grid>
-              ))}
-            </Box>
+            ))}
           </Box>
         </Box>
-
-        {/* Mobile View */}
-        <Box display={{ base: "block", lg: "none" }} mt="10px">
-          {itemDataArray?.map((item, index) => (
-            <Box
-              key={index}
-              mb={4}
-              p={4}
-              borderWidth="1px"
-              borderRadius="lg"
-              bg="white"
-            >
-              <Box>
-                <strong>Item Name:</strong> {item.item_name}
-              </Box>
-              <Box>
-                <strong>Unit:</strong> {item.item_unit}
-              </Box>
-              <Box>
-                <strong>Available:</strong> {item.available_quantity}
-              </Box>
-              <Box>
-                <strong>Minimum:</strong> {item.minimum_quantity}
-              </Box>
-              <Box>
-                <strong>Barcode No.:</strong>{" "}
-                {item.existing_barcode_no || item.bar_code || "--"}
-              </Box>
-              <Box>
-                <strong>Last Replenished:</strong>{" "}
-                {new Date(item.updatedAt).toLocaleDateString("en-GB")}{" "}
-              </Box>
-              <Box>
-                <strong>Expiry Date:</strong>{" "}
-                {item.expiry_date
-                  ? new Date(item.expiry_date).toLocaleDateString("en-GB")
-                  : "--"}
-              </Box>
-
-              <Box mt={2}>
-                <Flex justifyContent="center">
-                  <IconButton
-                    aria-label="Delete Item"
-                    colorScheme="red"
-                    size="md"
-                    icon={<IoMdTrash />}
-                    onClick={() => handleDeleteItem(item._id)}
-                    mr={2}
-                  />
-                  <IconButton
-                    aria-label="Edit Item"
-                    colorScheme="yellow"
-                    size="md"
-                    icon={<IoPencil />}
-                    onClick={() => {
-                      setSelectedItemData(item._id);
-                      setActionType("edit");
-                      handleAddItemModalOpen();
-                    }}
-                    mr={2}
-                  />
-                  <IconButton
-                    aria-label="Generate Barcode"
-                    colorScheme="blue"
-                    size="md"
-                    icon={<BiBarcodeReader />}
-                    onClick={() => {
-                      handleGenerateBarcode(item);
-                      setbarCodeData(item);
-                      onOpenBarCode();
-                    }}
-                    mr={2}
-                  />
-                  <IconButton
-                    aria-label="Analytics"
-                    colorScheme="teal"
-                    size="md"
-                    icon={<IoMdAnalytics />}
-                    onClick={() => {
-                      setAnalyticsId(item._id);
-                      onOpenAnalytics();
-                    }}
-                    mr={2}
-                  />
-                  <BarCodePrinter
-                    barCodeValue={item?.bar_code}
-                    isMobile={true}
-                  />
-                </Flex>
-              </Box>
-            </Box>
-          ))}
-        </Box>
       </Box>
-      {/* Modal of button */}
-      <Modal isOpen={isModeModalOpen} onClose={handleModeModalClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Select method</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Flex justifyContent="space-around">
-              <Button
-                colorScheme="teal"
-                onClick={() => {
-                  /* Handle add item */
-                  !selectedItemId ? handleAddMode() : handleUpdateMode();
-                  handleModeModalClose();
-                }}
-              >
-                {!selectedItemId ? "Add Item" : "Update Item"}
-              </Button>
-              <Button
-                colorScheme="blue"
-                onClick={() => {
-                  /* Handle scan input */
-                  handleItemUseModalOpen();
-                  handleModeModalClose();
-                }}
-              >
-                Use Item
-              </Button>
-            </Flex>
-          </ModalBody>
-          <ModalFooter></ModalFooter>
-        </ModalContent>
-      </Modal>
-      <canvas id="mycanvas" style={{ display: "none" }}></canvas>
 
-      {isAddItemModalOpen && (
-        <ItemManagementModal
-          isOpen={isAddItemModalOpen}
+      {/* Mobile View */}
+      <Box display={{ base: "block", lg: "none" }} mt="10px">
+        {inventoryItems?.map((item, index) => (
+          <Box
+            key={index}
+            mb={4}
+            p={4}
+            borderWidth="1px"
+            borderRadius="lg"
+            bg="white"
+          >
+            <Box>
+              <strong>Item Name:</strong>{" "}
+              {item.itemName && item.itemName.length > 18
+                ? `${item.itemName.substring(0, 18)}...`
+                : item.itemName || "-"}
+            </Box>
+            <Box>
+              <strong>Unit:</strong> {item.itemUnit || "-"}
+            </Box>
+            <Box>
+              <strong>Available:</strong> {item.availableQuantity ?? "-"}
+            </Box>
+            <Box>
+              <strong>Minimum:</strong> {item.lowStockQuantity ?? "-"}
+            </Box>
+            <Box>
+              <strong>BarCode No.:</strong> {item.barCode || "--"}
+            </Box>
+            <Box>
+              <strong>Last Replenished:</strong>{" "}
+              {item.updatedAt
+                ? new Date(item.updatedAt).toLocaleDateString("en-GB")
+                : "--"}
+            </Box>
+            <Box>
+              <strong>Expiry Date:</strong>{" "}
+              {item.expiryDate
+                ? new Date(item.expiryDate).toLocaleDateString("en-GB")
+                : "--"}
+            </Box>
+
+            <Box mt={2}>
+              <Flex justifyContent="center">
+                <IconButton
+                  aria-label="Delete Item"
+                  colorScheme="red"
+                  size="md"
+                  icon={<IoMdTrash />}
+                  onClick={() =>
+                    Dialog_Boxes.showDeleteConfirmation(() =>
+                      handleDeleteItem(item._id)
+                    )
+                  }
+                  mr={2}
+                />
+                <IconButton
+                  aria-label="Edit Item"
+                  colorScheme="yellow"
+                  size="md"
+                  icon={<IoPencil />}
+                  onClick={() => handleEditButton(item)}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label="Generate BarCode"
+                  colorScheme="blue"
+                  size="md"
+                  icon={<MdBarcodeReader />}
+                  onClick={() => handleGenerateBarCode(item)}
+                  mr={2}
+                />
+                <IconButton
+                  aria-label="Analytics"
+                  colorScheme="teal"
+                  size="md"
+                  icon={<IoMdAnalytics />}
+                  onClick={analyticsModal.onOpen}
+                  mr={2}
+                />
+                <BarCodePrinter barCodeValue={item?.barCode} isMobile={true} />
+              </Flex>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+      {/* </Box> */}
+
+      {itemAddEditModal.isOpen && (
+        <ItemAddEditModal
+          isOpen={itemAddEditModal.isOpen}
           onClose={handleOnItemModalClose}
-          actionType={actionType}
-          handleSubmit={
-            actionType === actionTypes.ADD ? handleSubmit : handleUpdate
-          }
-          itemData={
-            actionType === actionTypes.EDIT
-              ? selectedItemData
-              : selectedItemData
-          }
+          onSubmit={selectedItem?._id ? handleUpdateItem : handleAddItem}
+          itemData={selectedItem}
+          suppliers={supplierData}
         />
       )}
-      {isScannerModalOpen && (
-        <BarcodeScanner
-          isOpen={isScannerModalOpen}
-          onClose={handleScannerModalClose}
-          handleAfterScanned={handleAfterScanned}
-          handleAfterManually={handleModeModalOpen}
+      {scannerModal.isOpen && (
+        <BarCodeScanner
+          isOpen={scannerModal.isOpen}
+          onClose={scannerModal.onClose}
+          onScanned={handleAfterScanned}
         />
       )}
-      {isOpenBarCode && (
+      {actionModeModal.isOpen && (
+        <ActionModeModal
+          isOpen={actionModeModal.isOpen}
+          onClose={() => {
+            actionModeModal.onClose();
+            setSelectedItem(null);
+          }}
+          onAddUpdate={() => {
+            itemAddEditModal.onOpen();
+            actionModeModal.onClose();
+          }}
+          onUseItem={() => {
+            itemUseModal.onOpen();
+            actionModeModal.onClose();
+          }}
+          selectedItemId={selectedItem?._id}
+        />
+      )}
+
+      {barCodeModal.isOpen && (
         <ViewCode
-          isOpen={isOpenBarCode}
-          onOpen={onOpenBarCode}
-          onClose={onCloseBarCode}
+          isOpen={barCodeModal.isOpen}
+          onClose={barCodeModal.onClose}
           barCodeData={barCodeData}
-          barcodeDataUrl={barcodeDataUrl}
         />
       )}
-      {isOpenAnalytics && (
+      {analyticsModal.isOpen && (
         <ViewAnalytics
-          isOpen={isOpenAnalytics}
-          onOpen={onOpenAnalytics}
-          onClose={onCloseAnalytics}
-          AnalyticsSelectedId={analyticsId}
+          isOpen={analyticsModal.isOpen}
+          onClose={analyticsModal.onClose}
+          AnalyticsSelectedId={""}
         />
       )}
-      {isItemUseModalOpen && (
+      {itemUseModal.isOpen && (
         <ItemUseModal
-          isOpen={isItemUseModalOpen}
-          onClose={handleOnItemModalClose}
-          itemData={selectedItemData}
-          handleUpdate={handleUpdate}
-          itemsList={!selectedItemId ? itemDataArray : null}
+          isOpen={itemUseModal.isOpen}
+          onClose={() => {
+            itemUseModal.onClose();
+            setSelectedItem(null);
+          }}
+          onSubmit={handleUseItem}
+          itemsList={inventoryItems}
+          itemData={selectedItem}
         />
       )}
-    </div>
+    </Box>
   );
 }

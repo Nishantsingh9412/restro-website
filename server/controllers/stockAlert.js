@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import ItemManagement from "../models/itemManage.js";
+import ItemManagement from "../models/inventoryItem.js";
 
 // Function to check if a given ID is a valid MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);

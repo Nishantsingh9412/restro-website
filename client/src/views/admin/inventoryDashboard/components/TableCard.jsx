@@ -84,9 +84,9 @@ const TableCard = ({ tableData }) => {
               {tableData?.slice(0, 4).map((row, index) => (
                 <Tr key={dummyData[index]?.id}>
                   <Td>{dummyData[index]?.date}</Td>
-                  <Td>{row?.item_name}</Td>
+                  <Td>{row?.itemName}</Td>
                   <Td>{dummyData[index]?.action}</Td>
-                  <Td>{row?.available_quantity}</Td>
+                  <Td>{row?.availableQuantity}</Td>
                   <Td>{dummyData[index]?.user}</Td>
                 </Tr>
               ))}

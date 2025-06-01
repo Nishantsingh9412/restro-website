@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Button,
+  Text,
   Modal,
-  ModalOverlay,
-  ModalContent,
+  Button,
+  ModalBody,
   ModalHeader,
   ModalFooter,
-  ModalBody,
+  ModalOverlay,
+  ModalContent,
   ModalCloseButton,
-  Text,
 } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 
 const BarcodeScanner = ({
   isOpen,
   onClose,
-  handleAfterScanned,
-  handleAfterManually,
+  onScanned,
+  // handleAfterManually,
 }) => {
   const [scanResult, setScanResult] = useState("Not Found");
   const [isScanning, setIsScanning] = useState(true);
@@ -33,17 +34,17 @@ const BarcodeScanner = ({
     setIsScanning(true);
   };
 
-  const handleManually = () => {
-    handleClose();
-    handleAfterManually();
-  };
+  // const handleManually = () => {
+  //   handleClose();
+  //   handleAfterManually();
+  // };
 
   // Handle scan result
   const handleResultScanned = (result) => {
     if (result) {
       setScanResult(result.text);
       setIsScanning(false); // Stop scanning once a barcode is detected
-      handleAfterScanned(result.text);
+      onScanned(result.text);
       handleClose();
     }
   };
@@ -77,7 +78,7 @@ const BarcodeScanner = ({
             </div>
           )}
         </ModalBody>
-        <Text
+        {/* <Text
           mx={6}
           cursor="pointer"
           textDecoration="underline"
@@ -87,7 +88,7 @@ const BarcodeScanner = ({
           onClick={handleManually}
         >
           Add/Use Manually?
-        </Text>
+        </Text> */}
         <ModalFooter>
           <Button colorScheme="blue" onClick={handleClose}>
             Close
@@ -96,6 +97,12 @@ const BarcodeScanner = ({
       </ModalContent>
     </Modal>
   );
+};
+BarcodeScanner.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onScanned: PropTypes.func.isRequired,
+  handleAfterManually: PropTypes.func.isRequired,
 };
 
 export default BarcodeScanner;

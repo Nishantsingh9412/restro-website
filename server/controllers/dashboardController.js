@@ -1,4 +1,4 @@
-import ItemManagement from "../models/itemManage.js";
+import ItemManagement from "../models/inventoryItem.js";
 import Supplier from "../models/supplier.js";
 
 // Centralized error handler
@@ -64,8 +64,11 @@ const fetchSuppliersByLocation = async () => {
   return result;
 };
 
-const fetchSupplierContactInfo = async () => {
-  return await Supplier.find({ phone: { $ne: "" } }, "name phone pic").sort({
+const fetchSupplierContactInfo = async (id) => {
+  return await Supplier.find(
+    { phone: { $ne: "" }, created_by: id },
+    "name phone pic"
+  ).sort({
     createdAt: -1,
   });
 };
@@ -102,10 +105,13 @@ export const getAdminDashboardDataController = async (req, res) => {
 };
 
 export const getContactOfSupplierController = async (req, res) => {
+  const id = req.user.id;
   try {
-    const result = await fetchSupplierContactInfo();
+    const result = await fetchSupplierContactInfo(id);
     if (!result.length) {
-      return res.status(404).json({ success: false, message: "No contact information available" });
+      return res
+        .status(404)
+        .json({ success: false, message: "No contact information available" });
     }
     res.status(200).json({ success: true, message: "Total Contacts", result });
   } catch (error) {

@@ -71,9 +71,9 @@ export default function AdminDashboard() {
   // Calculate total stock count and price using useMemo
   const { allStockCount, allStockPrice } = useMemo(() => {
     return items.reduce(
-      (acc, { available_quantity, price = 0 }) => {
-        acc.allStockCount += available_quantity;
-        acc.allStockPrice += available_quantity * price;
+      (acc, { availableQuantity, price = 0 }) => {
+        acc.allStockCount += availableQuantity;
+        acc.allStockPrice += availableQuantity * price;
         return acc;
       },
       { allStockCount: 0, allStockPrice: 0 }
@@ -81,10 +81,10 @@ export default function AdminDashboard() {
   }, [items]);
 
   // Transform data for pie chart
-  const transformedChartData = items.reduce(
+  const transformedChartData = items?.reduce(
     (acc, item) => {
-      acc.data.push(item.available_quantity);
-      acc.options.labels.push(item.item_name);
+      acc.data.push(item?.availableQuantity);
+      acc.options.labels.push(item?.itemName);
       return acc;
     },
     { data: [], options: { labels: [] } }

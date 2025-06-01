@@ -94,19 +94,21 @@ export const updateEmployeeOnlineStatus = (updatedData) =>
 export const getInventoryDashboardData = () =>
   API.get("/inventory-dashboard/get-dashboard-data");
 // Add Item
-export const AddItem = (newItem) =>
-  API.post("/item-management/additem", newItem);
+export const addInventoryItem = (newItem) =>
+  API.post("/inventory/add-item", newItem);
 // Get All Items
-export const GetAllItems = () => API.get(`/item-management/get-all-items`);
+export const getAllInventoryItems = () => API.get(`/inventory/get-all-items`);
 // Get Single Item
-export const GetSingleItem = (id) => API.get(`/item-management/get-item/${id}`);
+export const getSingleItem = (id) => API.get(`/inventory/get-item/${id}`);
 // Update Item
-export const updateSingleItem = (id, updatedItem) =>
-  API.patch(`/item-management/updateitem/${id}`, updatedItem);
+export const updateInventoryItem = (id, updatedItem) =>
+  API.patch(`/inventory/update-item/${id}`, updatedItem);
 // Delete Item
-export const deleteSingleItem = (id) =>
-  API.delete(`/item-management/deleteitem/${id}`);
-
+export const deleteInventoryItem = (id) =>
+  API.delete(`/inventory/delete-item/${id}`);
+// Use Item
+export const reduceInventoryItem = (id, updatedData) =>
+  API.patch(`/inventory/use-item/${id}`, updatedData);
 // Stocks Management APIs
 // Get All Stocks
 export const getAllStocks = (localstorageId) =>
@@ -120,8 +122,10 @@ export const getLowStocks = (localstorageId) =>
 export const addSupplier = (newSupplier) =>
   API.post("/supplier/add-supplier", newSupplier);
 // Get All Suppliers
-export const getAllSuppliers = (localstorageId) =>
-  API.get(`/supplier/get-suppliers/${localstorageId}`);
+export const getAllSuppliers = () => API.get(`/supplier/get-all-suppliers`);
+// Get Suppliers Contacts
+export const getSupplierContactsAPI = () =>
+  API.get(`/supplier/get-supplier-contacts`);
 // Get Single Supplier
 export const getSingleSupplier = (id) =>
   API.get(`/supplier/get-supplier-single/${id}`);

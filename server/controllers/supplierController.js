@@ -51,8 +51,8 @@ export const addSupplier = async (req, res) => {
 };
 
 // Controller to get all suppliers created by a specific user
-export const getSupplier = async (req, res) => {
-  const { id: _id } = req.params;
+export const getAllSupplier = async (req, res) => {
+  const { id: _id } = req.user;
 
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return handleErrorResponse(res, 400, "Invalid User Id");
@@ -90,6 +90,30 @@ export const getSingleSupplier = async (req, res) => {
     return handleSuccessResponse(res, 200, "Single Supplier", singleSupplier);
   } catch (error) {
     console.log("Error in getSingleSupplier", error.message);
+    return handleErrorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+export const getSupplierContacts = async (req, res) => {
+  const id = req.user.id;
+  try {
+    const suppliersContacts = await supplier.find(
+      { created_by: id },
+      "name phone"
+    );
+
+    if (suppliersContacts.length === 0) {
+      return handleErrorResponse(res, 400, "No Suppliers Found");
+    }
+
+    return handleSuccessResponse(
+      res,
+      200,
+      "Suppliers Contacts",
+      suppliersContacts
+    );
+  } catch (error) {
+    console.log("Error in getSuppliersContacts", error.message);
     return handleErrorResponse(res, 500, "Internal Server Error");
   }
 };
