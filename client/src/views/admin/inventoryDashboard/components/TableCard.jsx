@@ -12,41 +12,6 @@ import {
 import PropTypes from "prop-types";
 
 const TableCard = ({ tableData }) => {
-  const dummyData = [
-    {
-      id: 1,
-      date: "2023-10-01",
-      itemName: "Tomatoes",
-      action: "Added",
-      quantity: 50,
-      user: "John Doe",
-    },
-    {
-      id: 2,
-      date: "2023-10-02",
-      itemName: "Potatoes",
-      action: "Removed",
-      quantity: 20,
-      user: "Jane Smith",
-    },
-    {
-      id: 3,
-      date: "2023-10-03",
-      itemName: "Carrots",
-      action: "Added",
-      quantity: 30,
-      user: "Alice Johnson",
-    },
-    {
-      id: 4,
-      date: "2023-10-03",
-      itemName: "Carrots",
-      action: "Added",
-      quantity: 20,
-      user: "Nizam Shah",
-    },
-  ];
-
   return (
     <Box
       borderWidth="1px"
@@ -81,13 +46,21 @@ const TableCard = ({ tableData }) => {
               </Tr>
             </Thead>
             <Tbody>
-              {tableData?.slice(0, 4).map((row, index) => (
-                <Tr key={dummyData[index]?.id}>
-                  <Td>{dummyData[index]?.date}</Td>
+              {tableData?.slice(0, 4).map((row) => (
+                <Tr key={row?._id}>
+                  <Td>
+                    {" "}
+                    {row?.timestamp
+                      ? new Date(row.timestamp).toLocaleDateString("en-GB")
+                      : "--"}
+                  </Td>
                   <Td>{row?.itemName}</Td>
-                  <Td>{dummyData[index]?.action}</Td>
-                  <Td>{row?.availableQuantity}</Td>
-                  <Td>{dummyData[index]?.user}</Td>
+                  <Td>
+                    {row?.actionType[0]?.toUpperCase() +
+                      row?.actionType.slice(1)}
+                  </Td>
+                  <Td>{row?.quantity}</Td>
+                  <Td>{row?.userName}</Td>
                 </Tr>
               ))}
             </Tbody>

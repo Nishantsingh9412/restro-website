@@ -1,21 +1,38 @@
 import mongoose, { Schema } from "mongoose";
 
-// Action history schema
-const actionHistorySchema = new Schema({
+// Action History Schema
+const actionHistorySchema = new mongoose.Schema({
   actionType: {
     type: String,
     required: true,
-    enum: ["created", "updated", "deleted", "used"],
+    enum: ["created", "used", "updated"],
   },
   user: {
     type: Schema.Types.ObjectId,
     refPath: "userModel", // Dynamic reference
     required: true,
   },
+  userName: {
+    type: String,
+    required: true,
+  },
   userModel: {
     type: String,
     required: true,
-    enum: ["Admin", "Employee"], // Add your employee model name here
+    enum: ["Admin", "Employee"],
+  },
+  quantity: {
+    type: Number,
+    default: null, // Only relevant for created/used
+  },
+  purchasePrice: {
+    type: Number,
+    default: null, // Relevant for created or updated
+  },
+  changes: {
+    type: Object,
+    default: null, // To track what fields changed during update
+    // Example: { quantityChanged: { from: 10, to: 15 }, priceChanged: { from: 100, to: 120 } }
   },
   timestamp: {
     type: Date,

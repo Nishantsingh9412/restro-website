@@ -215,7 +215,10 @@ export default function InventoryManagement() {
                       </MenuItem>
                       <MenuItem
                         icon={<IoMdAnalytics />}
-                        onClick={analyticsModal.onOpen}
+                        onClick={() => {
+                          analyticsModal.onOpen();
+                          setSelectedItem(item);
+                        }}
                       >
                         View Analytics
                       </MenuItem>
@@ -305,7 +308,10 @@ export default function InventoryManagement() {
                   colorScheme="teal"
                   size="md"
                   icon={<IoMdAnalytics />}
-                  onClick={analyticsModal.onOpen}
+                  onClick={() => {
+                    analyticsModal.onOpen();
+                    setSelectedItem(item);
+                  }}
                   mr={2}
                 />
                 <BarCodePrinter barCodeValue={item?.barCode} isMobile={true} />
@@ -362,7 +368,7 @@ export default function InventoryManagement() {
         <ViewAnalytics
           isOpen={analyticsModal.isOpen}
           onClose={analyticsModal.onClose}
-          AnalyticsSelectedId={""}
+          itemData={selectedItem}
         />
       )}
       {itemUseModal.isOpen && (

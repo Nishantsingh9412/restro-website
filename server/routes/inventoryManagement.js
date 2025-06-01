@@ -7,6 +7,7 @@ import {
   updateItem,
   deleteAllItems,
   useInventoryItem,
+  getInventoryItemReports,
 } from "../controllers/invenManagController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
@@ -18,6 +19,13 @@ router.get("/get-all-items", accessInventory, getAllItems);
 
 // Get item by id
 router.get("/get-item/:id", accessInventory, getItemById);
+
+// Get item reports
+router.get(
+  "/get-item-reports/:id",
+  accessInventory,
+  getInventoryItemReports
+);
 
 // Add item
 router.post("/add-item", accessInventory, addInventoryItem);

@@ -9,9 +9,16 @@ const getDaysInMonth = (year, month) => {
 };
 
 // Get background color based on usage
-
 const getColor = (usage) => {
   return COLOR_SCALE.find((scale) => usage <= scale.threshold).color;
+};
+
+// Helper to format date to local format
+const formatDateLocal = (date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 };
 
 // MonthlyCalendarHeatmap component
@@ -72,13 +79,9 @@ const MonthlyCalendarHeatmap = ({ chartData }) => {
       <SimpleGrid columns={{ base: 5, sm: 7, md: 10, lg: 12 }} spacing={2}>
         {Array.from({ length: daysInMonth }, (_, index) => {
           const day = index + 1;
-          const dateStr = new Date(
-            selectedMonth.getFullYear(),
-            selectedMonth.getMonth(),
-            day
-          )
-            .toISOString()
-            .slice(0, 10);
+          const dateStr = formatDateLocal(
+            new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), day)
+          );
 
           // Get usage for the current day and determine background color
           const usage = usageMap[dateStr] || 0;

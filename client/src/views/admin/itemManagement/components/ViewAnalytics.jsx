@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
   Modal,
   ModalOverlay,
@@ -9,100 +9,134 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Box,
+  Flex,
+  Text,
+  Spinner,
 } from "@chakra-ui/react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { useSelector, useDispatch } from "react-redux";
-import { format, addMonths } from "date-fns";
-// import { getSingleItemAction } from "../../../../redux/action/Items.js";
+import { getSingleItemReports } from "../../../../api";
+import StockBarChartCard from "../../inventoryDashboard/components/StockBarCard";
+import HeatMapCard from "../../inventoryDashboard/components/HeatMapCard";
+import PriceLineChartCard from "../../inventoryDashboard/components/PriceChartCard";
 
-const ViewAnalytics = ({ isOpen, onClose, AnalyticsSelectedId }) => {
-  const dispatch = useDispatch();
+const ViewAnalytics = ({ isOpen, onClose, itemData }) => {
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState({
+    monthlyStockData: [],
+    monthlyPurchasePrice: [],
+    dailyUsage: [],
+  });
 
-  // Fetch the selected item's data when the component is mounted or AnalyticsSelectedId changes
   useEffect(() => {
-    if (AnalyticsSelectedId) {
-      dispatch(getSingleItemAction(AnalyticsSelectedId));
+    const fetchData = async () => {
+      if (!itemData?._id) return;
+      setLoading(true);
+      try {
+        const res = await getSingleItemReports(itemData._id);
+        const {
+          monthlyStockData = [],
+          monthlyPurchasePrice = [],
+          dailyUsage = [],
+        } = res?.data?.result ?? {};
+
+        setReportData({ monthlyStockData, monthlyPurchasePrice, dailyUsage });
+      } catch (err) {
+        console.error("Error fetching analytics data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [itemData]);
+
+  const renderChartSection = () => {
+    if (loading) {
+      return (
+        <Flex justify="center" align="center" minH="200px">
+          <Spinner size="xl" color="teal.500" />
+        </Flex>
+      );
     }
-  }, [AnalyticsSelectedId, dispatch]);
 
-  // Fetch selected item data from Redux store
-  const SelectedItemData = useSelector(
-    (state) => state.itemsReducer.selectedItem
-  );
+    const { monthlyStockData, monthlyPurchasePrice, dailyUsage } = reportData;
+    const hasData =
+      monthlyStockData.length ||
+      monthlyPurchasePrice.length ||
+      dailyUsage.length;
 
-  // State for chart data
-  const [data, setData] = useState([]);
-
-  // Update chart data based on the selected item
-  useEffect(() => {
-    if (SelectedItemData) {
-      // Assuming we want to show stock data for the next 12 months from the creation date
-      const creationDate = new Date(SelectedItemData.createdAt);
-      const monthsData = Array.from({ length: 12 }, (_, i) => {
-        const monthDate = addMonths(creationDate, i);
-        return {
-          month: format(monthDate, "MMMM"), // Format month name
-          available_quantity: SelectedItemData.available_quantity, // Use the available quantity from the item
-        };
-      });
-
-      // Set the dynamic chart data
-      setData(monthsData);
+    if (!hasData) {
+      return (
+        <Text textAlign="center" color="gray.500" mt={4}>
+          No analytics data available.
+        </Text>
+      );
     }
-  }, [SelectedItemData]);
+
+    return (
+      <Flex direction="column" gap={4} w="100%">
+        {/* Price Chart */}
+        <Box w="100%">
+          <PriceLineChartCard
+            title="Price Analytics"
+            stockData={monthlyPurchasePrice}
+          />
+        </Box>
+
+        {/* Stock & Usage */}
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          gap={4}
+          justify="space-between"
+          w="100%"
+        >
+          <Box flex="1">
+            <StockBarChartCard
+              title="Stock Analytics"
+              stockData={monthlyStockData}
+            />
+          </Box>
+          <Box flex="1">
+            <HeatMapCard title="Usage Analytics" chartData={dailyUsage} />
+          </Box>
+        </Flex>
+      </Flex>
+    );
+  };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="6xl"
+      isCentered
+      scrollBehavior="inside"
+    >
       <ModalOverlay />
-      <ModalContent maxW="80vw" maxH="85vh">
-        <ModalHeader display={"flex"} justifyContent={"center"}>
-          {SelectedItemData?.item_name || "Item Analytics"}{" "}
-          {/* Display item name or fallback */}
+      <ModalContent maxW={{ base: "95vw", md: "85vw" }} maxH="90vh">
+        <ModalHeader textAlign="center" fontSize={{ base: "lg", md: "2xl" }}>
+          {itemData?.itemName || "Item Analytics"}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          <ResponsiveContainer width="100%" height={500}>
-            <LineChart
-              data={data} // Chart data
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" /> {/* X-axis showing months */}
-              <YAxis />
-              <Tooltip /> {/* Tooltip to show data on hover */}
-              <Legend /> {/* Legend to indicate the chart data */}
-              <Line
-                type="monotone"
-                dataKey="available_quantity" // Line represents available stock quantity
-                stroke="#8884d8"
-                activeDot={{ r: 8 }} // Customize active dot on the line
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <ModalBody px={{ base: 4, md: 8 }} py={6}>
+          {renderChartSection()}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="cyan" mr={3} onClick={onClose}>
+          <Button colorScheme="teal" onClick={onClose} px={6}>
             Close
           </Button>
-          {/* You can add more actions here if needed */}
         </ModalFooter>
       </ModalContent>
     </Modal>
   );
+};
+
+ViewAnalytics.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  itemData: PropTypes.shape({
+    _id: PropTypes.string,
+    itemName: PropTypes.string,
+  }),
 };
 
 export default ViewAnalytics;

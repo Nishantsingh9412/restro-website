@@ -100,6 +100,9 @@ export const addInventoryItem = (newItem) =>
 export const getAllInventoryItems = () => API.get(`/inventory/get-all-items`);
 // Get Single Item
 export const getSingleItem = (id) => API.get(`/inventory/get-item/${id}`);
+// Get Single Item Reports
+export const getSingleItemReports = (id) =>
+  API.get(`/inventory/get-item-reports/${id}`);
 // Update Item
 export const updateInventoryItem = (id, updatedItem) =>
   API.patch(`/inventory/update-item/${id}`, updatedItem);
