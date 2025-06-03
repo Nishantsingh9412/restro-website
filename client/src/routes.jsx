@@ -13,10 +13,11 @@ import {
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
 import { IoAlertCircleSharp } from "react-icons/io5"; //IoLockOpen
-import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoMdNotificationsOutline, IoMdReorder } from "react-icons/io";
 import { TbTruckDelivery } from "react-icons/tb"; //TbReorder
 // import { AiFillPrinter } from "react-icons/ai";
 import { lazy } from "react";
+import OrderTracking from "./views/admin/orderTracking";
 
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
@@ -29,7 +30,7 @@ const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
-const DeliveryTracking = lazy(() => import("./views/admin/deliveryTracking"));
+const RiderTracking = lazy(() => import("./views/admin/deliveryTracking"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
 const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
 const Absence = lazy(() => import("./views/admin/absense"));
@@ -81,7 +82,7 @@ const commonRoutes = [
     icon: (
       <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
     ),
-    component: <DeliveryTracking />,
+    component: <RiderTracking />,
   },
   {
     name: "Create Menu",
@@ -145,7 +146,7 @@ const adminRoutes = [
   {
     name: "Inventory",
     layout: "/admin",
-    path: "/inventory-dashboards",
+    path: "/inventory-overview",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
@@ -153,9 +154,9 @@ const adminRoutes = [
     component: <InventoryDashboard />,
     links: [
       {
-        name: "Dashboard",
+        name: "Overview",
         layout: "/admin",
-        path: "/inventory-dashboards",
+        path: "/inventory-overview",
         icon: (
           <Icon
             as={HiDocumentChartBar}
@@ -278,7 +279,7 @@ const adminRoutes = [
     ),
     links: [
       {
-        name: "Dashboard",
+        name: "Overview",
         layout: "/admin",
         path: "/personalplan-dashboard",
         icon: (
@@ -339,16 +340,16 @@ const adminRoutes = [
   {
     name: "Delivery Partners",
     layout: "/admin",
-    path: "/delivery-tracking",
+    path: "/rider-tracking",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Delivery Tracking",
+        name: "Rider Tracking",
         layout: "/admin",
-        path: "/delivery-tracking",
+        path: "/rider-tracking",
         icon: (
           <Icon
             as={MdLocalShipping}
@@ -357,28 +358,23 @@ const adminRoutes = [
             color="inherit"
           />
         ),
-        component: <DeliveryTracking />,
+        component: <RiderTracking />,
       },
       {
         name: "Order Tracking",
         layout: "/admin",
         path: "/order-tracking",
         icon: (
-          <Icon
-            as={MdLocalShipping}
-            width="20px"
-            height="20px"
-            color="inherit"
-          />
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
         ),
-        component: <DeliveryTracking />,
+        component: <OrderTracking />,
       },
       {
         name: "Create Deliveries",
         layout: "/admin",
         path: "/create-deliveries",
         icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+          <Icon as={IoMdReorder} width="20px" height="20px" color="inherit" />
         ),
         component: <>Coming Soon</>,
       },

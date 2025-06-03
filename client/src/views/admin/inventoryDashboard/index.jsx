@@ -35,14 +35,13 @@ export default function AdminDashboard() {
     dashboardData;
 
   // Calculate total stock count and price using useMemo
-  const { allStockCount, allStockPrice } = useMemo(() => {
+  const { allStockCount } = useMemo(() => {
     return inventoryItems.reduce(
-      (acc, { availableQuantity, price = 0 }) => {
+      (acc, { availableQuantity }) => {
         acc.allStockCount += availableQuantity;
-        acc.allStockPrice += availableQuantity * price;
         return acc;
       },
-      { allStockCount: 0, allStockPrice: 0 }
+      { allStockCount: 0 }
     );
   }, [inventoryItems]);
 
@@ -126,7 +125,6 @@ export default function AdminDashboard() {
           label="Total Stock Quantity"
           value={allStockCount}
           icon={MdInventory}
-          growth={allStockPrice}
         />
         <DashboardCard
           color="#e27e35"

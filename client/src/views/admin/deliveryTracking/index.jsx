@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import tt from "@tomtom-international/web-sdk-maps";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 
-const DeliveryTrackingMap = () => {
+const RiderTrackingMap = () => {
   const mapRef = useRef(null);
   const map = useRef(null);
   const markersRef = useRef({});
@@ -12,10 +12,12 @@ const DeliveryTrackingMap = () => {
   const deliveryBoys = useSelector(
     (state) => state.location.deliveryBoyLocations || []
   );
-  const onlineDeliveryBoys = React.useMemo(
+  const onlineDeliveryBoys = useMemo(
     () => deliveryBoys.filter((emp) => emp.status === "online"),
     [deliveryBoys]
   );
+
+  console.log(deliveryBoys);
 
   useEffect(() => {
     if (!map.current && mapRef.current) {
@@ -105,4 +107,4 @@ const DeliveryTrackingMap = () => {
   );
 };
 
-export default DeliveryTrackingMap;
+export default RiderTrackingMap;
