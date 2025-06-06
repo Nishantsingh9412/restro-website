@@ -389,6 +389,9 @@ export const getShiftByEmpl = () => API.get(`/shift/get-shift-with-employee`);
 // Delivery API
 // Get All Deliveries
 export const getAllDeliveries = () => API.get("/delivery/get-all-order");
+// Get All Delivery Order Drop Points
+export const getAllOrderDropPoints = (id) =>
+  API.get(`/delivery/get-order-drop-points/${id}`);
 // Get Active Delivery
 export const getActiveDelivery = () => API.get("/delivery/get-active-order");
 // Get Single Delivery

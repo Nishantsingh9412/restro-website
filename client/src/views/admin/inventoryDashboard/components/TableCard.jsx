@@ -46,8 +46,8 @@ const TableCard = ({ tableData }) => {
               </Tr>
             </Thead>
             <Tbody>
-              {tableData?.slice(0, 4).map((row) => (
-                <Tr key={row?._id}>
+              {tableData?.slice(0, 4).map((row, index) => (
+                <Tr key={index}>
                   <Td>
                     {" "}
                     {row?.timestamp
