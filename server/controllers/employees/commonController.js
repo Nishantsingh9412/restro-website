@@ -64,7 +64,7 @@ export const updateEmployeeOnlineStatus = async (req, res) => {
       if (!employee)
         return res.status(404).json({ message: "Employee not found" });
 
-      employee.is_online = true;
+      employee.is_online = status;
       await employee.save();
       return res.status(200).json({
         success: true,

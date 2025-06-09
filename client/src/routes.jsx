@@ -17,7 +17,6 @@ import { IoMdNotificationsOutline, IoMdReorder } from "react-icons/io";
 import { TbTruckDelivery } from "react-icons/tb"; //TbReorder
 // import { AiFillPrinter } from "react-icons/ai";
 import { lazy } from "react";
-import OrderTracking from "./views/admin/orderTracking";
 
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
@@ -31,6 +30,7 @@ const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
 const RiderTracking = lazy(() => import("./views/admin/deliveryTracking"));
+const OrderTracking = lazy(() => import("./views/admin/orderTracking"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
 const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
 const Absence = lazy(() => import("./views/admin/absense"));
