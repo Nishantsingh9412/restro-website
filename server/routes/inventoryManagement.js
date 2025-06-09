@@ -1,12 +1,14 @@
 import express from "express";
 import {
-  addItem,
+  addInventoryItem,
   deleteItem,
   getAllItems,
   getItemById,
   updateItem,
   deleteAllItems,
-} from "../controllers/itemManagController.js";
+  useInventoryItem,
+  getInventoryItemReports,
+} from "../controllers/invenManagController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -18,14 +20,24 @@ router.get("/get-all-items", accessInventory, getAllItems);
 // Get item by id
 router.get("/get-item/:id", accessInventory, getItemById);
 
+// Get item reports
+router.get(
+  "/get-item-reports/:id",
+  accessInventory,
+  getInventoryItemReports
+);
+
 // Add item
-router.post("/additem", accessInventory, addItem);
+router.post("/add-item", accessInventory, addInventoryItem);
+
+// Use Item
+router.patch("/use-item/:id", accessInventory, useInventoryItem);
 
 // Update item by id
-router.patch("/updateitem/:id", accessInventory, updateItem);
+router.patch("/update-item/:id", accessInventory, updateItem);
 
 // Delete item by id
-router.delete("/deleteitem/:id", accessInventory, deleteItem);
+router.delete("/delete-item/:id", accessInventory, deleteItem);
 
 // Delete all items
 router.delete("/delete-all-items", accessInventory, deleteAllItems);

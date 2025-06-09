@@ -3,13 +3,22 @@ import {
   getAdminDashboardDataController,
   getContactOfSupplierController,
 } from "../controllers/dashboardController.js";
+import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Dashboard routes
-router.get("/admin-dashboard", getAdminDashboardDataController);
+router.get(
+  "/admin-dashboard",
+  accessMiddleware(),
+  getAdminDashboardDataController
+);
 
 // Get Contact Info
-router.get("/supplier-contacts", getContactOfSupplierController);
+router.get(
+  "/supplier-contacts",
+  accessMiddleware(),
+  getContactOfSupplierController
+);
 
 export default router;

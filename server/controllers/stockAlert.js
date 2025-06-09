@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import ItemManagement from "../models/itemManage.js";
+import ItemManagement from "../models/inventoryItem.js";
 
 // Function to check if a given ID is a valid MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -29,10 +29,7 @@ export const getLowStockItems = async (req, res) => {
       $and: [
         {
           $expr: {
-            $lte: [
-              "$available_quantity",
-              { $multiply: [0.3, "$minimum_quantity"] },
-            ],
+            $lte: ["$availableQuantity", "$lowStockQuantity"],
           }, // Check if available_quantity is less than 70% of minimum_quantity
         },
         { created_by: userId }, // Ensure the items belong to the current user

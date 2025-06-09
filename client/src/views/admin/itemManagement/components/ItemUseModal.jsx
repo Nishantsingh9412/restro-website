@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,109 +15,49 @@ import {
   ListItem,
   Box,
   Text,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useToast } from "../../../../contexts/useToast";
-import { useDispatch } from "react-redux";
-import { updateSingleItemAction } from "../../../../redux/action/Items";
-import { localStorageData } from "../../../../utils/constant";
 import PropTypes from "prop-types";
 
-const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
-  const initialItemState = {
-    item_name: "",
-    item_unit: "",
-    available_quantity: "",
-    minimum_quantity: "",
-    bar_code: "",
-    existing_barcode_no: "",
-    expiry_date: "",
-    created_by: "",
-  };
+const ItemUseModal = ({ isOpen, onClose, itemData, itemsList, onSubmit }) => {
+  const showToast = useToast();
   const [quantity, setQuantity] = useState(0);
-  const [formData, setFormData] = useState(initialItemState);
-  const [selectedItem, setSelectedItem] = useState(itemData ?? null);
   const [searchInput, setSearchInput] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
-  const showToast = useToast();
-  const dispatch = useDispatch();
-  const userId = JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA))
-    ?.result?._id;
-
-  useEffect(() => {
-    if (selectedItem) {
-      const {
-        item_name,
-        item_unit,
-        available_quantity,
-        minimum_quantity,
-        bar_code,
-        existing_barcode_no,
-        expiry_date,
-        created_by,
-      } = selectedItem;
-      setFormData({
-        item_name: item_name || "",
-        item_unit: item_unit,
-        available_quantity: available_quantity || 0,
-        minimum_quantity: minimum_quantity || 0,
-        bar_code: bar_code || "",
-        existing_barcode_no: existing_barcode_no || "",
-        expiry_date: expiry_date?.split("T")[0] || "",
-        created_by: created_by || "",
-      });
-    }
-  }, [selectedItem]);
-
-  // Search for particular item by name
-  useEffect(() => {
-    if (!itemData && itemsList.length > 0 && searchInput) {
-      const filtered = itemsList.filter((item) =>
-        item.item_name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems([]);
-    }
-  }, [searchInput, itemData, itemsList]);
+  const [selectedItem, setSelectedItem] = useState(itemData ?? null);
 
   const handleOnClose = () => {
     onClose();
     resetForm();
   };
 
-  const handleSubmit = () => {
-    if (!quantity) {
-      showToast("Please enter a quantity", "error");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!selectedItem) {
+      showToast("Please select an item", "error");
       return;
     }
 
-    const updatedQuantity = formData.available_quantity - quantity;
-    if (updatedQuantity < 0) {
-      showToast("Exceed Quantity", "info");
+    if (!quantity || quantity <= 0) {
+      showToast("Please enter a valid quantity", "error");
       return;
     }
 
-    const updatedFormData = {
-      ...formData,
-      available_quantity: updatedQuantity,
-      created_by: userId,
+    if (quantity > selectedItem.availableQuantity) {
+      showToast("Used quantity exceeds available stock", "error");
+      return;
+    }
+
+    const formData = {
+      itemId: selectedItem._id,
+      quantityUsed: quantity,
     };
 
-    // Handle form submission
-    handleUpdate(updatedFormData);
-
-    console.log(updatedFormData);
+    // Submit to server
+    onSubmit(formData);
     handleOnClose();
-  };
-
-  const handleUpdate = (updatedData) => {
-    dispatch(updateSingleItemAction(selectedItem?._id, updatedData))
-      .then(() => {
-        showToast("Item updated successfully", "success");
-      })
-      .catch((error) => {
-        showToast(error.message, "error");
-      });
   };
 
   const handleItemSelect = (item) => {
@@ -126,13 +66,24 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
     setFilteredItems([]);
   };
 
-  const resetForm = () => {
-    setFormData(initialItemState);
+  const resetForm = useCallback(() => {
     setQuantity(0);
     setSearchInput("");
     setFilteredItems([]);
-    setSelectedItem(null);
-  };
+    setSelectedItem(itemData ?? null);
+  }, [itemData]);
+
+  // Search for item
+  useEffect(() => {
+    if (!itemData && itemsList.length > 0 && searchInput) {
+      const filtered = itemsList.filter((item) =>
+        item?.itemName?.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    } else {
+      setFilteredItems([]);
+    }
+  }, [searchInput, itemData, itemsList]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleOnClose}>
@@ -140,78 +91,94 @@ const ItemUseModal = ({ isOpen, onClose, itemData, itemsList }) => {
       <ModalContent>
         <ModalHeader>Item Use</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          {!itemData && itemsList.length > 0 && (
-            <FormControl id="search" mb={4}>
-              <FormLabel>Search Item</FormLabel>
-              <Input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-              {filteredItems.length > 0 && (
-                <List mt={2} spacing={2}>
-                  {filteredItems.map((item) => (
-                    <ListItem
-                      key={item._id}
-                      onClick={() => handleItemSelect(item)}
-                      cursor="pointer"
-                      _hover={{ backgroundColor: "gray.100" }}
-                    >
-                      <Box p={2} borderWidth="1px" borderRadius="md">
-                        <Text fontWeight="bold">{item.item_name}</Text>
-                        {/* <Text fontSize="sm">Unit: {item.item_unit}</Text> */}
-                        <Text fontSize="sm">
-                          Available: {item.available_quantity}
-                        </Text>
-                      </Box>
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-              {searchInput && filteredItems.length === 0 && (
-                <Text mt={2} color="red.500">
-                  No items found
-                </Text>
-              )}
-            </FormControl>
-          )}
-          <FormControl id="name" mb={4}>
-            <FormLabel>Name</FormLabel>
-            <Input type="text" value={formData.item_name} disabled />
-          </FormControl>
-          <FormControl id="available_quantity">
-            <FormLabel>Available Quantity</FormLabel>
-            <Input type="number" value={formData.available_quantity} disabled />
-          </FormControl>
-          <FormControl id="quantity">
-            <FormLabel>Used Quantity</FormLabel>
-            <Input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-          </FormControl>
-        </ModalBody>
+        <form onSubmit={handleSubmit}>
+          <ModalBody>
+            {!itemData && itemsList.length > 0 && (
+              <FormControl id="search" mb={4}>
+                <FormLabel>Search Item</FormLabel>
+                <Input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+                {filteredItems.length > 0 && (
+                  <List mt={2} spacing={2}>
+                    {filteredItems.map((item) => (
+                      <ListItem
+                        key={item._id}
+                        onClick={() => handleItemSelect(item)}
+                        cursor="pointer"
+                        _hover={{ backgroundColor: "gray.100" }}
+                      >
+                        <Box p={2} borderWidth="1px" borderRadius="md">
+                          <Text fontWeight="bold">{item?.itemName}</Text>
+                          <Text fontSize="sm">
+                            Available: {item?.availableQuantity}
+                          </Text>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+                {searchInput && filteredItems.length === 0 && (
+                  <Text mt={2} color="red.500">
+                    No items found
+                  </Text>
+                )}
+              </FormControl>
+            )}
 
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-            Submit
-          </Button>
-          <Button variant="ghost" onClick={handleOnClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
+            <SimpleGrid columns={2} spacing={2}>
+              <FormControl id="name" mb={4}>
+                <FormLabel>Name</FormLabel>
+                <Input
+                  type="text"
+                  value={selectedItem?.itemName || ""}
+                  readOnly
+                />
+              </FormControl>
+              <FormControl id="availableQuantity">
+                <FormLabel>Available Quantity</FormLabel>
+                <Input
+                  type="number"
+                  value={selectedItem?.availableQuantity ?? ""}
+                  readOnly
+                />
+              </FormControl>
+            </SimpleGrid>
+
+            <FormControl id="quantity" isRequired>
+              <FormLabel>Used Quantity</FormLabel>
+              <Input
+                type="number"
+                min={1}
+                max={selectedItem?.availableQuantity}
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} type="submit">
+              Submit
+            </Button>
+            <Button variant="ghost" onClick={handleOnClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );
 };
-
-export default ItemUseModal;
 
 ItemUseModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   itemData: PropTypes.object,
   itemsList: PropTypes.array.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
+
+export default ItemUseModal;

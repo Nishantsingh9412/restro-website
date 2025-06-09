@@ -6,16 +6,16 @@ import {
   MdHistory,
   MdChevronRight,
   MdLocalShipping,
-  MdVideoLibrary,
+  // MdVideoLibrary,
   MdDashboard,
   MdOutlineDeliveryDining,
   MdFoodBank,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
-import { IoAlertCircleSharp, IoLockOpen } from "react-icons/io5";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { TbTruckDelivery, TbReorder } from "react-icons/tb";
-import { AiFillPrinter } from "react-icons/ai";
+import { IoAlertCircleSharp } from "react-icons/io5"; //IoLockOpen
+import { IoMdNotificationsOutline, IoMdReorder } from "react-icons/io";
+import { TbTruckDelivery } from "react-icons/tb"; //TbReorder
+// import { AiFillPrinter } from "react-icons/ai";
 import { lazy } from "react";
 
 // Lazy-loaded components for better chunking
@@ -29,7 +29,8 @@ const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
-const DeliveryTracking = lazy(() => import("./views/admin/deliveryTracking"));
+const RiderTracking = lazy(() => import("./views/admin/deliveryTracking"));
+const OrderTracking = lazy(() => import("./views/admin/orderTracking"));
 const Dashboard = lazy(() => import("./views/admin/dashboard"));
 const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
 const Absence = lazy(() => import("./views/admin/absense"));
@@ -81,7 +82,7 @@ const commonRoutes = [
     icon: (
       <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
     ),
-    component: <DeliveryTracking />,
+    component: <RiderTracking />,
   },
   {
     name: "Create Menu",
@@ -145,7 +146,7 @@ const adminRoutes = [
   {
     name: "Inventory",
     layout: "/admin",
-    path: "/inventory-dashboards",
+    path: "/inventory-overview",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
@@ -153,9 +154,9 @@ const adminRoutes = [
     component: <InventoryDashboard />,
     links: [
       {
-        name: "Dashboard",
+        name: "Overview",
         layout: "/admin",
-        path: "/inventory-dashboards",
+        path: "/inventory-overview",
         icon: (
           <Icon
             as={HiDocumentChartBar}
@@ -278,7 +279,7 @@ const adminRoutes = [
     ),
     links: [
       {
-        name: "Dashboard",
+        name: "Overview",
         layout: "/admin",
         path: "/personalplan-dashboard",
         icon: (
@@ -339,16 +340,16 @@ const adminRoutes = [
   {
     name: "Delivery Partners",
     layout: "/admin",
-    path: "/delivery-tracking",
+    path: "/rider-tracking",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
     ),
     links: [
       {
-        name: "Delivery Tracking",
+        name: "Rider Tracking",
         layout: "/admin",
-        path: "/delivery-tracking",
+        path: "/rider-tracking",
         icon: (
           <Icon
             as={MdLocalShipping}
@@ -357,14 +358,23 @@ const adminRoutes = [
             color="inherit"
           />
         ),
-        component: <DeliveryTracking />,
+        component: <RiderTracking />,
+      },
+      {
+        name: "Order Tracking",
+        layout: "/admin",
+        path: "/order-tracking",
+        icon: (
+          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+        ),
+        component: <OrderTracking />,
       },
       {
         name: "Create Deliveries",
         layout: "/admin",
         path: "/create-deliveries",
         icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
+          <Icon as={IoMdReorder} width="20px" height="20px" color="inherit" />
         ),
         component: <>Coming Soon</>,
       },
@@ -412,52 +422,52 @@ const adminRoutes = [
   //   ],
   // },
 
-  {
-    name: "Invoices",
-    layout: "/admin",
-    path: "/invoices/re-ordering",
-    type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
-    links: [
-      {
-        name: "Re-Ordering",
-        layout: "/admin",
-        path: "/invoices/re-ordering",
-        icon: (
-          <Icon as={TbReorder} color="inherit" width="20px" height="20px" />
-        ),
-        type: "link",
-        component: () => <></>,
-      },
-      {
-        name: "Tutorial Videos",
-        layout: "/admin",
-        path: "/invoices/tutorial-videos",
-        icon: (
-          <Icon
-            as={MdVideoLibrary}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
-        type: "link",
-        component: () => <></>,
-      },
-      {
-        name: "Printer Setting",
-        layout: "/admin",
-        path: "/invoices/printer-setting",
-        icon: (
-          <Icon as={AiFillPrinter} color="inherit" width="20px" height="20px" />
-        ),
-        type: "link",
-        component: () => <></>,
-      },
-    ],
-  },
+  // {
+  //   name: "Invoices",
+  //   layout: "/admin",
+  //   path: "/invoices/re-ordering",
+  //   type: "list",
+  //   icon: (
+  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+  //   ),
+  //   links: [
+  //     {
+  //       name: "Re-Ordering",
+  //       layout: "/admin",
+  //       path: "/invoices/re-ordering",
+  //       icon: (
+  //         <Icon as={TbReorder} color="inherit" width="20px" height="20px" />
+  //       ),
+  //       type: "link",
+  //       component: () => <></>,
+  //     },
+  //     {
+  //       name: "Tutorial Videos",
+  //       layout: "/admin",
+  //       path: "/invoices/tutorial-videos",
+  //       icon: (
+  //         <Icon
+  //           as={MdVideoLibrary}
+  //           color="inherit"
+  //           width="20px"
+  //           height="20px"
+  //         />
+  //       ),
+  //       type: "link",
+  //       component: () => <></>,
+  //     },
+  //     {
+  //       name: "Printer Setting",
+  //       layout: "/admin",
+  //       path: "/invoices/printer-setting",
+  //       icon: (
+  //         <Icon as={AiFillPrinter} color="inherit" width="20px" height="20px" />
+  //       ),
+  //       type: "link",
+  //       component: () => <></>,
+  //     },
+  //   ],
+  // },
 
   // {
   //   name: "Sign In",
@@ -473,59 +483,59 @@ const adminRoutes = [
   //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
   //   component: SignUpCentered,
   // },
-  {
-    name: "Warehouse",
-    layout: "/admin",
-    path: "/warehouse",
-    type: "list",
-    icon: (
-      <>
-        <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-      </>
-    ),
-    links: [
-      {
-        name: "Contact Sales",
-        layout: "/admin",
-        path: "/warehouse/contact-sales",
-        icon: (
-          <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
-        ),
-        type: "link",
-        component: <></>,
-      },
-      // {
-      //   name: 'Cost Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/cost-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={FaMoneyBillTrendUp}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-      // {
-      //   name: 'Waste Tracking',
-      //   layout: '/admin',
-      //   path: '/tracking/waste-tracking',
-      //   icon: (
-      //     <Icon
-      //       as={GiNuclearWaste}
-      //       color="inherit"
-      //       width="20px"
-      //       height="20px"
-      //     />
-      //   ),
-      //   type: 'link',
-      //   component: () => <></>,
-      // },
-    ],
-  },
+  // {
+  //   name: "Warehouse",
+  //   layout: "/admin",
+  //   path: "/warehouse",
+  //   type: "list",
+  //   icon: (
+  //     <>
+  //       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
+  //     </>
+  //   ),
+  //   links: [
+  //     {
+  //       name: "Contact Sales",
+  //       layout: "/admin",
+  //       path: "/warehouse/contact-sales",
+  //       icon: (
+  //         <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
+  //       ),
+  //       type: "link",
+  //       component: <></>,
+  //     },
+  // {
+  //   name: 'Cost Tracking',
+  //   layout: '/admin',
+  //   path: '/tracking/cost-tracking',
+  //   icon: (
+  //     <Icon
+  //       as={FaMoneyBillTrendUp}
+  //       color="inherit"
+  //       width="20px"
+  //       height="20px"
+  //     />
+  //   ),
+  //   type: 'link',
+  //   component: () => <></>,
+  // },
+  // {
+  //   name: 'Waste Tracking',
+  //   layout: '/admin',
+  //   path: '/tracking/waste-tracking',
+  //   icon: (
+  //     <Icon
+  //       as={GiNuclearWaste}
+  //       color="inherit"
+  //       width="20px"
+  //       height="20px"
+  //     />
+  //   ),
+  //   type: 'link',
+  //   component: () => <></>,
+  // },
+  //   ],
+  // },
 ];
 
 export const deliveryRoutes = [

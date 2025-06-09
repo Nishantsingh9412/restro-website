@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import bwipjs from "bwip-js";
 import printJS from "print-js";
 import { MdLocalPrintshop } from "react-icons/md";
 import { IconButton } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 
 const BarCodePrinter = ({ barCodeValue, isMobile = false }) => {
   const barcodeCanvasRef = useRef(null);
@@ -57,6 +58,10 @@ const BarCodePrinter = ({ barCodeValue, isMobile = false }) => {
       />
     </>
   );
+};
+BarCodePrinter.propTypes = {
+  barCodeValue: PropTypes.string.isRequired,
+  isMobile: PropTypes.bool,
 };
 
 export default BarCodePrinter;

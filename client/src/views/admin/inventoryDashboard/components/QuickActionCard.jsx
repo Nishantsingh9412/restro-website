@@ -4,11 +4,10 @@ const QuickActionCard = () => {
   return (
     <Box
       p={4}
-      borderWidth="1px"
       borderRadius="lg"
       boxShadow="md"
       bg="white"
-      width={"100%"}
+      width={{ base: "100%", md: "40%" }}
     >
       <Heading size="md" mb={4}>
         Quick Actions

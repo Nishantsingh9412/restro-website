@@ -1,48 +1,55 @@
 // Chakra imports
 import { Flex, SimpleGrid, Spinner, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-
-// Custom components
-import DashboardCard from "../default/components/Cards";
-
-import { MdCrisisAlert, MdInventory } from "react-icons/md";
-import { IoMdAlert } from "react-icons/io";
-
-// API imports
-import { getInventoryDashboardData } from "../../../api/index.js";
-import PieCard from "./components/PieCard.jsx";
-import AlertCard from "./components/AlertCard.jsx";
-import QuickActionCard from "./components/QuickActionCard.jsx";
-import SuggestionCard from "./components/SuggestionCard.jsx";
-import InventoryTableCard from "./components/TableCard.jsx";
 import { IoAlert } from "react-icons/io5";
+import { IoMdAlert } from "react-icons/io";
+import { MdCrisisAlert, MdInventory } from "react-icons/md";
+import { getInventoryDashboardData } from "../../../api/index.js";
+import DashboardCard from "../default/components/Cards";
+import PieCard from "./components/PieCard.jsx";
+import QuickActionCard from "./components/QuickActionCard.jsx";
+// import SuggestionCard from "./components/SuggestionCard.jsx";
+import InventoryTableCard from "./components/TableCard.jsx";
+import HeatMapCard from "./components/HeatMapCard.jsx";
+import StockBarChart from "./components/StockBarCard.jsx";
+import StockLevelLineChart from "./components/PriceChartCard.jsx";
 
 export default function AdminDashboard() {
   // State variables to store API data
   const [dashboardData, setDashboardData] = useState({
-    items: [],
+    inventoryItems: [],
     expiredCount: 0,
     lowStockCount: 0,
     upcomingExpiry: 0,
+    charts: {
+      dailyUsage: [],
+      monthlyStockData: [],
+      monthlyPurchasePrice: [],
+    },
+    tableData: [],
   });
   const [isLoading, setIsLoading] = useState(true);
 
   // Destructure dashboard data
-  const { items, expiredCount, lowStockCount, upcomingExpiry } = dashboardData;
+  const { inventoryItems, expiredCount, lowStockCount, upcomingExpiry } =
+    dashboardData;
 
-  // Calculate total stock count using useMemo
-  const allStockCount = useMemo(() => {
-    return items.reduce(
-      (acc, { available_quantity }) => acc + available_quantity,
-      0
+  // Calculate total stock count and price using useMemo
+  const { allStockCount } = useMemo(() => {
+    return inventoryItems.reduce(
+      (acc, { availableQuantity }) => {
+        acc.allStockCount += availableQuantity;
+        return acc;
+      },
+      { allStockCount: 0 }
     );
-  }, [items]);
+  }, [inventoryItems]);
 
   // Transform data for pie chart
-  const transformedChartData = items.reduce(
+  const transformedChartData = inventoryItems?.reduce(
     (acc, item) => {
-      acc.data.push(item.available_quantity);
-      acc.options.labels.push(item.item_name);
+      acc.data.push(item?.availableQuantity);
+      acc.options.labels.push(item?.itemName);
       return acc;
     },
     { data: [], options: { labels: [] } }
@@ -55,17 +62,25 @@ export default function AdminDashboard() {
 
       if (response?.status === 200 && response?.data?.result) {
         const {
-          items = [],
+          inventoryItems = [],
           expiredCount = 0,
           lowStockCount = 0,
           upcomingExpiry = 0,
+          charts = {},
+          recentActions = [],
         } = response.data.result;
 
         setDashboardData({
-          items,
+          inventoryItems,
           expiredCount,
           lowStockCount,
           upcomingExpiry,
+          charts: {
+            dailyUsage: charts?.dailyUsage || [],
+            monthlyStockData: charts?.monthlyStockData || [],
+            monthlyPurchasePrice: charts?.monthlyPurchasePrice || [],
+          },
+          tableData: recentActions,
         });
       } else {
         console.warn("Unexpected API response structure:", response);
@@ -102,7 +117,7 @@ export default function AdminDashboard() {
       </Flex>
 
       {/* Dashboard cards section */}
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} gap="10px" mb="20px">
+      <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} gap="10px" mb="10px">
         <DashboardCard
           color="#e847a5"
           bg="#ffbbee"
@@ -136,6 +151,10 @@ export default function AdminDashboard() {
           icon={IoAlert}
         />
       </SimpleGrid>
+      <StockLevelLineChart
+        title="Stock Purchase Overview"
+        stockData={dashboardData.charts.monthlyPurchasePrice}
+      />
       <Flex
         gap="10px"
         justifyContent="space-between"
@@ -145,22 +164,25 @@ export default function AdminDashboard() {
           title="Total Stock Overview"
           chartData={transformedChartData}
         />
-        <AlertCard
-          lowStock={lowStockCount}
-          expired={expiredCount}
-          upcomingExpiry={upcomingExpiry}
+        <HeatMapCard
+          title="Daily Stock Usage"
+          chartData={dashboardData.charts.dailyUsage}
         />
       </Flex>
+
       <Flex
         gap="10px"
         justifyContent="space-between"
         direction={{ base: "column", md: "row" }}
       >
-        <SuggestionCard items={items} />
+        <StockBarChart
+          title="Stock"
+          stockData={dashboardData.charts.monthlyStockData}
+        />
         <QuickActionCard />
       </Flex>
 
-      <InventoryTableCard tableData={items} />
+      <InventoryTableCard tableData={dashboardData.tableData} />
     </Flex>
   );
 }

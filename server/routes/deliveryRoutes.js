@@ -10,11 +10,17 @@ import {
   getCompletedDeliveries,
   updateDeliveryStatus,
   getActiveDelivery,
+  getAllOrderDropPoints,
 } from "../controllers/deliveryController.js";
 import { accessMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 router.get("/get-all-order", accessMiddleware(), getAllDelivery);
+router.get(
+  "/get-order-drop-points/:id",
+  accessMiddleware(),
+  getAllOrderDropPoints
+);
 router.get("/get-active-order", accessMiddleware(), getActiveDelivery);
 router.get("/get-completed", accessMiddleware(), getCompletedDeliveries);
 router.post("/create-one", accessMiddleware(), addDeliveryItem);

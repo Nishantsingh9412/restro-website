@@ -122,7 +122,6 @@ export default function EmployeeNavbarLinks() {
   //   return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
   // };
 
-  // Send live location to server
   // Function to send live location to the server
   const sendLiveLocation = useCallback(() => {
     let intervalId = null;
@@ -155,33 +154,62 @@ export default function EmployeeNavbarLinks() {
           }
         },
         (err) => {
-          // Handle geolocation errors
-          if (err.code === 1) {
-            toast({
-              title: "Permission Denied",
-              description:
-                "Please enable location access to send live location.",
-              status: "error",
-            });
-          } else {
-            console.error("Geolocation error:", err);
-            toast({
-              title: "Error",
-              description: "Failed to get location data",
-              status: "error",
-            });
+          switch (err.code) {
+            case 1: // PERMISSION_DENIED
+              toast({
+                title: "Permission Denied",
+                description:
+                  "Please enable location access to send live location.",
+                status: "error",
+              });
+              break;
+            case 2: // POSITION_UNAVAILABLE (like kCLErrorLocationUnknown)
+              console.warn("Location currently unavailable, will retry later.");
+              break;
+            case 3: // TIMEOUT
+              toast({
+                title: "Location Timeout",
+                description: "Unable to fetch location in time.",
+                status: "warning",
+              });
+              break;
+            default:
+              toast({
+                title: "Error",
+                description: "Failed to get location data",
+                status: "error",
+              });
+              break;
           }
+
+          console.error("Geolocation error:", err);
+
+          // Stop location tracking if needed
           if (intervalId) {
             clearInterval(intervalId);
-            return;
           }
         },
-        { enableHighAccuracy: true }
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
       );
     };
 
     // Initial location update
-    updateLocation();
+    navigator.permissions.query({ name: "geolocation" }).then((result) => {
+      if (result.state === "granted" || result.state === "prompt") {
+        updateLocation();
+      } else {
+        toast({
+          title: "Location Permission",
+          description:
+            "Location access is blocked. Please enable it in settings.",
+          status: "error",
+        });
+      }
+    });
 
     // Set interval to update location every 10 seconds
     if (!locationInterval) {

@@ -19,7 +19,11 @@ const isValidLocation = (location) => {
   );
 };
 
-const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
+const DeliveryMap = ({
+  currentLocation,
+  pickupLocation = { lat: 0, lng: 0 },
+  dropPoints,
+}) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const currentMarker = useRef(null);
@@ -76,7 +80,7 @@ const DeliveryMap = ({ currentLocation, pickupLocation, dropPoints }) => {
 
     dropMarkers.current[position.orderId] = marker;
   };
-  
+
   const removeUnusedMarkers = (activeOrderIds) => {
     Object.keys(dropMarkers.current).forEach((orderId) => {
       if (!activeOrderIds.includes(orderId)) {
@@ -225,7 +229,7 @@ DeliveryMap.propTypes = {
   pickupLocation: PropTypes.shape({
     lat: PropTypes.number.isRequired,
     lng: PropTypes.number.isRequired,
-  }).isRequired,
+  }),
   dropPoints: PropTypes.arrayOf(
     PropTypes.shape({
       lat: PropTypes.number.isRequired,

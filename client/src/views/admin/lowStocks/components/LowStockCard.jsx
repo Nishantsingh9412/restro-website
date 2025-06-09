@@ -1,24 +1,24 @@
 /* eslint-disable react/prop-types */
-import { Box, Circle, Flex, Stack, Text } from "@chakra-ui/react";
+import { Box, Flex, Stack, Text } from "@chakra-ui/react";
 import { LuSoup } from "react-icons/lu";
 
 // Helper function to calculate stock percentage
 const calculatePercentage = (minQty, availableQty) => {
-  if (availableQty === 0) return 0;
-  return ((availableQty / minQty) * 100).toFixed(2);
+  if (!minQty || minQty === 0) return 0;
+  const percent = (availableQty / minQty) * 100;
+  return percent > 100 ? 100 : percent.toFixed(2);
 };
-
 // Component to render a single low stock item
 const LowStockItem = ({ item, index, isLow }) => {
   // Calculate the stock percentage
   const percentage = calculatePercentage(
-    item.minimum_quantity,
-    item.available_quantity
+    item.lowStockQuantity,
+    item.availableQuantity
   );
 
   // Render the progress bar
   const renderProgressBar = (percentage, isLow) => (
-    <Box marginTop={"10px"}>
+    <Box marginTop={"25px"}>
       <div
         style={{
           background: "white",
@@ -57,10 +57,13 @@ const LowStockItem = ({ item, index, isLow }) => {
       <Flex justifyContent="space-between">
         <Box>
           <Text fontSize={"lg"} fontWeight={"semibold"} color={"#2d3748"}>
-            {item.item_name}
+            {item.itemName}
           </Text>
           <Text fontSize={"sm"} fontWeight={"500"} color={"#718096"}>
-            Last Updated: {item.updatedAt.split("T")[0]}
+            Last Updated:{" "}
+            {item.updatedAt
+              ? new Date(item.updatedAt).toLocaleDateString("en-GB")
+              : "--"}
           </Text>
         </Box>
         <Box justifyContent={"end"}>
@@ -75,20 +78,6 @@ const LowStockItem = ({ item, index, isLow }) => {
         </Box>
       </Flex>
 
-      {/* Stock status indicator */}
-      <Flex justifyContent={"end"} marginTop={"20px"} marginBottom={"15px"}>
-        <Flex alignItems={"center"}>
-          {/* <Circle
-            size="10px"
-            marginRight={"5px"}
-            bg={isLow ? "red.500" : "green.500"}
-          />
-          <Text fontSize={"sm"} color={isLow ? "red.500" : "green.500"}>
-            {isLow ? "Low Stock" : "In Stock"}
-          </Text> */}
-        </Flex>
-      </Flex>
-
       {/* Render the progress bar */}
       {renderProgressBar(percentage, isLow)}
 
@@ -96,11 +85,11 @@ const LowStockItem = ({ item, index, isLow }) => {
       <Flex
         justifyContent={"space-between"}
         alignItems={"center"}
-        marginTop={"4"}
+        marginTop={"2"}
       >
         <Stack direction={"row"} spacing={1}>
           <Text fontSize={"sm"} color={"#4a5568"}>
-            {`${item.available_quantity} / ${item.minimum_quantity}`}
+            {`${item.availableQuantity} / ${item.lowStockQuantity}`}
           </Text>
           <Text fontSize={"sm"} color={"#a0aec0"} fontWeight={"500"}>
             Total Amount

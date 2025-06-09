@@ -191,6 +191,42 @@ export const getAllDelivery = async (req, res) => {
   }
 };
 
+// Get All Delivering Order Drop Points
+export const getAllOrderDropPoints = async (req, res) => {
+  const { _id } = req.user;
+  const delBoyId = req.params.id;
+
+  if (!validateId(_id, res, "Invalid User ID")) return;
+  if (!validateId(delBoyId, res, "Invalid Delivery Boy ID")) return;
+
+  try {
+    const orderDropPoints = await Delivery.find({
+      assignedTo: delBoyId,
+      currentStatus: { $nin: ["Delivered", "Available", null] },
+    })
+      .select(
+        "customerName deliveryAddress deliveryLocation orderId currentStatus"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log(orderDropPoints);
+
+    if (!orderDropPoints) {
+      return sendErrorResponse(res, 400, "Failed to get Order Drop Points");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "All Delivery Order Drop Points",
+      result: orderDropPoints,
+    });
+  } catch (err) {
+    console.log("Error from getAllDelivery Controller : ", err.message);
+    return sendErrorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 // Perform actions (Accept/Reject) on a delivery item
 export const actionsOnDelivery = async (req, res) => {
   const { id: _id } = req.params;

@@ -74,6 +74,16 @@ const addressTypes = {
   MANUAL: "manual",
 };
 
+export const COLOR_SCALE = [
+  { threshold: 0, color: "#ebedf0" },
+  { threshold: 50, color: "#c6e48b" },
+  { threshold: 100, color: "#7bc96f" },
+  { threshold: 200, color: "#239a3b" },
+  { threshold: Infinity, color: "#196127" },
+];
+
+export const USER_STATUS = { ONLINE: "online", OFFLINE: "offline" };
+
 const Dialog_Boxes = {
   showAcceptConfirmation: (id, handleAccept) => {
     Swal.fire({
