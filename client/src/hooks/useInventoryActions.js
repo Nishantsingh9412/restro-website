@@ -11,7 +11,7 @@ import {
   getSupplierContactsAPI,
 } from "../api";
 
-export function useInventory() {
+export function useInventoryActions() {
   const showToast = useToast();
   const [loading, setLoading] = useState(true);
   const [inventoryItems, setInventoryItems] = useState([]);
@@ -190,6 +190,7 @@ export function useInventory() {
     // Fetch Inventory and Supplier Details.
     fetchSupplierData();
     fetchInventoryItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

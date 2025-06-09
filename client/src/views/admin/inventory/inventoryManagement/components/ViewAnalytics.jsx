@@ -14,10 +14,10 @@ import {
   Text,
   Spinner,
 } from "@chakra-ui/react";
-import { getSingleItemReports } from "../../../../api";
-import StockBarChartCard from "../../inventoryDashboard/components/StockBarCard";
-import HeatMapCard from "../../inventoryDashboard/components/HeatMapCard";
-import PriceLineChartCard from "../../inventoryDashboard/components/PriceChartCard";
+import { getSingleItemReports } from "../../../../../api";
+import StockBarChartCard from "../../overview/components/StockBarCard";
+import HeatMapCard from "../../overview/components/HeatMapCard";
+import PriceLineChartCard from "../../overview/components/PriceChartCard";
 
 const ViewAnalytics = ({ isOpen, onClose, itemData }) => {
   const [loading, setLoading] = useState(false);

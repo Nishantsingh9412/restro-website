@@ -14,13 +14,13 @@ import {
   FormControl,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { useToast } from "../../../../contexts/useToast";
+import { useToast } from "../../../../../contexts/useToast";
 import PropTypes from "prop-types";
 import {
   formatDateForInput,
   formatToGermanCurrency,
   parseGermanCurrency,
-} from "../../../../utils/utils";
+} from "../../../../../utils/utils";
 
 export default function ItemAddEditModal({
   isOpen,
@@ -134,6 +134,7 @@ export default function ItemAddEditModal({
     return () => {
       setFormData(initialItemState);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemData]);
 
   const renderTextInput = (label, name, type = "text", isRequired = false) => (

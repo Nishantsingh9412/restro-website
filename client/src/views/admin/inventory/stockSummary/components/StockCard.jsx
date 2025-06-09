@@ -9,7 +9,7 @@ const calculatePercentage = (minQty, availableQty) => {
   return percent > 100 ? 100 : percent.toFixed(2);
 };
 // Component to render a single low stock item
-const LowStockItem = ({ item, index, isLow }) => {
+const StockItemCard = ({ item, index, isLow }) => {
   // Calculate the stock percentage
   const percentage = calculatePercentage(
     item.lowStockQuantity,
@@ -109,4 +109,4 @@ const LowStockItem = ({ item, index, isLow }) => {
   );
 };
 
-export default LowStockItem;
+export default StockItemCard;

@@ -17,7 +17,7 @@ import {
   Text,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { useToast } from "../../../../contexts/useToast";
+import { useToast } from "../../../../../contexts/useToast";
 import PropTypes from "prop-types";
 
 const ItemUseModal = ({ isOpen, onClose, itemData, itemsList, onSubmit }) => {

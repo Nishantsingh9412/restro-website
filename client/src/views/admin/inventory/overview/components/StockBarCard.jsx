@@ -1,5 +1,5 @@
 import { Box, Heading, Card, CardBody, Text } from "@chakra-ui/react";
-import ColumnChart from "../../../../components/charts/BarChart";
+import ColumnChart from "../../../../../components/charts/BarChart";
 import PropTypes from "prop-types";
 
 const StockBarChartCard = ({ stockData }) => {

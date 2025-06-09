@@ -14,16 +14,16 @@ import {
 } from "@chakra-ui/react";
 import ViewCode from "./components/ViewCode";
 import { IoMdAdd, IoMdAnalytics } from "react-icons/io";
-import { Dialog_Boxes } from "../../../utils/constant";
+import { Dialog_Boxes } from "../../../../utils/constant";
 import ItemUseModal from "./components/ItemUseModal";
 import BarCodeScanner from "./components/BarCodeScan";
 import ViewAnalytics from "./components/ViewAnalytics";
 import BarCodePrinter from "./components/BarCodePrinter";
 import ItemAddEditModal from "./components/itemModal";
-import ForbiddenPage from "../../../components/forbiddenPage/ForbiddenPage";
+import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
 import { IoMdQrScanner, IoMdTrash } from "react-icons/io";
 import { IoCart, IoEllipsisVerticalSharp, IoPencil } from "react-icons/io5";
-import { useInventory } from "../../../hooks/useInventory";
+import { useInventoryActions } from "../../../../hooks/useInventoryActions";
 import { MdBarcodeReader } from "react-icons/md";
 import ActionModeModal from "./components/ActionModeModal";
 
@@ -45,7 +45,7 @@ export default function InventoryManagement() {
     handleAfterScanned,
     handleOnItemModalClose,
     handleGenerateBarCode,
-  } = useInventory();
+  } = useInventoryActions();
 
   const {
     scannerModal,

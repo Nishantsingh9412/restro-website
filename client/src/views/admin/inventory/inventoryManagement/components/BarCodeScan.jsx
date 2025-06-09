@@ -13,12 +13,7 @@ import {
 import PropTypes from "prop-types";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 
-const BarcodeScanner = ({
-  isOpen,
-  onClose,
-  onScanned,
-  // handleAfterManually,
-}) => {
+const BarcodeScanner = ({ isOpen, onClose, onScanned }) => {
   const [scanResult, setScanResult] = useState("Not Found");
   const [isScanning, setIsScanning] = useState(true);
 
@@ -33,11 +28,6 @@ const BarcodeScanner = ({
     setScanResult("Not Found");
     setIsScanning(true);
   };
-
-  // const handleManually = () => {
-  //   handleClose();
-  //   handleAfterManually();
-  // };
 
   // Handle scan result
   const handleResultScanned = (result) => {
@@ -78,17 +68,7 @@ const BarcodeScanner = ({
             </div>
           )}
         </ModalBody>
-        {/* <Text
-          mx={6}
-          cursor="pointer"
-          textDecoration="underline"
-          textUnderlineOffset={2}
-          color="teal.500"
-          _hover={{ color: "teal.700" }}
-          onClick={handleManually}
-        >
-          Add/Use Manually?
-        </Text> */}
+
         <ModalFooter>
           <Button colorScheme="blue" onClick={handleClose}>
             Close

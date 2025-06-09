@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 
 // Route imports
 import inventoryRoutes from "./routes/inventoryManagement.js";
-import lowStockItems from "./routes/lowStocks.js";
+import stockRoutes from "./routes/stockRoutes.js";
 import supplierRoutes from "./routes/suppliers.js";
 import orderRoutes from "./routes/orders.js";
 import qrRoutes from "./routes/qr.js";
@@ -68,7 +68,7 @@ app.use("/uploads", express.static("uploads"));
 // Route middleware
 app.use("/inventory-dashboard", inventoryDashboardRoutes);
 app.use("/inventory", inventoryRoutes);
-app.use("/stock-management", lowStockItems);
+app.use("/stock", stockRoutes);
 app.use("/supplier", supplierRoutes);
 app.use("/orders", orderRoutes);
 app.use("/qr-items", qrRoutes);

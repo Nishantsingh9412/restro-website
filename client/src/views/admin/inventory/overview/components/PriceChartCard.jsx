@@ -1,6 +1,6 @@
 import { Box, Heading, Card, CardBody, Text } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import LineChart from "../../../../components/charts/LineChart";
+import LineChart from "../../../../../components/charts/LineChart";
 
 const PriceLineChartCard = ({ title, stockData }) => {
   // ApexChart config

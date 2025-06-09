@@ -20,11 +20,13 @@ import { lazy } from "react";
 
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
-const ItemManagement = lazy(() => import("./views/admin/itemManagement"));
-const InventoryDashboard = lazy(() =>
-  import("./views/admin/inventoryDashboard")
+const ItemManagement = lazy(() =>
+  import("./views/admin/inventory/inventoryManagement")
 );
-const LowStocks = lazy(() => import("./views/admin/lowStocks"));
+const InventoryDashboard = lazy(() =>
+  import("./views/admin/inventory/overview")
+);
+const StockSummary = lazy(() => import("./views/admin/inventory/stockSummary"));
 const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
@@ -192,7 +194,7 @@ const adminRoutes = [
           />
         ),
         // type: 'link',
-        component: <LowStocks />,
+        component: <StockSummary />,
       },
       {
         name: "Supplier Management",

@@ -112,13 +112,10 @@ export const deleteInventoryItem = (id) =>
 // Use Item
 export const reduceInventoryItem = (id, updatedData) =>
   API.patch(`/inventory/use-item/${id}`, updatedData);
-// Stocks Management APIs
-// Get All Stocks
-export const getAllStocks = (localstorageId) =>
-  API.get(`/stock-management/get-all-stocks/${localstorageId}`);
-// Get Low Stocks
-export const getLowStocks = (localstorageId) =>
-  API.get(`/stock-management/get-low-stocks/${localstorageId}`);
+
+// Stocks APIs
+// Get Stocks Summary
+export const getStockSummary = () => API.get("/stock/get-stock-summary");
 
 // Supplier Management APIs
 // Add new Supplier
