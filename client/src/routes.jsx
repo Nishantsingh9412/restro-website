@@ -12,7 +12,7 @@ import {
   MdFoodBank,
 } from "react-icons/md";
 import { HiDocumentChartBar } from "react-icons/hi2";
-import { IoAlertCircleSharp } from "react-icons/io5"; //IoLockOpen
+import { IoCartOutline } from "react-icons/io5"; //IoLockOpen
 import { IoMdNotificationsOutline, IoMdReorder } from "react-icons/io";
 import { TbTruckDelivery } from "react-icons/tb"; //TbReorder
 // import { AiFillPrinter } from "react-icons/ai";
@@ -27,7 +27,9 @@ const InventoryDashboard = lazy(() =>
   import("./views/admin/inventory/overview")
 );
 const StockSummary = lazy(() => import("./views/admin/inventory/stockSummary"));
-const SupplierManagement = lazy(() => import("./views/admin/supplierMgmt"));
+const SupplierManagement = lazy(() =>
+  import("./views/admin/inventory/supplierManagement")
+);
 const AllOrders = lazy(() => import("./views/admin/allOrders"));
 const CreateOrders = lazy(() => import("./views/admin/createOrders"));
 const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
@@ -182,16 +184,11 @@ const adminRoutes = [
         component: <ItemManagement />,
       },
       {
-        name: "Low stock Alert",
+        name: "Stock Summary",
         layout: "/admin",
-        path: "/low-stock-alert",
+        path: "/stock-summary",
         icon: (
-          <Icon
-            as={IoAlertCircleSharp}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
+          <Icon as={IoCartOutline} color="inherit" width="20px" height="20px" />
         ),
         // type: 'link',
         component: <StockSummary />,

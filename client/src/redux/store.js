@@ -3,7 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./action/user";
 // import itemsReducer from "./reducers/ItemsReducer";
 import stocksReducer from "./reducers/stocks";
-import supplierReducer from "./reducers/supplierReducer";
+// import supplierReducer from "./reducers/supplierReducer";
 import OrderItemReducer from "./reducers/orderItems";
 import QRItemsReducer from "./reducers/qrItems";
 import delBoyReducer from "./reducers/delboyReducer";
@@ -33,7 +33,7 @@ const store = configureStore({
     userReducer,
     // itemsReducer,
     stocksReducer,
-    supplierReducer,
+    // supplierReducer,
     OrderItemReducer,
     QRItemsReducer,
     delBoyReducer,

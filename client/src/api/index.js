@@ -130,10 +130,10 @@ export const getSupplierContactsAPI = () =>
 export const getSingleSupplier = (id) =>
   API.get(`/supplier/get-supplier-single/${id}`);
 // Update Supplier
-export const UpdateSupplier = (id, updatedData) =>
+export const updateSupplier = (id, updatedData) =>
   API.patch(`/supplier/update-supplier/${id}`, updatedData);
 // Delete Supplier
-export const DeleteSupplier = (id) =>
+export const deleteSupplier = (id) =>
   API.delete(`/supplier/delete-supplier/${id}`);
 
 // Orders Management APIs

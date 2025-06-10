@@ -21,17 +21,20 @@ const supplierSchema = Joi.object({
   email: Joi.string().email().optional(),
   countryCode: Joi.string().optional(),
   location: Joi.string().optional(),
-  created_by: Joi.string().required(),
+  created_by: Joi.string().optional().allow(null, ""),
 });
 
 // Controller to add a new supplier
 export const addSupplier = async (req, res) => {
+  const { id: _id } = req.user;
   try {
     const { error, value } = supplierSchema.validate(req.body);
     if (error) {
       return handleErrorResponse(res, 400, error.details[0].message);
     }
-
+    // add user id in data to identify
+    value.created_by = _id;
+    // create a new supplier
     const newSupplier = await supplier.create(value);
 
     if (!newSupplier) {
@@ -40,7 +43,7 @@ export const addSupplier = async (req, res) => {
 
     return handleSuccessResponse(
       res,
-      200,
+      201,
       "Supplier created successfully",
       newSupplier
     );
