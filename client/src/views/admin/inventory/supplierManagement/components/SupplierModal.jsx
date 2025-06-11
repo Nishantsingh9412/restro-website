@@ -12,7 +12,6 @@ import {
   ModalBody,
   ModalHeader,
   FormControl,
-  ModalFooter,
   ModalContent,
   ModalCloseButton,
   Flex,
@@ -108,18 +107,6 @@ const SupplierModal = ({ selectedSupplierData, isOpen, onClose, onSubmit }) => {
     onSubmit(payload);
   };
 
-  const autoFillData = () => {
-    setSupplierData({
-      name: "Nizam",
-      items: ["Tomato", "Cauliflower", "Brinjal", "Potato", "Onion", "Ginger"],
-      pic: "",
-      email: "nizamji100@gmail.com",
-      countryCode: "91",
-      phone: "9798425933",
-      location: "Kolkata",
-    });
-  };
-
   const renderInputField = (label, field, type = "text", placeholder = "") => (
     <FormControl id={field} isRequired>
       <FormLabel>{label}</FormLabel>
@@ -212,11 +199,6 @@ const SupplierModal = ({ selectedSupplierData, isOpen, onClose, onSubmit }) => {
             </form>
           </Box>
         </ModalBody>
-        <ModalFooter>
-          <Button onClick={autoFillData} variant="outline" colorScheme="teal">
-            Auto Fill
-          </Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

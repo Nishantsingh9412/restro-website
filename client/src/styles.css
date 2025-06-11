@@ -1,0 +1,28 @@
+ 
+@import "tailwindcss";
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+option {
+  color: white;
+}
+
+:root {
+  --primary: rgb(2, 156, 255);
+  --primary-bg: rgb(217, 240, 254);
+  --primary-accent: rgb(71, 182, 254);
+}
+
+.sidebar-link {
+  position: relative;
+  padding-right: 16px;
+  transition: all 0.5s;
+}
+.active-sidebar-link {
+  border-radius: 50px 0 0 50px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  padding-right: 0px;
+}

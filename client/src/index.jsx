@@ -1,17 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import "./assets/css/App.css";
-import "./assets/css/toast.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
-import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
+// import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
 import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import theme from "./theme/theme";
 import store from "./redux/store";
 import SocketInitializer from "./contexts/SocketInitialiser";
 import { ToastProvider } from "./contexts/ToastContext";
+import "./assets/css/toast.css";
 
 // Lazy load heavy components
 const AdminLayout = lazy(() => import("./layouts/admin"));
@@ -61,34 +60,34 @@ root.render(
       <React.StrictMode>
         <ToastProvider>
           <SocketInitializer />
-          <ThemeEditorProvider>
-            <Router>
-              <Suspense fallback={null}>
-                <Routes>
-                  <Route path="*" element={<NotFound />} />
-                  <Route path="/" element={<SignIn />} />
-                  <Route path="/auth/sign-up" element={<SignUp />} />
-                  <Route
-                    path="/auth/forgot-password"
-                    element={<ForgotPassword />}
-                  />
-                  <Route path="/admin/*" element={<AdminLayout />}>
-                    {renderRoutes(adminRoutes)}
-                  </Route>
-                  <Route path="/employee/*" element={<EmployeeLayout />}>
-                    {renderRoutes(deliveryRoutes)}
-                    {renderRoutes(waiterRoutes)}
-                    {renderRoutes(chefRoutes)}
-                    {renderRoutes(managerRoutes)}
-                    {renderRoutes(staffRoutes)}
-                    {renderRoutes(helperRoutes)}
-                    {renderRoutes(bartenderRoutes)}
-                  </Route>
-                </Routes>
-              </Suspense>
-              <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
-            </Router>
-          </ThemeEditorProvider>
+          {/* <ThemeEditorProvider> */}
+          <Router>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="*" element={<NotFound />} />
+                <Route path="/" element={<SignIn />} />
+                <Route path="/auth/sign-up" element={<SignUp />} />
+                <Route
+                  path="/auth/forgot-password"
+                  element={<ForgotPassword />}
+                />
+                <Route path="/admin/*" element={<AdminLayout />}>
+                  {renderRoutes(adminRoutes)}
+                </Route>
+                <Route path="/employee/*" element={<EmployeeLayout />}>
+                  {renderRoutes(deliveryRoutes)}
+                  {renderRoutes(waiterRoutes)}
+                  {renderRoutes(chefRoutes)}
+                  {renderRoutes(managerRoutes)}
+                  {renderRoutes(staffRoutes)}
+                  {renderRoutes(helperRoutes)}
+                  {renderRoutes(bartenderRoutes)}
+                </Route>
+              </Routes>
+            </Suspense>
+            <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
+          </Router>
+          {/* </ThemeEditorProvider> */}
         </ToastProvider>
       </React.StrictMode>
     </Provider>

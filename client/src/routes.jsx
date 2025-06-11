@@ -30,15 +30,21 @@ const StockSummary = lazy(() => import("./views/admin/inventory/stockSummary"));
 const SupplierManagement = lazy(() =>
   import("./views/admin/inventory/supplierManagement")
 );
-const AllOrders = lazy(() => import("./views/admin/allOrders"));
-const CreateOrders = lazy(() => import("./views/admin/createOrders"));
-const OrderHistory = lazy(() => import("./views/admin/orderHistory"));
-const RiderTracking = lazy(() => import("./views/admin/deliveryTracking"));
-const OrderTracking = lazy(() => import("./views/admin/orderTracking"));
-const Dashboard = lazy(() => import("./views/admin/dashboard"));
-const ShiftSchedule = lazy(() => import("./views/admin/shiftSchedule"));
-const Absence = lazy(() => import("./views/admin/absense"));
-const Employee = lazy(() => import("./views/admin/employees"));
+const AllOrders = lazy(() => import("./views/admin/order/allOrders"));
+const CreateOrders = lazy(() => import("./views/admin/order/createOrders"));
+const OrderHistory = lazy(() => import("./views/admin/order/orderHistory"));
+const RiderTracking = lazy(() =>
+  import("./views/admin/delivery/deliveryTracking")
+);
+const OrderTracking = lazy(() =>
+  import("./views/admin/delivery/orderTracking")
+);
+const Dashboard = lazy(() => import("./views/admin/employee/dashboard"));
+const ShiftSchedule = lazy(() =>
+  import("./views/admin/employee/shiftSchedule")
+);
+const Absence = lazy(() => import("./views/admin/employee/absense"));
+const Employee = lazy(() => import("./views/admin/employee/employees"));
 const AvailableDeliveries = lazy(() =>
   import("./views/delivery/availableDeliveries")
 );
@@ -242,7 +248,7 @@ const adminRoutes = [
       {
         name: "Create Menu",
         layout: "/admin",
-        path: "/orders",
+        path: "/orders-menu",
         icon: (
           <Icon as={MdFoodBank} width="20px" height="20px" color="inherit" />
         ),

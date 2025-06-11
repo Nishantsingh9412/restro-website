@@ -4,7 +4,7 @@ import ViewSupplier from "./components/ViewSupplier";
 import AddEditSupplier from "./components/SupplierModal";
 import SupplierCard from "./components/SupplierCard";
 import { Dialog_Boxes } from "../../../../utils/constant";
-import { useSupplier } from "../../../../hooks/useSupplierActions";
+import { useSupplierActions } from "../../../../hooks/useSupplierActions";
 
 export default function SupplierManagement() {
   const {
@@ -17,7 +17,7 @@ export default function SupplierManagement() {
     handleView,
     handleModalClose,
     modals,
-  } = useSupplier();
+  } = useSupplierActions();
 
   const { supplierAddEditModal, supplierViewModal } = modals;
   if (isLoading) {

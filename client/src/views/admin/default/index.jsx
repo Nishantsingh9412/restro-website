@@ -77,6 +77,7 @@ export default function AdminDashboard() {
           Overview
         </Text>
       </Flex>
+      <div className="text-2xl font-bold">Hello Admin</div>
 
       {/* Dashboard cards section */}
       <SimpleGrid columns={{ md: 3, base: 1 }} gap="20px" mb="20px">
