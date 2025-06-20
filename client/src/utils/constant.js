@@ -34,6 +34,14 @@ export const actionTypes = {
   UPDATE: "update",
   COMPLETE: "complete",
 };
+
+export const authTypes = {
+  LOG_IN: "login",
+  SIGN_UP: "signup",
+  LOG_IN_EMP: "login-emp",
+  LOG_OUT: "logout",
+};
+
 const userTypes = {
   EMPLOYEE: "employee",
   ADMIN: "admin",

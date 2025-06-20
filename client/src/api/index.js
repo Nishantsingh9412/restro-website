@@ -53,11 +53,11 @@ API.interceptors.response.use(
 export default API;
 // Authentication APIs
 // Signup
-export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
+export const signUpAdminAPI = (newUser) => API.post("/auth/signup", newUser);
 // Login
-export const loginAPI = (userData) => API.post("/auth/login", userData);
+export const logInAdminAPI = (userData) => API.post("/auth/login", userData);
 // Login for Delivery Boy
-export const loginEmployee = (userData) =>
+export const loginEmployeeAPI = (userData) =>
   API.post("/auth/login-employee", userData);
 
 // Admin APIs

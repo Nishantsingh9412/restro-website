@@ -13,8 +13,8 @@ import {
 import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import EmployeeNavbarLinks from "./EmployeeNabvarLinks";
-import { SidebarResponsive } from "../../components/sidebar/Sidebar";
-import routes from "../../routes";
+// import { SidebarResponsive } from "../../components/sidebar/Sidebar";
+// import routes from "../../routes";
 
 export default function EmployeeNavbar(props) {
   const [scrolled, setScrolled] = useState(false);
@@ -83,7 +83,7 @@ export default function EmployeeNavbar(props) {
             <Text>Employee Name</Text>
           </Box>
         </Flex>
-        <SidebarResponsive routes={routes} />
+        {/* <SidebarResponsive routes={routes} /> */}
       </Flex>
 
       {/* Desktop view: Breadcrumb and Navbar Links */}

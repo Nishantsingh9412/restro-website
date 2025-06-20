@@ -2,43 +2,43 @@ import { Box, Flex } from "@chakra-ui/react";
 import Navbar from "../../components/navbar/NavbarAdmin.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
 import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import routes from "../../routes.jsx";
-import { connectSocketIfDisconnected, socket } from "../../api/socket.js";
-import { localStorageData } from "../../utils/constant.js";
+import { adminRoutes } from "../../routes.jsx";
+// import { connectSocketIfDisconnected, socket } from "../../api/socket.js";
+// import { localStorageData } from "../../utils/constant.js";
 
 export default function Dashboard(props) {
   const { ...rest } = props;
   const [fixed] = useState(false);
   const location = useLocation(); // Hook to get the current location
-  const localData = JSON.parse(
-    localStorage.getItem(localStorageData.PROFILE_DATA)
-  );
+  // const localData = JSON.parse(
+  //   localStorage.getItem(localStorageData.PROFILE_DATA)
+  // );
 
-  useEffect(() => {
-    //Socket Initializer
-    connectSocketIfDisconnected(); // Connect to socket
+  // useEffect(() => {
+  //   //Socket Initializer
+  //   connectSocketIfDisconnected(); // Connect to socket
 
-    // Emit event when user joins
-    const handleConnect = () => {
-      console.log("Socket Connected");
-      socket.emit("userJoined", localData?.result?._id);
-      const heartbeatInterval = setInterval(() => {
-        socket.emit("heartbeat", localData?.result?._id);
-      }, 10000);
-      return () => {
-        clearInterval(heartbeatInterval);
-      };
-    };
+  //   // Emit event when user joins
+  //   const handleConnect = () => {
+  //     console.log("Socket Connected");
+  //     socket.emit("userJoined", localData?.result?._id);
+  //     const heartbeatInterval = setInterval(() => {
+  //       socket.emit("heartbeat", localData?.result?._id);
+  //     }, 10000);
+  //     return () => {
+  //       clearInterval(heartbeatInterval);
+  //     };
+  //   };
 
-    socket.on("connect", handleConnect);
+  //   socket.on("connect", handleConnect);
 
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.disconnect();
-    };
-  }, [localData?.result?._id]);
+  //   return () => {
+  //     socket.off("connect", handleConnect);
+  //     socket.disconnect();
+  //   };
+  // }, [localData?.result?._id]);
 
   // functions for changing the states from components
   const getActiveRoute = (routes) => {
@@ -114,7 +114,7 @@ export default function Dashboard(props) {
 
   return (
     <Flex bg="var(--primary-bg)" h="100%">
-      <Sidebar routes={routes} display="none" {...rest} />
+      <Sidebar routes={adminRoutes} display="none" {...rest} />
       <Box
         minHeight="100vh"
         height="100%"
@@ -131,9 +131,9 @@ export default function Dashboard(props) {
         <Navbar
           // onOpen={onOpen}
           logoText={"Horizon UI Dashboard PRO"}
-          brandText={getActiveRoute(routes)}
-          secondary={getActiveNavbar(routes)}
-          message={getActiveNavbarText(routes)}
+          brandText={getActiveRoute(adminRoutes)}
+          secondary={getActiveNavbar(adminRoutes)}
+          message={getActiveNavbarText(adminRoutes)}
           fixed={fixed}
           {...rest}
         />

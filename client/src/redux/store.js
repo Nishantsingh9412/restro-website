@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import userReducer from "./action/user";
+import userReducer from "./action/userSlice";
 // import itemsReducer from "./reducers/ItemsReducer";
-import stocksReducer from "./reducers/stocks";
 // import supplierReducer from "./reducers/supplierReducer";
+// import stocksReducer from "./reducers/stocks";
 import OrderItemReducer from "./reducers/orderItems";
 import QRItemsReducer from "./reducers/qrItems";
 import delBoyReducer from "./reducers/delboyReducer";
@@ -18,7 +18,7 @@ import deliveryReducer from "./reducers/deliveryReducer";
 import notificationReducer from "./reducers/notificationReducer";
 import adminReducer from "./action/admin";
 import waiterReducer from "./action/waiter";
-import authReducer from "./action/auth";
+import authReducer from "./action/authSlice";
 import employeeReducer from "./action/Employees/employee";
 import locationReducer from "./action/location";
 import chefReducer from "./action/Employees/chef";
@@ -32,7 +32,7 @@ const store = configureStore({
     admin: adminReducer,
     userReducer,
     // itemsReducer,
-    stocksReducer,
+    // stocksReducer,
     // supplierReducer,
     OrderItemReducer,
     QRItemsReducer,

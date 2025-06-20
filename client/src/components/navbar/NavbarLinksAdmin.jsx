@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../redux/action/auth.js";
+import { logoutUser } from "../../redux/action/authSlice.js";
 import RestaurantModal from "../restaurant/RestaurantModal.jsx";
 import { localStorageData } from "../../utils/constant.js";
 export default function HeaderLinks({ secondary }) {
@@ -59,7 +59,7 @@ export default function HeaderLinks({ secondary }) {
   useEffect(() => {
     if (localData) {
       const token = localData?.token;
-      
+
       if (token) {
         const decodedToken = jwtDecode(token);
         // Logout if the token is expired

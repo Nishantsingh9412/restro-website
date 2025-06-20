@@ -1,10 +1,46 @@
  
 @import "tailwindcss";
 
-body {
-  font-family: 'Poppins', sans-serif;
+
+@theme {
+
+  --color-primary: #5D5FEF;
+  --color-sidebar: #F8FCFC;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-hover: rgba(0, 0, 0, 0.15);
+  --font-poppins: 'Poppins', sans-serif;
+
 }
 
+
+
+
+@layer base {
+  body {
+    @apply !font-poppins;
+  }
+
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+}
+
+/* 
+body {
+font-family: 'Poppins', sans-serif;
+} */
+
+/*
 option {
   color: white;
 }
@@ -25,4 +61,6 @@ option {
   background: var(--primary-bg);
   color: var(--primary);
   padding-right: 0px;
-}
+} */
+
+

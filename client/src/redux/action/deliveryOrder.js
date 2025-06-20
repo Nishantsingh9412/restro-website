@@ -13,6 +13,7 @@ const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
     };
   }
 };
+
 export const allotDeliveryBoyAction =
   ({ orderId, deliveryBoy }) =>
   async (dispatch) => {
@@ -28,7 +29,6 @@ export const allotDeliveryBoyAction =
       });
       return { success: true, message: "Delivery boy allocated successfully" };
     } catch (err) {
-      
       return { success: false, message: err?.response?.data?.message };
     }
   };

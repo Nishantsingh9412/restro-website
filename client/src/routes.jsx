@@ -1,23 +1,34 @@
-/* eslint-disable react-refresh/only-export-components */
 import { Icon } from "@chakra-ui/react";
+import { lazy } from "react";
 import {
   MdShoppingBag,
   MdRestaurant,
   MdHistory,
   MdChevronRight,
   MdLocalShipping,
-  // MdVideoLibrary,
   MdDashboard,
   MdOutlineDeliveryDining,
-  MdFoodBank,
+  MdOutlineSchedule,
+  MdOutlineHistory,
+  MdOutlineAssignment,
 } from "react-icons/md";
-import { HiDocumentChartBar } from "react-icons/hi2";
-import { IoCartOutline } from "react-icons/io5"; //IoLockOpen
-import { IoMdNotificationsOutline, IoMdReorder } from "react-icons/io";
-import { TbTruckDelivery } from "react-icons/tb"; //TbReorder
-// import { AiFillPrinter } from "react-icons/ai";
-import { lazy } from "react";
-
+import {
+  FiBox,
+  FiBell,
+  FiPackage,
+  FiCalendar,
+  FiUser,
+  FiClipboard,
+  FiList,
+  FiGrid,
+  FiShoppingCart,
+  FiTruck,
+  FiShoppingBag,
+} from "react-icons/fi";
+import { IoBagHandleOutline } from "react-icons/io5"; //IoLockOpen
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { BiFoodMenu } from "react-icons/bi";
+import { RiBikeLine } from "react-icons/ri";
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
 const ItemManagement = lazy(() =>
@@ -39,7 +50,9 @@ const RiderTracking = lazy(() =>
 const OrderTracking = lazy(() =>
   import("./views/admin/delivery/orderTracking")
 );
-const Dashboard = lazy(() => import("./views/admin/employee/dashboard"));
+const EmployeeDashboard = lazy(() =>
+  import("./views/admin/employee/dashboard")
+);
 const ShiftSchedule = lazy(() =>
   import("./views/admin/employee/shiftSchedule")
 );
@@ -109,45 +122,89 @@ const commonRoutes = [
     component: <OrderHistory />,
   },
 ];
+{
+  /* <SidebarSection title="Dashboard" icon={<FiGrid />}>
+          <SidebarLink to="/overview" icon={<FiList />} label="Overview" />
+       
 
-const adminRoutes = [
+        <SidebarSection title="Orders" icon={<FiShoppingCart />}>
+          <SidebarLink
+            to="/orders/create"
+            icon={<FiShoppingCart />}
+            label="Create Orders"
+          />
+          <SidebarLink
+            to="/orders/menu"
+            icon={<FiList />}
+            label="Create Menu"
+          />
+          <SidebarLink
+            to="/orders/history"
+            icon={<FiClipboard />}
+            label="Order History"
+          />
+        </SidebarSection>
+
+        <SidebarSection title="Employee Planning" icon={<FiUser />}>
+          <SidebarLink
+            to="/employees/overview"
+            icon={<FiList />}
+            label="Overview"
+          />
+          <SidebarLink
+            to="/employees/shifts"
+            icon={<FiCalendar />}
+            label="Shift Schedule"
+          />
+          <SidebarLink
+            to="/employees/absence"
+            icon={<FiCalendar />}
+            label="Absence"
+          />
+          <SidebarLink
+            to="/employees/list"
+            icon={<FiUser />}
+            label="Employees"
+          />
+        </SidebarSection>
+
+        <SidebarSection title="Delivery Partners" icon={<FiTruck />}>
+          <SidebarLink
+            to="/delivery-partners/overview"
+            icon={<FiList />}
+            label="Order Tracking"
+          />
+
+          <SidebarLink
+            to="/delivery-partners/list"
+            icon={<FiUser />}
+            label="Rider Tracking"
+          />
+        </SidebarSection> */
+}
+
+export const adminRoutes = [
   {
     name: "Dashboard",
     layout: "/admin",
-    path: "/dashboards/default",
+    path: "/dashboard",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <FiGrid />,
     component: <MainDashboard />,
     links: [
       {
         name: "Overview",
         layout: "/admin",
-        path: "/dashboards/default",
-        icon: (
-          <Icon
-            as={HiDocumentChartBar}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        path: "/dashboard/default",
+        icon: <FiList />,
         type: "link",
         component: <MainDashboard />,
       },
       {
         name: "Notifications",
         layout: "/admin",
-        path: "/notifications",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        path: "/dashboard/notifications",
+        icon: <FiBell />,
         type: "link",
         component: <AdminNotifications />,
       },
@@ -156,120 +213,74 @@ const adminRoutes = [
   {
     name: "Inventory",
     layout: "/admin",
-    path: "/inventory-overview",
+    path: "/inventory",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <FiBox />,
     component: <InventoryDashboard />,
     links: [
       {
         name: "Overview",
         layout: "/admin",
-        path: "/inventory-overview",
-        icon: (
-          <Icon
-            as={HiDocumentChartBar}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        path: "/inventory/overview",
+        icon: <FiList />,
         type: "link",
         component: <InventoryDashboard />,
       },
       {
         name: "Item Management",
         layout: "/admin",
-        path: "/item-management",
-        icon: (
-          <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
-        ),
-        // type: 'link',
-        // component: () => <></>,
+        path: "/inventory/item-management",
+        icon: <FiClipboard />,
+        type: "link",
         component: <ItemManagement />,
       },
       {
         name: "Stock Summary",
         layout: "/admin",
-        path: "/stock-summary",
-        icon: (
-          <Icon as={IoCartOutline} color="inherit" width="20px" height="20px" />
-        ),
-        // type: 'link',
+        path: "/inventory/stock-summary",
+        icon: <FiPackage />,
+        type: "link",
         component: <StockSummary />,
       },
       {
         name: "Supplier Management",
         layout: "/admin",
-        path: "/supplier-management",
-        icon: (
-          <Icon
-            as={TbTruckDelivery}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        path: "/inventory/supplier-management",
+        icon: <FiUser />,
         type: "link",
         component: <SupplierManagement />,
       },
-
-      // {
-      //   name: 'Barcode Generator',
-      //   layout: '/admin',
-      //   path: '/dashboards/barcode',
-      //   icon: (
-      //     <Icon as={BiBarcodeReader} width="20px" height="20px" color="inherit" />
-      //   ),
-      //   component: <BarcodeGenerator />,
-      // },
     ],
   },
   {
     name: "Orders",
     layout: "/admin",
-    path: "/create-orders",
+    path: "/orders",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <FiShoppingBag />,
     links: [
       {
         name: "Create Orders",
         layout: "/admin",
-        path: "/create-orders",
-        icon: (
-          <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/orders/create",
+        type: "link",
+        icon: <FiShoppingCart />,
         component: <CreateOrders />,
       },
-
       {
         name: "Create Menu",
         layout: "/admin",
-        path: "/orders-menu",
-        icon: (
-          <Icon as={MdFoodBank} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/orders/menu",
+        icon: <BiFoodMenu />,
+        type: "link",
         component: <AllOrders />,
       },
-      // {
-      //   name: 'Recent Orders',
-      //   layout: '/admin',
-      //   path: '/process-order',
-      //   icon: (
-      //     <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-      //   ),
-      //   component: OrderShipping,
-      // },
       {
         name: "Order History",
         layout: "/admin",
-        path: "/order-history",
-        icon: (
-          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/orders/history",
+        icon: <MdOutlineHistory />,
+        type: "link",
         component: <OrderHistory />,
       },
     ],
@@ -277,126 +288,75 @@ const adminRoutes = [
   {
     name: "Employee Planning",
     layout: "/admin",
-    path: "/personalplan-dashboard",
+    path: "/employees",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <FiUser />,
     links: [
       {
         name: "Overview",
         layout: "/admin",
-        path: "/personalplan-dashboard",
-        icon: (
-          <Icon
-            as={HiDocumentChartBar}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
-        component: <Dashboard />,
+        path: "/employees/overview",
+        icon: <FiList />,
+        type: "link",
+        component: <EmployeeDashboard />,
       },
-      // {
-      //   name: 'Recent Orders',
-      //   layout: '/admin',
-      //   path: '/process-order',
-      //   icon: (
-      //     <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-      //   ),
-      //   component: OrderShipping,
-      // },
       {
         name: "Shift Schedule",
         layout: "/admin",
-        path: "/shift-schedule",
-        icon: (
-          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/employees/shifts",
+        icon: <MdOutlineSchedule />,
+        type: "link",
         component: <ShiftSchedule />,
       },
-      // {
-      //   name: "Assign Schedule",
-      //   layout: "/admin",
-      //   path: "/employee-management",
-      //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
-      //   component: <EmployeeManagement />,
-      // },
       {
         name: "Absences",
         layout: "/admin",
-        path: "/absences",
-        icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/employees/absence",
+        icon: <FiCalendar />,
+        type: "link",
         component: <Absence />,
       },
       {
         name: "Employees",
         layout: "/admin",
-        path: "/employees",
-        icon: (
-          <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/employees/list",
+        icon: <FiUser />,
+        type: "link",
         component: <Employee />,
       },
     ],
   },
   {
-    name: "Delivery Partners",
+    name: "Delivery Tracking",
     layout: "/admin",
-    path: "/rider-tracking",
+    path: "/delivery",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <FiTruck />,
     links: [
-      {
-        name: "Rider Tracking",
-        layout: "/admin",
-        path: "/rider-tracking",
-        icon: (
-          <Icon
-            as={MdLocalShipping}
-            width="20px"
-            height="20px"
-            color="inherit"
-          />
-        ),
-        component: <RiderTracking />,
-      },
       {
         name: "Order Tracking",
         layout: "/admin",
-        path: "/order-tracking",
-        icon: (
-          <Icon as={MdShoppingBag} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/delivery/order-tracking",
+        icon: <IoBagHandleOutline />,
+        type: "link",
         component: <OrderTracking />,
+      },
+      {
+        name: "Rider Tracking",
+        layout: "/admin",
+        path: "/delivery/rider-tracking",
+        icon: <RiBikeLine />,
+        type: "link",
+        component: <RiderTracking />,
       },
       {
         name: "Create Deliveries",
         layout: "/admin",
-        path: "/create-deliveries",
-        icon: (
-          <Icon as={IoMdReorder} width="20px" height="20px" color="inherit" />
-        ),
+        path: "/delivery/create-deliveries",
+        icon: <MdOutlineAssignment />,
+        type: "link",
         component: <>Coming Soon</>,
       },
-      // {
-      //   name: "Delivery partners",
-      //   layout: "/admin",
-      //   path: "/delivery-partners",
-      //   icon: (
-      //     <Icon
-      //       as={MdLocalShipping}
-      //       width="20px"
-      //       height="20px"
-      //       color="inherit"
-      //     />
-      //   ),
-      //   component: <OrderShipping />,
-      // },
     ],
   },
   // {
@@ -934,5 +894,3 @@ export const helperRoutes = [
     ],
   },
 ];
-
-export default adminRoutes;

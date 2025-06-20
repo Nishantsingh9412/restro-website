@@ -25,3 +25,4 @@ dist-ssr
 .env
 # React Component Preview
 previewConfig.json
+.config/

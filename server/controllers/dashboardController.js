@@ -110,8 +110,8 @@ export const getContactOfSupplierController = async (req, res) => {
     const result = await fetchSupplierContactInfo(id);
     if (!result.length) {
       return res
-        .status(404)
-        .json({ success: false, message: "No contact information available" });
+        .status(200)
+        .json({ success: true, message: "No contact information available" });
     }
     res.status(200).json({ success: true, message: "Total Contacts", result });
   } catch (error) {

@@ -1,38 +1,40 @@
-/* eslint-disable react-refresh/only-export-components */
+import "./styles.css";
+import "./assets/css/toast.css";
+import store from "./redux/store";
+import { Provider } from "react-redux";
 import React, { lazy, Suspense } from "react";
-import ReactDOM from "react-dom/client";
+import { ToastProvider } from "./contexts/ToastContext";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ReactDOM from "react-dom/client";
+import SocketInitializer from "./contexts/SocketInitialiser";
+import NotFoundPage from "./components/NotFoundPage/NotFound";
+import AppInitializer from "./initializer/AppInitializer";
+
+//TODO:Will Be removed
+import theme from "./theme/theme";
+import { ToastContainer } from "react-toastify";
 import { ChakraProvider } from "@chakra-ui/react";
 // import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
-import { Provider } from "react-redux";
-import { ToastContainer } from "react-toastify";
-import theme from "./theme/theme";
-import store from "./redux/store";
-import SocketInitializer from "./contexts/SocketInitialiser";
-import { ToastProvider } from "./contexts/ToastContext";
-import "./assets/css/toast.css";
 
 // Lazy load heavy components
+const SignUp = lazy(() => import("./views/auth/signup"));
+const SignIn = lazy(() => import("./views/auth/signIn"));
 const AdminLayout = lazy(() => import("./layouts/admin"));
 const EmployeeLayout = lazy(() => import("./layouts/employee"));
-const SignIn = lazy(() => import("./views/auth/signIn"));
-const SignUp = lazy(() => import("./views/auth/signup"));
 const ForgotPassword = lazy(() => import("./views/auth/forgotPassword"));
 
-// adminRoutes,
-import adminRoutes, {
-  staffRoutes,
-  deliveryRoutes,
-  waiterRoutes,
-  managerRoutes,
-  helperRoutes,
-  bartenderRoutes,
+import {
+  adminRoutes,
   chefRoutes,
+  staffRoutes,
+  waiterRoutes,
+  helperRoutes,
+  managerRoutes,
+  deliveryRoutes,
+  bartenderRoutes,
 } from "./routes";
-import NotFound from "./components/NotFoundPage/NotFound";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-
+// Render routes dynamically
 const renderRoutes = (routes) =>
   routes.map((route, index) =>
     route.links
@@ -54,17 +56,19 @@ const renderRoutes = (routes) =>
         )
   );
 
-root.render(
+// Root of the app
+ReactDOM.createRoot(document.getElementById("root")).render(
   <ChakraProvider theme={theme}>
     <Provider store={store}>
       <React.StrictMode>
+        <SocketInitializer />
         <ToastProvider>
-          <SocketInitializer />
           {/* <ThemeEditorProvider> */}
           <Router>
+            <AppInitializer />
             <Suspense fallback={null}>
               <Routes>
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<NotFoundPage />} />
                 <Route path="/" element={<SignIn />} />
                 <Route path="/auth/sign-up" element={<SignUp />} />
                 <Route

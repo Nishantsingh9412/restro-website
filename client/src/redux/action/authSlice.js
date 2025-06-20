@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import * as api from "../../api/index.js";
 import { localStorageData } from "../../utils/constant.js";
+import {
+  logInAdminAPI,
+  loginEmployeeAPI,
+  signUpAdminAPI,
+} from "../../api/index.js";
 
 const handleAdminAction = async (apiCall, user) => {
   try {
@@ -19,7 +23,7 @@ const handleAdminAction = async (apiCall, user) => {
 export const signUpAdmin = createAsyncThunk(
   "admin/signUp",
   async (newUser, { rejectWithValue }) => {
-    const result = await handleAdminAction(api.signUpAPI, newUser);
+    const result = await handleAdminAction(signUpAdminAPI, newUser);
     if (!result.success) {
       return rejectWithValue(result.message);
     }
@@ -30,7 +34,7 @@ export const signUpAdmin = createAsyncThunk(
 export const loginAdmin = createAsyncThunk(
   "admin/login",
   async (user, { rejectWithValue }) => {
-    const result = await handleAdminAction(api.loginAPI, user);
+    const result = await handleAdminAction(logInAdminAPI, user);
     if (!result.success) {
       return rejectWithValue(result.message);
     }
@@ -41,7 +45,7 @@ export const loginAdmin = createAsyncThunk(
 export const loginEmployee = createAsyncThunk(
   "employee/login",
   async (user, { rejectWithValue }) => {
-    const result = await handleAdminAction(api.loginEmployee, user);
+    const result = await handleAdminAction(loginEmployeeAPI, user);
     if (!result.success) {
       return rejectWithValue(result.message);
     }

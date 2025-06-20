@@ -1,222 +1,202 @@
-import { useEffect, useRef, useMemo, useState, useCallback } from "react";
-import {
-  Box,
-  Flex,
-  Drawer,
-  DrawerBody,
-  Icon,
-  useColorModeValue,
-  DrawerOverlay,
-  useDisclosure,
-  DrawerContent,
-  DrawerCloseButton,
-} from "@chakra-ui/react";
-import Content from "./components/Content";
-import { renderThumb, renderTrack, renderView } from "../scrollbar/Scrollbar";
-import { Scrollbars } from "react-custom-scrollbars-2";
 import PropTypes from "prop-types";
-import { useLocation } from "react-router-dom";
-import { IoArrowForward, IoMenuOutline } from "react-icons/io5";
-import { useDispatch } from "react-redux";
-import { getLoggedInUserData } from "../../redux/action/user";
-import { localStorageData } from "../../utils/constant";
+import { useSidebarLogic } from "../../hooks/useSidebar";
+import { IoArrowForward } from "react-icons/io5";
+// import Content from "./components/Content";
+// import { Scrollbars } from "react-custom-scrollbars-2";
+// import { renderThumb, renderTrack, renderView } from "../scrollbar/Scrollbar";
 
-// Sidebar component for larger screens
+// const Sidebar = ({ routes }) => {
+//   const { memoizedRoutes, sidebarWidth, setIsResizing, resetSidebarWidth } =
+//     useSidebarLogic(routes);
+
+//   return (
+//     <>
+//       {sidebarWidth === 0 && (
+//         <div
+//           className="absolute top-10 left-0 w-[30px] h-[30px] z-[99] cursor-pointer rounded-[10%] bg-primary"
+//           onClick={resetSidebarWidth}
+//         >
+//           <IoArrowForward className="text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hover:cursor-pointer" />
+//         </div>
+//       )}
+
+//       <div
+//         className={`relative hidden xl:block`}
+//         style={{ width: `${sidebarWidth}px`, maxWidth: "300px" }}
+//       >
+//         <div
+//           className="fixed top-0 left-0 min-h-screen h-full overflow-x-hidden text-white rounded-tr-[30px] rounded-br-[30px] bg-primary "
+//           style={{ width: `${sidebarWidth}px`, maxWidth: "300px" }}
+//         >
+//           <Scrollbars
+//             autoHide
+//             renderTrackVertical={renderTrack}
+//             renderThumbVertical={renderThumb}
+//             renderView={renderView}
+//           >
+//             <Content routes={memoizedRoutes} />
+//           </Scrollbars>
+//         </div>
+
+//         <div
+//           className="absolute top-0 right-0 w-[10px] h-full cursor-ew-resize z-10"
+//           onMouseDown={() => setIsResizing(true)}
+//         />
+//       </div>
+//     </>
+//   );
+// };
+
+// export default Sidebar;
+
+// // // Sidebar component for smaller screens (responsive)
+// // export const SidebarResponsive = ({ routes }) => {
+// //   const sidebarBackgroundColor = useColorModeValue(
+// //     "var(--primary)",
+// //     "navy.800"
+// //   );
+// //   const menuColor = useColorModeValue("white", "white");
+// //   const { isOpen, onOpen, onClose } = useDisclosure();
+// //   const btnRef = useRef();
+// //   const { pathname } = useLocation();
+
+// //   // Memoize routes to avoid unnecessary re-renders
+// //   const memoizedRoutes = useMemo(() => routes, [routes]);
+
+// //   // Close the drawer when the pathname changes
+// //   useEffect(() => {
+// //     onClose();
+// //   }, [pathname, onClose]);
+
+// //   return (
+// //     <Flex display={{ sm: "flex", xl: "none" }} alignItems="center">
+// //       <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
+// //         <Icon
+// //           as={IoMenuOutline}
+// //           color={menuColor}
+// //           my="auto"
+// //           w="40px"
+// //           h="40px"
+// //           me="10px"
+// //           _hover={{ cursor: "pointer" }}
+// //         />
+// //       </Flex>
+// //       <Drawer
+// //         isOpen={isOpen}
+// //         onClose={onClose}
+// //         placement={document.documentElement.dir === "rtl" ? "right" : "left"}
+// //         finalFocusRef={btnRef}
+// //       >
+// //         <DrawerOverlay />
+// //         <DrawerContent w="285px" maxW="285px" bg={sidebarBackgroundColor}>
+// //           <DrawerCloseButton
+// //             zIndex="3"
+// //             _focus={{ boxShadow: "none" }}
+// //             _hover={{ boxShadow: "none" }}
+// //           />
+// //           <DrawerBody maxW="285px" px="0rem" pb="0">
+// //             <Scrollbars
+// //               autoHide
+// //               renderTrackVertical={renderTrack}
+// //               renderThumbVertical={renderThumb}
+// //               renderView={renderView}
+// //             >
+// //               <Content routes={memoizedRoutes} />
+// //             </Scrollbars>
+// //           </DrawerBody>
+// //         </DrawerContent>
+// //       </Drawer>
+// //     </Flex>
+// //   );
+// // };
+
+// // PropTypes validation
+
+// // SidebarResponsive.propTypes = {
+// //   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
+// // };
+
+// components/Sidebar.jsx
+
+import { SidebarSection } from "./SidebarSection";
+import { SidebarLink } from "./SidebarLink";
+import { useSelector } from "react-redux";
+import { userTypes } from "../../utils/constant";
+
 const Sidebar = ({ routes }) => {
-  const sidebarBg = useColorModeValue("var(--primary)", "navy.800");
-  const sidebarMargins = "0px";
-  const dispatch = useDispatch();
-  const localData = JSON.parse(
-    localStorage.getItem(localStorageData.PROFILE_DATA)
-  );
-  const role = localData?.result?.role;
-  const [sidebarWidth, setSidebarWidth] = useState(300);
-  const [isResizing, setIsResizing] = useState(false);
+  // Fetch user data from the Redux store
+  const userData = useSelector((state) => state.userReducer?.data);
 
-  // Memoize routes to avoid unnecessary re-renders
-  const memoizedRoutes = useMemo(() => routes, [routes]);
-
-  // Function to handle resizing
-  const resizeSidebar = useCallback(
-    (e) => {
-      if (isResizing) {
-        e.preventDefault(); // Prevent text selection
-        document.body.style.userSelect = "none"; // Disable text selection
-        const newWidth = Math.max(200, Math.min(400, e.clientX)); // between 200px and 400px
-        if (newWidth > 200 && newWidth < 500) {
-          setSidebarWidth(newWidth);
-        } else {
-          setSidebarWidth(0);
-        }
-      }
-    },
-    [isResizing] // Add isResizing as a dependency
-  );
-
-  const stopResizing = useCallback(() => {
-    setIsResizing(false);
-    document.body.style.userSelect = ""; // Re-enable text selection
-  }, []);
-  // Function to reset sidebar width
-  const resetSidebarWidth = () => {
-    setSidebarWidth(300);
-  };
-
-  useEffect(() => {
-    // Add event listeners to handle resizing
-    window.addEventListener("mousemove", resizeSidebar);
-    window.addEventListener("mouseup", stopResizing);
-
-    // Fetch logged-in user data
-    dispatch(getLoggedInUserData(role));
-
-    // Cleanup event listeners on component unmount
-    return () => {
-      window.removeEventListener("mousemove", resizeSidebar);
-      window.removeEventListener("mouseup", stopResizing);
-    };
-  }, [dispatch, role, resizeSidebar, stopResizing]);
+  const { memoizedRoutes, sidebarWidth, setIsResizing, resetSidebarWidth } =
+    useSidebarLogic(routes);
 
   return (
     <>
       {sidebarWidth === 0 && (
-        <Box
-          position="absolute"
-          top="10"
-          left="0"
-          width="30px"
-          height="30px"
-          zIndex="99"
-          bg={sidebarBg}
-          cursor={"pointer"}
-          borderRadius="10%"
+        <div
+          className="absolute top-12 left-0 w-8 h-9 z-[99] cursor-pointer rounded-[10%] bg-primary"
           onClick={resetSidebarWidth}
         >
-          {/* Icon Arrow */}
-          <Icon
-            as={IoArrowForward}
-            color="white"
-            position="absolute"
-            top="50%"
-            left="50%"
-            transformOrigin="center"
-            transform="translate(-50%, -50%)"
-            _hover={{ cursor: "pointer" }}
-          />
-        </Box>
+          <IoArrowForward className="text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hover:cursor-pointer" />
+        </div>
       )}
-
-      <Box
-        position="relative"
-        w={`${sidebarWidth}px`}
-        maxW="300px"
-        display={{ base: "none", xl: "block" }}
+      <aside
+        className="h-screen bg-sidebar shadow-md border-r pl-6 py-6 overflow-y-auto sticky top-0 left-0 scrollbar-"
+        style={{ width: `${sidebarWidth}px`, maxWidth: "275px" }}
       >
-        <Box
-          bg={sidebarBg}
-          w={`${sidebarWidth}px`}
-          maxW="300px"
-          minH="100vh"
-          h="100%"
-          m={sidebarMargins}
-          overflowX="hidden"
-          color="#fff"
-          borderRightRadius="30px"
-          position="fixed"
-          top="0"
-          left="0"
-        >
-          <Scrollbars
-            autoHide
-            renderTrackVertical={renderTrack}
-            renderThumbVertical={renderThumb}
-            renderView={renderView}
+        {userData?.role === userTypes.ADMIN && (
+          <div className="flex items-center mb-6 mx-auto">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-xl font-bold text-white">
+              M
+            </div>
+            <div className="ml-2 ">
+              <p
+                className={`font-semibold leading-tight transition-all duration-200 ${
+                  sidebarWidth > 240 ? "text-lg" : "text-base"
+                } `}
+              >
+                Membership ID:
+              </p>
+              <p
+                className={` font-bold text-primary leading-tight transition-all duration-200 ${
+                  sidebarWidth > 240 ? "text-sm" : "text-xs"
+                }`}
+              >
+                {userData?.uniqueId?.toUpperCase() || "N/A"}
+              </p>
+            </div>
+          </div>
+        )}
+        {/* Render sidebar sections dynamically from memoizedRoutes */}
+        {memoizedRoutes?.map((section, idx) => (
+          <SidebarSection
+            key={section?.name || idx}
+            title={section?.name}
+            icon={section?.icon}
+            path={section?.path}
           >
-            <Content routes={memoizedRoutes} />
-          </Scrollbars>
-        </Box>
-        <Box
-          position="absolute"
-          top="0"
-          right="0"
-          width="10px"
-          height="100%"
-          cursor="ew-resize"
-          zIndex="10"
+            {section?.links?.map((link) => (
+              <SidebarLink
+                key={link?.name || link?.path || link?.name}
+                to={section?.layout + link?.path}
+                icon={link?.icon}
+                label={link?.name}
+              />
+            ))}
+          </SidebarSection>
+        ))}
+        <div
+          className="absolute top-0 right-0 w-[10px] h-full cursor-ew-resize z-10"
           onMouseDown={() => setIsResizing(true)}
         />
-      </Box>
+
+        {/* Get Pro (Subscription Card)*/}
+      </aside>
     </>
   );
 };
 
-// Sidebar component for smaller screens (responsive)
-export const SidebarResponsive = ({ routes }) => {
-  const sidebarBackgroundColor = useColorModeValue(
-    "var(--primary)",
-    "navy.800"
-  );
-  const menuColor = useColorModeValue("white", "white");
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef();
-  const { pathname } = useLocation();
-
-  // Memoize routes to avoid unnecessary re-renders
-  const memoizedRoutes = useMemo(() => routes, [routes]);
-
-  // Close the drawer when the pathname changes
-  useEffect(() => {
-    onClose();
-  }, [pathname, onClose]);
-
-  return (
-    <Flex display={{ sm: "flex", xl: "none" }} alignItems="center">
-      <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
-        <Icon
-          as={IoMenuOutline}
-          color={menuColor}
-          my="auto"
-          w="40px"
-          h="40px"
-          me="10px"
-          _hover={{ cursor: "pointer" }}
-        />
-      </Flex>
-      <Drawer
-        isOpen={isOpen}
-        onClose={onClose}
-        placement={document.documentElement.dir === "rtl" ? "right" : "left"}
-        finalFocusRef={btnRef}
-      >
-        <DrawerOverlay />
-        <DrawerContent w="285px" maxW="285px" bg={sidebarBackgroundColor}>
-          <DrawerCloseButton
-            zIndex="3"
-            _focus={{ boxShadow: "none" }}
-            _hover={{ boxShadow: "none" }}
-          />
-          <DrawerBody maxW="285px" px="0rem" pb="0">
-            <Scrollbars
-              autoHide
-              renderTrackVertical={renderTrack}
-              renderThumbVertical={renderThumb}
-              renderView={renderView}
-            >
-              <Content routes={memoizedRoutes} />
-            </Scrollbars>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </Flex>
-  );
-};
-
-// PropTypes validation
 Sidebar.propTypes = {
-  routes: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
-
-SidebarResponsive.propTypes = {
   routes: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 

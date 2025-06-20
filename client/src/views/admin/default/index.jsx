@@ -73,12 +73,10 @@ export default function AdminDashboard() {
     <Flex direction="column" gap="20px" pt={{ base: "130px", md: "20px" }}>
       {/* Header section */}
       <Flex justifyContent="space-between" alignItems="center" fontWeight="500">
-        <Text color="var(--primary)" fontSize="28px">
+        <Text className="text-primary" fontSize="28px">
           Overview
         </Text>
       </Flex>
-      <div className="text-2xl font-bold">Hello Admin</div>
-
       {/* Dashboard cards section */}
       <SimpleGrid columns={{ md: 3, base: 1 }} gap="20px" mb="20px">
         <DashboardCard

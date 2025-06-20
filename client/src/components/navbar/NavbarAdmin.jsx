@@ -13,8 +13,8 @@ import {
 import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import AdminNavbarLinks from "./NavbarLinksAdmin";
-import { SidebarResponsive } from "../sidebar/Sidebar";
-import routes from "../../routes.jsx";
+// import { SidebarResponsive } from "../sidebar/Sidebar";
+// import { adminRoutes } from "../../routes.jsx";
 import profileImg from "../../assets/img/profile/profile.png";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -91,7 +91,7 @@ export default function AdminNavbar({
             <Text>{adminData?.username ?? "User"}</Text>
           </Box>
         </Flex>
-        <SidebarResponsive routes={routes} />
+        {/* <SidebarResponsive routes={adminRoutes} /> */}
       </Flex>
       <Flex
         w="100%"
