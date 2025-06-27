@@ -117,11 +117,11 @@ import { FiBell, FiSearch } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../redux/action/authSlice";
 import { camelCaseToSentenceCase } from "../../utils/utils";
-import { useSidebarLogic } from "../../hooks/useSidebar";
+import { useSidebarContext } from "../../contexts/useSidebar";
 
 export default function Navbar() {
   const dispatch = useDispatch();
-  const { setSidebarOpen, sidebarOpen } = useSidebarLogic();
+  const { openSidebar } = useSidebarContext();
   const { isOpen, ref, onToggle } = useModal();
   const userData = useSelector((state) => state.userReducer.data);
 
@@ -140,7 +140,7 @@ export default function Navbar() {
       <div className="md:hidden bg-primary rounded text-white p-1.5 flex items-center justify-center">
         <button
           className="cursor-pointer active:scale-105 transition-transform"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+          onClick={() => openSidebar()}
           ref={ref}
           aria-label="Open menu"
         >

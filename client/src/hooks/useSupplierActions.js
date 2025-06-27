@@ -1,4 +1,3 @@
-import { useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useToast } from "../contexts/useToast";
 import {
@@ -7,6 +6,7 @@ import {
   getAllSuppliers,
   updateSupplier,
 } from "../api";
+import { useModal } from "./useModal";
 
 export function useSupplierActions() {
   // State
@@ -17,8 +17,8 @@ export function useSupplierActions() {
 
   // Modals
   const modals = {
-    supplierAddEditModal: useDisclosure(),
-    supplierViewModal: useDisclosure(),
+    supplierViewModal: useModal(),
+    supplierAddEditModal: useModal(),
   };
 
   // Fetch suppliers on mount

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { IoMdClose } from "react-icons/io";
+import { useScreen } from "../../hooks/useScreen";
 
 const Modal = ({
   isOpen,
@@ -7,20 +8,21 @@ const Modal = ({
   title,
   children,
   maxWidth = "max-w-md",
-  center = true,
   showCloseIcon = true,
   innerClassName = "",
   modalRef = null,
 }) => {
+  const isLargeScreen = useScreen();
+
   if (!isOpen) return null;
 
   return (
     <div
       ref={modalRef}
       className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth}  animate-fadeIn  ${
-        center
+        isLargeScreen
           ? "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] absolute z-200 "
-          : ""
+          : " fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"
       }`}
     >
       {/* Modal Header */}

@@ -1,15 +1,20 @@
 // components/SidebarLink.jsx
 import { NavLink, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useSidebarContext } from "../../contexts/useSidebar";
 export const SidebarLink = ({ to, icon, label = "Link" }) => {
   const location = useLocation();
+  const { closeSidebar } = useSidebarContext();
   // Function to check if the current route is active
   const isActive = (() => {
     return location.pathname === to;
   })();
 
   return (
-    <div className="flex items-center mb-2 justify-between ">
+    <div
+      className="flex items-center mb-2 justify-between"
+      onClick={closeSidebar}
+    >
       <NavLink
         to={to}
         className={`flex items-center gap-3 px-4 py-1.5 rounded-lg text-sm transition-colors w-[calc(100%-1rem)]

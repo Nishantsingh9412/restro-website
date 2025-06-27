@@ -1,10 +1,12 @@
-import { Box, Button, Flex, Spinner, Text } from "@chakra-ui/react";
-import { GoPlusCircle } from "react-icons/go";
 import ViewSupplier from "./components/ViewSupplier";
 import AddEditSupplier from "./components/SupplierModal";
 import SupplierCard from "./components/SupplierCard";
 import { Dialog_Boxes } from "../../../../utils/constant";
 import { useSupplierActions } from "../../../../hooks/useSupplierActions";
+import PageLoader from "../../../../components/UI/Loader";
+import { PageHeading } from "../../../../components/UI/PageHeading";
+import PrimaryActionButton from "../../../../components/UI/PrimaryActionButton";
+import { IoAdd } from "react-icons/io5";
 
 export default function SupplierManagement() {
   const {
@@ -19,48 +21,55 @@ export default function SupplierManagement() {
     modals,
   } = useSupplierActions();
 
-  const { supplierAddEditModal, supplierViewModal } = modals;
+  const { supplierViewModal, supplierAddEditModal } = modals;
+
+  if (!suppliers) {
+    return <PageLoader />;
+  }
+
   if (isLoading) {
-    return (
-      <Flex justify="center" align="center" h="50vh">
-        <Spinner size="xl" />
-      </Flex>
-    );
+    return <PageLoader />;
   }
 
   return (
-    <Box p={4}>
-      <Button
-        leftIcon={<GoPlusCircle />}
-        colorScheme="teal"
-        onClick={supplierAddEditModal.onOpen}
-        mb={5}
-      >
-        Add Supplier
-      </Button>
-      <Text fontWeight="bold" fontSize="2xl" mb={4} color="#049CFD">
-        List Of All Suppliers
-      </Text>
-      <Flex wrap="wrap">
-        {suppliers && suppliers.length > 0 ? (
-          suppliers.map((supplier, index) => (
-            <SupplierCard
-              index={index}
-              key={supplier._id}
-              supplier={supplier}
-              onEdit={handleEdit}
-              onView={handleView}
-              onDelete={(id) =>
-                Dialog_Boxes.showDeleteConfirmation(() => handleDelete(id))
-              }
-            />
-          ))
-        ) : (
-          <Text>No suppliers available.</Text>
-        )}
-      </Flex>
+    <>
+      {/* Page Heading */}
+      <PageHeading title={"Item Suppliers"} />
+
+      {/* Page Content */}
+      <div className="my-4">
+        <PrimaryActionButton
+          className="w-30 md:w-46 justify-between"
+          onClick={() => supplierAddEditModal.onOpen()}
+        >
+          Add Supplier
+          <IoAdd className="text-sm md:text-lg text-white" />
+        </PrimaryActionButton>
+
+        {/* Suppliers Cards */}
+        <div className="my-4 mx-2 ">
+          {suppliers && suppliers.length > 0 ? (
+            suppliers.map((supplier) => (
+              <SupplierCard
+                key={supplier._id}
+                supplier={supplier}
+                onEdit={handleEdit}
+                onView={handleView}
+                onDelete={(id) =>
+                  Dialog_Boxes.showDeleteConfirmation(() => handleDelete(id))
+                }
+              />
+            ))
+          ) : (
+            <div className="flex items-center justify-center text-4xl font-semibold">
+              <p>No suppliers available.</p>
+            </div>
+          )}
+        </div>
+      </div>
       {selectedSupplier && (
         <ViewSupplier
+          modalRef={supplierViewModal.ref}
           isOpen={supplierViewModal.isOpen}
           onClose={handleModalClose}
           supplierData={selectedSupplier}
@@ -68,12 +77,13 @@ export default function SupplierManagement() {
       )}
       {supplierAddEditModal.isOpen && (
         <AddEditSupplier
+          modalRef={supplierAddEditModal.ref}
           isOpen={supplierAddEditModal.isOpen}
           onClose={handleModalClose}
           selectedSupplierData={selectedSupplier}
           onSubmit={handleSubmit}
         />
       )}
-    </Box>
+    </>
   );
 }

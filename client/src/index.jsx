@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
 import React, { lazy, Suspense } from "react";
 import { ToastProvider } from "./contexts/ToastContext";
+import { SidebarProvider } from "./contexts/SidebarContext";
 import AppInitializer from "./initializer/AppInitializer";
 import SocketInitializer from "./contexts/SocketInitialiser";
 import NotFoundPage from "./components/NotFoundPage/NotFound";
@@ -65,41 +66,43 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Provider store={store}>
       <React.StrictMode>
         <SocketInitializer />
-        <ToastProvider>
-          {/* <ThemeEditorProvider> */}
-          <Router>
-            <AppInitializer />
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="*" element={<NotFoundPage />} />
-                <Route path="/" element={<SignIn />} />
-                <Route path="/auth/sign-up" element={<SignUp />} />
-                <Route
-                  path="/auth/forgot-password"
-                  element={<ForgotPassword />}
-                />
-                <Route path="/admin/*" element={<AdminLayout />}>
+        <SidebarProvider>
+          <ToastProvider>
+            {/* <ThemeEditorProvider> */}
+            <Router>
+              <AppInitializer />
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="*" element={<NotFoundPage />} />
+                  <Route path="/" element={<SignIn />} />
+                  <Route path="/auth/sign-up" element={<SignUp />} />
                   <Route
-                    path="dashboard/notifications"
-                    element={<AdminNotifications />}
-                  ></Route>
-                  ...{renderRoutes(adminRoutes)}
-                </Route>
-                <Route path="/employee/*" element={<EmployeeLayout />}>
-                  {renderRoutes(chefRoutes)}
-                  {renderRoutes(staffRoutes)}
-                  {renderRoutes(waiterRoutes)}
-                  {renderRoutes(helperRoutes)}
-                  {renderRoutes(managerRoutes)}
-                  {renderRoutes(deliveryRoutes)}
-                  {renderRoutes(bartenderRoutes)}
-                </Route>
-              </Routes>
-            </Suspense>
-            <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
-          </Router>
-          {/* </ThemeEditorProvider> */}
-        </ToastProvider>
+                    path="/auth/forgot-password"
+                    element={<ForgotPassword />}
+                  />
+                  <Route path="/admin/*" element={<AdminLayout />}>
+                    <Route
+                      path="dashboard/notifications"
+                      element={<AdminNotifications />}
+                    ></Route>
+                    ...{renderRoutes(adminRoutes)}
+                  </Route>
+                  <Route path="/employee/*" element={<EmployeeLayout />}>
+                    {renderRoutes(chefRoutes)}
+                    {renderRoutes(staffRoutes)}
+                    {renderRoutes(waiterRoutes)}
+                    {renderRoutes(helperRoutes)}
+                    {renderRoutes(managerRoutes)}
+                    {renderRoutes(deliveryRoutes)}
+                    {renderRoutes(bartenderRoutes)}
+                  </Route>
+                </Routes>
+              </Suspense>
+              <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
+            </Router>
+            {/* </ThemeEditorProvider> */}
+          </ToastProvider>
+        </SidebarProvider>
       </React.StrictMode>
     </Provider>
   </ChakraProvider>

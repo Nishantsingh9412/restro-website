@@ -1,104 +1,105 @@
+import PropTypes from "prop-types";
 import { IoMail, IoLocation } from "react-icons/io5";
 import { FaPhoneAlt } from "react-icons/fa";
-import {
-  Box,
-  Text,
-  Flex,
-  Image,
-  Modal,
-  Button,
-  ModalBody,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalCloseButton,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import Modal from "../../../../../components/UI/Modal";
 
-const ViewSupplier = ({ supplierData, isOpen, onClose }) => (
-  <Modal isCentered isOpen={isOpen} onClose={onClose}>
-    <ModalOverlay />
-    <ModalContent maxW="lg" borderRadius="lg" boxShadow="xl">
-      <ModalHeader>
-        <Flex align="center">
-          <Image
-            borderRadius="full"
-            boxSize="50px"
-            src={supplierData?.pic}
-            alt={supplierData?.name || "Supplier"}
-            fallbackSrc="https://via.placeholder.com/150"
-            mr={3}
-          />
-          <Text fontSize="lg" fontWeight="bold" color="blue.600">
-            {supplierData?.name || "Supplier"}
-          </Text>
-        </Flex>
-      </ModalHeader>
-      <ModalCloseButton />
+const ViewSupplier = ({ supplierData, isOpen, onClose, modalRef }) => {
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      modalRef={modalRef}
+      maxWidth="max-w-xs sm:max-w-lg"
+      innerClassName="px-6 py-4"
+    >
+      {/* Header */}
+      <div className="w-full max-w-md mx-auto py-2 text-center">
+        {/* Image */}
+        <div className="flex justify-center">
+          <div className="w-32  h-25 !border !border-gray-200 rounded-md overflow-hidden">
+            <img
+              className="w-full h-full !object-cover"
+              src={supplierData?.pic || "https://via.placeholder.com/150"}
+              alt={supplierData?.name || "Supplier"}
+            />
+          </div>
+        </div>
 
-      <ModalBody>
-        <Text fontSize="sm" color="gray.500" mb={2}>
-          Last Updated: {supplierData?.updatedAt?.split("T")[0] || "--"}
-        </Text>
-        {supplierData?.email && (
-          <Flex align="center" mt={2} fontSize="sm" color="gray.700">
-            <IoMail size={18} />
-            <Text ml={2}>{supplierData.email}</Text>
-          </Flex>
-        )}
-        {supplierData?.phone && (
-          <Flex align="center" mt={2} fontSize="sm" color="gray.700">
-            <FaPhoneAlt size={16} />
-            <Text ml={2}>
-              +{supplierData.countryCode} - {supplierData.phone}
-            </Text>
-          </Flex>
-        )}
-        {supplierData?.location && (
-          <Flex align="center" mt={2} fontSize="sm" color="gray.700">
-            <IoLocation size={18} />
-            <Text ml={2}>{supplierData.location}</Text>
-          </Flex>
-        )}
+        {/* Name */}
+        <h2 className="mt-4 text-xl font-bold text-blue-600">
+          {supplierData?.name || "Supplier"}
+        </h2>
 
-        <Text fontSize="md" fontWeight="bold" mt={5} color="blue.600">
-          Items
-        </Text>
-        <Flex wrap="wrap" mt={2}>
-          {supplierData?.items?.length ? (
-            supplierData.items.map((item, idx) => (
-              <Box
-                key={idx}
-                m={1}
-                px={3}
-                py={1}
-                bg="gray.50"
-                borderRadius="md"
-                fontSize="sm"
-                color="gray.700"
-                border="1px solid"
-                borderColor="gray.200"
-              >
-                {item}
-              </Box>
-            ))
-          ) : (
-            <Text color="gray.400" fontSize="sm" ml={1}>
-              No items listed.
-            </Text>
+        {/* Role Tag */}
+        <div className="mt-1 inline-block px-3 py-1 text-xs font-medium text-white bg-blue-500 rounded-full">
+          Supplier
+        </div>
+
+        {/* Details */}
+        <div className="mt-6 text-sm text-gray-700 text-left space-y-3">
+          {supplierData?.updatedAt && (
+            <div className="text-gray-500">
+              <span className="font-medium">Last Updated:</span>{" "}
+              {supplierData?.updatedAt?.split("T")[0]}
+            </div>
           )}
-        </Flex>
-      </ModalBody>
 
-      <ModalFooter>
-        <Button colorScheme="blue" onClick={onClose}>
+          {supplierData?.email && (
+            <div className="flex items-center">
+              <IoMail className="text-blue-500 mr-2" size={18} />
+              <span>{supplierData.email}</span>
+            </div>
+          )}
+
+          {supplierData?.phone && (
+            <div className="flex items-center">
+              <FaPhoneAlt className="text-blue-500 mr-2" size={16} />
+              <span>
+                +{supplierData.countryCode} - {supplierData.phone}
+              </span>
+            </div>
+          )}
+
+          {supplierData?.location && (
+            <div className="flex items-center">
+              <IoLocation className="text-blue-500 mr-2" size={18} />
+              <span>{supplierData.location}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Items */}
+        <div className="mt-6 text-left">
+          <h3 className="text-md font-bold text-blue-600 mb-2">Items</h3>
+          <div className="flex flex-wrap gap-2">
+            {supplierData?.items?.length ? (
+              supplierData.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 !border !border-blue-300"
+                >
+                  {item}
+                </div>
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm">No items listed.</span>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* Footer */}
+      {/* <div className="flex justify-end pt-6">
+        <button
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+          onClick={onClose}
+        >
           Close
-        </Button>
-      </ModalFooter>
-    </ModalContent>
-  </Modal>
-);
+        </button>
+      </div> */}
+    </Modal>
+  );
+};
+
 ViewSupplier.propTypes = {
   supplierData: PropTypes.shape({
     pic: PropTypes.string,
@@ -112,6 +113,7 @@ ViewSupplier.propTypes = {
   }),
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  modalRef: PropTypes.any,
 };
 
 export default ViewSupplier;
