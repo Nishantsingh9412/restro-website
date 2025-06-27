@@ -27,6 +27,7 @@ export const getStockSummary = async (req, res) => {
     // Query to find all items created by the current user
     const allStockItems = await ItemManagement.find({ created_by: userId });
 
+    //TODO: check if not used, then removed.
     // Filter low stock items (availableQuantity <= lowStockQuantity)
     const lowStockItems = await ItemManagement.find({
       created_by: userId,

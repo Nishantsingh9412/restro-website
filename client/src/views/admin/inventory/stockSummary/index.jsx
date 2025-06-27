@@ -1,101 +1,26 @@
+import StockSummaryCard from "./components/StockCard";
+import PageLoader from "../../../../components/UI/Loader";
 import { useInventoryStock } from "../../../../hooks/useInventoryStock";
-import LowStockItem from "./components/StockCard";
-import {
-  Box,
-  Heading,
-  Flex,
-  Spinner,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { PageHeading } from "../../../../components/UI/PageHeading";
 
 const StockSummary = () => {
-  const { allStockItems, lowStockItems, isLoading } = useInventoryStock();
-
-  const sectionBg = useColorModeValue("gray.100", "gray.700");
-  const sectionShadow = "0 4px 8px rgba(0, 0, 0, 0.07)";
+  const { allStockItems, isLoading } = useInventoryStock();
 
   if (isLoading) {
-    return (
-      <Flex minH="60vh" align="center" justify="center">
-        <Spinner size="xl" color="teal.500" />
-      </Flex>
-    );
+    return <PageLoader />;
   }
 
   return (
     <>
-      {/* Low Stock Alert Section */}
-      <Box mt={{ base: 8, md: 12 }}>
-        <Heading
-          ml={2}
-          fontWeight="900"
-          color="blue.400"
-          fontSize={{ base: "xl", md: "2xl" }}
-        >
-          Low Stocks Alert
-        </Heading>
-        <Box
-          mt={4}
-          p={6}
-          bg={sectionBg}
-          borderRadius="lg"
-          boxShadow={sectionShadow}
-        >
-          {lowStockItems?.length === 0 ? (
-            <Text color="gray.500" fontWeight="bold">
-              No low stock items!
-            </Text>
-          ) : (
-            <Flex wrap="wrap" gap={6}>
-              {lowStockItems.map((item, index) => (
-                <LowStockItem
-                  key={index}
-                  item={item}
-                  index={index}
-                  isLow={true}
-                />
-              ))}
-            </Flex>
-          )}
-        </Box>
-      </Box>
+      {/* Heading */}
+      <PageHeading title={"Stock Summary"} />
 
-      {/* Overall Stocks Section */}
-      <Box mt={{ base: 8, md: 12 }}>
-        <Heading
-          ml={2}
-          fontWeight="900"
-          color="blue.400"
-          fontSize={{ base: "xl", md: "2xl" }}
-        >
-          Overall Stocks
-        </Heading>
-        <Box
-          mt={4}
-          p={6}
-          bg={sectionBg}
-          borderRadius="lg"
-          boxShadow={sectionShadow}
-        >
-          {allStockItems?.length === 0 ? (
-            <Text color="gray.500" fontWeight="bold">
-              No stock items found!
-            </Text>
-          ) : (
-            <Flex wrap="wrap" gap={6}>
-              {allStockItems.map((item, index) => (
-                <LowStockItem
-                  key={index}
-                  item={item}
-                  index={index}
-                  isLow={false}
-                />
-              ))}
-            </Flex>
-          )}
-        </Box>
-      </Box>
+      {/* Page Content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mx-2 my-4">
+        {allStockItems?.map((item, index) => (
+          <StockSummaryCard key={index} item={item} />
+        ))}
+      </div>
     </>
   );
 };
