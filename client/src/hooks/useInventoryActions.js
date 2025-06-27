@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import bwipjs from "bwip-js";
 import { useToast } from "../contexts/useToast";
-import { useDisclosure } from "@chakra-ui/react";
+
 import {
   addInventoryItem,
   deleteInventoryItem,
@@ -10,10 +10,13 @@ import {
   getAllInventoryItems,
   getSupplierContactsAPI,
 } from "../api";
+import { useModal } from "./useModal";
 
 export function useInventoryActions() {
   const showToast = useToast();
+  const dropdownRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const [rowActionId, setRowActionId] = useState(null);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
   const [isPermitted, setIsPermitted] = useState(true);
@@ -23,12 +26,12 @@ export function useInventoryActions() {
 
   // State For All Type Modals
   const modals = {
-    scannerModal: useDisclosure(),
-    itemAddEditModal: useDisclosure(),
-    itemUseModal: useDisclosure(),
-    barCodeModal: useDisclosure(),
-    analyticsModal: useDisclosure(),
-    actionModeModal: useDisclosure(),
+    scannerModal: useModal(),
+    itemAddEditModal: useModal(),
+    itemUseModal: useModal(),
+    barCodeModal: useModal(),
+    analyticsModal: useModal(),
+    actionModeModal: useModal(),
   };
 
   // Generate barCodeData for an item
@@ -187,6 +190,20 @@ export function useInventoryActions() {
   };
 
   useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setTimeout(() => setRowActionId(null), 50);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     // Fetch Inventory and Supplier Details.
     fetchSupplierData();
     fetchInventoryItems();
@@ -196,6 +213,9 @@ export function useInventoryActions() {
   return {
     modals,
     loading,
+    dropdownRef,
+    rowActionId,
+    setRowActionId,
     inventoryItems,
     isPermitted,
     barCodeData,

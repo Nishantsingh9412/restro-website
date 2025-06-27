@@ -286,6 +286,7 @@ export const assignDineInOrderToWaiter = async (req, res) => {
 
     const notification = await Notification.create({
       sender: user.id,
+      senderModel: "Admin",
       receiver: waiterId,
       heading: "New Dine-In Order Assigned",
       body: `You have been assigned a new dine-in order with Order ID: ${order.orderId}.`,
@@ -333,7 +334,8 @@ export const assignDineInOrderToChef = async (req, res) => {
     await sendDineInOfferToChef(chefId, order);
 
     const notification = await Notification.create({
-      sender: user.id,
+      sender: user.id, 
+      senderModel: "Admin",
       receiver: chefId,
       heading: "New Dine-In Order Assigned",
       body: `You have been assigned a new dine-in order with Order ID: ${order.orderId}.`,
@@ -401,7 +403,8 @@ export const updateDineInCurrentStatus = async (req, res) => {
     await order.save();
 
     const notification = await Notification.create({
-      sender: user.id,
+      sender: user.id, 
+      senderModel: "Employee",
       receiver: user.created_by,
       heading: "Dine-In order status updated",
       body: `Your dine-in order ${orderId} status has been changed to ${status} by ${user.name}`,

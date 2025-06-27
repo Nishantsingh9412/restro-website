@@ -1,9 +1,12 @@
 import PropTypes from "prop-types";
+import { useLocation } from "react-router-dom";
 
 export const SidebarSection = ({ title, icon, path, children }) => {
+  const location = useLocation();
+
   // Function to check if the current route includes the given route name
   const includeActiveRoute = () => {
-    return window.location.pathname.includes(
+    return location.pathname.includes(
       path ? path?.toLowerCase() : title?.toLowerCase()
     );
   };

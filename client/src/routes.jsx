@@ -14,7 +14,6 @@ import {
 } from "react-icons/md";
 import {
   FiBox,
-  FiBell,
   FiPackage,
   FiCalendar,
   FiUser,
@@ -66,7 +65,7 @@ const EmployeeNotification = lazy(() =>
 );
 const DeliveryHistory = lazy(() => import("./views/delivery/history"));
 const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
-const AdminNotifications = lazy(() => import("./views/admin/Notification"));
+
 const EmployeeShifts = lazy(() =>
   import("./views/employees/Shift/EmployeeShifts")
 );
@@ -200,14 +199,14 @@ export const adminRoutes = [
         type: "link",
         component: <MainDashboard />,
       },
-      {
-        name: "Notifications",
-        layout: "/admin",
-        path: "/dashboard/notifications",
-        icon: <FiBell />,
-        type: "link",
-        component: <AdminNotifications />,
-      },
+      // {
+      //   // name: "Notifications",
+      //   // layout: "/admin",
+      //   // path: "/dashboard/notifications",
+      //   // icon: <FiBell />,
+      //   // type: "link",
+      //   component: <AdminNotifications />,
+      // },
     ],
   },
   {

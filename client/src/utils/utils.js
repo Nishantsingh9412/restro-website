@@ -61,6 +61,13 @@ export const formatInputToISO = (dateString) => {
   return date.toISOString();
 };
 
+//Function to format date to normal readable form
+export const formatDateForUI = (dateString) => {
+  if (!dateString) return null;
+  const date = formatDateForInput(dateString);
+  return date?.split("-").reverse().join("-");
+};
+
 // Utility to get nested values from form data
 export const getNestedValue = (obj, path) => {
   return path.split(".").reduce((prev, key) => prev?.[key], obj);

@@ -236,7 +236,7 @@ const BarcodeGenerator = () => {
           </Tbody>
         </Table>
         <Box marginTop={"50px"}>
-          <canvas id="mycanvas"></canvas>
+          {/* <canvas id="mycanvas"></canvas> */}
         </Box>
       </Box>
       {/* Table End */}

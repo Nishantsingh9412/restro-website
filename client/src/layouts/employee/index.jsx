@@ -53,7 +53,7 @@ export default function EmployeeDashboard(props) {
       socket.off("connect", handleConnect);
       socket.disconnect();
     };
-  }, [localData?.result?._id]);
+  }, [localData]);
 
   useEffect(() => {
     setRoutes(getRoutes(role));

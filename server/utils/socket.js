@@ -105,7 +105,7 @@ export const updateLiveLocationStatus = async (delEmpId) => {
     // Get admin id from the delivery employee
     const adminId = delEmp.created_by.toString();
     if (!adminId) return; // If admin id not found, return
-    
+
     const admin = onlineUsers.get(adminId);
     if (admin) {
       // Send live location to the admin
@@ -135,6 +135,7 @@ export const acceptOfferOrder = async (orderId, delEmpId, supplierId) => {
 
     const notification = await Notification.create({
       sender: delEmpId,
+      senderModel: "Employee",
       receiver: supplierId,
       heading: `Order Accepted By ${delBoy.name}`,
       body: `Delivery boy ${delBoy.name} accepted the order ${orderId}`,

@@ -1,23 +1,11 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Box,
-  Flex,
-  Text,
-  Spinner,
-} from "@chakra-ui/react";
-import { getSingleItemReports } from "../../../../../api";
+import Modal from "../../../../../components/UI/Modal";
 import StockBarChartCard from "../../overview/components/StockBarCard";
 import HeatMapCard from "../../overview/components/HeatMapCard";
 import PriceLineChartCard from "../../overview/components/PriceChartCard";
+import { getSingleItemReports } from "../../../../../api";
+import PageLoader from "../../../../../components/UI/Loader";
 
 const ViewAnalytics = ({ isOpen, onClose, itemData }) => {
   const [loading, setLoading] = useState(false);
@@ -38,7 +26,6 @@ const ViewAnalytics = ({ isOpen, onClose, itemData }) => {
           monthlyPurchasePrice = [],
           dailyUsage = [],
         } = res?.data?.result ?? {};
-
         setReportData({ monthlyStockData, monthlyPurchasePrice, dailyUsage });
       } catch (err) {
         console.error("Error fetching analytics data:", err);
@@ -49,83 +36,51 @@ const ViewAnalytics = ({ isOpen, onClose, itemData }) => {
     fetchData();
   }, [itemData]);
 
-  const renderChartSection = () => {
-    if (loading) {
-      return (
-        <Flex justify="center" align="center" minH="200px">
-          <Spinner size="xl" color="teal.500" />
-        </Flex>
-      );
-    }
+  const { monthlyStockData, monthlyPurchasePrice, dailyUsage } = reportData;
+  const hasData =
+    monthlyStockData.length || monthlyPurchasePrice.length || dailyUsage.length;
 
-    const { monthlyStockData, monthlyPurchasePrice, dailyUsage } = reportData;
-    const hasData =
-      monthlyStockData.length ||
-      monthlyPurchasePrice.length ||
-      dailyUsage.length;
+  if (loading) {
+    return <PageLoader />;
+  }
 
-    if (!hasData) {
-      return (
-        <Text textAlign="center" color="gray.500" mt={4}>
-          No analytics data available.
-        </Text>
-      );
-    }
-
+  if (!hasData) {
     return (
-      <Flex direction="column" gap={4} w="100%">
-        {/* Price Chart */}
-        <Box w="100%">
-          <PriceLineChartCard
-            title="Price Analytics"
-            stockData={monthlyPurchasePrice}
-          />
-        </Box>
-
-        {/* Stock & Usage */}
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          gap={4}
-          justify="space-between"
-          w="100%"
-        >
-          <Box flex="1">
-            <StockBarChartCard
-              title="Stock Analytics"
-              stockData={monthlyStockData}
-            />
-          </Box>
-          <Box flex="1">
-            <HeatMapCard title="Usage Analytics" chartData={dailyUsage} />
-          </Box>
-        </Flex>
-      </Flex>
+      <div className="text-center text-gray-500 mt-4">
+        No analytics data available.
+      </div>
     );
-  };
+  }
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="6xl"
-      isCentered
-      scrollBehavior="inside"
+      maxWidth="max-w-[90vw]"
+      innerClassName="px-4 py-6 md:max-h-[90vh]"
+      title={itemData?.itemName}
     >
-      <ModalOverlay />
-      <ModalContent maxW={{ base: "95vw", md: "85vw" }} maxH="90vh">
-        <ModalHeader textAlign="center" fontSize={{ base: "lg", md: "2xl" }}>
-          {itemData?.itemName || "Item Analytics"}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody px={{ base: 4, md: 8 }} py={6}>
-          {renderChartSection()}
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="teal" onClick={onClose} px={6}>
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+      <div className="flex flex-col md:flex-col gap-4 w-full">
+        {/* Price Chart */}
+        <div className="w-full hidden md:block">
+          <PriceLineChartCard
+            title="Price Analytics"
+            stockData={monthlyPurchasePrice}
+          />
+        </div>
+        {/* Stock & Usage */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
+          <div className="flex-1">
+            <StockBarChartCard
+              title="Stock Analytics"
+              stockData={monthlyStockData}
+            />
+          </div>
+          <div className="flex-1">
+            <HeatMapCard title="Usage Analytics" chartData={dailyUsage} />
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 };

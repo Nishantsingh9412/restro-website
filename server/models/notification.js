@@ -1,12 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 // Define the schema for notifications
 const notificationSchema = mongoose.Schema(
   {
     // The sender of the notification
     sender: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      refPath: "senderModel",
+    },
+    senderModel: {
       type: String,
       required: true,
+      enum: ["Admin", "Employee"],
     },
     // The receiver of the notification
     receiver: {
@@ -24,9 +30,9 @@ const notificationSchema = mongoose.Schema(
       required: true,
     },
     // Navigation URL associated with the notification
-    navURL: { 
-      type: String, 
-      default: "" 
+    navURL: {
+      type: String,
+      default: "",
     },
     // Additional URL associated with the notification
     url: {

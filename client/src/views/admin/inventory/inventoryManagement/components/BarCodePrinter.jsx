@@ -1,11 +1,10 @@
 import { useRef, useEffect } from "react";
 import bwipjs from "bwip-js";
 import printJS from "print-js";
-import { MdLocalPrintshop } from "react-icons/md";
-import { IconButton } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { FiPrinter } from "react-icons/fi";
 
-const BarCodePrinter = ({ barCodeValue, isMobile = false }) => {
+const BarCodePrinter = ({ barCodeValue }) => {
   const barcodeCanvasRef = useRef(null);
 
   // Generate the barcode using bwip-js when the barCodeValue changes
@@ -48,20 +47,19 @@ const BarCodePrinter = ({ barCodeValue, isMobile = false }) => {
       {/* Hidden canvas where the barcode will be rendered */}
       <canvas ref={barcodeCanvasRef} style={{ display: "none" }}></canvas>
       {/* Button to trigger the print functionality */}
-      <IconButton
+      <button
         aria-label="Generate Barcode"
-        colorScheme="pink"
-        size={isMobile ? "md" : "sm"}
-        marginRight="4px"
-        icon={<MdLocalPrintshop />}
+        type="button"
+        className={`inline-flex items-center justify-start`}
         onClick={handlePrint}
-      />
+      >
+        <FiPrinter className="w-4 h-4 text-gray-700" />
+      </button>
     </>
   );
 };
 BarCodePrinter.propTypes = {
   barCodeValue: PropTypes.string.isRequired,
-  isMobile: PropTypes.bool,
 };
 
 export default BarCodePrinter;

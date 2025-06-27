@@ -259,6 +259,7 @@ export const allotOrderDelivery = async (req, res) => {
       await sendDeliveryOffer(deliveryBoyId, delivery);
       const noti = await Notification.create({
         sender: supplier,
+        senderModel: "Admin",
         receiver: deliveryBoyId,
         heading: "Delivery Task Received",
         body: `You have received a delivery task for order ${orderId}`,
@@ -625,6 +626,7 @@ export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
       console.log("Delivery created successfully");
       const noti = await Notification.create({
         sender: supplier,
+        senderModel: "Employee",
         receiver: delEmpId,
         heading: "Delivery Task Received",
         body: `You have received a delivery task for order ${orderId}`,

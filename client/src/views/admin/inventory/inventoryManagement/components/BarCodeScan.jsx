@@ -1,88 +1,76 @@
 import { useState } from "react";
-import {
-  Text,
-  Modal,
-  Button,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-} from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import Modal from "../../../../../components/UI/Modal";
 
-const BarcodeScanner = ({ isOpen, onClose, onScanned }) => {
+const BarcodeScanner = ({ isOpen, onClose, onScanned, modalRef }) => {
   const [scanResult, setScanResult] = useState("Not Found");
   const [isScanning, setIsScanning] = useState(true);
 
-  // Handle modal close action
   const handleClose = () => {
     resetScanner();
     onClose();
   };
 
-  // Reset scanner state
   const resetScanner = () => {
     setScanResult("Not Found");
     setIsScanning(true);
   };
 
-  // Handle scan result
   const handleResultScanned = (result) => {
     if (result) {
       setScanResult(result.text);
-      setIsScanning(false); // Stop scanning once a barcode is detected
+      setIsScanning(false);
       onScanned(result.text);
       handleClose();
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Barcode Scanner</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          {isScanning ? (
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Barcode Scanner"
+      modalRef={modalRef}
+      innerClassName="py-2"
+      maxWidth="max-w-sm md:max-w-md"
+    >
+      {isScanning ? (
+        <div className="flex justify-center items-center">
+          <div className="w-full aspect-[5/1] overflow-hidden px-0.5">
             <BarcodeScannerComponent
-              width={500}
-              height={500}
+              width={"100%"}
+              height={"100%"}
               onUpdate={(err, result) => {
-                if (err) {
-                  console.error("Barcode scan error:", err);
-                }
-                if (result) {
-                  handleResultScanned(result);
-                }
+                if (err) console.error("Barcode scan error:", err);
+                if (result) handleResultScanned(result);
               }}
             />
-          ) : (
-            <div>
-              <Text>Scan Result: {scanResult}</Text>
-              <Button colorScheme="blue" onClick={resetScanner}>
-                Scan Again
-              </Button>
-            </div>
-          )}
-        </ModalBody>
-
-        <ModalFooter>
-          <Button colorScheme="blue" onClick={handleClose}>
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-4">
+          <span className="text-base font-medium text-gray-700">
+            Scan Result:{" "}
+            <span className="font-semibold text-primary">{scanResult}</span>
+          </span>
+          <button
+            className="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+            onClick={resetScanner}
+          >
+            Scan Again
+          </button>
+        </div>
+      )}
     </Modal>
   );
 };
+
 BarcodeScanner.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onScanned: PropTypes.func.isRequired,
-  handleAfterManually: PropTypes.func.isRequired,
+  modalRef: PropTypes.any,
 };
 
 export default BarcodeScanner;

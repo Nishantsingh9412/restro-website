@@ -122,6 +122,8 @@ import { SidebarSection } from "./SidebarSection";
 import { SidebarLink } from "./SidebarLink";
 import { useSelector } from "react-redux";
 import { userTypes } from "../../utils/constant";
+import { Link } from "react-router-dom";
+import { FiBell } from "react-icons/fi";
 
 const Sidebar = ({ routes }) => {
   // Fetch user data from the Redux store
@@ -141,14 +143,22 @@ const Sidebar = ({ routes }) => {
         </div>
       )}
       <aside
-        className="h-screen bg-sidebar shadow-md border-r pl-6 py-6 overflow-y-auto sticky top-0 left-0 scrollbar-"
+        className="hidden md:block h-screen bg-sidebar shadow-md !border-r pl-6 py-6 overflow-y-auto fixed md:sticky z-100 top-0 left-0 "
         style={{ width: `${sidebarWidth}px`, maxWidth: "275px" }}
       >
         {userData?.role === userTypes.ADMIN && (
           <div className="flex items-center mb-6 mx-auto">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-xl font-bold text-white">
-              M
-            </div>
+            <Link
+              className="relative p-2 hover:scale-105 transition-transform !border-2 rounded-xl !border-primary"
+              to={"/admin/dashboard/notifications"}
+            >
+              <FiBell className="text-primary w-5 h-5" />
+              <span className="absolute -top-0 -right-0 text-[10px] bg-red-500 text-white rounded-full text-center px-[6px] py-0.5 font-thin">
+                4
+              </span>
+            </Link>
+            {/* Notification */}
+
             <div className="ml-2 ">
               <p
                 className={`font-semibold leading-tight transition-all duration-200 ${

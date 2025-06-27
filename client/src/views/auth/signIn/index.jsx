@@ -24,7 +24,7 @@ export default function SignInPage() {
       form.setValue("email", "nizx@gmail.com");
       form.setValue("password", "123456");
     } else {
-      form.setValue("country_code", "91");
+      form.setValue("country_code", "49");
       form.setValue("phone", "1234567892");
       form.setValue("memberId", "DxB3SYiOIW");
     }

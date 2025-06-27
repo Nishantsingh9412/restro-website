@@ -2,13 +2,13 @@ import "./styles.css";
 import "./assets/css/toast.css";
 import store from "./redux/store";
 import { Provider } from "react-redux";
+import ReactDOM from "react-dom/client";
 import React, { lazy, Suspense } from "react";
 import { ToastProvider } from "./contexts/ToastContext";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ReactDOM from "react-dom/client";
+import AppInitializer from "./initializer/AppInitializer";
 import SocketInitializer from "./contexts/SocketInitialiser";
 import NotFoundPage from "./components/NotFoundPage/NotFound";
-import AppInitializer from "./initializer/AppInitializer";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 //TODO:Will Be removed
 import theme from "./theme/theme";
@@ -22,6 +22,9 @@ const SignIn = lazy(() => import("./views/auth/signIn"));
 const AdminLayout = lazy(() => import("./layouts/admin"));
 const EmployeeLayout = lazy(() => import("./layouts/employee"));
 const ForgotPassword = lazy(() => import("./views/auth/forgotPassword"));
+const AdminNotifications = lazy(() =>
+  import("./views/admin/default/notification")
+);
 
 import {
   adminRoutes,
@@ -76,15 +79,19 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                   element={<ForgotPassword />}
                 />
                 <Route path="/admin/*" element={<AdminLayout />}>
-                  {renderRoutes(adminRoutes)}
+                  <Route
+                    path="dashboard/notifications"
+                    element={<AdminNotifications />}
+                  ></Route>
+                  ...{renderRoutes(adminRoutes)}
                 </Route>
                 <Route path="/employee/*" element={<EmployeeLayout />}>
-                  {renderRoutes(deliveryRoutes)}
-                  {renderRoutes(waiterRoutes)}
                   {renderRoutes(chefRoutes)}
-                  {renderRoutes(managerRoutes)}
                   {renderRoutes(staffRoutes)}
+                  {renderRoutes(waiterRoutes)}
                   {renderRoutes(helperRoutes)}
+                  {renderRoutes(managerRoutes)}
+                  {renderRoutes(deliveryRoutes)}
                   {renderRoutes(bartenderRoutes)}
                 </Route>
               </Routes>

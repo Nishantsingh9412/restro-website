@@ -5,6 +5,7 @@ import { localStorageData } from "../utils/constant";
 import { useDispatch, useSelector } from "react-redux";
 import { getLoggedInUserData } from "../redux/action/userSlice";
 import { connectSocketIfDisconnected, socket } from "../api/socket";
+import { logoutUser } from "../redux/action/authSlice";
 
 const AppInitializer = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,16 @@ const AppInitializer = () => {
           localStorage.getItem(localStorageData.PROFILE_DATA)
         );
         const role = localData?.result?.role;
+        const token = localData?.token;
+
+        // Check token expiration
+        if (token) {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          if (payload.exp * 1000 < Date.now()) {
+            await dispatch(logoutUser());
+            return navigate("/");
+          }
+        }
 
         // Navigate to login page
         if (!role) return navigate("/");
@@ -60,7 +71,7 @@ const AppInitializer = () => {
       if (heartbeatInterval) clearInterval(heartbeatInterval);
       socket.off("connect"); // clean up listener on unmount
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loggedInData]);
 
   return null;

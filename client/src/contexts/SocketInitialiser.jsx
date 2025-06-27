@@ -10,6 +10,7 @@ import {
 import { addDineInOrderToWaiter } from "../redux/action/waiter";
 import { showDeliveryOffer } from "../redux/action/Employees/deliveryBoy";
 import { localStorageData } from "../utils/constant";
+import { addNotification } from "../redux/action/notificationSlice";
 
 export default function SocketInitializer() {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ export default function SocketInitializer() {
   useEffect(() => {
     const handleNotification = (data) => {
       toast(data?.heading, "success");
-      dispatch({ type: "ADD_NOTIFICATION", data });
+      dispatch(addNotification(data));
     };
 
     const handleDelivery = (data) => {
