@@ -8,17 +8,29 @@ import { IoArrowForward } from "react-icons/io5";
 import { SidebarSection } from "./SidebarSection";
 import { useSidebarLogic } from "../../hooks/useSidebar";
 import { useSidebarContext } from "../../contexts/useSidebar";
+import { useScreen } from "../../hooks/useScreen";
 
 const Sidebar = ({ routes }) => {
   const { isSidebarOpen, sidebarRef } = useSidebarContext();
+  const { isTablet } = useScreen();
   const userData = useSelector((state) => state.userReducer?.data);
-
   const { memoizedRoutes, sidebarWidth, setIsResizing, resetSidebarWidth } =
     useSidebarLogic(routes);
 
+  // Tablet: auto-width, icon-only
+  const tabletSidebarStyle = isTablet
+    ? {
+        width: "auto",
+        minWidth: "64px",
+        maxWidth: "80px",
+        paddingLeft: 0,
+        paddingRight: 0,
+      }
+    : { width: `${sidebarWidth}px`, maxWidth: "275px" };
+
   return (
     <>
-      {sidebarWidth === 0 && (
+      {sidebarWidth === 0 && !isTablet && (
         <div
           className="absolute top-12 left-0 w-6 h-6 z-[199] cursor-pointer rounded-[10%] bg-primary"
           onClick={resetSidebarWidth}
@@ -29,7 +41,7 @@ const Sidebar = ({ routes }) => {
       <aside
         ref={sidebarRef}
         className={`
-          fixed md:sticky top-0 left-0 z-100 h-screen bg-sidebar shadow-md !border-r pl-6 py-6 overflow-y-auto
+          fixed md:sticky top-0 left-0 z-100 h-screen bg-sidebar shadow-md !border-r py-6 overflow-y-auto
           transition-all duration-300 ease-in-out
           ${
             isSidebarOpen
@@ -37,10 +49,12 @@ const Sidebar = ({ routes }) => {
               : "-translate-x-full opacity-0 pointer-events-none"
           }
           md:translate-x-0 md:opacity-100 md:pointer-events-auto
+          ${isTablet ? "pl-0 pr-0 flex flex-col items-center" : "pl-6"}
         `}
-        style={{ width: `${sidebarWidth}px`, maxWidth: "275px" }}
+        style={tabletSidebarStyle}
       >
-        {userData?.role === userTypes.ADMIN && (
+        {/* Hide notification and membership in tablet mode */}
+        {!isTablet && userData?.role === userTypes.ADMIN && (
           <div className="flex items-center mb-6 mx-auto">
             <Link
               className="relative p-2 hover:scale-105 transition-transform !border-2 rounded-xl !border-primary"
@@ -75,6 +89,7 @@ const Sidebar = ({ routes }) => {
             title={section?.name}
             icon={section?.icon}
             path={section?.path}
+            hideTitle={isTablet}
           >
             {section?.links?.map((link) => (
               <SidebarLink
@@ -82,14 +97,18 @@ const Sidebar = ({ routes }) => {
                 to={section?.layout + link?.path}
                 icon={link?.icon}
                 label={link?.name}
+                hideLabel={isTablet}
+                tooltip={isTablet ? link?.name : undefined}
               />
             ))}
           </SidebarSection>
         ))}
-        <div
-          className="absolute top-0 right-0 w-[10px] h-full cursor-ew-resize z-10"
-          onMouseDown={() => setIsResizing(true)}
-        />
+        {!isTablet && (
+          <div
+            className="absolute top-0 right-0 w-[10px] h-full cursor-ew-resize z-10"
+            onMouseDown={() => setIsResizing(true)}
+          />
+        )}
       </aside>
     </>
   );

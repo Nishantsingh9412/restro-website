@@ -12,7 +12,7 @@ const Modal = ({
   innerClassName = "",
   modalRef = null,
 }) => {
-  const isLargeScreen = useScreen();
+  const { isLargeScreen } = useScreen();
 
   if (!isOpen) return null;
 

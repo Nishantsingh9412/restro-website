@@ -40,7 +40,7 @@ export default function InventoryManagement() {
     handleGenerateBarCode,
   } = useInventoryActions();
 
-  const isLargeScreen = useScreen();
+  const { isLargeScreen } = useScreen();
 
   const {
     scannerModal,

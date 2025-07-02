@@ -128,7 +128,7 @@ export default function Navbar() {
   return (
     <nav className="w-full pl-2 md:px-4 py-3 my-1 flex items-center justify-between gap-4 shadow-2xs bg-sidebar ">
       {/* Search Bar */}
-      <div className="hidden md:flex items-center w-[90%]  bg-gray-100 rounded-md px-4 py-3 text-gray-500 focus-within:outline-none focus-within:ring-1 focus-within:ring-primary hover:bg-[#edf2f2ba] transition-all duration-200">
+      <div className="hidden md:flex items-center  w-full  bg-gray-100 rounded-md px-4 py-3 text-gray-500 focus-within:outline-none focus-within:ring-1 focus-within:ring-primary hover:bg-[#edf2f2ba] transition-all duration-200">
         <FiSearch className="text-primary w-6 h-6 mr-2" />
         <input
           type="text"
@@ -164,7 +164,7 @@ export default function Navbar() {
       <div className="flex items-center gap-3 mr-2">
         {/* Notification */}
         <Link
-          className="relative p-2 hover:scale-105 transition-transform !bg-yellow-50 rounded-md"
+          className="relative p-2 hover:scale-105 transition-transform !bg-yellow-50 rounded-md hidden md:block lg:hidden"
           to={"/admin/dashboard/notifications"}
         >
           <FiBell className="text-yellow-500 w-6 h-6" />
