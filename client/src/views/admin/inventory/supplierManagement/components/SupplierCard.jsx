@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
+import { IoMdTrash } from "react-icons/io";
 import { RxDotsVertical } from "react-icons/rx";
+import { useModal } from "../../../../../hooks/useModal";
 import { IoArrowForward, IoPencil } from "react-icons/io5";
 import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 import DropdownActionButton from "../../../../../components/UI/DropdownActionButton";
-import { IoMdTrash } from "react-icons/io";
-import { useModal } from "../../../../../hooks/useModal";
 
 const SupplierCard = ({ supplier, onView, onEdit, onDelete }) => {
   const { isOpen, ref, onToggle } = useModal();
@@ -74,7 +74,7 @@ const SupplierCard = ({ supplier, onView, onEdit, onDelete }) => {
         )}
       </div>
       {/* Action Button */}
-      <div className="sm:w-auto w-full !border-t !border-gray-200 py-2">
+      <div className="sm:w-auto w-full !border-t sm:border-none !border-gray-200 py-2">
         <PrimaryActionButton
           onClick={() => onView(supplier?._id)}
           className="w-full sm:w-auto text-sm flex justify-center items-center gap-1"

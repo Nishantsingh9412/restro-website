@@ -20,7 +20,7 @@ const Sidebar = ({ routes }) => {
     <>
       {sidebarWidth === 0 && (
         <div
-          className="absolute top-12 left-0 w-8 h-9 z-[199] cursor-pointer rounded-[10%] bg-primary"
+          className="absolute top-12 left-0 w-6 h-6 z-[199] cursor-pointer rounded-[10%] bg-primary"
           onClick={resetSidebarWidth}
         >
           <IoArrowForward className="text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hover:cursor-pointer" />
