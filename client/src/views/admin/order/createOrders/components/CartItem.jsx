@@ -1,82 +1,66 @@
-import { Box, Image, Text, Flex } from "@chakra-ui/react";
-import { BiSolidTrash } from "react-icons/bi";
 import { formatToGermanCurrency } from "../../../../../utils/utils";
 import PropTypes from "prop-types";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
+import { FaMinus, FaPlus } from "react-icons/fa";
+import { FaX } from "react-icons/fa6";
 
 const CartItem = ({ item, onUpdate, onRemove }) => {
   return (
-    <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb={3}>
-      <Box p="6">
-        <Flex justifyContent="space-between" alignItems="center">
-          <Flex alignItems="center">
-            <Image
-              borderRadius="full"
-              boxSize="50px"
-              src={item?.pic}
-              alt="Food-Image"
-            />
-            <Box ml="1rem">
-              <Text fontWeight="semibold" as="h4" isTruncated>
-                {item?.itemName}
-              </Text>
-              <Text fontWeight="semibold" as="h4" isTruncated>
-                {item?.totalQuantity} X {formatToGermanCurrency(item?.price)}
-              </Text>
-            </Box>
-            <BiSolidTrash
-              size="20"
-              style={{ marginLeft: "8px", cursor: "pointer", color: "red" }}
-              onClick={() => onRemove(item.cartItemId)}
-            />
-          </Flex>
-          <Flex
-            background="#fa4a0c"
-            color="white"
-            gap="1rem"
-            borderRadius="10px"
-            p="4px 8px"
-            alignItems="center"
-          >
-            <Text
-              style={{
-                cursor: "pointer",
-                userSelect: "none",
-                fontSize: "24px",
-              }}
+    <div className="relative mb-5">
+      <button
+        className="absolute !bg-red-500 rounded-2xl !p-0.5 !text-white !text-xs top-0.5 left-0.5"
+        onClick={() => onRemove(item.cartItemId)}
+      >
+        <FaX />
+      </button>
+      <div
+        key={item?.cartItemId}
+        className="flex gap-2 bg-white rounded-xl not-first: p-1 max-w-full md:max-w-md w-full"
+      >
+        {/* Image */}
+        <img
+          src={item?.pic || "https://placehold.co/80x80?text=No+Image"}
+          alt={item?.itemName || "Item"}
+          className="w-20 !h-20 object-cover rounded-lg flex-shrink-0"
+        />
+
+        {/* Title and Rating */}
+        <div className="flex flex-col justify-between flex-1 p-1">
+          <div className="flex justify-between">
+            <h3
+              className="text-sm md:text-base !font-medium text-gray-800 leading-tight break-words"
+              title={item?.itemName}
+            >
+              {item?.itemName?.length > 20
+                ? item?.itemName?.slice(0, 20) + "..."
+                : item?.itemName || "Untitled Item"}
+            </h3>
+            <PrimaryActionButton
+              bgColor="!bg-green-500 hover:!bg-green-600"
               onClick={() => onUpdate(item.cartItemId, 1)}
             >
-              +
-            </Text>
-            <Text
-              style={{
-                cursor: "pointer",
-                userSelect: "none",
-                fontSize: "24px",
-              }}
+              <FaPlus />
+            </PrimaryActionButton>
+          </div>
+
+          <div className="flex justify-between">
+            <div className="px-2 py-1 bg-gray-200 rounded-lg text-center text-sm text-gray-500">
+              {item?.totalQuantity} <span className="text-red-500 mx-1">X</span>{" "}
+              {formatToGermanCurrency(item?.price)}
+            </div>
+            <div className="px-2 py-1 bg-gray-200 rounded-lg text-center text-sm text-gray-500">
+              {formatToGermanCurrency(item?.totalPrice)}
+            </div>
+            <PrimaryActionButton
+              bgColor="!bg-red-500 hover:!bg-red-600"
               onClick={() => onUpdate(item.cartItemId, -1)}
             >
-              -
-            </Text>
-          </Flex>
-        </Flex>
-        <Flex justifyContent={"space-between"}>
-          {console.log("cop", item?.selectedCustomizations?.length)}
-          {console.table(item?.selectedCustomizations)}
-          {item?.selectedCustomizations?.length > 0 ? (
-            <Text fontWeight="" as="h5" mt={2} ml={1} isTruncated>
-              {item?.selectedCustomizations
-                .flatMap((c) => c.selectedOptions.map((option) => option.name))
-                .join(", ")}
-            </Text>
-          ) : (
-            <Box></Box>
-          )}
-          <Box display="flex" justifyContent="end" mt={"0.5rem"}>
-            {formatToGermanCurrency(item?.totalPrice)}
-          </Box>
-        </Flex>
-      </Box>
-    </Box>
+              <FaMinus />
+            </PrimaryActionButton>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 CartItem.propTypes = {

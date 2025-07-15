@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 import { formatToGermanCurrency } from "../../../../../utils/utils";
+import { IoPencil, IoTrash } from "react-icons/io5";
 
-const ItemCard = ({ item, handleShowItem }) => {
+const ItemMenuCard = ({ item, handleDeleteItem, handleEditItem }) => {
   return (
     <div
       key={item?._id}
@@ -26,21 +27,24 @@ const ItemCard = ({ item, handleShowItem }) => {
               ? item?.itemName?.slice(0, 20) + "..."
               : item?.itemName || "Untitled Item"}
           </h3>
-          <div className="px-2.5 py-1 bg-blue-100 rounded-xl text-center text-xs text-blue-800 max-h-5">
-            {formatToGermanCurrency(item?.basePrice) || "0.00"}
-          </div>
+          <PrimaryActionButton
+            className="rounded-lg h-6"
+            bgColor="!bg-red-500 hover:!bg-red-600"
+            onClick={handleDeleteItem}
+          >
+            <IoTrash />
+          </PrimaryActionButton>
         </div>
 
         <div className="flex justify-between">
-          <div className="px-2.5 py-1 bg-gray-200 rounded-xl text-center text-xs text-gray-500">
-            ⭐ {item?.rating ?? 0}/5
+          <div className="px-2.5 py-1 bg-gray-200 rounded-lg text-center text-xs text-gray-700">
+            {formatToGermanCurrency(item?.basePrice) || "0.00"}
           </div>
           <PrimaryActionButton
             className="rounded-lg h-6"
-            bgColor="!bg-blue-500 hover:!bg-blue-600"
-            onClick={() => handleShowItem(item)}
+            onClick={handleEditItem}
           >
-            Show Item
+            <IoPencil />
           </PrimaryActionButton>
         </div>
       </div>
@@ -48,9 +52,10 @@ const ItemCard = ({ item, handleShowItem }) => {
   );
 };
 
-ItemCard.propTypes = {
+ItemMenuCard.propTypes = {
   item: PropTypes.object.isRequired,
-  handleShowItem: PropTypes.func.isRequired,
+  handleDeleteItem: PropTypes.func.isRequired,
+  handleEditItem: PropTypes.func.isRequired,
 };
 
-export default ItemCard;
+export default ItemMenuCard;

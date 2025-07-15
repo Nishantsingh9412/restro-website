@@ -8,6 +8,7 @@ const Modal = ({
   title,
   children,
   maxWidth = "max-w-md",
+  border = "!border !border-gray-200",
   showCloseIcon = true,
   innerClassName = "",
   modalRef = null,
@@ -19,9 +20,9 @@ const Modal = ({
   return (
     <div
       ref={modalRef}
-      className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth}  animate-fadeIn  ${
+      className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth} ${border} animate-fadeIn  ${
         isLargeScreen
-          ? "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] absolute z-200 "
+          ? "top-[50%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200 "
           : " fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"
       }`}
     >
@@ -63,6 +64,7 @@ Modal.propTypes = {
   children: PropTypes.node.isRequired,
   maxWidth: PropTypes.string,
   center: PropTypes.bool,
+  border: PropTypes.string,
   showCloseIcon: PropTypes.bool,
   innerClassName: PropTypes.string,
   modalRef: PropTypes.any,

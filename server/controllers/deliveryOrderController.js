@@ -445,7 +445,12 @@ const getSortedDeliveryBoys = async (
       status: "AVAILABLE",
     });
     if (availableDeliveryBoys.length === 0) {
-      throw new Error("Delivery boys not available");
+      // throw new Error("Delivery boys not available");
+      return {
+        success: true,
+        message: "No delivery boys available",
+        result: [],
+      };
     }
 
     const deliveryBoyDistances = await Promise.all(

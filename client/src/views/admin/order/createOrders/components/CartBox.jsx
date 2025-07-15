@@ -1,16 +1,15 @@
-import { memo, useMemo } from "react"; // Ensure React is imported
-import { Box, Text, Button } from "@chakra-ui/react";
+import { memo, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CartItem from "./CartItem";
 import EmptyCart from "./EmptyCart";
 import {
   removeFromCart,
   updateQuantity,
-  // switchGuest,
-} from "../../../../../redux/action/cartItems"; // Update the import path if needed
+} from "../../../../../redux/action/cartItems";
 import PropTypes from "prop-types";
 import { formatToGermanCurrency } from "../../../../../utils/utils";
-// import { orderTypes } from "../../../../utils/constant";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
+import { FaArrowCircleRight } from "react-icons/fa";
 
 const CartBox = memo(({ handleOnProceed }) => {
   const dispatch = useDispatch();
@@ -18,7 +17,7 @@ const CartBox = memo(({ handleOnProceed }) => {
   const cart = useSelector(
     (state) =>
       state?.cart?.guestsCart?.guest || { items: [], totalOrderPrice: 0 }
-  ); // Handle undefined cart
+  );
   const allCartItems = useMemo(() => cart?.items || [], [cart]);
   const allOrderItemsTotal = useMemo(() => cart?.totalOrderPrice || 0, [cart]);
 
@@ -33,23 +32,10 @@ const CartBox = memo(({ handleOnProceed }) => {
   };
 
   return (
-    <Box
-      maxHeight={"600px"}
-      overflowY="auto"
-      display="flex"
-      flexDirection="column"
-      flex={1}
-      width="100%"
-      maxWidth="400px"
-      alignItems="center"
-      p="1rem"
-      bg="gray.50"
-      borderRadius="md"
-      boxShadow="lg"
-    >
-      {Array.isArray(allCartItems) && allCartItems.length > 0 ? ( // Ensure allCartItems is an array
+    <div className="max-h-[600px] overflow-y-auto flex flex-col flex-1 w-full max-w-[400px] items-center p-4 rounded-xl !border  !border-blue-300">
+      {Array.isArray(allCartItems) && allCartItems.length > 0 ? (
         <>
-          <Box width="100%">
+          <div className="w-full">
             {allCartItems.map((item) => (
               <CartItem
                 key={item.cartItemId}
@@ -58,51 +44,36 @@ const CartBox = memo(({ handleOnProceed }) => {
                 onUpdate={handleUpdateItemOrder}
               />
             ))}
-          </Box>
-          <Box
-            width="100%"
-            mt="auto"
-            bg="white"
-            p="1rem"
-            borderRadius="md"
-            boxShadow="md"
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottomWidth="1px"
-              borderColor="gray.200"
-              pb="0.5rem"
-              mb="1rem"
-            >
-              <Text fontWeight="bold" fontSize="lg" color="gray.700">
+          </div>
+          <div className="w-full bg-white p-2 rounded-md shadow">
+            <div className="flex justify-between items-center !border-b !border-gray-200 pb-2 mb-4">
+              <span className="font-semibold text-lg text-gray-700">
                 Subtotal:
-              </Text>
-              <Text fontWeight="bold" fontSize="lg" color="#029CFF">
+              </span>
+              <span className="font-bold text-lg text-[#029CFF]">
                 {formatToGermanCurrency(allOrderItemsTotal)}
-              </Text>
-            </Box>
-            <Button
-              width="100%"
-              background="#029CFF"
-              color="white"
-              _hover={{ color: "#029CFF", bg: "gray.100" }}
-              onClick={handleOnProceed}
-              size="md"
-              borderRadius="full"
-              isDisabled={
-                !Number.isFinite(allOrderItemsTotal) || allOrderItemsTotal <= 0
-              } // Ensure valid total before enabling
-            >
-              Proceed to Checkout
-            </Button>
-          </Box>
+              </span>
+            </div>
+
+            <div className="flex justify-center">
+              <PrimaryActionButton
+                bgColor="!bg-blue-500 hover:!bg-blue-600 font-medium"
+                onClick={handleOnProceed}
+                disabled={
+                  !Number.isFinite(allOrderItemsTotal) ||
+                  allOrderItemsTotal <= 0
+                }
+              >
+                Proceed To Checkout
+                <FaArrowCircleRight />
+              </PrimaryActionButton>
+            </div>
+          </div>
         </>
       ) : (
         <EmptyCart />
       )}
-    </Box>
+    </div>
   );
 });
 

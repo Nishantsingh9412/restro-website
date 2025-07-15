@@ -1,29 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  NumberInput,
-  NumberInputField,
-  Stack,
-  Switch,
-  Text,
-  Textarea,
-} from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { useToast } from "../../../../../contexts/useToast";
 import {
   formatToGermanCurrency,
   parseGermanCurrency,
 } from "../../../../../utils/utils";
+import { Input } from "../../../../../components/common/InputField"; // Import Input component
 
 const AddEditItemModal = (props) => {
   const initialState = {
@@ -229,300 +211,274 @@ const AddEditItemModal = (props) => {
   }, [itemData]);
 
   return (
-    <Modal isCentered isOpen={isOpen} onClose={handleClose}>
-      <ModalContent>
-        <ModalHeader>Add Item</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Box p={1}>
-            <form onSubmit={handleSubmit}>
-              <Stack spacing={1}>
-                <FormControl id="itemId" isRequired>
-                  <FormLabel>Item ID</FormLabel>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center ${
+        isOpen ? "" : "hidden"
+      }`}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto relative">
+        <div className="flex items-center justify-between bg-blue-500 text-white px-6 py-4 rounded-t-2xl">
+          <span className="font-bold text-lg">
+            {props.itemData ? "Edit Item" : "Add Item"}
+          </span>
+          <button
+            className="text-white text-2xl font-bold hover:text-blue-200 transition"
+            onClick={handleClose}
+            aria-label="Close"
+            type="button"
+          >
+            &times;
+          </button>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit}>
+            {/* Item ID */}
+            <Input
+              id="itemId"
+              label="Item ID"
+              type="text"
+              name="itemId"
+              value={item.itemId}
+              onChange={handleChange}
+              required
+            />
+            {/* Item Name */}
+            <Input
+              id="itemName"
+              label="Item Name"
+              type="text"
+              name="itemName"
+              value={item.itemName}
+              onChange={handleChange}
+              required
+            />
+            {/* Category */}
+            <Input
+              id="category"
+              label="Item Category"
+              type="text"
+              name="category"
+              value={item.category}
+              onChange={handleChange}
+              required
+            />
+            {/* Base Price */}
+            <Input
+              id="basePrice"
+              label="Base Price"
+              type="text"
+              name="basePrice"
+              value={item.basePrice}
+              onChange={handleChange}
+              required
+            />
+            {/* Add Customization Button */}
+            <button
+              type="button"
+              className="w-full mt-2 mb-2 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
+              onClick={handleAddCustomization}
+            >
+              Add Customization
+            </button>
+            {/* Customization Groups */}
+            {customization.map((group, groupIndex) => (
+              <div
+                key={groupIndex}
+                className="border p-4 rounded-md mt-2 relative"
+              >
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 text-red-500 text-lg font-bold hover:text-red-700"
+                  onClick={() =>
+                    setCustomization((prev) =>
+                      prev.filter((_, index) => index !== groupIndex)
+                    )
+                  }
+                >
+                  ✕
+                </button>
+                <div className="flex gap-2">
                   <Input
+                    id={`customizationGroup${groupIndex}`}
+                    label="Group Title"
                     type="text"
-                    name="itemId"
-                    onChange={handleChange}
-                    placeholder="e.g., 12345"
-                    value={item.itemId}
+                    value={group.title}
+                    onChange={(e) =>
+                      handleGroupChange(groupIndex, "title", e.target.value)
+                    }
                     required
                   />
-                </FormControl>
-                <FormControl id="itemName" isRequired>
-                  <FormLabel>Item Name</FormLabel>
-                  <Input
-                    type="text"
-                    name="itemName"
-                    placeholder="e.g., Margherita Pizza"
-                    value={item.itemName}
-                    onChange={handleChange}
-                    required
-                  />
-                </FormControl>
-                <FormControl id="category" isRequired>
-                  <FormLabel>Item Category</FormLabel>
-                  <Input
-                    type="text"
-                    name="category"
-                    value={item.category}
-                    onChange={handleChange}
-                    placeholder="e.g., Pizza"
-                    required
-                  />
-                </FormControl>
-                <Flex gap={2}>
-                  <FormControl id="basePrice" isRequired>
-                    <FormLabel>Base Price</FormLabel>
-                    <Input
-                      type="text"
-                      name="basePrice"
-                      value={item.basePrice}
-                      onChange={handleChange}
-                      placeholder="e.g., 12,50 €"
-                      required
-                    />
-                  </FormControl>
-                  <Button
-                    colorScheme="blue"
-                    onClick={handleAddCustomization}
-                    mt={2}
-                    width={"100%"}
-                    alignSelf={"end"}
-                  >
-                    Add Customization
-                  </Button>
-                </Flex>
-                {customization.map((group, groupIndex) => (
-                  <Box
-                    key={groupIndex}
-                    borderWidth="1px"
-                    p={4}
-                    borderRadius="md"
-                    mt={2}
-                    position="relative"
-                  >
-                    <Button
-                      p={0}
-                      size="xs"
-                      colorScheme="red"
-                      borderRadius={"50%"}
-                      position="absolute"
-                      top="-1.5px"
-                      right="-1.5px"
-                      onClick={() =>
-                        setCustomization((prev) =>
-                          prev.filter((_, index) => index !== groupIndex)
+                  <div className="flex flex-col flex-1">
+                    <label className="text-sm font-medium mb-1">
+                      Max Select
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      className="border border-gray-300 rounded-md px-3 py-2"
+                      value={group.maxSelect}
+                      onChange={(e) =>
+                        handleGroupChange(
+                          groupIndex,
+                          "maxSelect",
+                          e.target.value
                         )
                       }
-                    >
-                      ✕
-                    </Button>
-                    <Flex gap={2}>
-                      <FormControl
-                        id={`customizationGroup${groupIndex}`}
-                        isRequired
-                      >
-                        <FormLabel>Group Title</FormLabel>
-                        <Input
-                          type="text"
-                          value={group.title}
-                          onChange={(e) =>
-                            handleGroupChange(
-                              groupIndex,
-                              "title",
-                              e.target.value
-                            )
-                          }
-                          p
-                          placeholder="e.g., Toppings"
-                          required
-                        />
-                      </FormControl>
-                      <FormControl id="maxSelect" isRequired>
-                        <FormLabel>Max Select</FormLabel>
-                        <NumberInput
-                          value={group.maxSelect}
-                          onChange={(valueString) =>
-                            handleGroupChange(
-                              groupIndex,
-                              "maxSelect",
-                              valueString
-                            )
-                          }
-                          min={1}
-                          required
-                        >
-                          <NumberInputField name="basePrice" />
-                        </NumberInput>
-                      </FormControl>
-                    </Flex>
-                    <FormControl
-                      id={`customizationRequired${groupIndex}`}
-                      mt={2}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <FormLabel mb={0}>Required</FormLabel>
-                      <Switch
-                        isChecked={group.required}
-                        onChange={(e) =>
-                          handleGroupChange(
-                            groupIndex,
-                            "required",
-                            e.target.checked
-                          )
-                        }
-                        colorScheme="teal"
-                      />
-                    </FormControl>
-                    {group.option.map((opt, optionIndex) => (
-                      <Box
-                        key={optionIndex}
-                        display={"flex"}
-                        gap={1}
-                        mt={2}
-                        alignItems={"center"}
-                      >
-                        <FormControl id="optionName" isRequired>
-                          <FormLabel>Option Name</FormLabel>
-                          <Input
-                            type="text"
-                            value={opt.name}
-                            onChange={(e) =>
-                              handleOptionChange(
-                                groupIndex,
-                                optionIndex,
-                                "name",
-                                e.target.value
-                              )
-                            }
-                            placeholder="e.g., Extra Cheese"
-                            required
-                          />
-                        </FormControl>
-
-                        <FormControl id="optionPrice" isRequired>
-                          <FormLabel>Option Price</FormLabel>
-                          <Input
-                            type="text"
-                            value={opt.price}
-                            onChange={(e) =>
-                              handleOptionChange(
-                                groupIndex,
-                                optionIndex,
-                                "price",
-                                e.target.value
-                              )
-                            }
-                            placeholder="e.g., 2,50 €"
-                            required
-                          />
-                        </FormControl>
-                        {customization[groupIndex].option.length > 1 && (
-                          <Button
-                            p={0}
-                            size="xs"
-                            borderRadius={"50%"}
-                            colorScheme="red"
-                            top="15px"
-                            onClick={() => {
-                              const updatedOptions = [...customization];
-                              updatedOptions[groupIndex].option =
-                                updatedOptions[groupIndex].option.filter(
-                                  (_, index) => index !== optionIndex
-                                );
-                              setCustomization(updatedOptions);
-                            }}
-                          >
-                            ✕
-                          </Button>
-                        )}
-                      </Box>
-                    ))}
-                    <Button
-                      mt={4}
-                      colorScheme="green"
-                      onClick={() => handleAddOption(groupIndex)}
-                    >
-                      Add Option
-                    </Button>
-                  </Box>
-                ))}
-                <FormControl id="pic" mt={1}>
-                  <FormLabel>Upload Picture</FormLabel>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => postOrderImage(e.target.files[0])}
-                  />
-                </FormControl>
-                <Text>{item.pic}</Text>
-                <Flex gap={2}>
-                  <FormControl id="ingredients">
-                    <FormLabel>Ingredients</FormLabel>
-                    <Input
-                      type="text"
-                      name="ingredients"
-                      value={item.ingredients}
-                      onChange={handleChange}
-                      placeholder="e.g., Cheese, Tomato, Basil"
-                    />
-                  </FormControl>
-                  <FormControl id="prepTime" isRequired>
-                    <FormLabel>Preparation Time</FormLabel>
-                    <Input
-                      type="text"
-                      name="prepTime"
-                      value={item.prepTime}
-                      onChange={handleChange}
-                      placeholder="e.g., 15 (in minutes)"
                       required
                     />
-                  </FormControl>
-                </Flex>
-                <FormControl id="description">
-                  <FormLabel>Description</FormLabel>
-                  <Textarea
-                    name="description"
-                    value={item.description}
-                    onChange={handleChange}
-                    placeholder="e.g., A classic pizza with fresh mozzarella and basil."
-                    rows={3}
-                    resize="vertical"
+                  </div>
+                </div>
+                <div className="flex items-center mt-2">
+                  <label className="text-sm font-medium mr-2">Required</label>
+                  <input
+                    type="checkbox"
+                    checked={group.required}
+                    onChange={(e) =>
+                      handleGroupChange(
+                        groupIndex,
+                        "required",
+                        e.target.checked
+                      )
+                    }
+                    className="accent-teal-500"
                   />
-                </FormControl>
-                <FormControl
-                  mt={2}
-                  display="flex"
-                  alignItems="center"
-                  id="isFavourite"
+                </div>
+                {/* Options */}
+                {group.option.map((opt, optionIndex) => (
+                  <div
+                    key={optionIndex}
+                    className="flex gap-2 items-center mt-2"
+                  >
+                    <Input
+                      id={`optionName${groupIndex}-${optionIndex}`}
+                      label="Option Name"
+                      type="text"
+                      value={opt.name}
+                      onChange={(e) =>
+                        handleOptionChange(
+                          groupIndex,
+                          optionIndex,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                    <Input
+                      id={`optionPrice${groupIndex}-${optionIndex}`}
+                      label="Option Price"
+                      type="text"
+                      value={opt.price}
+                      onChange={(e) =>
+                        handleOptionChange(
+                          groupIndex,
+                          optionIndex,
+                          "price",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                    {group.option.length > 1 && (
+                      <button
+                        type="button"
+                        className="text-red-500 text-lg font-bold hover:text-red-700"
+                        onClick={() => {
+                          const updatedOptions = [...customization];
+                          updatedOptions[groupIndex].option = updatedOptions[
+                            groupIndex
+                          ].option.filter((_, index) => index !== optionIndex);
+                          setCustomization(updatedOptions);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="mt-2 px-4 py-1 rounded bg-green-500 text-white font-semibold hover:bg-green-600 transition"
+                  onClick={() => handleAddOption(groupIndex)}
                 >
-                  <FormLabel mb="0">Favourite</FormLabel>
-                  <Switch
-                    isChecked={item.isFavourite}
-                    onChange={() => {
-                      setItem((prevState) => ({
-                        ...prevState,
-                        isFavourite: !prevState.isFavourite,
-                      }));
-                    }}
-                  />
-                </FormControl>
-                <Button
-                  mt={4}
-                  colorScheme="teal"
-                  type="submit"
-                  width="full"
-                  isLoading={loading}
-                >
-                  {itemData ? "Update Item" : "Add Item"}
-                </Button>
-              </Stack>
-            </form>
-          </Box>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+                  Add Option
+                </button>
+              </div>
+            ))}
+            {/* Upload Picture */}
+            <div className="mt-2">
+              <label className="block text-sm font-medium mb-1">
+                Upload Picture
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => postOrderImage(e.target.files[0])}
+                className="block w-full text-sm text-gray-500"
+              />
+              <div className="text-xs text-gray-400">{item.pic}</div>
+            </div>
+            {/* Ingredients */}
+            <Input
+              id="ingredients"
+              label="Ingredients"
+              type="text"
+              name="ingredients"
+              value={item.ingredients}
+              onChange={handleChange}
+              required={false}
+            />
+            {/* Preparation Time */}
+            <Input
+              id="prepTime"
+              label="Preparation Time"
+              type="text"
+              name="prepTime"
+              value={item.prepTime}
+              onChange={handleChange}
+              required
+            />
+            {/* Description */}
+            <div className="mt-2">
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={item.description}
+                onChange={handleChange}
+                placeholder="e.g., A classic pizza with fresh mozzarella and basil."
+                rows={3}
+                className="w-full !border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-200"
+              />
+            </div>
+
+            {/* Favourite Switch */}
+            <div className="flex items-center mt-2">
+              <label className="text-sm font-medium mr-2">Favourite</label>
+              <input
+                type="checkbox"
+                checked={item.isFavourite}
+                onChange={() =>
+                  setItem((prevState) => ({
+                    ...prevState,
+                    isFavourite: !prevState.isFavourite,
+                  }))
+                }
+                className="accent-teal-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-4 w-full py-2 rounded bg-teal-500 text-white font-semibold hover:bg-teal-600 transition"
+              disabled={loading}
+            >
+              {props.itemData ? "Update Item" : "Add Item"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

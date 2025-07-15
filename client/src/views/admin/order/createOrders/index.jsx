@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Box, Flex, Button } from "@chakra-ui/react";
 import OrderTypeCard from "./components/orderTypeCard";
 import DineInForm from "./components/DineInForm";
 import TakeAwayForm from "./components/TakeAwayForm";
@@ -11,6 +10,7 @@ import { clearCart } from "../../../../redux/action/cartItems";
 import { useDispatch } from "react-redux";
 import { orderTypes } from "../../../../utils/constant";
 import { IoMdArrowBack } from "react-icons/io";
+import { PageHeading } from "../../../../components/UI/PageHeading";
 
 //TODO: Add a verification step before proceeding to the order menu to check whether the admin restaurant is verified or not.
 
@@ -54,30 +54,23 @@ const CreateOrders = () => {
   if (showOrderMenu) {
     return (
       <>
-        <Button
+        <button
           onClick={() => setShowOrderMenu(false)}
-          colorScheme="teal"
-          variant="outline"
-          ml={6}
-          iconSpacing={1}
-          leftIcon={<IoMdArrowBack />}
+          className="flex items-center gap-2 !px-3 !py-1 !border !border-teal-500 !text-teal-700 rounded-lg bg-white hover:!bg-teal-50 transition font-semibold shadow-sm"
+          type="button"
         >
+          <IoMdArrowBack className="w-5 h-5" />
           Back
-        </Button>
-        <OrderMenu selectedOrderType={selectedOrderType} />
+        </button>
+        <OrderMenu />
       </>
     );
   }
 
   return (
     <>
-      <Flex
-        mt={10}
-        justifyContent="center"
-        alignItems="center"
-        flexWrap="wrap"
-        gap={8}
-      >
+      <PageHeading title="Create Orders" />
+      <div className="flex flex-wrap justify-center items-center gap-8 mt-2">
         {Object.keys(orderTypes).map((key) => (
           <OrderTypeCard
             key={key}
@@ -86,20 +79,11 @@ const CreateOrders = () => {
             isSelected={selectedOrderType === orderTypes[key]}
           />
         ))}
-      </Flex>
+      </div>
       {selectedOrderType && (
-        <Box
-          m={10}
-          px={6}
-          py={4}
-          bg="white"
-          borderRadius="lg"
-          boxShadow="lg"
-          maxW="800px"
-          mx="auto"
-        >
+        <div className="m-10 px-6 py-8 bg-white !border !border-yellow-400 rounded-lg shadow max-w-[75%] mx-auto">
           {renderselectedOrderTypeForm()}
-        </Box>
+        </div>
       )}
     </>
   );

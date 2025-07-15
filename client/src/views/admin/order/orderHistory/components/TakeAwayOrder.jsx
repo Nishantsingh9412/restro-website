@@ -1,31 +1,15 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Badge,
-  UnorderedList,
-  ListItem,
-  IconButton,
-  Flex,
-  Divider,
-  Stack,
-  Button,
-  useDisclosure,
-  ModalFooter,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-} from "@chakra-ui/react";
-import { MdRestaurant } from "react-icons/md";
 import PropTypes from "prop-types";
+import { IoEye } from "react-icons/io5";
+import { MdRestaurant } from "react-icons/md";
+import OrderDetailsModal from "./OrderDetailsModal";
+import { InfoRow, OrderStatus } from "./OrderStatus";
+import { useModal } from "../../../../../hooks/useModal";
 import { formatToGermanCurrency } from "../../../../../utils/utils";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
+import { employeesRoles } from "../../../../../utils/constant";
 
-const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+const TakeAwayOrder = ({ orderData, handleAllotOrder }) => {
+  const { isOpen, onOpen, onClose, ref } = useModal();
   const {
     _id,
     orderId,
@@ -38,134 +22,49 @@ const TakeAwayOrder = ({ orderData, handleAllotChef }) => {
 
   return (
     <>
-      <Box
+      <div
         key={_id}
-        borderWidth="1px"
-        borderRadius="lg"
-        overflow="hidden"
-        p="6"
-        bg="white"
-        shadow="lg"
-        transition="transform 0.2s"
-        _hover={{ transform: "scale(1.02)" }}
+        className={`!border ${
+          completedAt ? "!border-green-500" : "!border-blue-500"
+        } rounded-lg overflow-hidden p-5 bg-white shadow-md transition-transform duration-200 hover:scale-[1.02]`}
       >
-        {completedAt ? (
-          <Heading
-            as="h2"
-            size="md"
-            bg="green.100"
-            textAlign={"center"}
-            mb={4}
-            p={2}
-          >
-            Completed
-          </Heading>
-        ) : assignedChef ? (
-          <Heading as="h2" size="md" bg="blue.100" mb={4} p={2}>
-            Assigned to {assignedChef?.name}
-          </Heading>
-        ) : (
-          <Flex justifyContent="space-between" alignItems="center" mb="4">
-            <Heading as="h2" size="md">
-              Order #{orderId}
-            </Heading>
-            <IconButton
-              onClick={handleAllotChef}
-              aria-label="Allot Chef"
-              title="Allot Chef"
-              icon={<MdRestaurant />}
-              variant="outline"
-              colorScheme="blue"
-            />
-          </Flex>
-        )}
-
-        <Divider mb={4} />
-
-        <Stack spacing={2}>
-          <Text>
-            <Badge colorScheme="blue">Customer</Badge> {customerName || "N/A"}
-          </Text>
-          <Text>
-            <Badge colorScheme="blue">Total</Badge>{" "}
+        <OrderStatus
+          completedAt={completedAt}
+          assignedChef={assignedChef}
+          orderId={orderId}
+          onAllot={() => handleAllotOrder(employeesRoles.CHEF)}
+          icon={<MdRestaurant />}
+        />
+        <div className="!border-b mb-2" />
+        <div className="space-y-2 mb-4">
+          <InfoRow label="Customer">{customerName || "N/A"}</InfoRow>
+          <InfoRow label="Total">
             {formatToGermanCurrency(totalPrice) || "N/A"}
-          </Text>
-        </Stack>
-        <Button mt="4" colorScheme="blue" onClick={onOpen} width={"100%"}>
+          </InfoRow>
+        </div>
+        <PrimaryActionButton
+          onClick={onOpen}
+          className="w-full flex justify-center"
+        >
           View Full Details
-        </Button>
-      </Box>
-
-      {/* // Modal for order details */}
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader bg={"blue.100"} mb={2}>
-            Order #{orderId}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing="3">
-              <Text>
-                <Badge colorScheme="blue">Customer</Badge>{" "}
-                {customerName || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Total</Badge>{" "}
-                {formatToGermanCurrency(totalPrice) || "N/A"}
-              </Text>
-              <Divider />
-              <Heading as="h3" size="sm" mt="6" mb="2">
-                Order Items:
-              </Heading>
-              <UnorderedList spacing={3}>
-                {orderItems?.map(
-                  ({ _id, quantity, total, item, selectedCustomizations }) => (
-                    <ListItem
-                      key={_id}
-                      p={2}
-                      borderWidth="1px"
-                      borderRadius="md"
-                      shadow="sm"
-                      bg="gray.50"
-                      _hover={{ bg: "gray.100", shadow: "md" }}
-                      listStyleType={"square"}
-                    >
-                      <Flex justifyContent="space-between" alignItems="center">
-                        <Box>
-                          <Text fontWeight="bold">{item?.itemName}</Text>
-                          {selectedCustomizations?.length > 0 && (
-                            <Text fontSize="sm" color="gray.600">
-                              (
-                              {selectedCustomizations
-                                .flatMap((c) =>
-                                  c.selectedOptions.map((option) => option.name)
-                                )
-                                .join(", ")}
-                              )
-                            </Text>
-                          )}
-                        </Box>
-                        <Box textAlign="right">
-                          <Text fontWeight="bold">
-                            &times; {quantity} - {formatToGermanCurrency(total)}
-                          </Text>
-                        </Box>
-                      </Flex>
-                    </ListItem>
-                  )
-                )}
-              </UnorderedList>
-            </Stack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          <IoEye />
+        </PrimaryActionButton>
+      </div>
+      {/* Modal for Full Details */}
+      {isOpen && (
+        <OrderDetailsModal
+          ref={ref}
+          isOpen={isOpen}
+          onClose={onClose}
+          order={orderData}
+          orderItems={orderItems}
+          grouped={false}
+          metaInfo={[
+            { label: "Customer", value: customerName },
+            { label: "Total Price", value: formatToGermanCurrency(totalPrice) },
+          ]}
+        />
+      )}
     </>
   );
 };
@@ -200,7 +99,7 @@ TakeAwayOrder.propTypes = {
     }),
     completedAt: PropTypes.string,
   }).isRequired,
-  handleAllotChef: PropTypes.func.isRequired,
+  handleAllotOrder: PropTypes.func.isRequired,
 };
 
 export default TakeAwayOrder;

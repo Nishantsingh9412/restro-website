@@ -261,12 +261,12 @@ export const updateSingleDineInOrderAPI = (id, updatedData) =>
 export const deleteSingleDineInOrderAPI = (id) =>
   API.delete(`/dine-in-order/delete/${id}`);
 // Allot Dine-In Order to Waiter
-export const allotDineInOrderToWaiter = (orderId, waiterId) =>
+export const allotDineInOrderToWaiterAPI = (orderId, waiterId) =>
   API.post(`/dine-in/assign-to-waiter/${orderId}`, {
     waiterId: waiterId,
   });
 // Allot Dine-In Order to Chef
-export const allotDineInOrderToChef = (orderId, chefId) =>
+export const allotDineInOrderToChefAPI = (orderId, chefId) =>
   API.post(`/dine-in/assign-to-chef/${orderId}`, {
     chefId: chefId,
   });
@@ -293,7 +293,7 @@ export const deleteSingleTakeAwayOrderAPI = (id) =>
   API.delete(`/take-away/delete/${id}`);
 
 // Allot Take-Away Order to Chef
-export const allotTakeAwayOrderToChef = (orderId, chefId) =>
+export const allotTakeAwayOrderToChefAPI = (orderId, chefId) =>
   API.post(`/take-away/assign-to-chef/${orderId}`, {
     chefId: chefId,
   });

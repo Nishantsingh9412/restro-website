@@ -5,6 +5,7 @@
 @theme {
 
   --color-primary: #5D5FEF;
+  --color-light-primary: #9155FD;
   --color-sidebar: #F8FCFC;
   --color-shadow: rgba(0, 0, 0, 0.1);
   --color-shadow-hover: rgba(0, 0, 0, 0.15);

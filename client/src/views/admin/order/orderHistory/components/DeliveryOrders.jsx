@@ -1,33 +1,15 @@
-import {
-  Box,
-  Heading,
-  Flex,
-  IconButton,
-  Divider,
-  Stack,
-  Text,
-  Badge,
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  UnorderedList,
-  ListItem,
-  useDisclosure,
-} from "@chakra-ui/react";
 import { MdLocalShipping } from "react-icons/md";
 import PropTypes from "prop-types";
-import {
-  camelCaseToSentenceCase,
-  formatToGermanCurrency,
-} from "../../../../../utils/utils";
+import { IoEye } from "react-icons/io5";
+import { formatToGermanCurrency } from "../../../../../utils/utils";
+import { InfoRow, OrderStatus } from "./OrderStatus";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
+import OrderDetailsModal from "./OrderDetailsModal";
+import { useModal } from "../../../../../hooks/useModal";
+import { employeesRoles } from "../../../../../utils/constant";
 
-const DeliveryOrders = ({ orderData, handleAllotDeliveryBoy }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const DeliveryOrders = ({ orderData, handleAllotOrder }) => {
+  const { isOpen, onOpen, onClose, ref } = useModal();
 
   const {
     _id,
@@ -35,7 +17,6 @@ const DeliveryOrders = ({ orderData, handleAllotDeliveryBoy }) => {
     customerName,
     phoneNumber,
     paymentMethod,
-    deliveryMethod,
     address,
     zip,
     noteFromCustomer,
@@ -47,154 +28,62 @@ const DeliveryOrders = ({ orderData, handleAllotDeliveryBoy }) => {
 
   return (
     <>
-      <Box
+      <div
         key={_id}
-        borderWidth="1px"
-        borderRadius="lg"
-        overflow="hidden"
-        p="5"
-        bg="white"
-        shadow="lg"
-        transition="transform 0.2s"
-        _hover={{ transform: "scale(1.02)" }}
+        className={`!border ${
+          completedAt ? "!border-green-500" : "!border-blue-500"
+        } rounded-lg overflow-hidden p-5 bg-white shadow-md transition-transform duration-200 hover:scale-[1.02]`}
       >
-        {completedAt ? (
-          <Heading
-            as="h2"
-            size="md"
-            bg="green.100"
-            textAlign={"center"}
-            mb={4}
-            p={2}
-          >
-            Completed
-          </Heading>
-        ) : assignedTo ? (
-          <Heading as="h2" size="md" bg="blue.100" mb={4} p={2}>
-            Assigned to {assignedTo.name}
-          </Heading>
-        ) : (
-          <Flex justifyContent="space-between" alignItems="center" mb="4">
-            <Heading as="h2" size="md">
-              Order #{orderId}
-            </Heading>
-            <IconButton
-              onClick={() => handleAllotDeliveryBoy(orderId)}
-              aria-label="Allot Delivery Boy"
-              title="Allot Delivery Boy"
-              icon={<MdLocalShipping />}
-              variant="outline"
-              colorScheme="blue"
-            />
-          </Flex>
-        )}
-        <Divider mb="4" />
-        <Stack spacing="3">
-          <Text>
-            <Badge colorScheme="blue">Customer</Badge> {customerName || "N/A"}
-          </Text>
-          <Text>
-            <Badge colorScheme="blue">Address</Badge> {address || "N/A"}
-          </Text>
-          <Text>
-            <Badge colorScheme="blue">Total</Badge>{" "}
+        <OrderStatus
+          completedAt={completedAt}
+          assignedTo={assignedTo}
+          orderId={orderId}
+          onAllot={() => handleAllotOrder(employeesRoles.DELIVERY_BOY)}
+          icon={<MdLocalShipping />}
+        />
+        <div className="!border-b mb-2" />
+        <div className="space-y-2 mb-4">
+          <InfoRow label="Customer">{customerName || "N/A"}</InfoRow>
+          <InfoRow label="Address">{address || "N/A"}</InfoRow>
+          <InfoRow label="Total">
             {formatToGermanCurrency(totalPrice) || "N/A"}
-          </Text>
-        </Stack>
-        <Button mt="4" colorScheme="blue" onClick={onOpen} width={"100%"}>
+          </InfoRow>
+        </div>
+        <PrimaryActionButton
+          onClick={onOpen}
+          className="w-full flex justify-center"
+        >
           View Full Details
-        </Button>
-      </Box>
+          <IoEye />
+        </PrimaryActionButton>
+      </div>
 
-      {/* Modal for Full Details */}
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader bg={"blue.100"} mb={2}>
-            Order #{orderId}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing="3">
-              <Text>
-                <Badge colorScheme="blue">Customer</Badge>{" "}
-                {customerName || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Phone</Badge> {phoneNumber || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Payment</Badge>{" "}
-                {camelCaseToSentenceCase(paymentMethod) || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Delivery</Badge>{" "}
-                {camelCaseToSentenceCase(deliveryMethod) || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Address</Badge> {address}, {zip}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Note</Badge>{" "}
-                {noteFromCustomer || "N/A"}
-              </Text>
-              <Text>
-                <Badge colorScheme="blue">Total</Badge>{" "}
-                {formatToGermanCurrency(totalPrice) || "N/A"}
-              </Text>
-            </Stack>
-            <Heading as="h3" size="sm" mt="6" mb="2">
-              Order Items:
-            </Heading>
-            <UnorderedList spacing={3}>
-              {orderItems?.map(
-                ({ _id, quantity, total, item, selectedCustomizations }) => (
-                  <ListItem
-                    key={_id}
-                    p={2}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    shadow="sm"
-                    bg="gray.50"
-                    _hover={{ bg: "gray.100", shadow: "md" }}
-                    listStyleType={"square"}
-                  >
-                    <Flex justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Text fontWeight="bold">{item?.itemName}</Text>
-                        {selectedCustomizations?.length > 0 && (
-                          <Text fontSize="sm" color="gray.600">
-                            (
-                            {selectedCustomizations
-                              .flatMap((c) =>
-                                c.selectedOptions.map((option) => option.name)
-                              )
-                              .join(", ")}
-                            )
-                          </Text>
-                        )}
-                      </Box>
-                      <Box textAlign="right">
-                        <Text fontWeight="bold">
-                          &times; {quantity} - {formatToGermanCurrency(total)}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </ListItem>
-                )
-              )}
-            </UnorderedList>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {isOpen && (
+        <OrderDetailsModal
+          isOpen={isOpen}
+          onClose={onClose}
+          ref={ref}
+          order={orderData}
+          orderItems={orderItems}
+          grouped={false}
+          metaInfo={[
+            { label: "Customer", value: customerName },
+            { label: "Phone", value: phoneNumber },
+            { label: "Payment Method", value: paymentMethod },
+            { label: "Address", value: address },
+            { label: "Zip Code", value: zip },
+            { label: "Note from Customer", value: noteFromCustomer },
+            {
+              label: "Total Price",
+              value: formatToGermanCurrency(totalPrice),
+            },
+          ]}
+        />
+      )}
     </>
   );
 };
+
 DeliveryOrders.propTypes = {
   orderData: PropTypes.shape({
     _id: PropTypes.string.isRequired,
@@ -231,7 +120,7 @@ DeliveryOrders.propTypes = {
     }),
     completedAt: PropTypes.string,
   }).isRequired,
-  handleAllotDeliveryBoy: PropTypes.func.isRequired,
+  handleAllotOrder: PropTypes.func.isRequired,
 };
 
 export default DeliveryOrders;

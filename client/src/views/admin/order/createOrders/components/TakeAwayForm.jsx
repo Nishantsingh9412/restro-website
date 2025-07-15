@@ -1,23 +1,15 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  SimpleGrid,
-} from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTakeAwayInfo } from "../../../../../redux/action/customerInfo";
 import { useToast } from "../../../../../contexts/useToast";
-// TakeAwayForm component definition1
+import { Input } from "../../../../../components/common/InputField";
 
 const TakeAwayForm = ({ onProceed }) => {
   const dispatch = useDispatch();
   const showToast = useToast();
   // Get form data from the Redux store
-  const formData = useSelector((state) => state.customerInfo.takeAway);
+  const formData = useSelector((state) => state?.customerInfo?.takeAway);
   const { customerName } = formData;
 
   // Handle input changes and dispatch action to update form data in the Redux store
@@ -47,42 +39,29 @@ const TakeAwayForm = ({ onProceed }) => {
 
   return (
     <form onSubmit={handleDineInSubmit}>
-      <Box mt={2}>
-        <SimpleGrid spacing={4}>
-          {/* Customer Name Input */}
-          <FormControl id="customerName" mb={4} isRequired>
-            <FormLabel>Customer Name</FormLabel>
-            <Input
-              type="text"
-              name="customerName"
-              placeholder="Enter customer name"
-              value={customerName}
-              onChange={handleChange}
-              required={true}
-              maxLength={50}
-              minLength={3}
-            />
-          </FormControl>
-        </SimpleGrid>
-
-        {/* Submit Button */}
-        <Button
-          bg={"#029CFF"}
-          color={"white"}
-          _hover={{ bg: "blue.600" }}
-          type="submit"
-          my={2}
-          width={"100%"}
-        >
-          Proceed To Menu
-        </Button>
-      </Box>
+      <Input
+        id="customerName"
+        name="customerName"
+        type="text"
+        label="Customer Name"
+        value={customerName}
+        onChange={handleChange}
+        required
+        minLength={3}
+        maxLength={50}
+      />
+      <button
+        type="submit"
+        className="!mt-2 w-full !bg-primary !text-white rounded-lg !py-2 font-medium hover:!bg-[#5d5fdf] transition"
+      >
+        Proceed To Menu
+      </button>
     </form>
   );
 };
 
-// Prop types for TakeAwayForm component
 TakeAwayForm.propTypes = {
   onProceed: PropTypes.func.isRequired,
 };
+
 export default TakeAwayForm;

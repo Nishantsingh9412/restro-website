@@ -1,22 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  Button,
-  Input,
-  List,
-  ListItem,
-  Box,
-} from "@chakra-ui/react";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import tt from "@tomtom-international/web-sdk-maps";
 import { setDeliveryInfo } from "../../redux/action/customerInfo";
+import Modal from "../UI/Modal";
 
 export default function MapInput({ data, isOpen, onClose }) {
   const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
@@ -203,84 +191,72 @@ export default function MapInput({ data, isOpen, onClose }) {
   }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="medium">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Search Location</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody display="flex" flexDirection="column" gap="10px">
-          <div style={{ display: "flex", gap: "10px" }}>
-            <Input
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      maxWidth="max-w-sm sm:max-w-xl lg:max-w-4xl"
+    >
+      <div className="bg-white rounded-xl shadow-lg w-full">
+        {/* Body */}
+        <div className="flex flex-col gap-4 px-6 py-4">
+          <form
+            className="flex gap-2"
+            onSubmit={handleSearch}
+            autoComplete="off"
+          >
+            <input
               type="search"
               placeholder="Search places..."
               value={utils.search}
               onChange={(e) => updateUtils({ search: e.target.value })}
-              style={{ flex: "1", padding: "10px", fontSize: "16px" }}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-base"
             />
-            <Button
-              borderRadius={"4px"}
-              bg={"blue.500"}
-              color={"#fff"}
-              _hover={{ background: "blue.700" }}
-              style={{ flexShrink: "0" }}
-              onClick={handleSearch}
+            <button
+              type="submit"
+              className="px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-700 transition"
             >
               Search
-            </Button>
-          </div>
-          {utils.error && <p>{utils.error}</p>}
-          <List>
+            </button>
+          </form>
+          {utils.error && <p className="text-red-500 text-sm">{utils.error}</p>}
+          <div className="max-h-40 overflow-y-auto !border !border-gray-200 rounded">
             {utils.suggestions.map((suggestion) => (
-              <ListItem
+              <div
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion)}
-                style={{
-                  padding: "10px",
-                  borderBottom: "1px solid #ddd",
-                  cursor: "pointer",
-                }}
+                className="px-3 py-2 border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition"
               >
                 {suggestion.address?.freeformAddress || suggestion.poi?.name}
-              </ListItem>
+              </div>
             ))}
-          </List>
-          {/* {loading ? (
-            <div>
-              <Box
-                height={"400px"}
-                display={"flex"}
-                justifyContent={"center"}
-                alignItems={"center"}
-              >
-                <Spinner />
-              </Box>
-            </div>
-          ) : ( */}
-          <Box
+          </div>
+          <div
             ref={mapContainer}
-            style={{
-              width: "100%",
-              height: "400px",
-              marginTop: "10px",
-              cursor: "crosshair",
-            }}
+            className="w-full h-[400px]"
+            style={{ cursor: "crosshair" }}
           />
-
-          <Button
-            borderRadius={"4px"}
-            bg={"#029CFF"}
-            color={"#fff"}
-            _hover={{ background: "blue.500" }}
-            style={{ marginTop: "10px" }}
-            onClick={handleFinalSubmit}
-          >
-            Submit
-          </Button>
-        </ModalBody>
-      </ModalContent>
+          <div className="flex gap-2 mx-20">
+            <button
+              className="!py-1 !px-5 rounded-md !bg-green-400 flex-5/6  font-semibold hover:!bg-green-500 transition"
+              onClick={handleFinalSubmit}
+              type="button"
+            >
+              Submit
+            </button>
+            <button
+              className="!py-1 !px-5 rounded-md !bg-red-500 flex-2/6 !text-white font-semibold hover:!bg-red-600 transition"
+              onClick={onClose}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 }
+
 MapInput.propTypes = {
   data: PropTypes.object,
   onSubmit: PropTypes.func,

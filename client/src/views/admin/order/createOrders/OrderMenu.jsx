@@ -1,170 +1,88 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  Box,
-  Flex,
-  Input,
-  Select,
-  SimpleGrid,
-  Spinner,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { addToCart } from "../../../../redux/action/cartItems";
-import { useToast } from "../../../../contexts/useToast";
-import { getAllOrderItemsAction } from "../../../../redux/action/OrderItems";
 import ItemCard from "./components/ItemCard";
 import ShowItemModal from "./components/ItemModal";
 import CheckoutSummary from "./components/CheckoutSummary";
 import CartBox from "./components/CartBox";
 import GuestsCartBox from "./components/GuestsCartBox";
-import {
-  guestTypes,
-  orderMethods,
-  orderTypes,
-} from "../../../../utils/constant";
+import { orderMethods, orderTypes } from "../../../../utils/constant";
+import { Input } from "../../../../components/common/InputField";
+import { SelectField } from "../../../../components/common/SelectField";
+import PageLoader from "../../../../components/UI/Loader";
+import { useOrderMenuLogic } from "../../../../hooks/useOrderMenuLogic";
 
 const OrderMenu = () => {
-  const showToast = useToast();
-  const dispatch = useDispatch();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
-    isOpen: isCheckoutOpen,
-    onOpen: onCheckoutOpen,
-    onClose: onCheckoutClose,
-  } = useDisclosure();
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [allItemsData, setAllItemsData] = useState({});
-  const [selectedItem, setSelectedItem] = useState(null);
-  const { orderMethod } = useSelector((state) => state.customerInfo.dineIn);
-  const { currentGuest, orderType } = useSelector((state) => state.cart);
-
-  const handleAddToCart = (item) => {
-    if (
-      orderType === orderTypes.DINE_IN &&
-      orderMethod === orderMethods.INDIVIDUAL &&
-      currentGuest === guestTypes.GUEST
-    ) {
-      showToast("Please select a guest to add items to the cart", "info");
-      return;
-    }
-    if (item) {
-      dispatch(addToCart(item));
-    }
-  };
-
-  const handleShowItem = (item) => {
-    if (item) {
-      setSelectedItem(item);
-      onOpen();
-    }
-  };
-
-  const groupByCategory = (data) => {
-    return data.reduce((acc, item) => {
-      const category = item.category || "Uncategorized";
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(item);
-      return acc;
-    }, {});
-  };
-
-  const filteredMenu = Object.entries(allItemsData)
-    .filter(
-      ([category]) => filter === "all" || category.toLowerCase() === filter
-    )
-    // eslint-disable-next-line no-unused-vars
-    .flatMap(([_, items]) =>
-      items.filter((item) =>
-        item.itemName?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const allItemsRes = await dispatch(getAllOrderItemsAction());
-        if (!allItemsRes.success) {
-          showToast(allItemsRes.message, "error");
-        } else {
-          setAllItemsData(groupByCategory(allItemsRes.data));
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        showToast("Failed to fetch data", "error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dispatch, showToast]);
+    loading,
+    itemModal,
+    checkoutModal,
+    allItemsData,
+    selectedItem,
+    searchTerm,
+    filter,
+    filteredMenu,
+    orderMethod,
+    orderType,
+    handleAddToCart,
+    handleShowItem,
+    handleCloseModal,
+    setSearchTerm,
+    setFilter,
+  } = useOrderMenuLogic();
 
   if (loading) {
-    return (
-      <Flex justifyContent="center" alignItems="center" height="100vh">
-        <Box>
-          <Spinner size="xl" color="teal.600" />
-        </Box>
-      </Flex>
-    );
+    return <PageLoader />;
   }
 
-  if (!allItemsData) {
+  if (!allItemsData || Object.keys(allItemsData).length === 0) {
     return (
-      <Flex justifyContent="center" alignItems="center" height="100vh">
-        <Text fontSize="xl" color="teal.600">
-          No items available
-        </Text>
-      </Flex>
+      <div className="flex justify-center items-center h-screen">
+        <span className="text-xl text-teal-600">No items available</span>
+      </div>
     );
   }
 
   return (
-    <Flex p={6} gap={6} flexWrap="wrap" justifyContent="space-between">
-      {isOpen && (
+    <div className="flex flex-wrap mx-3 mt-3 gap-6 justify-between !bg-white">
+      {/* Show Item Modal */}
+      {itemModal.isOpen && (
         <ShowItemModal
-          isOpen={isOpen}
-          onClose={onClose}
+          ref={itemModal.ref}
+          isOpen={itemModal.isOpen}
+          onClose={handleCloseModal}
           item={selectedItem}
           handleAddToCart={handleAddToCart}
         />
       )}
       {/* Checkout Component */}
-      {isCheckoutOpen && (
-        <CheckoutSummary isOpen={isCheckoutOpen} onClose={onCheckoutClose} />
+      {checkoutModal.isOpen && (
+        <CheckoutSummary
+          ref={checkoutModal.ref}
+          isOpen={checkoutModal.isOpen}
+          onClose={checkoutModal.onClose}
+        />
       )}
       {/* Left: Menu List */}
-      <Box flex="1">
-        <Flex mb={6} gap={4} alignItems="center">
+      <div className="flex-1 min-w-[300px]">
+        <div className="flex mb-3 gap-2 items-center">
           <Input
-            placeholder="Search items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            borderColor="teal.500"
-            focusBorderColor="teal.600"
+            label="Search Items"
           />
-          <Select
-            w="200px"
+
+          <SelectField
+            id="type"
+            label="All"
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            borderColor="teal.500"
-            focusBorderColor="teal.600"
-          >
-            <option value="all">All</option>
-            {Object.keys(allItemsData).map((category) => (
-              <option key={category} value={category.toLowerCase()}>
-                {category}
-              </option>
-            ))}
-          </Select>
-        </Flex>
-        <SimpleGrid columns={[1, 2, 3, 4]} spacing={6} minChildWidth="300px">
+            onChange={(e) => {
+              setFilter(e.target.value);
+            }}
+            options={Object.keys(allItemsData).map((category) => ({
+              value: category.toLowerCase(),
+              label: category,
+            }))}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6 !border rounded-xl shadow !border-blue-300 py-6 px-5 bg-white">
           {filteredMenu.map((result, index) => (
             <ItemCard
               key={index}
@@ -172,16 +90,18 @@ const OrderMenu = () => {
               handleShowItem={handleShowItem}
             />
           ))}
-        </SimpleGrid>
-      </Box>
+        </div>
+      </div>
       {/*  Right: Cart */}
-      {orderMethod === orderMethods.INDIVIDUAL &&
-      orderType === orderTypes.DINE_IN ? (
-        <GuestsCartBox handleOnProceed={onCheckoutOpen} />
-      ) : (
-        <CartBox handleOnProceed={onCheckoutOpen} />
-      )}
-    </Flex>
+      <div className="min-w-[320px] max-w-[400px] w-full ">
+        {orderMethod === orderMethods.INDIVIDUAL &&
+        orderType === orderTypes.DINE_IN ? (
+          <GuestsCartBox handleOnProceed={checkoutModal.onOpen} />
+        ) : (
+          <CartBox handleOnProceed={checkoutModal.onOpen} />
+        )}
+      </div>
+    </div>
   );
 };
 

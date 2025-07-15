@@ -1,28 +1,7 @@
-import {
-  Box,
-  Button,
-  VStack,
-  Heading,
-  HStack,
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  Text,
-  Divider,
-  Flex,
-  Icon,
-  Image,
-  Badge,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  Stack,
-  Radio,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
+import { useMemo, useState } from "react";
+import { FaForward, FaShoppingCart, FaUser } from "react-icons/fa";
 import {
   addTakeAwayOrderAPI,
   addDineInOrderAPI,
@@ -38,29 +17,20 @@ import {
   setDeliveryInfo,
   setTakeAwayInfo,
 } from "../../../../../redux/action/customerInfo";
-import { FaShoppingCart, FaUser } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
-import { useMemo, useState } from "react";
 import { guestTypes, orderTypes } from "../../../../../utils/constant";
 import { useToast } from "../../../../../contexts/useToast";
-// import { useNavigate } from "react-router-dom";
 import { localStorageData } from "../../../../../utils/constant";
 import ThankYouModal from "./ThankYouModal";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 
-const CheckoutSummary = ({ isOpen, onClose }) => {
+const CheckoutSummary = ({ isOpen, onClose, ref }) => {
   const showToast = useToast();
-  // const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const orderDetails = useSelector((state) => state.customerInfo);
   const orderType = useSelector((state) => state.cart.orderType);
   const { guestsCart } = useSelector((state) => state?.cart);
-  const {
-    isOpen: isSuccessModalOpen,
-    onOpen: onSuccessModalOpen,
-    onClose: onSuccessModalClose,
-  } = useDisclosure();
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   // Memoized value for all cart items (either for all guests or a specific guest)
   const allCartItems = useMemo(() => {
@@ -159,7 +129,7 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
       .then((res) => {
         if (res.status === 201) {
           setLoading(false);
-          onSuccessModalOpen();
+          setIsSuccessModalOpen(true);
           showToast("Order completed successfully", "success");
         }
       })
@@ -177,149 +147,154 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
       {isSuccessModalOpen && (
         <ThankYouModal
           isOpen={isSuccessModalOpen}
-          onClose={onSuccessModalClose}
+          onClose={() => setIsSuccessModalOpen(false)}
           onBack={onClose}
         />
       )}
-      {/* Drawer component for checkout summary */}
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px" bg="blue.500" color="white">
-            <Flex align="center">
-              <Icon as={FaShoppingCart} mr={2} />
-              Checkout Summary
-            </Flex>
-          </DrawerHeader>
-          <DrawerBody bg="gray.50" p={6}>
-            <HStack spacing={6} align="flex-start">
-              {/* Left Side: User Details  */}
-              <Box flex={1} bg="white" borderRadius="lg" boxShadow="md" p={6}>
-                <Flex align="center" mb={4}>
-                  <Icon as={FaUser} mr={2} color="blue.500" />
-                  <Heading as="h2" size="md" color="gray.700">
+      {/* Drawer-like overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex  ">
+          {/* Drawer Content */}
+          <div
+            className="relative ml-auto w-full max-w-4xl h-full bg-white shadow-2xl flex flex-col"
+            ref={ref}
+          >
+            {/* Header */}
+            <div className="flex items-center px-6 py-4 !border-b bg-blue-500 text-white">
+              <FaShoppingCart className="mr-2" />
+              <span className="font-bold text-lg">Checkout Summary</span>
+            </div>
+            {/* Body */}
+            <div className="flex flex-col md:flex-row gap-6 flex-1 overflow-y-auto bg-gray-50 p-6">
+              {/* Left Side: User Details */}
+              <div className="flex-1 bg-white  p-6">
+                <div className="flex items-center mb-4">
+                  <FaUser className="mr-2 text-blue-500" />
+                  <span className="font-semibold text-lg text-gray-700">
                     User Details
-                  </Heading>
-                </Flex>
-                <Divider mb={4} />
-                <VStack spacing={4} align="stretch">
+                  </span>
+                </div>
+                <div className="!border-b mb-4" />
+                <div className="flex flex-col gap-2">
                   {orderDetails && (
                     <>
                       {filterOrderDetails(orderDetails[orderType] || {}).map(
                         ([key, value]) => (
-                          <Text key={key} fontSize="sm" color="gray.600">
+                          <div key={key} className="text-sm text-gray-600">
                             <strong>{formatKey(key)}:</strong>{" "}
                             {formatValue(value)}
-                          </Text>
+                          </div>
                         )
                       )}
                     </>
                   )}
-                </VStack>
+                </div>
                 {/* Payment Method Radio Group */}
-                <FormControl id="paymentMethod" my={2}>
-                  <Flex align="center">
-                    <FormLabel fontSize="sm" color="gray.600" mb={0}>
-                      <strong>Payment Method:</strong>
-                    </FormLabel>
-                    <RadioGroup
-                      defaultValue={orderDetails[orderType]?.paymentMethod}
-                      name="paymentMethod"
-                      onChange={handlePaymentMethodChange}
-                    >
-                      <Stack direction="row" spacing={4}>
-                        <Radio value="cash">Cash</Radio>
-                        <Radio value="card">Card</Radio>
-                        <Radio value="paypal">PayPal</Radio>
-                      </Stack>
-                    </RadioGroup>
-                  </Flex>
-                </FormControl>
-              </Box>
-              {/* /* Right Side: Live Cart */}
-              <Box flex={1} bg="white" borderRadius="lg" boxShadow="md" p={6}>
-                <Flex align="center" mb={4}>
-                  <Icon as={FaShoppingCart} mr={2} color="blue.500" />
-                  <Heading as="h2" size="md" color="gray.700">
+                <div className="my-2">
+                  <label className="block text-sm text-gray-600 font-bold mb-2">
+                    Payment Method:
+                  </label>
+                  <div className="flex gap-4">
+                    {["cash", "card", "paypal"].map((method) => (
+                      <label
+                        key={method}
+                        className="flex items-center gap-1 cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={method}
+                          checked={
+                            orderDetails[orderType]?.paymentMethod === method
+                          }
+                          onChange={() => handlePaymentMethodChange(method)}
+                          className="accent-blue-500"
+                        />
+                        <span className="capitalize">{method}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Right Side: Live Cart */}
+              <div className="flex-1 bg-white rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <FaShoppingCart className="mr-2 text-blue-500" />
+                  <span className="font-semibold text-lg text-gray-700">
                     Live Cart
-                  </Heading>
-                </Flex>
-                <Divider mb={4} />
-                <VStack spacing={2} align="stretch">
+                  </span>
+                </div>
+                <div className="!border-b mb-4" />
+                <div className="flex flex-col gap-2">
                   {allCartItems.length > 0 ? (
                     Object.entries(guestsCart).map(([guestName, guestCart]) => (
-                      <Box key={guestName}>
-                        <Text fontWeight="bold" fontSize="md" color="gray.600">
-                          {guestName !== guestTypes.GUEST
-                            ? `${guestName}'s Orders:`
-                            : ""}
-                        </Text>
+                      <div key={guestName}>
+                        {guestName !== guestTypes.GUEST && (
+                          <div className="font-bold text-md text-gray-600 mb-1">
+                            {guestName}&apos;s Orders:
+                          </div>
+                        )}
                         {guestCart.items.map((item) => (
                           <CartItem key={item.cartItemId} item={item} />
                         ))}
                         {guestName !== guestTypes.GUEST && (
                           <>
-                            <Text
-                              fontSize="sm"
-                              color="gray.500"
-                              mt={2}
-                              textAlign="right"
-                            >
+                            <div className="text-sm text-gray-500 mt-2 text-right">
                               Total:{" "}
                               {formatToGermanCurrency(
                                 guestCart?.totalOrderPrice
                               )}
-                            </Text>
-                            <Divider my={2} />
+                            </div>
+                            <div className="border-b my-2" />
                           </>
                         )}
-                      </Box>
+                      </div>
                     ))
                   ) : (
-                    <Text fontSize="sm" color="gray.500">
+                    <div className="text-sm text-gray-500">
                       Your cart is empty.
-                    </Text>
+                    </div>
                   )}
-                </VStack>
+                </div>
                 {allCartItems.length > 0 && (
-                  <Box mt={4} display={"flex"} justifyContent="space-between">
-                    <Text fontSize="md" fontWeight="bold" color="gray.700">
+                  <div className="flex justify-between items-center my-2 ">
+                    <span className="text-md font-bold text-gray-700">
                       Subtotal:
-                    </Text>
-                    <Text fontSize="md" fontWeight="bold" color="blue.500">
+                    </span>
+                    <span className="text-md font-bold text-blue-500">
                       {formatToGermanCurrency(allOrderItemsTotal)}
-                    </Text>
-                  </Box>
+                    </span>
+                  </div>
                 )}
                 {allCartItems.length > 0 && (
-                  <Button
-                    mt={6}
-                    colorScheme="blue"
-                    size="lg"
-                    width="full"
+                  <PrimaryActionButton
+                    bgColor="!bg-blue-500 hover:!bg-blue-600"
+                    className="w-full transition disabled:opacity-60 flex items-center justify-center gap-2"
                     onClick={handleCompleteOrder}
-                    isDisabled={allCartItems.length === 0}
-                    _hover={{
-                      bg: "blue.600",
-                      color: "white",
-                    }}
-                    isLoading={loading}
-                    loadingText="Processing..."
+                    disabled={allCartItems.length === 0 || loading}
+                    type="button"
                   >
-                    Confirm {orderType[0]?.toUpperCase() + orderType?.slice(1)}{" "}
-                    Order
-                  </Button>
+                    {loading
+                      ? "Processing..."
+                      : `Confirm ${
+                          orderType[0]?.toUpperCase() + orderType?.slice(1)
+                        } Order`}
+                    <span className="inline-block animate-pulse">
+                      <FaForward />
+                    </span>
+                  </PrimaryActionButton>
                 )}
-              </Box>
-            </HStack>
-          </DrawerBody>
-          <DrawerFooter bg="gray.100">
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+              </div>
+            </div>
+            {/* Footer */}
+            <div className="bg-gray-100 px-6 py-3 flex justify-end border-t">
+              <PrimaryActionButton onClick={onClose} bgColor="!bg-yellow-500 ">
+                Close
+              </PrimaryActionButton>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -327,45 +302,35 @@ const CheckoutSummary = ({ isOpen, onClose }) => {
 CheckoutSummary.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  ref: PropTypes.any,
 };
 
 export default CheckoutSummary;
 
+// CartItem component (converted to Tailwind)
 const CartItem = ({ item }) => {
   return (
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      p={4}
-      mb={4}
-      bg="white"
-      boxShadow="sm"
-    >
-      <HStack spacing={4}>
-        <Image
-          boxSize="60px"
-          objectFit="cover"
-          src={item?.pic || "https://via.placeholder.com/60"}
-          alt={item?.itemName}
-          borderRadius="md"
-        />
-        <VStack align="start" spacing={1} flex={1}>
-          <Text fontWeight="bold" fontSize="md" color="gray.700">
-            {item?.itemName}
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            Quantity: {item?.totalQuantity}
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            Price: {formatToGermanCurrency(item?.price)}
-          </Text>
-        </VStack>
-        <Badge colorScheme="blue" fontSize="sm">
-          {formatToGermanCurrency(item.totalQuantity * item.price)}
-        </Badge>
-      </HStack>
-    </Box>
+    <div className="border rounded-lg overflow-hidden p-4 mb-4 bg-white shadow-2xs flex items-center gap-4">
+      <img
+        className="!w-14 !h-14 object-cover rounded-md"
+        src={item?.pic || "https://via.placeholder.com/60"}
+        alt={item?.itemName}
+      />
+      <div className="flex flex-col flex-1">
+        <span className="font-bold text-md text-gray-700">
+          {item?.itemName}
+        </span>
+        <span className="text-sm text-gray-500">
+          Quantity: {item?.totalQuantity}
+        </span>
+        <span className="text-sm text-gray-500">
+          Price: {formatToGermanCurrency(item?.price)}
+        </span>
+      </div>
+      <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded font-semibold text-sm">
+        {formatToGermanCurrency(item.totalQuantity * item.price)}
+      </span>
+    </div>
   );
 };
 

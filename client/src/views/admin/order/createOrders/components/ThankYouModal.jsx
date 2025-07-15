@@ -1,20 +1,8 @@
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Text,
-  Flex,
-  Icon,
-  Box,
-} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+
 const ThankYouModal = ({ isOpen, onClose, onBack }) => {
   const [timer, setTimer] = useState(5);
   const navigate = useNavigate();
@@ -44,45 +32,34 @@ const ThankYouModal = ({ isOpen, onClose, onBack }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} isCentered size="lg">
-      <ModalOverlay />
-      <ModalContent borderRadius="lg" boxShadow="lg" p={6}>
-        <ModalHeader>
-          <Flex align="center" justify="center" direction="column" gap={4}>
-            <Icon as={FaCheckCircle} boxSize={16} color="green.500" />
-            <Text fontSize="2xl" fontWeight="bold" color="green.500">
-              Thank You!
-            </Text>
-          </Flex>
-        </ModalHeader>
-        <ModalBody>
-          <Box textAlign="center">
-            <Text fontSize="lg" color="gray.600">
-              Your order has been placed successfully.
-            </Text>
-            <Text fontSize="sm" color="gray.500" mt={2}>
-              Redirecting in{" "}
-              <Text as="span" fontWeight="bold">
-                {timer}
-              </Text>{" "}
-              seconds...
-            </Text>
-          </Box>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="blue"
-            onClick={handleClose}
-            width="full"
-            size="lg"
-            _hover={{ bg: "blue.600" }}
-          >
-            Back to Create Orders
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto p-8 relative">
+        {/* Icon and Heading */}
+        <div className="flex flex-col items-center gap-4 mb-4">
+          <FaCheckCircle className="text-green-500" size={64} />
+          <div className="text-2xl font-bold text-green-500">Thank You!</div>
+        </div>
+        {/* Body */}
+        <div className="text-center mb-6">
+          <div className="text-lg text-gray-600 mb-2">
+            Your order has been placed successfully.
+          </div>
+          <div className="text-sm text-gray-500 mt-2">
+            Redirecting in <span className="font-bold">{timer}</span> seconds...
+          </div>
+        </div>
+        {/* Footer */}
+        <button
+          className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold text-lg hover:bg-blue-600 transition"
+          onClick={handleClose}
+        >
+          Back to Create Orders
+        </button>
+      </div>
+    </div>
   );
 };
 

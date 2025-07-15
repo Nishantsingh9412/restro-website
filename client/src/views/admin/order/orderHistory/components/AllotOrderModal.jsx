@@ -1,137 +1,140 @@
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  Flex,
-  Text,
-  Center,
-} from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { getOnlineEmployeesByRole } from "../../../../../api/index"; // Update the API function accordingly
+import { getOnlineEmployeesByRole } from "../../../../../api/index";
 import { useEffect, useState } from "react";
 import { FiCheckCircle, FiCircle } from "react-icons/fi";
 import { CircleLoader } from "react-spinners";
 import { useToast } from "../../../../../contexts/useToast";
+import Modal from "../../../../../components/UI/Modal";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 
 export default function AllotPersonnelModal({
+  ref,
   isOpen,
-  setIsOpen,
+  onClose,
   onSubmit,
   personnelType,
 }) {
   const showToast = useToast();
-
   const [personnels, setPersonnels] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleSelect = (id) => {
-    setSelected(id);
-  };
-
   const handleSubmit = () => {
-    onSubmit(personnels.find((item) => item?._id === selected));
-    setIsOpen(false);
+    const selectedPersonnel = personnels.find((item) => item?._id === selected);
+    onSubmit(selectedPersonnel);
+    setSelected(null);
   };
 
   useEffect(() => {
-    const getPersonnels = async () => {
+    const fetchPersonnels = async () => {
       try {
-        // if (!supplierId) return;
         setIsLoading(true);
         const res = await getOnlineEmployeesByRole(personnelType);
         setPersonnels(res?.data?.result.length ? res.data.result : []);
       } catch (err) {
-        showToast(err?.response?.data?.error, "error");
-        console.error(`Error in getting ${personnelType}`, err.response);
+        showToast(
+          err?.response?.data?.error || "Error fetching personnel",
+          "error"
+        );
+        console.error(`Error in getting ${personnelType}`, err?.response);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (isOpen) {
-      getPersonnels();
+      fetchPersonnels();
     }
     setSelected(null);
   }, [isOpen, personnelType, showToast]);
 
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} isCentered={true}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Allot {personnelType}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          {isLoading ? (
-            <Center my={20} display={"flex"} flexDirection={"column"} gap={2}>
-              <CircleLoader />
-              Loading...
-            </Center>
-          ) : personnels.length ? (
-            <Flex
-              flexDirection={"column"}
-              gap={5}
-              maxH={"400px"}
-              overflowY={"auto"}
+    <Modal
+      modalRef={ref}
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Allot ${personnelType}`}
+      maxWidth="max-w-xs sm:max-w-md"
+      innerClassName="p-6"
+    >
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center my-12 gap-3">
+          <CircleLoader size={40} color="#3b82f6" />
+          <span className="text-gray-500 mt-2">Loading...</span>
+        </div>
+      ) : personnels.length ? (
+        <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
+          {personnels.map((p, idx) => (
+            <div
+              key={p._id}
+              className={`flex items-center gap-4 ${
+                idx % 2 == 0 ? "bg-[#f0f0fd]" : ""
+              } p-2 `}
             >
-              {personnels.map((p) => (
-                <Flex key={p._id} gap={5} alignItems={"center"}>
-                  <Button
-                    onClick={() => handleSelect(p._id)}
-                    colorScheme={selected === p._id ? "green" : "gray"}
-                    width={"fit-content"}
-                    leftIcon={
-                      selected === p._id ? <FiCheckCircle /> : <FiCircle />
-                    }
-                  >
-                    {p.name}
-                  </Button>
-                  <Text color={selected === p._id ? "green" : "#ccc"}>
-                    Completed: {p.completedCount}
-                  </Text>
-                </Flex>
-              ))}
-            </Flex>
-          ) : (
-            <Text
-              my={20}
-              mx={"auto"}
-              width={"fit-content"}
-              textAlign={"center"}
-              color={"#999"}
-            >
-              No {personnelType} is available at this moment
-            </Text>
-          )}
-        </ModalBody>
+              <button
+                type="button"
+                onClick={() => setSelected(p._id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition font-medium
+                    ${
+                      selected === p._id
+                        ? "bg-green-100 border-green-500 text-green-700"
+                        : "bg-gray-50 border-gray-300 text-gray-700 hover:border-blue-400"
+                    }`}
+              >
+                {selected === p._id ? (
+                  <FiCheckCircle className="text-green-500" />
+                ) : (
+                  <FiCircle className="text-gray-400" />
+                )}
+                {p.name}
+              </button>
+              <span
+                className={`text-sm ${
+                  selected === p._id ? "text-green-600" : "text-gray-400"
+                }`}
+              >
+                Completed: {p?.completedCount}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center my-12">
+          <span className="text-gray-400 text-center">
+            No {personnelType} is available at this moment
+          </span>
+        </div>
+      )}
 
-        <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            colorScheme="blue"
-            disabled={!selected}
-            onClick={handleSubmit}
-            pointerEvents={selected ? "auto" : "none"}
-            bg={selected ? "blue.500" : "gray.300"}
-          >
-            Allot
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+      <div className="flex justify-end gap-2 mt-8">
+        <PrimaryActionButton
+          onClick={onClose}
+          disabled={isLoading}
+          bgColor="!bg-red-500 text-white hover:!bg-red-600"
+        >
+          Cancel
+        </PrimaryActionButton>
+
+        <PrimaryActionButton
+          bgColor={
+            selected
+              ? "!bg-blue-500 text-white hover:!bg-blue-600"
+              : "!bg-gray-300 text-gray-400"
+          }
+          disabled={!selected}
+          onClick={handleSubmit}
+        >
+          Allot
+        </PrimaryActionButton>
+      </div>
     </Modal>
   );
 }
 
 AllotPersonnelModal.propTypes = {
+  ref: PropTypes.any,
   isOpen: PropTypes.bool.isRequired,
-  setIsOpen: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   personnelType: PropTypes.string.isRequired,
 };

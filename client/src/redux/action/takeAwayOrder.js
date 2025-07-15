@@ -1,70 +1,117 @@
-import * as api from "../../api/index.js";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  addTakeAwayOrderAPI,
+  allotTakeAwayOrderToChefAPI,
+  getAllTakeAwayOrdersAPI,
+} from "../../api";
 
-// Helper function to handle API calls
-const handleApiCall = async (apiCall, dispatch, actionType, successMessage) => {
-  try {
-    // Execute the API call
-    const { data } = await apiCall();
-    // Dispatch the action with the result data
-    dispatch({ type: actionType, data: data?.result });
-    // Return success message
-    return { success: true, message: successMessage };
-  } catch (err) {
-    // Log the error
-    console.error(`Error from ${actionType}: ${err.message}`, err.stack);
-    // Return error message
-    return {
-      success: false,
-      message: err.response.data.error || "something went wrong",
-      status: err.response.status,
-    };
-  }
+// Initial State
+const initialState = {
+  data: [],
+  order: [],
+  dineInFormData: {},
+  loading: false,
+  error: null,
 };
 
-// Action to allot order to chef
-export const allotTakeAwayOrderToChefAction =
-  ({ orderId, chef }) =>
-  async (dispatch) => {
+// Async Thunks
+
+export const allotTakeAwayOrderToChef = createAsyncThunk(
+  "takeAwayOrder/allotToChef",
+  async ({ orderId, chef }, { rejectWithValue }) => {
     try {
-      await api.allotTakeAwayOrderToChef(orderId, chef._id);
-      dispatch({
-        type: "ALLOT_CHEF_TAKE_AWAY",
-        data: {
-          orderId: orderId,
-          assignedChef: { name: chef.name, _id: chef?._id },
-        },
-      });
-      return { success: true, message: "Order allotted successfully" };
+      await allotTakeAwayOrderToChefAPI(orderId, chef._id);
+      return {
+        orderId,
+        assignedChef: { name: chef.name, _id: chef._id },
+      };
     } catch (err) {
-      console.error(
-        "Error from ALLOT_TAKE_AWAY_ORDER Action: " + err.message,
-        err.stack
+      return rejectWithValue(
+        err?.response?.data?.message || "Failed to allot chef"
       );
-      return { success: false, message: err?.response?.data?.message };
     }
-  };
+  }
+);
 
-// Action to post new take-away order
-export const postTakeAwayOrderAction = (orderData) => async (dispatch) => {
-  return handleApiCall(
-    () => api.addTakeAwayOrderAPI(orderData),
-    dispatch,
-    "POST_TAKE_AWAY_ORDER",
-    "Order placed successfully"
-  );
-};
+export const postTakeAwayOrder = createAsyncThunk(
+  "takeAwayOrder/post",
+  async (orderData, { rejectWithValue }) => {
+    try {
+      const { data } = await addTakeAwayOrderAPI(orderData);
+      return data?.result;
+    } catch (err) {
+      return rejectWithValue(
+        err?.response?.data?.error || "Failed to place order"
+      );
+    }
+  }
+);
 
-// Action to get all take-away orders
-export const getTakeAwayOrderAction = (localstorageId) => async (dispatch) => {
-  return handleApiCall(
-    () => api.getAllTakeAwayOrdersAPI(localstorageId),
-    dispatch,
-    "GET_TAKE_AWAY_ORDER",
-    "Order fetched successfully"
-  );
-};
+export const getTakeAwayOrders = createAsyncThunk(
+  "takeAwayOrder/getAll",
+  async (localstorageId, { rejectWithValue }) => {
+    try {
+      const { data } = await getAllTakeAwayOrdersAPI(localstorageId);
+      return data?.result;
+    } catch (err) {
+      return rejectWithValue(
+        err?.response?.data?.error || "Failed to fetch orders"
+      );
+    }
+  }
+);
 
-// reset take-away order
-export const resetTakeAwayOrderAction = () => async (dispatch) => {
-  return dispatch({ type: "RESET_TAKE_AWAY_ORDER" });
-};
+// Slice
+const takeAwayOrderSlice = createSlice({
+  name: "takeAwayOrder",
+  initialState,
+  reducers: {
+    resetTakeAwayOrder: (state) => {
+      state.dineInFormData = initialState.dineInFormData;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+
+      // Allot Chef
+      .addCase(allotTakeAwayOrderToChef.fulfilled, (state, action) => {
+        state.order = state.order.map((item) =>
+          item.orderId === action.payload.orderId
+            ? { ...item, assignedChef: action.payload.assignedChef }
+            : item
+        );
+      })
+
+      // Post Order
+      .addCase(postTakeAwayOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(postTakeAwayOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dineInFormData = action.payload;
+      })
+      .addCase(postTakeAwayOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Get Orders
+      .addCase(getTakeAwayOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTakeAwayOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload;
+      })
+      .addCase(getTakeAwayOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
+
+// Export actions and reducer
+export const { resetTakeAwayOrder } = takeAwayOrderSlice.actions;
+export default takeAwayOrderSlice.reducer;

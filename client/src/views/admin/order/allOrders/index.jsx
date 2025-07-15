@@ -1,18 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { MdCancel } from "react-icons/md";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  Box,
-  Input,
-  Button,
-  Spinner,
-  Text,
-  Image,
-  List,
-} from "@chakra-ui/react";
-import { IoMdSearch } from "react-icons/io";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { FiPlusCircle } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { Dialog_Boxes, localStorageData } from "../../../../utils/constant";
@@ -24,7 +13,11 @@ import {
 } from "../../../../redux/action/OrderItems";
 import ForbiddenPage from "../../../../components/forbiddenPage/ForbiddenPage";
 import AddEditItemModal from "./components/AddEditItemModal";
-import { formatToGermanCurrency } from "../../../../utils/utils";
+import PageLoader from "../../../../components/UI/Loader";
+import { Input } from "../../../../components/common/InputField";
+import { PageHeading } from "../../../../components/UI/PageHeading";
+import PrimaryActionButton from "../../../../components/UI/PrimaryActionButton";
+import ItemMenuCard from "./components/ItemMenuCard";
 
 export default function AllOrders() {
   const dispatch = useDispatch();
@@ -72,16 +65,6 @@ export default function AllOrders() {
         throw new Error(res.message);
       }
     });
-
-    toast.promise(AddOrEditItemPromise, {
-      pending: editItem
-        ? "Processing Edit of Item..."
-        : "Processing Addition of Item...",
-      success: editItem
-        ? "Item Edited Successfully"
-        : "Item Added Successfully",
-      error: (err) => err.message,
-    });
   };
 
   const handleDeleteItem = (product) => {
@@ -96,12 +79,6 @@ export default function AllOrders() {
       } else {
         throw new Error("Error Deleting Item");
       }
-    });
-
-    toast.promise(deleteItemPromise, {
-      pending: "Deleting Item...",
-      success: "Item Deleted Successfully",
-      error: "Error in Deleting Item",
     });
   };
 
@@ -129,55 +106,39 @@ export default function AllOrders() {
   if (!isPermitted) return <ForbiddenPage isPermitted={isPermitted} />;
 
   if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-      >
-        <Spinner size="xl" />
-      </Box>
-    );
+    return <PageLoader />;
   }
 
   return (
-    <Box mt="2vw" p="2rem" bg="#f7f7f7">
-      <ToastContainer />
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb="2rem"
-      >
-        <Box display="flex" alignItems="center" flex="1">
-          <IoMdSearch size={20} />
+    <div className=" min-h-screen">
+      <PageHeading title="Create Menu" />
+      <div className="flex justify-between gap-2 mb-4 ">
+        <div className="flex items-center flex-1 min-w-[350px] w-full">
           <Input
-            ml="1rem"
-            placeholder="Search..."
+            label="Search Items"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           {searchTerm && (
             <MdCancel
               size={20}
-              style={{ cursor: "pointer", marginLeft: "1rem" }}
+              className="cursor-pointer ml-4 text-gray-400 hover:text-red-400"
               onClick={() => {
                 setSearchTerm("");
                 setFilteredItems([]);
               }}
             />
           )}
-        </Box>
-        <Button
-          leftIcon={<FiPlusCircle />}
-          colorScheme="teal"
+        </div>
+
+        <PrimaryActionButton
+          className="h-10"
           onClick={() => setIsModalOpen(true)}
-          ml="1rem"
         >
           Add Items
-        </Button>
-      </Box>
+          <FiPlusCircle size={20} />
+        </PrimaryActionButton>
+      </div>
 
       <AddEditItemModal
         isOpen={isModalOpen}
@@ -189,65 +150,73 @@ export default function AllOrders() {
         }}
       />
 
-      <List>
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-4 gap-6 !border !border-light-primary rounded-xl  px-4
+      py-6"
+      >
         {(filteredItems.length > 0 ? filteredItems : allItemsData).map(
           (item) => (
-            <Box
+            <ItemMenuCard
               key={item._id}
-              p="4"
-              mb="4"
-              borderWidth="1px"
-              borderRadius="lg"
-              boxShadow="lg"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              bg="white"
+              handleDeleteItem={() =>
+                Dialog_Boxes.showDeleteConfirmation(() =>
+                  handleDeleteItem(item)
+                )
+              }
+              handleEditItem={() => {
+                setEditItem(item);
+                setIsModalOpen(true);
+              }}
+              item={item}
+            />
+          )
+        )}
+        {/* <div
+              key={item._id}
+              className="p-4 mb-4 border border-gray-200 rounded-lg shadow-lg flex items-center justify-between bg-white"
             >
-              <Box display="flex" alignItems="center">
-                <Image
-                  borderRadius="lg"
-                  boxSize="80px"
+              <div className="flex items-center">
+                <img
+                  className="rounded-lg w-20 h-20 object-cover shadow mr-4"
                   src={item?.pic}
                   alt="Food-Image"
-                  objectFit="cover"
-                  boxShadow="md"
-                  mr="1rem"
                 />
-                <Box>
-                  <Text fontWeight="bold" fontSize="lg" color="teal.600">
+                <div>
+                  <div className="font-bold text-lg text-teal-600">
                     {item?.itemName} ({item?.category})
-                  </Text>
-                  <Text fontSize="md" color="gray.600">
+                  </div>
+                  <div className="text-md text-gray-600">
                     {formatToGermanCurrency(item?.basePrice)}
-                  </Text>
-                </Box>
-              </Box>
-              <Box display="flex" gap="1rem">
-                <EditIcon
-                  cursor="pointer"
-                  fontSize="20px"
-                  color="blue.500"
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  className="text-blue-500 hover:text-blue-700 transition"
+                  title="Edit"
                   onClick={() => {
                     setEditItem(item);
                     setIsModalOpen(true);
                   }}
-                />
-                <DeleteIcon
-                  cursor="pointer"
-                  fontSize="20px"
-                  color="red.500"
+                >
+                  <FaEdit size={20} />
+                </button>
+                <button
+                  className="text-red-500 hover:text-red-700 transition"
+                  title="Delete"
                   onClick={() =>
                     Dialog_Boxes.showDeleteConfirmation(() =>
                       handleDeleteItem(item)
                     )
                   }
-                />
-              </Box>
-            </Box>
+                >
+                  <FaTrash size={20} />
+                </button>
+              </div>
+            </div>
           )
-        )}
-      </List>
-    </Box>
+        )} */}
+      </div>
+    </div>
   );
 }
