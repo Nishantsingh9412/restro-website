@@ -112,12 +112,10 @@ export const getEmployeeAbsence = async (req, res) => {
 };
 
 // Get today's leaves by user ID
-export const getTodaysLeaveByUserId = async (req, res) => {
-  const { error, value } = userIdSchema.validate(req.params);
-  if (error) return res.status(400).json({ message: error.details[0].message });
+export const getTodaysAbsence = async (req, res) => {
+  const userId = req.user.id;
 
   try {
-    const { userId } = value;
     const todayStart = moment().startOf("day").toDate();
     const todayEnd = moment().endOf("day").toDate();
     const employees = await Employee.find({ created_by: userId }).select("_id");
@@ -138,8 +136,8 @@ export const getTodaysLeaveByUserId = async (req, res) => {
 
     if (absences.length === 0) {
       return res.status(200).json({
-        message: "No leaves found for today for these employees.",
-        success: false,
+        message: "No absences found for today.",
+        success: true,
       });
     }
 

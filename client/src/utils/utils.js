@@ -140,3 +140,4 @@ export const isFutureDate = (day) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   return new Date(day) > tomorrow;
 };
+

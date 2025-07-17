@@ -8,6 +8,7 @@ import {
 import { useUser } from "./useUser";
 import { useToast } from "../contexts/useToast";
 import { actionTypes } from "../utils/constant";
+import { useModal } from "./useModal";
 
 export function useEmployees() {
   const { userId } = useUser();
@@ -18,8 +19,13 @@ export function useEmployees() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionType, setActionType] = useState(actionTypes.ADD);
   const [isPermitted, setIsPermitted] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const {
+    isOpen: isModalOpen,
+    onClose,
+    ref: modalRef,
+    onOpen: setIsModalOpen,
+  } = useModal();
 
   // Fetch employees from the API
   const fetchEmployees = async () => {
@@ -134,7 +140,7 @@ export function useEmployees() {
   };
 
   const onModalClose = () => {
-    setIsModalOpen(false);
+    onClose();
     setEmployeeId(null);
     setSelectedEmployee(null);
   };
@@ -163,6 +169,7 @@ export function useEmployees() {
     openModalForEdit,
     openModalForView,
     onModalClose,
+    modalRef,
     filterEmployees,
     searchQuery,
     setSearchQuery,

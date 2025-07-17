@@ -20,7 +20,7 @@ const Modal = ({
   return (
     <div
       ref={modalRef}
-      className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth} ${border} animate-fadeIn  ${
+      className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth} ${border} animate-fadeIn max-h-4/5 overflow-y-auto  ${
         isLargeScreen
           ? "top-[50%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200 "
           : " fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"

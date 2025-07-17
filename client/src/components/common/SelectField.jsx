@@ -15,6 +15,8 @@ export const SelectField = ({
     <div className={`relative w-full mb-2 ${className}`}>
       <select
         id={id}
+        name={id}
+        aria-label={label}
         value={value}
         onChange={onChange}
         required={required}

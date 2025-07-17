@@ -2,7 +2,7 @@ import express from "express";
 import {
   addEmployeeAbsence,
   getEmployeeAbsence,
-  getTodaysLeaveByUserId,
+  getTodaysAbsence,
   getEmployeesWithAbsencesByUser,
   editEmployeeAbsence,
   deleteEmployeeAbsence,
@@ -20,7 +20,7 @@ router.post("/edit-employee-leave", editEmployeeAbsence);
 
 router.get("/get-employee-leave/:employeeId", getEmployeeAbsence);
 
-router.get("/get-todays-leave/:userId", getTodaysLeaveByUserId);
+router.get("/get-todays-leave", accessMiddleware(), getTodaysAbsence);
 
 router.get(
   "/get-all-employee-leave",

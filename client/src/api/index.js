@@ -322,15 +322,14 @@ export const updateTaskAPI = (taskId, updatedData) =>
 
 // Employee Data APIs
 // Get Absent Data
-export const getAbsentdata = (employeeId) =>
-  API.get(`/absence/get-todays-leave/${employeeId}`);
+export const getTodayAbsentDataAPI = () => API.get(`/absence/get-todays-leave`);
 // Get Employee Shift Data
-export const getemployeshiftdata = () => API.get("/shift/get-todays-shift");
+export const getEmployeeShiftDataAPI = () => API.get("/shift/get-todays-shift");
 // Get Today's Employee Birthday Data
-export const getbirthdayapidata = () =>
+export const getBirthdayDataAPI = () =>
   API.get("/employee/get-todays-employee-birthday");
 // Get Upcoming Employee Birthday Data
-export const getupcomingbirthdayapidata = () =>
+export const getUpcomingBirthdayAPI = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
 export const getEmployeeAPI = () => API.get(`/employee/get-all-employee`);
