@@ -6,6 +6,7 @@ import Employee from "../models/employeeModel.js";
 
 // Validation schemas
 const absenceSchema = Joi.object({
+  _id: Joi.string().optional(),
   employeeId: Joi.string().required(),
   type: Joi.string().required(),
   startDate: Joi.date().required(),
@@ -13,7 +14,6 @@ const absenceSchema = Joi.object({
   leaveType: Joi.string().required(),
   notes: Joi.string().allow(""),
   declineAssignedShifts: Joi.boolean().required(),
-  _id: Joi.string().optional(),
 });
 
 const idSchema = Joi.object({

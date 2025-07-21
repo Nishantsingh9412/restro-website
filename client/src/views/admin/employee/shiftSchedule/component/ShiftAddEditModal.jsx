@@ -1,22 +1,11 @@
 import PropTypes from "prop-types";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  FormControl,
-  FormLabel,
-  Select,
-  Textarea,
-  ModalFooter,
-  Button,
-  Input,
-} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { formatDateForInput } from "../../../../../utils/utils";
 import { useToast } from "../../../../../contexts/useToast";
+import Modal from "../../../../../components/UI/Modal";
+import { Input } from "../../../../../components/common/InputField";
+import { SelectField } from "../../../../../components/common/SelectField";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 
 function formatTimeForInput(time) {
   if (!time) return "";
@@ -34,6 +23,7 @@ const timesList = Array.from(
 const ShiftModal = ({
   isOpen,
   onClose,
+  modalRef,
   shiftData,
   onSubmit,
   handleDeleteShift,
@@ -47,7 +37,7 @@ const ShiftModal = ({
     date: "",
   };
   const showToast = useToast();
-  const { employeeId, from, to, note, date, empName } = shiftData;
+  const { employeeId, from, to, note, date, empName } = shiftData || {};
   const [formData, setFormData] = useState(initialFormState);
   const isEditMode = Boolean(shiftData && shiftData._id);
 
@@ -112,80 +102,93 @@ const ShiftModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shiftData]);
 
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{isEditMode ? "Edit" : "Add"} Shift</ModalHeader>
-        <ModalCloseButton />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={"Schedule Shift"}
+      modalRef={modalRef}
+    >
+      <div className="px-6 py-6">
         <form onSubmit={handleSubmit}>
-          <ModalBody>
-            <FormControl>
-              <FormLabel>Employee Name</FormLabel>
-              <Input type="text" value={empName} readOnly />
-            </FormControl>
-
-            <FormControl mt={4} isRequired>
-              <FormLabel>Date</FormLabel>
-              <Input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-              />
-            </FormControl>
-
-            {["from", "to"].map((field) => (
-              <FormControl mt={4} isRequired key={field}>
-                <FormLabel>
-                  {field === "from" ? "From Time" : "To Time"}
-                </FormLabel>
-                <Select
-                  value={formData[field]}
-                  onChange={handleChange}
-                  name={field}
-                >
-                  <option value="">Select time</option>
-                  {timesList.map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-            ))}
-
-            <FormControl mt={4}>
-              <FormLabel>Note</FormLabel>
-              <Textarea
-                value={formData.note}
-                onChange={handleChange}
-                name="note"
-              />
-            </FormControl>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
+          <Input
+            type="text"
+            name="empName"
+            value={empName}
+            readOnly
+            className="w-full"
+            label="Employee Name"
+          />
+          <Input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="w-full"
+            required
+            label="Enter Date"
+          />
+          <SelectField
+            name="from"
+            value={formData.from}
+            onChange={handleChange}
+            className="w-full"
+            required
+            label="From Time"
+            options={timesList.map((time) => ({
+              value: time,
+              label: time,
+            }))}
+          />
+          <SelectField
+            name="to"
+            value={formData.to}
+            onChange={handleChange}
+            className="w-full"
+            required
+            label="To Time"
+            options={timesList.map((time) => ({
+              value: time,
+              label: time,
+            }))}
+          />
+          <Input
+            type="text"
+            name="note"
+            label="Notes"
+            value={formData.note}
+            onChange={handleChange}
+            className="w-full"
+          />
+          <div className="flex justify-end gap-2 mt-6">
+            <PrimaryActionButton
               type="submit"
-              isLoading={isSubmitting}
+              disabled={isSubmitting}
+              className={isSubmitting ? "!bg-blue-300 cursor-not-allowed" : ""}
             >
               {isEditMode ? "Update" : "Add Shift"}
-            </Button>
-
+            </PrimaryActionButton>
             {isEditMode && (
-              <Button
-                colorScheme="red"
-                onClick={() => handleDeleteShift(shiftData._id)}
+              <PrimaryActionButton
+                type="button"
+                bgColor="!bg-red-500 hover:!bg-red-600"
+                onClick={() => handleDeleteShift(shiftData?._id)}
               >
                 Delete
-              </Button>
+              </PrimaryActionButton>
             )}
-          </ModalFooter>
+            <PrimaryActionButton
+              bgColor="!bg-red-500"
+              textColor="!text-gray-700"
+              onClick={onClose}
+            >
+              Cancel
+            </PrimaryActionButton>
+          </div>
         </form>
-      </ModalContent>
+      </div>
     </Modal>
   );
 };
@@ -193,7 +196,8 @@ const ShiftModal = ({
 ShiftModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  shiftData: PropTypes.object, // Add this line for shiftData prop validation
+  shiftData: PropTypes.object,
+  modalRef: PropTypes.any,
   onSubmit: PropTypes.func.isRequired,
   handleDeleteShift: PropTypes.func,
   isSubmitting: PropTypes.bool,

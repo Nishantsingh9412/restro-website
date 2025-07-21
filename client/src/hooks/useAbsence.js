@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useDisclosure } from "@chakra-ui/react";
+
 import { useToast } from "../contexts/useToast";
 import { getDateRangeForView } from "../utils/utils";
 import {
@@ -8,6 +8,7 @@ import {
   editAbsenceData,
   getAbsenceByEmpl,
 } from "../api";
+import { useModal } from "./useModal";
 
 const views = ["Daily", "Weekly", "Monthly"];
 
@@ -25,7 +26,8 @@ const useAbsence = () => {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
-  } = useDisclosure();
+    ref: modalRef,
+  } = useModal();
 
   const view = views[viewIndex];
 
@@ -194,6 +196,7 @@ const useAbsence = () => {
     handleAdd,
     handleEdit,
     isModalOpen,
+    modalRef,
     handleModalClose,
     handleAbsenceAction,
     handleDeleteAbsence,

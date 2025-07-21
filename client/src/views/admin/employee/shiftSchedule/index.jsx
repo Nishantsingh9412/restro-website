@@ -1,23 +1,18 @@
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Box,
-  Button,
-  Input,
-  HStack,
-  Spinner,
-  Flex,
-} from "@chakra-ui/react";
-import { AddIcon, EditIcon } from "@chakra-ui/icons";
+  IoAdd,
+  IoArrowBack,
+  IoArrowForward,
+  IoPencilOutline,
+} from "react-icons/io5";
 import { useToast } from "../../../../contexts/useToast";
 import ShiftModal from "./component/ShiftAddEditModal";
 import useShiftSchedule from "../../../../hooks/useShiftSchedule";
 import { isFutureDate } from "../../../../utils/utils";
+import { PageHeading } from "../../../../components/UI/PageHeading";
+import PrimaryActionButton from "../../../../components/UI/PrimaryActionButton";
+import PageLoader from "../../../../components/UI/Loader";
+import { PageFooter } from "../../../../components/UI/PageFooter";
+import { Input } from "../../../../components/common/InputField";
 
 const formatShiftTime = (dateStr) =>
   new Date(dateStr).toLocaleTimeString([], {
@@ -26,7 +21,7 @@ const formatShiftTime = (dateStr) =>
     timeZone: "UTC",
   });
 
-const ShiftScheduleComponent = () => {
+export default function ShiftScheduleComponent() {
   const {
     view,
     searchQuery,
@@ -43,132 +38,125 @@ const ShiftScheduleComponent = () => {
     handleAdd,
     handleEdit,
     isModalOpen,
+    modalRef,
     handleModalClose,
     handleShiftAction,
     handleDeleteShift,
   } = useShiftSchedule();
   const showToast = useToast();
 
-  // Filter employees based on search query
   const employeesWithShifts = filterEmployees();
 
-  // Handle date changes
   const handlePrev = () => {
     handleDateChange(view === "Daily" ? -1 : view === "Weekly" ? -7 : -30);
   };
 
-  // Handle date changes
   const handleNext = () => {
     handleDateChange(view === "Daily" ? 1 : view === "Weekly" ? 7 : 30);
   };
 
-  if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-      >
-        <Spinner size="xl" />
-      </Box>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   return (
-    <Box overflow="auto" whiteSpace="nowrap" mt={16} mb={8}>
-      {/* Controls */}
-      <HStack justifyContent="center" mb={4}>
-        <Input
-          type="date"
-          value={currentDate}
-          onChange={(e) => setCurrentDate(e.target.value)}
-        />
-        <span>to</span>
-        <Input
-          disabled
-          type="date"
-          value={daysToDisplay.at(-1).toISOString().split("T")[0]}
-          bg="lightgray"
-        />
-      </HStack>
-      <Flex justifyContent={"space-between"} px={5}>
-        <HStack justifyContent="center" mb={4}>
-          <Button onClick={handlePrev}>Previous</Button>
-          <Button onClick={handleViewModeChange}>View Mode: {view}</Button>
-          <Button onClick={handleNext}>Next</Button>
-        </HStack>
-        {/* Employee Search Bar */}
-        <Input
-          placeholder="Search Employee"
-          size="md"
-          onChange={(e) => setSearchQuery(e.target.value)}
-          value={searchQuery}
-          width={{ base: "100%", md: "300px" }}
-          color="gray.700"
-          borderColor="teal.500"
-          focusBorderColor="teal.600"
-          _hover={{ borderColor: "teal.600" }}
-          backgroundColor="white"
-        />
-      </Flex>
+    <div className="px-2">
+      <PageHeading title="Shift Schedule" />
+
+      {/* Header Controls */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2">
+        <PrimaryActionButton
+          onClick={handleViewModeChange}
+          className="!text-md !font-medium h-10"
+        >
+          View Mode: {view}
+        </PrimaryActionButton>
+
+        <div className="flex items-center gap-2">
+          <Input
+            label="Start Date"
+            type="date"
+            value={currentDate}
+            onChange={(e) =>
+              setCurrentDate(e.target.value ? e.target.value : currentDate)
+            }
+          />
+          <span className="text-sm">to</span>
+          <Input
+            label="End Date"
+            disabled
+            type="date"
+            value={daysToDisplay.at(-1).toISOString().split("T")[0]}
+          />
+          <Input
+            label="Search Employee"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mt-4 mb-2 mx-1">
+        <PrimaryActionButton onClick={handlePrev}>
+          <IoArrowBack />
+          Previous
+        </PrimaryActionButton>
+        <PrimaryActionButton onClick={handleNext}>
+          Next
+          <IoArrowForward />
+        </PrimaryActionButton>
+      </div>
 
       {/* Table */}
-      <TableContainer
-        bg="white"
-        p={5}
-        borderRadius="8px"
-        boxShadow="md"
-        maxHeight="70vh"
-        overflowY="auto"
-      >
-        <Table variant="simple" size="md">
-          <Thead>
-            <Tr>
-              <Th border="1px solid #000">Employee Name</Th>
-              <Th border="1px solid #000">W. Hours Left</Th>
+      <div className="bg-white rounded-xl my-2 border border-gray-200 overflow-x-auto max-h-[75vh]">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-primary text-white h-12 sticky top-0 z-10">
+              <th className="py-2 px-6 text-left font-semibold !border-b">
+                Employee Name
+              </th>
+              <th className="py-2 px-4 text-center font-semibold !border-b">
+                W. Hours Left
+              </th>
               {daysToDisplay.map((day, idx) => (
-                <Th key={idx} border="1px solid #000">
+                <th
+                  key={idx}
+                  className="py-2 px-4 text-center font-semibold !border-b"
+                >
                   {day.toLocaleDateString("en-US", {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
-                    year: "numeric",
                   })}
-                </Th>
+                </th>
               ))}
-            </Tr>
-          </Thead>
-          <Tbody>
+            </tr>
+          </thead>
+          <tbody>
             {employeesWithShifts?.length ? (
-              employeesWithShifts?.map((emp) => (
-                <Tr key={emp._id}>
-                  <Td border="1px solid #ababab">{emp.name}</Td>
-                  <Td border="1px solid #ababab" textAlign="center">
+              employeesWithShifts.map((emp) => (
+                <tr key={emp._id} className="even:bg-[#ebebfa] odd:bg-white">
+                  <td className="py-2 px-6 text-gray-800 font-medium">
+                    {emp.name}
+                  </td>
+                  <td className="py-3 px-4 text-center">
                     {emp.workingHoursPerWeek ?? "N/A"}
-                  </Td>
+                  </td>
                   {daysToDisplay.map((day, idx) => {
-                    const dateKey = day?.toDateString();
-                    const shift = emp?.shiftMap.get(dateKey);
-                    // Check if the date is valid to add/edit absence
+                    const dateKey = day.toDateString();
+                    const shift = emp.shiftMap.get(dateKey);
                     const valid = isFutureDate(day);
-
                     return (
-                      <Td
-                        key={idx}
-                        border="1px solid #ababab"
-                        textAlign="center"
-                        _hover={{ bg: "gray.200" }}
-                      >
+                      <td key={idx} className="py-3 px-4 text-center">
                         {shift ? (
-                          <>
-                            {`${formatShiftTime(
-                              shift.from
-                            )} - ${formatShiftTime(shift.to)}`}
-                            &nbsp;&nbsp;
-                            <EditIcon
-                              mb="4px"
-                              cursor={valid ? "pointer" : "not-allowed"}
+                          <div className="flex items-center justify-center gap-1">
+                            <span>
+                              {`${formatShiftTime(
+                                shift.from
+                              )} - ${formatShiftTime(shift.to)}`}
+                            </span>
+                            <IoPencilOutline
+                              className={`text-lg cursor-${
+                                valid ? "pointer" : "not-allowed"
+                              }`}
                               onClick={() =>
                                 valid
                                   ? handleEdit(shift, emp)
@@ -178,48 +166,55 @@ const ShiftScheduleComponent = () => {
                                     )
                               }
                             />
-                          </>
+                          </div>
                         ) : (
-                          <AddIcon
-                            cursor={valid ? "pointer" : "not-allowed"}
-                            onClick={() =>
-                              valid
-                                ? handleAdd(emp, day)
-                                : showToast(
-                                    "Cannot add shift within 24 hrs or past",
-                                    "error"
-                                  )
-                            }
-                          />
+                          <div className="flex items-center justify-center">
+                            <IoAdd
+                              className={`text-lg cursor-${
+                                valid ? "pointer" : "not-allowed"
+                              }`}
+                              onClick={() =>
+                                valid
+                                  ? handleAdd(emp, day)
+                                  : showToast(
+                                      "Cannot add shift within 24 hrs or past",
+                                      "error"
+                                    )
+                              }
+                            />
+                          </div>
                         )}
-                      </Td>
+                      </td>
                     );
                   })}
-                </Tr>
+                </tr>
               ))
             ) : (
-              <Tr>
-                <Td colSpan={daysToDisplay.length + 2} textAlign="center">
+              <tr>
+                <td
+                  colSpan={daysToDisplay.length + 2}
+                  className="py-4 text-center text-gray-500"
+                >
                   No shift data found.
-                </Td>
-              </Tr>
+                </td>
+              </tr>
             )}
-          </Tbody>
-        </Table>
-      </TableContainer>
-      {/* Modal for Add/Edit Shift */}
+          </tbody>
+        </table>
+      </div>
+      <PageFooter />
+
       {isModalOpen && (
         <ShiftModal
           isOpen={isModalOpen}
           onClose={handleModalClose}
+          modalRef={modalRef}
           shiftData={selectedShift}
           onSubmit={handleShiftAction}
           handleDeleteShift={handleDeleteShift}
           isSubmitting={isSubmitting}
         />
       )}
-    </Box>
+    </div>
   );
-};
-
-export default ShiftScheduleComponent;
+}

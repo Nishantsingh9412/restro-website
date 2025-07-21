@@ -1,33 +1,27 @@
-import { Fragment } from "react";
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Button,
-  HStack,
-  Input,
-  Box,
-  Flex,
-} from "@chakra-ui/react";
-import { AddIcon, StarIcon, EditIcon } from "@chakra-ui/icons";
+import { FaStar } from "react-icons/fa";
 import { useToast } from "../../../../contexts/useToast";
 import AbsenceModal from "./component/absenceModal";
-import { Spinner } from "@chakra-ui/react";
 import useAbsence from "../../../../hooks/useAbsence";
 import { isFutureDate } from "../../../../utils/utils";
+import PageLoader from "../../../../components/UI/Loader";
+import { Input } from "../../../../components/common/InputField";
+import { PageHeading } from "../../../../components/UI/PageHeading";
+import { PageFooter } from "../../../../components/UI/PageFooter";
+import {
+  IoAdd,
+  IoArrowBack,
+  IoArrowForward,
+  IoPencilOutline,
+} from "react-icons/io5";
+import PrimaryActionButton from "../../../../components/UI/PrimaryActionButton";
 
-// Convert date to new format
 const convertDateToNewFormat = (dateString) => {
   const date = new Date(dateString).toISOString().split("T")[0];
   const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
 };
 
-export default function AbsenseComponent() {
+export default function AbsenceComponent() {
   const {
     view,
     isLoading,
@@ -43,15 +37,15 @@ export default function AbsenseComponent() {
     handleAbsenceAction,
     handleDeleteAbsence,
     isModalOpen,
+    modalRef,
     handleAdd,
     handleEdit,
     handleModalClose,
   } = useAbsence();
+
   const toast = useToast();
-  // Fetch Employee with absence data
   const employeeWithAbsences = filterEmployees();
 
-  // Handle Preview and Next button clicks
   const handlePrev = () => {
     handleDateChange(view === "Daily" ? -1 : view === "Weekly" ? -7 : -30);
   };
@@ -59,182 +53,159 @@ export default function AbsenseComponent() {
     handleDateChange(view === "Daily" ? 1 : view === "Weekly" ? 7 : 30);
   };
 
-  // Show loading spinner if data is being fetched
-  if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-      >
-        <Spinner size="xl" />
-      </Box>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
-  // Render the component
   return (
-    <Fragment>
-      {/* Legend for absence types */}
-      <Box display="flex" justifyContent="center" mb={4}>
-        <HStack spacing={4}>
-          <Box bg="#00A7C4" height="20px" width="20px" borderRadius="4px"></Box>
+    <>
+      <PageHeading title={"Absence Management"} />
+      <div className="flex flex-wrap justify-center gap-6 mb-6">
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-5 h-5 rounded-sm bg-[#00A7C4]"></span>
           <span>Paid Vacation</span>
-          <Box bg="#F8C150" height="20px" width="20px" borderRadius="4px"></Box>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-5 h-5 rounded-sm bg-[#F8C150]"></span>
           <span>Sick</span>
-          <Box bg="#543EAC" height="20px" width="20px" borderRadius="4px"></Box>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-5 h-5 rounded-sm bg-[#543EAC]"></span>
           <span>Special leave</span>
-          <Box bg="#FF910A" height="20px" width="20px" borderRadius="4px"></Box>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-5 h-5 rounded-sm bg-[#FF910A]"></span>
           <span>Unpaid vacation</span>
-        </HStack>
-      </Box>
+        </div>
+      </div>
 
-      {/* Calendar */}
-      <Box overflow="auto" whiteSpace="nowrap" mt={8}>
-        <HStack justifyContent="center" mb={4}>
+      {/* Header Controls */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
+        <PrimaryActionButton
+          onClick={handleViewModeChange}
+          className="!text-md !font-medium h-10"
+        >
+          View Mode: {view}
+        </PrimaryActionButton>
+
+        <div className="flex items-center gap-2">
           <Input
+            label="Start Date"
             type="date"
             value={currentDate}
-            onChange={(e) => setCurrentDate(e.target.value)}
-            padding={2}
-            borderRadius={5}
-            border="1px solid gray"
-            cursor="pointer"
+            onChange={(e) =>
+              setCurrentDate(e.target.value ? e.target.value : currentDate)
+            }
           />
-          <span>to</span>
+          <span className="text-sm">to</span>
           <Input
+            label="End Date"
             disabled
             type="date"
             value={daysToDisplay.at(-1).toISOString().split("T")[0]}
           />
-        </HStack>
-        <Flex justifyContent={"space-between"} px={5}>
-          <HStack justifyContent="center" mb={4}>
-            <Button onClick={handlePrev}>Previous</Button>
-            <Button onClick={handleViewModeChange}>View Mode: {view}</Button>
-            <Button onClick={handleNext}>Next</Button>
-          </HStack>
-          {/* Employee Search Bar */}
           <Input
-            placeholder="Search Employee"
-            size="md"
-            onChange={(e) => setSearchQuery(e.target.value)}
+            label="Search Employee"
             value={searchQuery}
-            width={{ base: "100%", md: "300px" }}
-            color="gray.700"
-            borderColor="teal.500"
-            focusBorderColor="teal.600"
-            _hover={{ borderColor: "teal.600" }}
-            backgroundColor="white"
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </Flex>
-        <TableContainer
-          bg="white"
-          p={4}
-          borderRadius="8px"
-          boxShadow="md"
-          overflowY={"auto"}
-          maxHeight="70vh"
-        >
-          <Table variant="simple" size="md">
-            <Thead>
-              <Tr>
-                <Th border="1px solid #000000" fontWeight="800" fontSize="14px">
-                  Employee Name
-                </Th>
-                {daysToDisplay.map((day, idx) => (
-                  <Th key={idx} border="1px solid #000">
-                    {day.toLocaleDateString("en-US", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </Th>
-                ))}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {employeeWithAbsences?.length > 0 ? (
-                employeeWithAbsences?.map((emp) => (
-                  <Tr key={emp._id}>
-                    <Td border="1px solid #c5bcbc">{emp.name}</Td>
-                    {daysToDisplay.map((day, index) => {
-                      const dateKey = day?.toDateString();
-                      const absences = emp?.absenceMap.get(dateKey) || [];
-                      // Check if the date is valid to add/edit absence
-                      const isDateValid = isFutureDate(day);
+        </div>
+      </div>
 
-                      return (
-                        <Td
-                          key={index}
-                          fontSize="14px"
-                          fontWeight="800"
-                          textAlign="center"
-                          border="1px solid #c5bcbc"
-                          className="add_hover"
-                          _hover={{ bg: "gray.200" }}
-                        >
-                          {absences.length > 0 ? (
-                            <Box
-                              display="flex"
-                              flexDirection="column"
-                              alignItems="center"
-                            >
-                              {absences.map((absence) => (
-                                <Box
-                                  key={absence._id}
-                                  display="flex"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  cursor="pointer"
-                                  mb={2}
-                                >
-                                  <StarIcon
-                                    color={
-                                      absence.type === "Paid vacation"
-                                        ? "#00A7C4"
-                                        : absence.type === "Sick leave"
-                                        ? "#f8c150"
-                                        : absence.type === "Special leave"
-                                        ? "#543eac"
-                                        : absence.type === "Unpaid vacation"
-                                        ? "#ff910a"
-                                        : ""
-                                    }
-                                  />
-                                  &nbsp;
+      <div className="flex justify-between items-center mt-4 mb-2 mx-1">
+        <PrimaryActionButton onClick={handlePrev}>
+          <IoArrowBack />
+          Previous
+        </PrimaryActionButton>
+        <PrimaryActionButton onClick={handleNext}>
+          Next
+          <IoArrowForward />
+        </PrimaryActionButton>
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto max-h-[70vh] m-1">
+        <table className="min-w-full text-sm">
+          <thead className="bg-primary text-white sticky top-0 z-10">
+            <tr>
+              <th className="py-2 px-4 border text-left font-semibold">
+                Employee Name
+              </th>
+              {daysToDisplay.map((day, idx) => (
+                <th key={idx} className="p-4 border text-center font-semibold">
+                  {day.toLocaleDateString("en-US", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {employeeWithAbsences.length > 0 ? (
+              employeeWithAbsences.map((emp) => (
+                <tr key={emp._id} className="even:bg-[#ebebfa] odd:bg-white">
+                  <td className="border px-4 py-3 font-medium">{emp.name}</td>
+                  {daysToDisplay.map((day, index) => {
+                    const dateKey = day.toDateString();
+                    const absences = emp?.absenceMap?.get(dateKey) || [];
+                    const isDateValid = isFutureDate(day);
+
+                    return (
+                      <td key={index} className="border px-2 py-2 text-center">
+                        {absences.length > 0 ? (
+                          <div className="flex flex-col items-center gap-1">
+                            {absences.map((absence) => (
+                              <div
+                                key={absence._id}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <FaStar
+                                  className="text-md"
+                                  color={
+                                    absence.type === "Paid vacation"
+                                      ? "#00A7C4"
+                                      : absence.type === "Sick leave"
+                                      ? "#f8c150"
+                                      : absence.type === "Special leave"
+                                      ? "#543eac"
+                                      : absence.type === "Unpaid vacation"
+                                      ? "#ff910a"
+                                      : "black"
+                                  }
+                                />
+                                <span>
                                   {`${convertDateToNewFormat(
                                     absence.startDate
                                   )} — ${convertDateToNewFormat(
                                     absence.endDate
                                   )}`}
-                                  &nbsp; &nbsp;
-                                  <EditIcon
-                                    cursor={
-                                      isDateValid ? "pointer" : "not-allowed"
-                                    }
-                                    onClick={() => {
-                                      !isDateValid
-                                        ? toast(
-                                            "You can't edit absence for past dates or within 24 hours",
-                                            "error"
-                                          )
-                                        : handleEdit(absence, emp);
-                                    }}
-                                    className="edit_icon_hover"
-                                    sx={{
-                                      marginRight: "10px",
-                                      color: "black",
-                                    }}
-                                  />
-                                </Box>
-                              ))}
-                            </Box>
-                          ) : (
-                            <AddIcon
-                              cursor={isDateValid ? "pointer" : "not-allowed"}
+                                </span>
+                                <IoPencilOutline
+                                  className={`text-md ${
+                                    isDateValid
+                                      ? "cursor-pointer"
+                                      : "cursor-not-allowed"
+                                  }`}
+                                  onClick={() => {
+                                    !isDateValid
+                                      ? toast(
+                                          "You can't edit absence for past dates or within 24 hours",
+                                          "error"
+                                        )
+                                      : handleEdit(absence, emp);
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center">
+                            <IoAdd
+                              className={`text-lg  ${
+                                isDateValid
+                                  ? "cursor-pointer"
+                                  : "cursor-not-allowed"
+                              }`}
                               onClick={() => {
                                 isDateValid
                                   ? handleAdd(emp, day)
@@ -243,33 +214,31 @@ export default function AbsenseComponent() {
                                       "error"
                                     );
                               }}
-                              className="add_icon_hover"
-                              sx={{
-                                marginRight: "10px",
-                                color: "black",
-                              }}
                             />
-                          )}
-                        </Td>
-                      );
-                    })}
-                  </Tr>
-                ))
-              ) : (
-                <Tr>
-                  <Td colSpan={daysToDisplay.length + 1} textAlign="center">
-                    No employees found
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </TableContainer>
-      </Box>
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={daysToDisplay.length + 1}
+                  className="py-4 text-center text-gray-500"
+                >
+                  No employees found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Absence Modal */}
       {isModalOpen && (
         <AbsenceModal
+          modalRef={modalRef}
           onClose={handleModalClose}
           isOpen={isModalOpen}
           leaveData={selectedAbsence}
@@ -277,6 +246,8 @@ export default function AbsenseComponent() {
           onDelete={handleDeleteAbsence}
         />
       )}
-    </Fragment>
+
+      <PageFooter />
+    </>
   );
 }

@@ -11,7 +11,7 @@ export const Input = ({
   ...props
 }) => {
   return (
-    <div className="relative w-full mb-2">
+    <div className="relative w-full mb-3">
       <input
         id={id}
         type={type}

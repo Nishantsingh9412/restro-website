@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useDisclosure } from "@chakra-ui/react";
+
 import { useToast } from "../contexts/useToast";
 import { getDateRangeForView } from "../utils/utils";
 
@@ -9,6 +9,7 @@ import {
   editShiftData,
   getShiftByEmpl,
 } from "../api";
+import { useModal } from "./useModal";
 
 const views = ["Daily", "Weekly", "Monthly"];
 
@@ -27,7 +28,8 @@ const useShiftSchedule = () => {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
-  } = useDisclosure();
+    ref: modalRef,
+  } = useModal();
 
   const view = views[viewIndex];
 
@@ -184,6 +186,7 @@ const useShiftSchedule = () => {
     handleAdd,
     handleEdit,
     isModalOpen,
+    modalRef,
     handleModalClose,
     handleShiftAction,
     handleDeleteShift,

@@ -1,26 +1,16 @@
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  HStack,
-} from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useToast } from "../../../../../contexts/useToast";
 import { formatDateForInput } from "../../../../../utils/utils";
+import { Input } from "../../../../../components/common/InputField";
+import { SelectField } from "../../../../../components/common/SelectField";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
+import Modal from "../../../../../components/UI/Modal";
 
 export default function LeaveRequestModal({
   isOpen,
   onClose,
+  modalRef,
   leaveData,
   onSubmit,
   onDelete,
@@ -87,104 +77,100 @@ export default function LeaveRequestModal({
     }
   }, [leaveData, isOpen]);
 
+  // Modal is shown/hidden via isOpen prop
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
-      <ModalOverlay />
-      <ModalContent maxW="400px">
-        <ModalHeader textAlign="center">
-          {isEdit ? "Edit Leave Request" : "Request Leave"}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={4}>
-          <FormControl mb={3}>
-            <FormLabel>Employee Name</FormLabel>
-            <Input
-              name="name"
-              type="text"
-              value={leaveData?.empName || ""}
-              readOnly
-            />
-          </FormControl>
-          <FormControl mb={3} isRequired>
-            <FormLabel>Vacation Type</FormLabel>
-            <Select
-              name="type"
-              placeholder="Select type"
-              value={formData.type}
-              onChange={handleInputChange}
-            >
-              <option value="Paid vacation">Paid vacation</option>
-              <option value="Sick leave">Sick leave</option>
-              <option value="Special leave">Special leave</option>
-              <option value="Unpaid vacation">Unpaid vacation</option>
-            </Select>
-          </FormControl>
-          <FormControl mb={3} isRequired>
-            <FormLabel>Leave Type</FormLabel>
-            <Select
-              name="leaveType"
-              placeholder="Select leave type"
-              value={formData.leaveType}
-              onChange={handleInputChange}
-            >
-              <option value="All Day">All Day</option>
-              <option value="First Half">First Half</option>
-              <option value="Second Half">Second Half</option>
-            </Select>
-          </FormControl>
-          <HStack spacing={3} mb={3}>
-            <FormControl isRequired>
-              <FormLabel>Start Date</FormLabel>
-              <Input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleInputChange}
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>End Date</FormLabel>
-              <Input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleInputChange}
-              />
-            </FormControl>
-          </HStack>
-          <FormControl mb={2}>
-            <FormLabel>Notes</FormLabel>
-            <Input
-              name="notes"
-              type="text"
-              value={formData.notes}
-              onChange={handleInputChange}
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          {isEdit && (
-            <Button
-              mr={2}
-              colorScheme="red"
-              onClick={() => {
-                onDelete(leaveData._id);
-              }}
-              borderRadius="8px"
-            >
-              Delete
-            </Button>
-          )}
-          <Button
-            colorScheme="teal"
-            onClick={handleSave}
-            borderRadius="8px"
-            color="white"
+    <Modal
+      isOpen={isOpen}
+      modalRef={modalRef}
+      onClose={handleClose}
+      title={"Employee Leave Request"}
+      maxWidth="max-w-sm sm:max-w-md"
+    >
+      {/* Modal Body */}
+      <div className="p-4">
+        {/* Employee Name (read only) */}
+        <Input
+          name="name"
+          label="Employee Name"
+          type="text"
+          value={leaveData?.empName || ""}
+          readOnly
+          className="w-full"
+        />
+        {/* Vacation Type */}
+        <SelectField
+          label="Select Vacation Type"
+          name="type"
+          value={formData.type}
+          onChange={handleInputChange}
+          options={[
+            { value: "Paid vacation", label: "Paid vacation" },
+            { value: "Sick leave", label: "Sick leave" },
+            { value: "Special leave", label: "Special leave" },
+            { value: "Unpaid vacation", label: "Unpaid vacation" },
+          ]}
+          required
+        />
+
+        <SelectField
+          label="Select Leave Type"
+          name="leaveType"
+          value={formData.leaveType}
+          onChange={handleInputChange}
+          placeholder="Select leave type"
+          options={[
+            { value: "All Day", label: "All Day" },
+            { value: "First Half", label: "First Half" },
+            { value: "Second Half", label: "Second Half" },
+          ]}
+          required
+        />
+        {/* Start and End Date */}
+        <div className="flex gap-3">
+          <Input
+            type="date"
+            name="startDate"
+            label="Leave Start Date"
+            value={formData.startDate}
+            onChange={handleInputChange}
+            required
+            className="w-full"
+          />
+
+          <Input
+            type="date"
+            name="endDate"
+            label="Leave End Date"
+            value={formData.endDate}
+            onChange={handleInputChange}
+            required
+            className="w-full"
+          />
+        </div>
+        {/* Notes */}
+        <Input
+          label="Notes"
+          name="notes"
+          type="text"
+          value={formData.notes}
+          onChange={handleInputChange}
+          className="w-full"
+        />
+      </div>
+
+      {/* Modal Footer */}
+      <div className="flex justify-end gap-2 px-4 pb-4">
+        {isEdit && (
+          <PrimaryActionButton
+            bgColor="!bg-red-500 hover:!bg-red-600"
+            onClick={() => onDelete(leaveData?._id)}
           >
-            Save
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+            Delete
+          </PrimaryActionButton>
+        )}
+
+        <PrimaryActionButton onClick={handleSave}>Save</PrimaryActionButton>
+      </div>
     </Modal>
   );
 }
@@ -192,6 +178,7 @@ export default function LeaveRequestModal({
 LeaveRequestModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  modalRef: PropTypes.any,
   leaveData: PropTypes.object,
   onSubmit: PropTypes.func.isRequired,
   onDelete: PropTypes.func,

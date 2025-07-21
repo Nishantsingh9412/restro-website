@@ -12,7 +12,7 @@ export const SelectField = ({
   ...props
 }) => {
   return (
-    <div className={`relative w-full mb-2 ${className}`}>
+    <div className={`relative w-full mb-3 ${className}`}>
       <select
         id={id}
         name={id}
