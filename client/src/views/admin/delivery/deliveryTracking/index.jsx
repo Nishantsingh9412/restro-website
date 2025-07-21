@@ -1,34 +1,17 @@
+import { PageHeading } from "../../../../components/UI/PageHeading";
 import { useRiderTrackingMap } from "../../../../hooks/useRiderTracking";
 
 const RiderTrackingMap = () => {
   const { mapRef } = useRiderTrackingMap();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        marginTop: "20px",
-      }}
-    >
-      <h1
-        style={{ marginBottom: "10px", fontWeight: "bold", fontSize: "20px" }}
-      >
-        Delivery Tracking Map
-      </h1>
+    <>
+      <PageHeading title={"Rider Tracking"} />
       <div
         ref={mapRef}
-        style={{
-          width: "95%",
-          height: "600px",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-        }}
+        className="m-4 h-[85vh] sm:h-[80vh] rounded-lg shadow-md !border !border-gray-200 overflow-hidden"
       />
-    </div>
+    </>
   );
 };
 

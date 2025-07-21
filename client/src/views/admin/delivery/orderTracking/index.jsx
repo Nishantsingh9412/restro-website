@@ -1,18 +1,8 @@
-import {
-  Box,
-  Select,
-  Heading,
-  Spinner,
-  Center,
-  Card,
-  CardBody,
-  Text,
-  Flex,
-  Icon,
-} from "@chakra-ui/react";
-import { FaUserTie } from "react-icons/fa";
 import DeliveryMap from "../../../delivery/availableDeliveries/components/DeliveryMap";
 import { useOrderTracking } from "../../../../hooks/useOrderTracking";
+import { PageHeading } from "../../../../components/UI/PageHeading";
+import { SelectField } from "../../../../components/common/SelectField";
+import PageLoader from "../../../../components/UI/Loader";
 
 const OrderTracking = () => {
   const {
@@ -26,86 +16,62 @@ const OrderTracking = () => {
   } = useOrderTracking();
 
   return (
-    <Box px={{ base: 2, md: 8 }} py={6} minH="80vh" bg="gray.50">
-      <Heading
-        mb={6}
-        color="teal.700"
-        fontWeight={700}
-        fontSize={{ base: "xl", md: "2xl" }}
-      >
-        Order Tracking Dashboard
-      </Heading>
-
-      <Card mb={8} maxW="400px">
-        <CardBody>
-          <Flex align="center" gap={2} mb={2}>
-            <Icon as={FaUserTie} color="teal.500" boxSize={5} />
-            <Text fontWeight={600}>Select Delivery Boy</Text>
-          </Flex>
-          <Select
-            placeholder="Select Delivery Boy"
-            onChange={(e) => setSelectedBoyId(e.target.value)}
-            value={selectedBoyId}
-            bg="white"
-            borderColor="teal.200"
-            focusBorderColor="teal.400"
-          >
-            {onlineDeliveryBoys.map((boy) => (
-              <option key={boy._id} value={boy._id}>
-                {boy.name}
-              </option>
-            ))}
-          </Select>
-        </CardBody>
-      </Card>
-
-      {loading ? (
-        <Center minH="200px">
-          <Spinner size="xl" color="teal.500" />
-        </Center>
-      ) : (
-        <Box>
-          {currentLocation && dropPoints.length > 0 && (
-            <DeliveryMap
-              currentLocation={currentLocation}
-              dropPoints={dropPoints}
-            />
-          )}
-          <Card mt={6}>
-            <CardBody>
-              <Text fontWeight={600} mb={2} color="teal.600">
-                Assigned Orders
-              </Text>
+    <>
+      <PageHeading title={"Order Tracking"} />
+      <div className="px-2 md:px-4 py-2 min-h-[80vh]">
+        <SelectField
+          id="deliveryBoySelect"
+          label="Select Delivery Boy"
+          value={selectedBoyId}
+          onChange={(e) => setSelectedBoyId(e.target.value)}
+          options={[
+            ...onlineDeliveryBoys.map((boy) => ({
+              value: boy._id,
+              label: boy.name,
+            })),
+          ]}
+          required
+          className="w-full"
+        />
+        {loading ? (
+          <PageLoader />
+        ) : (
+          <div>
+            {currentLocation && dropPoints.length > 0 && (
+              <DeliveryMap
+                currentLocation={currentLocation}
+                dropPoints={dropPoints}
+              />
+            )}
+            <div className="my-5">
+              <h2 className="!font-semibold mb-2 !text-lg">Assigned Orders</h2>
               {orderDetails.length === 0 ? (
-                <Text color="gray.500">No assigned orders.</Text>
+                <div className="text-gray-500 text-center mt-10">
+                  No assigned orders.
+                </div>
               ) : (
-                <Box>
+                <div>
                   {orderDetails.map((order) => (
-                    <Box
+                    <div
                       key={order.orderId}
-                      p={3}
-                      mb={2}
-                      borderRadius="md"
-                      bg="teal.50"
-                      border="1px solid"
-                      borderColor="teal.100"
+                      className="p-3 mb-2 rounded-md bg-teal-50 border border-teal-100"
                     >
-                      <Text fontWeight={500}>Order #{order.orderId}</Text>
-                      <Text fontSize="sm" color="gray.700">
+                      <div className="font-medium">Order #{order.orderId}</div>
+                      <div className="text-sm text-gray-700">
                         Customer: {order.customer}
-                      </Text>
-                      <Text fontSize="sm" color="gray.700">
+                      </div>
+                      <div className="text-sm text-gray-700">
                         Address: {order.address}
-                      </Text>
-                    </Box>
+                      </div>
+                    </div>
                   ))}
-                </Box>
+                </div>
               )}
-            </CardBody>
-          </Card>
-        </Box>
-      )}
-    </Box>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

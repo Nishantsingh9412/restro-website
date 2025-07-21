@@ -186,6 +186,7 @@ const DeliveryMap = ({
     } else if (mapInstance.current?.loaded()) {
       updateMap();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickupLocation, dropPoints, currentLocation]);
 
   useEffect(() => {
