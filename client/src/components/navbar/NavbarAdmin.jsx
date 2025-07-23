@@ -242,6 +242,7 @@ export default function Navbar() {
                   // Clear whole redux store
                   localStorage.removeItem("persist:root");
                   window.location.href = "/";
+                  console.log("clieck");
                 }}
                 to="/"
                 className="block px-4 py-2 text-sm text-gray-700 hover:!bg-gray-100"

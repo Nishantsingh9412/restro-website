@@ -12,16 +12,6 @@ export default function HeaderLinks({ secondary }) {
   const navigate = useNavigate();
   const [isRestaurantModalOpen, setRestaurantModalOpen] = useState(false);
 
-  // Fetching local data from local storage and handling potential parsing errors
-  // const localData = (() => {
-  //   try {
-  //     return JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA));
-  //   } catch (error) {
-  //     console.error("Failed to parse local storage data:", error);
-  //     return null;
-  //   }
-  // })();
-
   // Getting user data from the Redux store
   const singleUserData = useSelector((state) => state.userReducer.data);
 
@@ -29,27 +19,10 @@ export default function HeaderLinks({ secondary }) {
 
   // Handle user logout
   const handleLogout = () => {
+    console.log("cleidkced");
     dispatch(logoutUser());
     navigate("/");
   };
-
-  // // Effect to handle user data fetching and token expiration
-  // useEffect(() => {
-  //   if (localData) {
-  //     const token = localData?.token;
-
-  //     if (token) {
-  //       const decodedToken = jwtDecode(token);
-  //       // Logout if the token is expired
-  //       if (decodedToken.exp * 1000 < Date.now()) {
-  //         handleLogout();
-  //       }
-  //     }
-  //   } else {
-  //     // Redirect if localData is not available
-  //     navigate("/");
-  //   }
-  // }, [dispatch, localData, navigate]); // Added localData to dependencies
 
   return (
     <>

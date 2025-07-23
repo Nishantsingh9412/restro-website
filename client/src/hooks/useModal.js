@@ -12,7 +12,7 @@ export function useModal() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
-        setTimeout(onClose, 50); // Delay to allow click event to propagate
+        setTimeout(onClose, 100); // Delay to allow click event to propagate
       }
     };
 
