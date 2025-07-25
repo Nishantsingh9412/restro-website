@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authTypes} from "../../../utils/constant";
+import { authTypes } from "../../../utils/constant";
 import { useAuthActions } from "../../../hooks/useAuthActions";
 import { Link } from "react-router-dom";
 import { Input } from "../../../components/common/InputField";
@@ -26,8 +26,8 @@ export default function SignInPage() {
       form.setValue("email", "nizx@gmail.com");
       form.setValue("password", "123456");
     } else {
-      form.setValue("country_code", "49");
-      form.setValue("phone", "1234567892");
+      form.setValue("country_code", "+91");
+      form.setValue("phone", "+911234567899");
       form.setValue("memberId", "DxB3SYiOIW");
     }
   };
@@ -144,13 +144,12 @@ export default function SignInPage() {
                 type="tel"
                 {...register("phone")}
                 className="w-full"
-                placeholder="Phone number"
+                label="Phone number"
+                placeholder="+49123456789"
                 autoComplete="tel"
               />
               {errors.phone && (
-                <p className="text-red-600 text-xs mt-1">
-                  {errors.phone.message}
-                </p>
+                <div className="text-xs text-red-500 mt-1">{errors.phone}</div>
               )}
 
               <Input
@@ -159,6 +158,7 @@ export default function SignInPage() {
                 type="text"
                 {...register("memberId")}
                 className="w-full"
+                label="Membership Id"
                 placeholder="DxB3SYiOIW"
                 autoComplete="off"
               />

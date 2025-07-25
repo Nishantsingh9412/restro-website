@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Flex, Heading, Text, Spinner } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { getAllReceivedNotifications } from "../../../redux/action/notifications";
 import NotificationItem from "../../employees/components/NotificationCard";
 import { userTypes } from "../../../utils/constant";
+import { getAllNotifications } from "../../../redux/action/notificationSlice";
 
 export default function Notifications() {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ export default function Notifications() {
   // Fetch notifications on component mount
   useEffect(() => {
     const fetchNotifications = async () => {
-      await dispatch(getAllReceivedNotifications(userTypes.EMPLOYEE));
+      await dispatch(getAllNotifications(userTypes.EMPLOYEE));
       setLoading(false);
     };
     fetchNotifications();

@@ -1,7 +1,7 @@
 import { Box, Flex, useDisclosure } from "@chakra-ui/react";
 import Navbar from "../../components/navbar/EmployeeNavbar.jsx";
 import Sidebar from "../../components/sidebar/Sidebar.jsx";
-import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
+// import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { socket, connectSocketIfDisconnected } from "../../api/socket.js";
@@ -156,7 +156,7 @@ export default function EmployeeDashboard(props) {
         </Box>
       </Box>
 
-      <SidebarRight />
+      {/* <SidebarRight /> */}
     </Flex>
   );
 }

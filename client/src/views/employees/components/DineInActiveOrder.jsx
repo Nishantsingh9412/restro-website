@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
 import { Box, Heading, Text, List, ListItem, Button } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { statuses } from "../../../utils/constant";
-import { allotDineInOrderToChefAction } from "../../../redux/action/dineInOrder";
+import { allotDineInOrderToChef } from "../../../redux/action/dineInOrder";
 import { useDispatch } from "react-redux";
-import AllotOrderModal from "../../admin/orderHistory/components/AllotOrderModal";
+// import AllotOrderModal from "../../admin/orderHistory/components/AllotOrderModal";
 import { useState } from "react";
 
 const DineInActiveOrder = ({
@@ -16,7 +17,7 @@ const DineInActiveOrder = ({
   const orderId = activeOrder?.orderId;
 
   const handleAllotOrderToChef = (data) => {
-    dispatch(allotDineInOrderToChefAction({ orderId: orderId, chef: data }))
+    dispatch(allotDineInOrderToChef({ orderId: orderId, chef: data }))
       .then(() => {
         handleUpdateStatus(orderId, statuses.ASSIGNED_TO_CHEF);
       })
@@ -48,12 +49,12 @@ const DineInActiveOrder = ({
 
   return (
     <>
-      <AllotOrderModal
+      {/* <AllotOrderModal
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         onSubmit={handleAllotOrderToChef}
         personnelType="Chef"
-      />
+      /> */}
       <Box p={5} shadow="md" borderWidth="1px" borderRadius="md" mt={4}>
         <Heading fontSize="xl">Active Order</Heading>
         <Text mt={4}>

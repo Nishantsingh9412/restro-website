@@ -10,6 +10,7 @@ export const Input = ({
   required = false,
   ...props
 }) => {
+  const isFilled = (value !== undefined && value !== "") || props.ref;
   return (
     <div className="relative w-full mb-3">
       <input
@@ -28,7 +29,7 @@ export const Input = ({
           absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-base bg-white px-0.5 transition-all duration-200
           peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
           peer-focus:top-0 peer-focus:text-sm peer-focus:text-primary tracking-[0.2px] cursor-text
-          ${value ? "!top-0 text-sm text-primary" : ""}
+          ${isFilled ? "!top-0 text-sm text-primary" : ""}
           pointer-events-none
         `}
       >
@@ -46,5 +47,6 @@ Input.propTypes = {
   className: PropTypes.string,
   value: PropTypes.any,
   onChange: PropTypes.func,
+  ref: PropTypes.any,
   required: PropTypes.bool,
 };

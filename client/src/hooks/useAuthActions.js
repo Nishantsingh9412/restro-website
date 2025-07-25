@@ -97,7 +97,7 @@ export const useAuthActions = ({ type = authTypes.LOG_IN }) => {
       } else if (type === authTypes.LOG_IN_EMP) {
         res = await dispatch(
           loginEmployee({
-            phone: "+" + data.country_code + data.phone,
+            phone: data.phone,
             country_code: data.country_code,
             membership_id: data.memberId,
           })

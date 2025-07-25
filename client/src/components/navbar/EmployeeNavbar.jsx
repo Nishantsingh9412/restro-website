@@ -37,7 +37,7 @@ export default function EmployeeNavbar(props) {
   // Define styles based on color mode and state
   const mainText = useColorModeValue("white", "white");
   const secondaryText = useColorModeValue("gray.200", "white");
-  const navbarBg = useColorModeValue("var(--primary)", "rgba(11,20,55,0.5)");
+  const navbarBg = useColorModeValue("blue", "rgba(11,20,55,0.5)");
 
   return (
     <Box
