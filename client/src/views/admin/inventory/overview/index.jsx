@@ -1,4 +1,3 @@
-import { Flex, SimpleGrid, Spinner, Text } from "@chakra-ui/react";
 import { IoAlert } from "react-icons/io5";
 import { IoMdAlert } from "react-icons/io";
 import { MdCrisisAlert, MdInventory } from "react-icons/md";
@@ -10,6 +9,7 @@ import HeatMapCard from "./components/HeatMapCard.jsx";
 import StockBarChart from "./components/StockBarCard.jsx";
 import StockLevelLineChart from "./components/PriceChartCard.jsx";
 import useInventoryDashBoard from "../../../../hooks/useInventoryDB.js";
+import { PageHeading } from "../../../../components/UI/PageHeading.jsx";
 
 export default function InventoryDashboard() {
   const {
@@ -21,25 +21,24 @@ export default function InventoryDashboard() {
     transformedChartData,
     charts,
     tableData,
-  } = useInventoryDashBoard(); // ✅ Custom hook usage
+  } = useInventoryDashBoard();
 
   if (isLoading) {
     return (
-      <Flex justifyContent="center" alignItems="center" height="50vh">
-        <Spinner size="xl" color="var(--primary)" />
-      </Flex>
+      <div className="flex justify-center items-center h-[50vh]">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
   }
 
   return (
-    <Flex direction="column" gap="10px" pt={{ base: "130px", md: "10px" }}>
-      <Flex justifyContent="space-between" alignItems="center" fontWeight="500">
-        <Text color="var(--primary)" fontSize={{ base: "20px", md: "28px" }}>
-          Overview
-        </Text>
-      </Flex>
+    <div className="flex flex-col gap-3 pt-8 md:pt-2 px-2 md:px-0">
+      <PageHeading title={"Inventory Overview"} />
+      {/* <div className="flex justify-between items-center font-semibold mb-2">
+        <h2 className="text-primary text-2xl md:text-3xl">Overview</h2>
+      </div> */}
 
-      <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} gap="10px" mb="10px">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
         <DashboardCard
           color="#e847a5"
           bg="#ffbbee"
@@ -72,35 +71,42 @@ export default function InventoryDashboard() {
           value={upcomingExpiry}
           icon={IoAlert}
         />
-      </SimpleGrid>
+      </div>
 
-      <StockLevelLineChart
-        title="Stock Purchase Overview"
-        stockData={charts.monthlyPurchasePrice}
-      />
-
-      <Flex
-        gap="10px"
-        justifyContent="space-between"
-        direction={{ base: "column", md: "row" }}
-      >
-        <PieCard
-          title="Total Stock Overview"
-          chartData={transformedChartData}
+      <div className="mb-3">
+        <StockLevelLineChart
+          title="Stock Purchase Overview"
+          stockData={charts.monthlyPurchasePrice}
         />
-        <HeatMapCard title="Daily Stock Usage" chartData={charts.dailyUsage} />
-      </Flex>
+      </div>
 
-      <Flex
-        gap="10px"
-        justifyContent="space-between"
-        direction={{ base: "column", md: "row" }}
-      >
-        <StockBarChart title="Stock" stockData={charts.monthlyStockData} />
-        <QuickActionCard />
-      </Flex>
+      <div className="flex flex-col md:flex-row gap-3 mb-3">
+        <div className="flex-1">
+          <PieCard
+            title="Total Stock Overview"
+            chartData={transformedChartData}
+          />
+        </div>
+        <div className="flex-1">
+          <HeatMapCard
+            title="Daily Stock Usage"
+            chartData={charts.dailyUsage}
+          />
+        </div>
+      </div>
 
-      <InventoryTableCard tableData={tableData} />
-    </Flex>
+      <div className="flex flex-col md:flex-row gap-3 mb-3">
+        <div className="flex-1">
+          <StockBarChart title="Stock" stockData={charts.monthlyStockData} />
+        </div>
+        <div className="flex-1">
+          <QuickActionCard />
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <InventoryTableCard tableData={tableData} />
+      </div>
+    </div>
   );
 }

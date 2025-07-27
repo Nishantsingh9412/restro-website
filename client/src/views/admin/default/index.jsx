@@ -1,151 +1,142 @@
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  LineChart,
-  Line,
-  CartesianGrid,
-} from "recharts";
+  IoArrowForwardCircleOutline,
+  IoBagHandleOutline,
+  IoEllipsisVertical,
+} from "react-icons/io5";
+import { PageHeading } from "../../../components/UI/PageHeading";
+import { getMonthName } from "../../../utils/utils";
+import { FiCalendar } from "react-icons/fi";
+import { Input } from "../../../components/common/InputField";
+import PrimaryActionButton from "../../../components/UI/PrimaryActionButton";
 
 export default function Dashboard() {
-  const pieData = [
-    { name: "Orders", value: 300 },
-    { name: "Dine-in", value: 150 },
-    { name: "Takeaway", value: 100 },
-  ];
-
-  const barData = [
-    { name: "Mon", inventory: 400 },
-    { name: "Tue", inventory: 300 },
-    { name: "Wed", inventory: 500 },
-    { name: "Thu", inventory: 200 },
-    { name: "Fri", inventory: 278 },
-    { name: "Sat", inventory: 189 },
-    { name: "Sun", inventory: 239 },
-  ];
-
-  const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
-
-  return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm text-gray-500">Total Inventory</h2>
-          <p className="text-2xl font-bold">1,248</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm text-gray-500">Orders Delivered</h2>
-          <p className="text-2xl font-bold">682</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h2 className="text-sm text-gray-500">Out of Stock</h2>
-          <p className="text-2xl font-bold text-red-500">16</p>
-        </div>
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-white shadow p-5">
-          <h2 className="text-sm">Upgrade Plan</h2>
-          <p className="text-xl font-bold mt-1">Go Premium</p>
-          <button className="mt-3 px-4 py-2 bg-white text-purple-600 font-semibold rounded-xl">
-            Upgrade
-          </button>
+  const today = new Date();
+  const ContactRowItem = (
+    <div className="flex justify-between items-center mt-3 mx-3">
+      <div className="flex gap-3 items-center">
+        <img
+          src="https://as1.ftcdn.net/v2/jpg/02/99/04/20/1000_F_299042079_vGBD7wIlSeNl7vOevWHiL93G4koMM967.jpg"
+          className="w-10 !h-10 rounded-full object-cover"
+        />
+        <div className="leading-tight">
+          <p className="font-medium text-sm">Jane Cooper</p>
+          <p className="text-primary text-xs">+91 9798425933</p>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl shadow p-5 col-span-2">
-          <h3 className="text-lg font-semibold mb-4">Inventory Tracking</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={barData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="inventory"
-                stroke="#8884d8"
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h3 className="text-lg font-semibold mb-4">Order Insights</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow p-5">
-        <h3 className="text-lg font-semibold mb-4">Delivery Map</h3>
-        <div className="bg-gray-200 h-64 rounded-xl flex items-center justify-center text-gray-500">
-          Map Component Placeholder
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h3 className="text-lg font-semibold mb-4">Contacts</h3>
-          <ul className="space-y-3">
-            {[
-              { name: "Arif Khan", role: "Inventory Manager" },
-              { name: "Sara Paul", role: "Delivery Head" },
-              { name: "Nizam Shah", role: "Admin" },
-            ].map((user, idx) => (
-              <li key={idx} className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-100 text-purple-600 flex items-center justify-center rounded-full font-bold">
-                  {user.name[0]}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow p-5">
-          <h3 className="text-lg font-semibold mb-4">Plan Details</h3>
-          <p className="text-sm text-gray-500 mb-2">Current Plan</p>
-          <p className="text-xl font-bold text-purple-600">Starter</p>
-          <p className="text-sm text-gray-500 mt-4">Storage Used</p>
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-            <div
-              className="bg-purple-600 h-2 rounded-full"
-              style={{ width: "45%" }}
-            ></div>
-          </div>
-          <p className="text-xs text-right mt-1 text-gray-400">4.5GB / 10GB</p>
-        </div>
-      </div>
+      <IoEllipsisVertical className="text-lg" />
     </div>
+  );
+  return (
+    <>
+      <PageHeading title={"Overview"} />
+
+      {/* Content */}
+      <div className="grid grid-cols-2 gap-3 mb-3 min-h-screen mx-2 md:mx-4">
+        <div className="h-full space-y-3 flex flex-col">
+          {/* Welcome Message */}
+          <div className="">
+            <h2 className="!text-3xl !mt-2">
+              Hi, <strong>Admin</strong> <br />
+              What are your planes for today
+            </h2>
+            <p className=" !mt-2">
+              This platform is designed to revolutionize the way you organize
+              and access.
+            </p>
+          </div>
+          {/* Inventory Tracking Chart */}
+          <div className="!border !border-primary !p-4 rounded-xl mt-10 flex-1">
+            <h3 className="!font-semibold">Inventory Tracking</h3>
+          </div>
+          {/* Order Insights Chart */}
+          <div className="!border !border-[#FF64DA] !p-4 rounded-xl flex-1">
+            <h3 className="!font-semibold">Order Data</h3>
+          </div>
+          {/*User Activity */}
+          <div className="!border !border-[#3DD7A3] !p-4 rounded-xl flex-1">
+            <h3 className="!font-semibold">User Activity</h3>
+          </div>
+        </div>
+        <div className="space-y-3 h-full flex flex-col">
+          {/* Stock Summary and Chart */}
+          <div className="flex gap-2">
+            {/* Stock Summary */}
+            <div className="space-y-2">
+              {/* Date */}
+              <div className="flex items-baseline-last gap-4 !border !border-primary px-2 py-1 rounded-md text-xl font-medium">
+                <p className="leading-tight">
+                  <strong className="text-primary">{today.getDate()}</strong>{" "}
+                  {getMonthName(today.getMonth())} <br />
+                  {today.getFullYear()}
+                </p>
+                <FiCalendar />
+              </div>
+              {/* Total Stocks */}
+              <div className="bg-yellow-300 px-2 py-1 rounded-md text-xl">
+                <strong>520</strong>
+                <p className="text-sm">Total Stocks</p>
+              </div>
+              {/* Low Stock Alert */}
+              <div className="bg-red-300 px-2 py-1 rounded-md text-xl">
+                <strong>15</strong>
+                <p className="text-sm">Low Stocks</p>
+              </div>
+              {/* Expiry Alert */}
+              <div className="bg-purple-300 px-2 py-1 rounded-md text-xl">
+                <strong>65</strong>
+                <p className="text-sm">Expiry Alert</p>
+              </div>
+            </div>
+            {/* Stock Chart */}
+            <div className="!border !border-[#59D7D5] !p-4 rounded-xl flex-1">
+              <h3 className="!font-semibold">Sales Mapping</h3>
+            </div>
+          </div>
+          {/* Sales Mapping */}
+          <div className="!border !border-[#FFCD09] !p-4 rounded-xl flex-1 ">
+            <h3 className="!font-semibold">Sales Mapping</h3>
+          </div>
+          {/* Upgrade Your Plan */}
+          <div className="!border !border-[#9155FD] !p-4 rounded-xl flex-1">
+            <h3 className="!font-medium">Upgrade Your Plan</h3>
+            <p className="text-xs !my-2 w-2/3">
+              Plase make the payment to start enjoying all the features of our
+              premuim plan as soon as possible.
+            </p>
+            <div className="flex bg-purple-200 rounded-md justify-between px-3 py-2 items-center my-3">
+              <div className="flex gap-2">
+                <IoBagHandleOutline className="text-4xl p-1 rounded text-primary !border !border-primary" />
+                <div>
+                  <p className="leading-tight font-medium text-sm">Platinum</p>
+                  <p className="text-xs text-primary">Upgrade Plan</p>
+                </div>
+              </div>
+              <p className="text-lg">
+                <sup>$</sup>
+                <strong>5,250</strong>/Year
+              </p>
+            </div>
+            <Input type="email" label="Email Address" />
+            <PrimaryActionButton
+              className="w-full !py-2 flex justify-center"
+              bgColor="!bg-purple-500 hover:!bg-purple-600"
+            >
+              Contact Now
+            </PrimaryActionButton>
+          </div>
+          {/* Contacts */}
+          <div className="!border !border-primary !p-4 rounded-xl flex-1">
+            <div className="flex justify-between">
+              <h3 className="!font-semibold">Contacts</h3>
+              <IoArrowForwardCircleOutline className="text-2xl" />
+            </div>
+            {ContactRowItem}
+            {ContactRowItem}
+            {ContactRowItem}
+            {ContactRowItem}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
