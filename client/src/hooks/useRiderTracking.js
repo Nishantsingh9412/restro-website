@@ -43,6 +43,7 @@ export const useRiderTrackingMap = () => {
         markersRef.current = {};
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

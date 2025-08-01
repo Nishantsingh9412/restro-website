@@ -1,13 +1,11 @@
-import { Box, Heading, Card, CardBody, Text } from "@chakra-ui/react";
-import ColumnChart from "../../../../../components/charts/BarChart";
 import PropTypes from "prop-types";
+import BarChart from "../../../../../components/charts/BarChart";
 
 const StockBarChartCard = ({ stockData }) => {
-  // ApexChart config
   const options = {
     chart: {
       type: "bar",
-      stacked: true,
+      stacked: false, // ❗️DISABLE stacking
       toolbar: {
         show: false,
       },
@@ -21,29 +19,54 @@ const StockBarChartCard = ({ stockData }) => {
     },
     xaxis: {
       categories: stockData?.map((item) => item.month),
-      title: {
-        text: "Month",
+      // title: {
+      //   text: "Month",
+      // },
+      labels: {
+        style: {
+          fontSize: "12px",
+        },
       },
     },
     yaxis: {
-      title: {
-        text: "Stock Quantity",
+      // title: {
+      //   text: "Stock In & Out",
+      // },
+      labels: {
+        formatter: (val) => `€${val}`,
       },
     },
     fill: {
       opacity: 1,
+      type: "gradient", // Optional: for a modern gradient look
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.25,
+        inverseColors: false,
+        opacityFrom: 0.9,
+        opacityTo: 1,
+        stops: [0, 90, 100],
+      },
     },
-    colors: ["#00E396", "#FEB019"], // Green for Purchase, Yellow for Usage
+    colors: ["#6366F1", "#F97316"], // Purple for Purchase, Orange for Usage
     legend: {
       position: "top",
+      horizontalAlign: "right",
+      markers: {
+        radius: 12,
+      },
     },
     dataLabels: {
       enabled: false,
     },
     tooltip: {
       y: {
-        formatter: (val) => `${val} units`,
+        formatter: (val) => `€${val}`,
       },
+    },
+    grid: {
+      strokeDashArray: 5,
     },
   };
 
@@ -59,30 +82,17 @@ const StockBarChartCard = ({ stockData }) => {
   ];
 
   return (
-    <Card w="100%">
-      <CardBody>
-        <Heading as="h6" size="md">
-          Monthly Stock In & Out
-        </Heading>
-        {stockData?.length === 0 ? (
-          <Box
-            textAlign="center"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height={"80%"}
-          >
-            <Text fontSize="lg" textAlign="center">
-              No Data Available
-            </Text>
-          </Box>
-        ) : (
-          <Box h="250px">
-            <ColumnChart chartData={series} chartOptions={options} />
-          </Box>
-        )}
-      </CardBody>
-    </Card>
+    <div className=" ">
+      {stockData?.length === 0 ? (
+        <div className="flex items-center justify-center h-44 w-full">
+          <span className="text-gray-500 text-base">No Data Available</span>
+        </div>
+      ) : (
+        <div className="h-[250px] w-full">
+          <BarChart chartData={series} chartOptions={options} />
+        </div>
+      )}
+    </div>
   );
 };
 

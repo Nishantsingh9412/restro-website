@@ -1,35 +1,24 @@
 import PropTypes from "prop-types";
-import { Box, Heading, Card, CardBody, Text } from "@chakra-ui/react";
 import MonthlyCalendarHeatmap from "../../../../../components/charts/HeatMapChart";
 
-const HeatMapCard = ({ title, chartData }) => {
+const HeatMapCard = ({ chartData }) => {
   return (
-    <Card width={"100%"} minHeight={"250px"}>
-      <CardBody>
-        <Heading as="h6" size="md" mb={4}>
-          {title}
-        </Heading>
-        {chartData?.length === 0 ? (
-          <Box
-            textAlign="center"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            height={"80%"}
-          >
-            <Text fontSize="lg" textAlign="center">
-              No Data Available
-            </Text>
-          </Box>
-        ) : (
-          <Box>
-            <MonthlyCalendarHeatmap chartData={chartData} />
-          </Box>
-        )}
-      </CardBody>
-    </Card>
+    <div className="min-h-[250px] flex flex-col">
+      {!chartData || chartData.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center h-40">
+          <span className="text-gray-500 text-base text-center">
+            No Data Available
+          </span>
+        </div>
+      ) : (
+        <div>
+          <MonthlyCalendarHeatmap chartData={chartData} />
+        </div>
+      )}
+    </div>
   );
 };
+
 HeatMapCard.propTypes = {
   title: PropTypes.string.isRequired,
   chartData: PropTypes.arrayOf(PropTypes.object).isRequired,

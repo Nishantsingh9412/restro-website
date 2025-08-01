@@ -1,32 +1,27 @@
-import { Box, Button, Heading, VStack } from "@chakra-ui/react";
+import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 
 const QuickActionCard = () => {
   return (
-    <Box
-      p={4}
-      borderRadius="lg"
-      boxShadow="md"
-      bg="white"
-      width={{ base: "100%", md: "40%" }}
-    >
-      <Heading size="md" mb={4}>
-        Quick Actions
-      </Heading>
-      <VStack spacing={3}>
-        <Button colorScheme="blue" width="full">
+    <div className="!border !border-yellow-300 rounded-lg flex-1 p-3 flex flex-col gap-3">
+      {/* Header */}
+      <h3 className="!font-semibold">Quick Actions</h3>
+
+      {/* Button Container */}
+      <div className="flex flex-wrap md:flex-col gap-2 md:gap-3 flex-1">
+        <PrimaryActionButton className="w-[48%] md:w-full md:flex-1 flex justify-center items-center">
           Add New Item
-        </Button>
-        <Button colorScheme="blue" width="full">
+        </PrimaryActionButton>
+        <PrimaryActionButton className="w-[48%] md:w-full md:flex-1 flex justify-center items-center">
           Scan Barcode
-        </Button>
-        <Button colorScheme="blue" width="full">
+        </PrimaryActionButton>
+        <PrimaryActionButton className="w-[48%] md:w-full md:flex-1 flex justify-center items-center">
           View Reports
-        </Button>
-        <Button colorScheme="blue" width="full">
+        </PrimaryActionButton>
+        <PrimaryActionButton className="w-[48%] md:w-full md:flex-1 flex justify-center items-center">
           Waste Entry
-        </Button>
-      </VStack>
-    </Box>
+        </PrimaryActionButton>
+      </div>
+    </div>
   );
 };
 

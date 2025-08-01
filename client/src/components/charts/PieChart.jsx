@@ -15,12 +15,12 @@ const PieChart = ({ chartData, chartOptions }) => {
       },
     });
   }, [chartData, chartOptions]);
-
+  console.log(data, options);
   return (
     <ReactApexChart
       options={options}
       series={data}
-      type="pie"
+      type="bubble"
       width="100%"
       height="100%"
     />

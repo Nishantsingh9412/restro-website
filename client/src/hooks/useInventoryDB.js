@@ -68,15 +68,19 @@ export default function useInventoryDashBoard() {
       { allStockCount: 0 }
     );
   }, [inventoryItems]);
-
-  const transformedChartData = inventoryItems.reduce(
+  const transformedChartData = inventoryItems?.reduce(
     (acc, item) => {
-      acc.data.push(item?.availableQuantity);
-      acc.options.labels.push(item?.itemName);
+      acc.data.push({
+        name: item?.itemName,
+        value: item?.availableQuantity,
+        unit: item?.itemUnit,
+      });
+      acc.total += item?.availableQuantity || 0;
       return acc;
     },
-    { data: [], options: { labels: [] } }
+    { data: [], total: 0 }
   );
+  console.log(transformedChartData);
 
   return {
     isLoading,
