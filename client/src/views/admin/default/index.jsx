@@ -6,26 +6,23 @@ import {
 import { PageHeading } from "../../../components/UI/PageHeading";
 import { getMonthName } from "../../../utils/utils";
 import { FiCalendar } from "react-icons/fi";
+import PropTypes from "prop-types";
 import { Input } from "../../../components/common/InputField";
 import PrimaryActionButton from "../../../components/UI/PrimaryActionButton";
+import { useDashboard } from "../../../hooks/useDashboard";
+import PageLoader from "../../../components/UI/Loader";
+import OrderDataChart from "./components/OrderDataChart";
+import InventoryTrackingChart from "./components/InventoryTracking";
+import PieCard from "./components/PieCard";
+import StockBarChartCard from "../inventory/overview/components/StockBarCard";
 
 export default function Dashboard() {
   const today = new Date();
-  const ContactRowItem = (
-    <div className="flex justify-between items-center mt-3 mx-3">
-      <div className="flex gap-3 items-center">
-        <img
-          src="https://as1.ftcdn.net/v2/jpg/02/99/04/20/1000_F_299042079_vGBD7wIlSeNl7vOevWHiL93G4koMM967.jpg"
-          className="w-10 !h-10 rounded-full object-cover"
-        />
-        <div className="leading-tight">
-          <p className="font-medium text-sm">Jane Cooper</p>
-          <p className="text-primary text-xs">+91 9798425933</p>
-        </div>
-      </div>
-      <IoEllipsisVertical className="text-lg" />
-    </div>
-  );
+  const { dashboardData, isLoading } = useDashboard();
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   return (
     <>
       <PageHeading title={"Overview"} />
@@ -47,14 +44,17 @@ export default function Dashboard() {
           {/* Inventory Tracking Chart */}
           <div className="!border !border-primary !p-4 rounded-xl mt-10 flex-1">
             <h3 className="!font-semibold">Inventory Tracking</h3>
+            <InventoryTrackingChart />
           </div>
           {/* Order Insights Chart */}
           <div className="!border !border-[#FF64DA] !p-4 rounded-xl flex-1">
             <h3 className="!font-semibold">Order Data</h3>
+            <OrderDataChart />
           </div>
           {/*User Activity */}
           <div className="!border !border-[#3DD7A3] !p-4 rounded-xl flex-1">
             <h3 className="!font-semibold">User Activity</h3>
+            <OrderDataChart />
           </div>
         </div>
         <div className="space-y-3 h-full flex flex-col">
@@ -73,28 +73,99 @@ export default function Dashboard() {
               </div>
               {/* Total Stocks */}
               <div className="bg-yellow-300 px-2 py-1 rounded-md text-xl">
-                <strong>520</strong>
+                <strong>
+                  {dashboardData?.stockData?.totalStocksQuantity ?? 0}
+                </strong>
                 <p className="text-sm">Total Stocks</p>
               </div>
               {/* Low Stock Alert */}
               <div className="bg-red-300 px-2 py-1 rounded-md text-xl">
-                <strong>15</strong>
+                <strong>
+                  {dashboardData?.stockData?.lowStocksQuantity ?? 0}
+                </strong>
                 <p className="text-sm">Low Stocks</p>
               </div>
               {/* Expiry Alert */}
               <div className="bg-purple-300 px-2 py-1 rounded-md text-xl">
-                <strong>65</strong>
+                <strong>
+                  {dashboardData?.stockData?.expiredItems?.total ?? 0}
+                </strong>
                 <p className="text-sm">Expiry Alert</p>
               </div>
             </div>
             {/* Stock Chart */}
             <div className="!border !border-[#59D7D5] !p-4 rounded-xl flex-1">
-              <h3 className="!font-semibold">Sales Mapping</h3>
+              <h3 className="!font-semibold">Suppliers Location</h3>
+              <PieCard />
             </div>
           </div>
           {/* Sales Mapping */}
           <div className="!border !border-[#FFCD09] !p-4 rounded-xl flex-1 ">
             <h3 className="!font-semibold">Sales Mapping</h3>
+            <StockBarChartCard
+              stockData={[
+                {
+                  month: "Jan",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Feb",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Mar",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Apr",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "May",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Jun",
+                  purchase: 433,
+                  usage: 288,
+                },
+                {
+                  month: "Jul",
+                  purchase: 0,
+                  usage: 120,
+                },
+                {
+                  month: "Aug",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Sep",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Oct",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Nov",
+                  purchase: 0,
+                  usage: 0,
+                },
+                {
+                  month: "Dec",
+                  purchase: 0,
+                  usage: 0,
+                },
+              ]}
+            />
           </div>
           {/* Upgrade Your Plan */}
           <div className="!border !border-[#9155FD] !p-4 rounded-xl flex-1">
@@ -125,18 +196,48 @@ export default function Dashboard() {
             </PrimaryActionButton>
           </div>
           {/* Contacts */}
-          <div className="!border !border-primary !p-4 rounded-xl flex-1">
+          <div className="!border !border-primary !p-4 rounded-xl flex-1 max-h-112 overflow-x-auto">
             <div className="flex justify-between">
               <h3 className="!font-semibold">Contacts</h3>
               <IoArrowForwardCircleOutline className="text-2xl" />
             </div>
-            {ContactRowItem}
-            {ContactRowItem}
-            {ContactRowItem}
-            {ContactRowItem}
+            {dashboardData?.suppliers?.map((supplier) => (
+              <ContactRowItem
+                key={supplier._id || supplier.name}
+                name={supplier.name}
+                phone={supplier.phone}
+                imgSrc={supplier.pic}
+              />
+            ))}
           </div>
         </div>
       </div>
     </>
   );
 }
+
+const ContactRowItem = ({ name, phone, imgSrc }) => (
+  <div className="flex justify-between items-center mt-3 mx-3">
+    <div className="flex gap-3 items-center">
+      <img
+        src={
+          imgSrc ??
+          "https://as1.ftcdn.net/v2/jpg/02/99/04/20/1000_F_299042079_vGBD7wIlSeNl7vOevWHiL93G4koMM967.jpg"
+        }
+        className="w-10 !h-10 rounded-full object-cover"
+        alt={name}
+      />
+      <div className="leading-tight">
+        <p className="font-medium text-sm">{name}</p>
+        <p className="text-primary text-xs">{phone}</p>
+      </div>
+    </div>
+    <IoEllipsisVertical className="text-lg" />
+  </div>
+);
+
+ContactRowItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  phone: PropTypes.string.isRequired,
+  imgSrc: PropTypes.string,
+};

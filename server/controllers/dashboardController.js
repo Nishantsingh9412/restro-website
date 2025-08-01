@@ -11,7 +11,7 @@ const handleError = (res, error, message = "Internal Server Error") => {
 
 const fetchTotalStocks = async () => {
   const [totalStock] = await ItemManagement.aggregate([
-    { $group: { _id: null, totalQuantity: { $sum: "$available_quantity" } } },
+    { $group: { _id: null, totalQuantity: { $sum: "$availableQuantity" } } },
   ]);
   return totalStock?.totalQuantity || 0;
 };
@@ -19,7 +19,7 @@ const fetchTotalStocks = async () => {
 const fetchLowStocksCount = async () => {
   return await ItemManagement.countDocuments({
     $expr: {
-      $lt: ["$minimum_quantity", { $multiply: [0.7, "$available_quantity"] }],
+      $lt: ["$availableQuantity", "$lowStockQuantity"],
     },
   });
 };

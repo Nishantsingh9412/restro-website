@@ -296,109 +296,27 @@ export const donutChartData = [38.6, 22.5, 30.8, 8.1];
 
 // Total Spent Default
 
-export const lineChartDataTotalSpent = [
-  {
-    name: "This Year",
-    data: [12000, 13000, 15000, 12500, 16000, 13000],
-  },
-  {
-    name: "Last Year",
-    data: [12500, 14000, 16000, 15000, 13000, 16000],
-  },
-];
 
-export const lineChartOptionsTotalSpent = {
-  chart: {
-    toolbar: {
-      show: false,
-    },
-    dropShadow: {
-      enabled: true,
-      top: 13,
-      left: 0,
-      blur: 10,
-      opacity: 0.1,
-      color: "#4318FF",
-    },
-  },
-  colors: ["#e379ba", "#d98d30"],
-  markers: {
-    size: 0,
-    colors: "white",
-    strokeColors: "#7551FF",
-    strokeWidth: 3,
-    strokeOpacity: 0.9,
-    // strokeDashArray: 0,
-    fillOpacity: 1,
-    discrete: [],
-    shape: "circle",
-    radius: 2,
-    offsetX: 0,
-    offsetY: 0,
-    showNullDataPoints: true,
-  },
-  stroke: {
-    width: [3, 3],
-    dashArray: [0, 5],
-    curve: ["smooth", "smooth"],
-  },
-  tooltip: {
-    theme: "dark",
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  xaxis: {
-    type: "numeric",
-    categories: ["Jan", "Feb", "Mar", "Apr", "Jun", "Jul"],
-    labels: {
-      style: {
-        colors: "#A3AED0",
-        fontSize: "12px",
-        fontWeight: "500",
-      },
-    },
-    axisBorder: {
-      show: false,
-    },
-    axisTicks: {
-      show: false,
-    },
-  },
-  yaxis: {
-    type: "numeric",
-  },
-  legend: {
-    show: false,
-  },
-  grid: {
-    show: false,
-    column: {
-      color: ["#7551FF", "#39B8FF"],
-      opacity: 0.5,
-    },
-  },
-  color: ["#7551FF", "#39B8FF"],
-};
+
 
 export const barChartDataDailyUserActivity = [
   {
-    name: "Users",
+    name: "Orders",
     data: [200, 300, 400, 300, 600, 500, 300],
   },
 ];
 
 export const barChartWeeklyUserActivity = [
   {
-    name: "Users",
+    name: "Orders",
     data: [2000, 3000, 4000, 3000],
   },
 ];
 
 export const barChartMonthlyUserActivity = [
   {
-    name: "Users",
-    data: [8000, 10000, 12000, 10000, 14000, 16000],
+    name: "Orders",
+    data: [8000, 10000, 12000, 10000, 14000, 16000, 12345, 14332],
   },
 ];
 
@@ -474,12 +392,12 @@ export const barChartOptionsUserActivity = {
         [
           {
             offset: 0,
-            color: "#00c6ff", // Changed color
+            color: "#4BD04BFF", // Changed color
             opacity: 1,
           },
           {
             offset: 100,
-            color: "#0072ff", // Changed color
+            color: "#09FF00FF", // Changed color
             opacity: 0.28,
           },
         ],

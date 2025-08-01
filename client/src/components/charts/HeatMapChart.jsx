@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
-import { COLOR_SCALE } from "../../utils/constant";
 
 const getDaysInMonth = (year, month) => {
   return new Date(year, month + 1, 0).getDate();

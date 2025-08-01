@@ -80,7 +80,6 @@ export default function useInventoryDashBoard() {
     },
     { data: [], total: 0 }
   );
-  console.log(transformedChartData);
 
   return {
     isLoading,
