@@ -64,7 +64,10 @@ const EmployeeNotification = lazy(() =>
   import("./views/employees/components/Notification")
 );
 const DeliveryHistory = lazy(() => import("./views/delivery/history"));
-const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
+// const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
+const DeliveryDashboard = lazy(() =>
+  import("./views/employees/delivery/dashboard")
+);
 
 const EmployeeShifts = lazy(() =>
   import("./views/employees/Shift/EmployeeShifts")
@@ -506,7 +509,7 @@ export const deliveryRoutes = [
   {
     name: "Delivery",
     layout: "/employee",
-    path: "/delivery/dashboard/default",
+    path: "/delivery/dashboard",
     type: "list",
     icon: (
       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
@@ -516,7 +519,7 @@ export const deliveryRoutes = [
       {
         name: "Dashboard",
         layout: "/employee",
-        path: "/delivery/dashboard/default",
+        path: "/delivery/dashboard",
         type: "link",
         icon: (
           <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />

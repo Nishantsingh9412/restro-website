@@ -5,11 +5,7 @@ import ttServices from "@tomtom-international/web-sdk-services";
 import PropTypes from "prop-types";
 
 const TOMTOM_API_KEY = import.meta.env.VITE_APP_TOMTOM_API_KEY;
-
-const containerStyle = {
-  width: "100%",
-  height: "500px",
-};
+// const stylePref = `https://api.tomtom.com/style/1/style/20.3.4-6?key=${TOMTOM_API_KEY}&map=labels_night`;
 
 const isValidLocation = (location) => {
   return (
@@ -35,6 +31,7 @@ const DeliveryMap = ({
       container: mapRef.current,
       center: [currentLocation.lng, currentLocation.lat],
       zoom: 14,
+      // style: stylePref,
     });
 
     mapInstance.current = map;
@@ -186,7 +183,7 @@ const DeliveryMap = ({
     } else if (mapInstance.current?.loaded()) {
       updateMap();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickupLocation, dropPoints, currentLocation]);
 
   useEffect(() => {
@@ -217,7 +214,7 @@ const DeliveryMap = ({
     map.setCenter([currentLocation.lng, currentLocation.lat]);
   }, [currentLocation]);
 
-  return <div ref={mapRef} style={containerStyle}></div>;
+  return <div className="min-h-screen" ref={mapRef}></div>;
 };
 
 export default DeliveryMap;
