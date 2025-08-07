@@ -74,20 +74,57 @@ export function useInventoryActions() {
     setSelectedItem(null);
   };
 
-  const handleAfterScanned = (value) => {
+  const handleAfterScanned = async (value) => {
     const item = inventoryItems?.find((item) => item.barCode === value);
-    setSelectedItem(item ? item : { barCode: value });
-    showToast(
-      item
-        ? "Item already exists, you can edit or use it"
-        : "Item does not exist, you can add it",
-      "info"
-    );
     if (item) {
+      setSelectedItem(item);
+      showToast("Item already exists, you can edit or use it", "info");
       modals.actionModeModal.onOpen();
-    } else {
-      modals.itemAddEditModal.onOpen();
+      return;
     }
+
+    // Fetch from OpenFoodFacts API
+    try {
+      const res = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${value}.json`
+      );
+      const data = await res.json();
+      if (data && data.product) {
+        // Map OpenFoodFacts fields to your form fields
+        const product = data.product;
+        const newItem = {
+          // itemName: "",
+          // category: "",
+          // itemUnit: "",
+          // availableQuantity: "",
+          // lowStockQuantity: "",
+          // barCode: "",
+          // expiryDate: "",
+          // purchasePrice: "",
+          // supplierName: "",
+          // supplierContact: "",
+          // notes: "",
+          // storedLocation: "",
+          barCode: value,
+          itemName: product.product_name || "",
+          // brand: product.brands || "",
+          // quantity: product.serving_quantity_unit || "",
+          // image: product.image_url || "",
+          category: product.categories || "",
+          // nutriscore: product.nutriscore_grade || "",
+          // Add more mappings as needed
+        };
+        setSelectedItem(newItem);
+        showToast("Product info fetched from OpenFoodFacts!", "success");
+      } else {
+        setSelectedItem({ barCode: value });
+        showToast("No product info found, you can add manually.", "info");
+      }
+    } catch (err) {
+      setSelectedItem({ barCode: value });
+      showToast(`Error fetching product info, ${err.message}`, "error");
+    }
+    modals.itemAddEditModal.onOpen();
   };
 
   // Handle item submission

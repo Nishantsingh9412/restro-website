@@ -10,6 +10,68 @@ export function useDashboard() {
     salesData: {},
     suppliers: {},
     orderData: {},
+    stockData2: [
+      {
+        month: "Jan",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Feb",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Mar",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Apr",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "May",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Jun",
+        purchase: 433,
+        usage: 288,
+      },
+      {
+        month: "Jul",
+        purchase: 0,
+        usage: 120,
+      },
+      {
+        month: "Aug",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Sep",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Oct",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Nov",
+        purchase: 0,
+        usage: 0,
+      },
+      {
+        month: "Dec",
+        purchase: 0,
+        usage: 0,
+      },
+    ],
   });
 
   const fetchDashboardData = async () => {

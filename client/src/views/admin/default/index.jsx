@@ -19,6 +19,7 @@ import StockBarChartCard from "../inventory/overview/components/StockBarCard";
 export default function Dashboard() {
   const today = new Date();
   const { dashboardData, isLoading } = useDashboard();
+
   if (isLoading) {
     return <PageLoader />;
   }
@@ -28,15 +29,15 @@ export default function Dashboard() {
       <PageHeading title={"Overview"} />
 
       {/* Content */}
-      <div className="grid grid-cols-2 gap-3 mb-3 min-h-screen mx-2 md:mx-4">
-        <div className="h-full space-y-3 flex flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 min-h-screen mx-2 md:mx-4">
+        <div className="h-full space-y-3 flex flex-col order-2 sm:order-none">
           {/* Welcome Message */}
           <div className="">
             <h2 className="!text-3xl !mt-2">
               Hi, <strong>Admin</strong> <br />
               What are your planes for today
             </h2>
-            <p className=" !mt-2">
+            <p className="!mt-2">
               This platform is designed to revolutionize the way you organize
               and access.
             </p>
@@ -102,70 +103,7 @@ export default function Dashboard() {
           {/* Sales Mapping */}
           <div className="!border !border-[#FFCD09] !p-4 rounded-xl flex-1 ">
             <h3 className="!font-semibold">Sales Mapping</h3>
-            <StockBarChartCard
-              stockData={[
-                {
-                  month: "Jan",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Feb",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Mar",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Apr",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "May",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Jun",
-                  purchase: 433,
-                  usage: 288,
-                },
-                {
-                  month: "Jul",
-                  purchase: 0,
-                  usage: 120,
-                },
-                {
-                  month: "Aug",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Sep",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Oct",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Nov",
-                  purchase: 0,
-                  usage: 0,
-                },
-                {
-                  month: "Dec",
-                  purchase: 0,
-                  usage: 0,
-                },
-              ]}
-            />
+            <StockBarChartCard stockData={dashboardData.stockData2} />
           </div>
           {/* Upgrade Your Plan */}
           <div className="!border !border-[#9155FD] !p-4 rounded-xl flex-1">
