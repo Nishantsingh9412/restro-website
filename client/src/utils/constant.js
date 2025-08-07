@@ -70,6 +70,7 @@ const employeesRoles = {
   MANAGER: "Manager",
   KITCHEN_STAFF: "Kitchen Staff",
   BAR_TENDER: "Bar Tender",
+  HELPER: "Helper",
   CUSTOM: "Custom",
 };
 

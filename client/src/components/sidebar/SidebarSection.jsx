@@ -7,6 +7,7 @@ export const SidebarSection = ({
   path,
   children,
   hideTitle = false,
+  isShow = true,
 }) => {
   const location = useLocation();
 
@@ -19,7 +20,7 @@ export const SidebarSection = ({
 
   return (
     <div className={`${hideTitle ? "my-3 ml-2" : "my-5"}`}>
-      {title && (
+      {isShow && title && (
         <div
           className={`inline-flex items-center h-10 rounded-xl shadow-sm mb-2 px-4 space-x-2 text-primary !border !border-primary ${
             includeActiveRoute() ? "bg-primary text-white" : ""
@@ -45,4 +46,5 @@ SidebarSection.propTypes = {
   children: PropTypes.node.isRequired,
   icon: PropTypes.node.isRequired,
   hideTitle: PropTypes.bool,
+  isShow: PropTypes.bool,
 };
