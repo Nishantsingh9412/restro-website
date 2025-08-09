@@ -1,8 +1,9 @@
 import { useDeliveryDashboard } from "../../../../hooks/employee/delivery/useDeliveryDB";
-import DeliveryMap from "../../../delivery/availableDeliveries/components/DeliveryMap";
+import DeliveryMap from "./components/DeliveryMap";
 import PermissionModal from "./components/PermissionModal";
 import PhotoCaptureModal from "./components/PhotoCaptureModal";
 import OdometerCaptureModal from "./components/PhotoCaptureModal";
+
 function DeliveryDashboard() {
   const {
     modals,

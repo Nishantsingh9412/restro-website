@@ -121,7 +121,7 @@ const SidebarLink = ({
         title={tooltip}
         style={hideLabel ? { justifyContent: "center" } : {}}
       >
-        <div className="w-5 md:w-10 lg:w-5 flex items-center justify-center md:text-xl lg:text-lg px-4 py-2 bg-[#8b8a8a47] rounded-lg">
+        <div className="w-5 h-5 md:w-8 md:h-8 flex items-center justify-center md:text-xl lg:text-lg   bg-[#8b8a8a47] rounded-lg">
           {icon}
         </div>
         {!hideLabel && <p className="text-sm">{label}</p>}

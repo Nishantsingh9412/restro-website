@@ -1,16 +1,15 @@
-import { Flex, Grid, Heading, Text, Spinner, Button } from "@chakra-ui/react";
-import DeliveryCard from "./components/DeliveryCard";
+/* eslint-disable no-unused-vars */
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import DeliveryCard from "./components/DeliveryCard";
 import {
   completeDeliveryAction,
   udpateDeliveryStatusAction,
   getAllAvailabelDeliveryAction,
-} from "../../../redux/action/delivery";
-import { statuses } from "../../../utils/constant";
-import { Dialog_Boxes } from "../../../utils/constant";
-import { toggleDeliveryPersonnelAvailability } from "../../../api";
-import DeliveryMap from "./components/DeliveryMap";
+} from "../../../../redux/action/delivery";
+import { statuses, Dialog_Boxes } from "../../../../utils/constant";
+import { toggleDeliveryPersonnelAvailability } from "../../../../api";
+import PageLoader from "../../../../components/UI/Loader";
 
 export default function AvailableDeliveries() {
   const dispatch = useDispatch();
@@ -18,6 +17,7 @@ export default function AvailableDeliveries() {
   const [allPickedUp, setAllPickedUp] = useState(false);
   const [pickupLocation, setPickupLocation] = useState(null);
   const [dropLocations, setDropLocations] = useState([]);
+
   const delBoy = useSelector((state) => state.userReducer.data);
   const currentLocation = useSelector((state) => {
     const location = state.location.currentLocation;
@@ -25,6 +25,7 @@ export default function AvailableDeliveries() {
       ? location
       : delBoy?.lastLocation || pickupLocation;
   });
+
   const availableDeliveries = useSelector(
     (state) => state.deliveryReducer.deliveries || []
   );
@@ -85,40 +86,30 @@ export default function AvailableDeliveries() {
     }
   }, [availableDeliveries]);
 
-  if (loading)
-    return (
-      <Flex justifyContent="center" alignItems="center" height="50vh">
-        <Spinner size="xl" />
-      </Flex>
-    );
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
-    <>
+    <div className="p-5">
       {availableDeliveries.length === 0 ? (
-        <Text
-          p={3}
-          w={"fit-content"}
-          bg={"rgba(255, 255, 255, 0.5)"}
-          mx={"auto"}
-          my={20}
-        >
+        <p className="p-3 w-fit bg-white/50 mx-auto my-20 text-[#767680]">
           You don&apos;t have any delivery offer at this moment
-        </Text>
+        </p>
       ) : (
         <>
-          <Heading fontSize={20} my={5}>
-            Navigation Map
-          </Heading>
-          <DeliveryMap
+          {/* <DeliveryMap
             currentLocation={currentLocation ?? pickupLocation}
             pickupLocation={pickupLocation}
             dropPoints={dropLocations}
-          />
-          <Flex justifyContent={"space-between"} alignItems={"center"} mt={10}>
-            <Heading fontSize={20}>Available Deliveries</Heading>
+          /> */}
+
+          <div className="flex justify-between items-center my-2">
+            <h2 className="!text-lg !font-semibold text-[#767680]">
+              Available Deliveries
+            </h2>
             {allPickedUp && (
-              <Button
-                colorScheme="orange"
+              <button
                 onClick={() =>
                   Dialog_Boxes.showStatusChangeConfirm(
                     null,
@@ -126,21 +117,14 @@ export default function AvailableDeliveries() {
                     handleUpdateAllToOutForDelivery
                   )
                 }
-                mb={5}
-                fontWeight={"bold"}
+                className="mb-5 px-4 py-2 rounded-md bg-[#767680] hover:bg-[#5e5e68] text-white font-semibold"
               >
                 Out for Delivery
-              </Button>
+              </button>
             )}
-          </Flex>
-          <Grid
-            gap={5}
-            gridTemplateColumns={{
-              base: "1fr",
-              md: "1fr 1fr",
-              lg: "1fr 1fr 1fr",
-            }}
-          >
+          </div>
+
+          <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {availableDeliveries?.map((delivery, i) => (
               <DeliveryCard
                 data={delivery}
@@ -157,9 +141,9 @@ export default function AvailableDeliveries() {
                 }
               />
             ))}
-          </Grid>
+          </div>
         </>
       )}
-    </>
+    </div>
   );
 }

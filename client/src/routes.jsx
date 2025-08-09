@@ -1,4 +1,3 @@
-import { Icon } from "@chakra-ui/react";
 import { lazy } from "react";
 import {
   MdShoppingBag,
@@ -58,7 +57,7 @@ const ShiftSchedule = lazy(() =>
 const Absence = lazy(() => import("./views/admin/employee/absense"));
 const Employee = lazy(() => import("./views/admin/employee/employees"));
 const AvailableDeliveries = lazy(() =>
-  import("./views/delivery/availableDeliveries")
+  import("./views/employees/delivery/availableDeliveries")
 );
 const EmployeeNotification = lazy(() =>
   import("./views/employees/components/Notification")
@@ -88,39 +87,35 @@ const commonRoutes = [
     name: "Item Management",
     layout: "/employee",
     path: "/item-management",
-    icon: (
-      <Icon as={MdShoppingBag} color="inherit" width="20px" height="20px" />
-    ),
+    icon: <MdShoppingBag />,
     component: <ItemManagement />,
   },
   {
     name: "Employees",
     layout: "/employee",
     path: "/employees",
-    icon: <Icon as={MdHistory} width="20px" height="20px" color="inherit" />,
+    icon: <MdHistory />,
     component: <Employee />,
   },
   {
     name: "Delivery Tracking",
     layout: "/employee",
     path: "/delivery-tracking",
-    icon: (
-      <Icon as={MdLocalShipping} width="20px" height="20px" color="inherit" />
-    ),
+    icon: <MdLocalShipping />,
     component: <RiderTracking />,
   },
   {
     name: "Create Menu",
     layout: "/employee",
     path: "/orders",
-    icon: <Icon as={MdRestaurant} width="20px" height="20px" color="inherit" />,
+    icon: <MdRestaurant />,
     component: <AllOrders />,
   },
   {
     name: "Order History",
     layout: "/employee",
     path: "/order-history",
-    icon: <Icon as={MdHistory} width="20px" height="20px" color="inherit" />,
+    icon: <MdHistory />,
     component: <OrderHistory />,
   },
 ];
@@ -497,15 +492,14 @@ export const adminRoutes = [
   // },
 ];
 
+// Delivery Employee Routes
 export const deliveryRoutes = [
   {
     name: "Delivery",
     layout: "/employee",
     path: "/delivery/dashboard",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <DeliveryDashboard />,
     links: [
       {
@@ -513,9 +507,7 @@ export const deliveryRoutes = [
         layout: "/employee",
         path: "/delivery/dashboard",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <DeliveryDashboard />,
       },
       {
@@ -523,14 +515,7 @@ export const deliveryRoutes = [
         layout: "/employee",
         path: "/delivery/available-deliveries",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <AvailableDeliveries />,
       },
       {
@@ -538,14 +523,7 @@ export const deliveryRoutes = [
         layout: "/employee",
         path: "/delivery/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       {
@@ -553,14 +531,7 @@ export const deliveryRoutes = [
         layout: "/employee",
         path: "/delivery/notifications",
         type: "link",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <IoMdNotificationsOutline />,
         component: <EmployeeNotification />,
       },
       {
@@ -568,9 +539,7 @@ export const deliveryRoutes = [
         layout: "/employee",
         path: "/delivery/history",
         type: "link",
-        icon: (
-          <Icon as={MdHistory} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdHistory />,
         component: <DeliveryHistory />,
       },
       ...commonRoutes,
@@ -585,9 +554,7 @@ export const waiterRoutes = [
     layout: "/employee",
     path: "/waiter/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <WaiterDashboard />,
     links: [
       {
@@ -595,23 +562,14 @@ export const waiterRoutes = [
         layout: "/employee",
         path: "/waiter/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <WaiterDashboard />,
       },
       {
         name: "Available Orders",
         layout: "/employee",
         path: "/waiter/available-orders",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <WaiterAvailableOrders />,
       },
       {
@@ -619,14 +577,7 @@ export const waiterRoutes = [
         layout: "/employee",
         path: "/waiter/notifications",
         type: "link",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <IoMdNotificationsOutline />,
         component: <EmployeeNotification />,
       },
       {
@@ -634,14 +585,7 @@ export const waiterRoutes = [
         layout: "/employee",
         path: "/waiter/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,
@@ -656,9 +600,7 @@ export const chefRoutes = [
     layout: "/employee",
     path: "/chef/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <ChefDashboard />,
     links: [
       {
@@ -666,37 +608,21 @@ export const chefRoutes = [
         layout: "/employee",
         path: "/chef/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <ChefDashboard />,
       },
       {
         name: "Available Orders",
         layout: "/employee",
         path: "/chef/available-orders",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="20px"
-            height="20px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <ChefAvailableOrders />,
       },
       {
         name: "Notifications",
         layout: "/employee",
         path: "/chef/notifications",
-        icon: (
-          <Icon
-            as={IoMdNotificationsOutline}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <IoMdNotificationsOutline />,
         component: <EmployeeNotification />,
       },
       {
@@ -704,14 +630,7 @@ export const chefRoutes = [
         layout: "/employee",
         path: "/chef/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,
@@ -719,16 +638,14 @@ export const chefRoutes = [
   },
 ];
 
-//Manager Employee Routes
+// Manager Employee Routes
 export const managerRoutes = [
   {
     name: "Manager",
     layout: "/employee",
     path: "/manager/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <DeliveryDashboard />,
     links: [
       {
@@ -736,25 +653,15 @@ export const managerRoutes = [
         layout: "/employee",
         path: "/manager/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <DeliveryDashboard />,
       },
-
       {
         name: "Available Shifts",
         layout: "/employee",
         path: "/manager/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,
@@ -769,9 +676,7 @@ export const bartenderRoutes = [
     layout: "/employee",
     path: "/bar/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <DeliveryDashboard />,
     links: [
       {
@@ -779,9 +684,7 @@ export const bartenderRoutes = [
         layout: "/employee",
         path: "/bar/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <DeliveryDashboard />,
       },
       {
@@ -789,14 +692,7 @@ export const bartenderRoutes = [
         layout: "/employee",
         path: "/bar/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,
@@ -805,16 +701,13 @@ export const bartenderRoutes = [
 ];
 
 // Staff Employee Routes
-// Staff Employee Routes
 export const staffRoutes = [
   {
     name: "Staff",
     layout: "/employee",
     path: "/staff/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <DeliveryDashboard />,
     links: [
       {
@@ -822,9 +715,7 @@ export const staffRoutes = [
         layout: "/employee",
         path: "/staff/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <DeliveryDashboard />,
       },
       {
@@ -832,14 +723,7 @@ export const staffRoutes = [
         layout: "/employee",
         path: "/staff/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,
@@ -854,9 +738,7 @@ export const helperRoutes = [
     layout: "/employee",
     path: "/helper/dashboard/default",
     type: "list",
-    icon: (
-      <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-    ),
+    icon: <MdChevronRight />,
     component: <DeliveryDashboard />,
     links: [
       {
@@ -864,9 +746,7 @@ export const helperRoutes = [
         layout: "/employee",
         path: "/helper/dashboard/default",
         type: "link",
-        icon: (
-          <Icon as={MdDashboard} color="inherit" width="15px" height="15px" />
-        ),
+        icon: <MdDashboard />,
         component: <DeliveryDashboard />,
       },
       {
@@ -874,14 +754,7 @@ export const helperRoutes = [
         layout: "/employee",
         path: "/helper/available-shifts",
         type: "link",
-        icon: (
-          <Icon
-            as={MdOutlineDeliveryDining}
-            color="inherit"
-            width="15px"
-            height="15px"
-          />
-        ),
+        icon: <MdOutlineDeliveryDining />,
         component: <EmployeeShifts />,
       },
       ...commonRoutes,

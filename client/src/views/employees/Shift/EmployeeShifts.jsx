@@ -1,8 +1,8 @@
-import { Box, Spinner } from "@chakra-ui/react";
 import { useEffect } from "react";
 import ShiftTable from "./components/ShiftTable";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeeShifts } from "../../../redux/action/Employees/employee";
+import PageLoader from "../../../components/UI/Loader";
 
 function EmployeeShifts() {
   const dispatch = useDispatch();
@@ -15,11 +15,7 @@ function EmployeeShifts() {
 
   // Show a spinner while loading
   if (loading) {
-    return (
-      <Box p={8} textAlign="center">
-        <Spinner size="xl" fontWeight="bold" />
-      </Box>
-    );
+    return <PageLoader />;
   }
 
   const currentDate = new Date();
@@ -43,14 +39,14 @@ function EmployeeShifts() {
   );
 
   return (
-    <Box p={8} mb={10}>
+    <div className="p-6">
       {/* Display upcoming shifts */}
       <ShiftTable header="Upcoming Shifts" shiftData={upcomingShifts} />
       {/* Display Today Current shifts */}
       <ShiftTable header="Today's Shifts" shiftData={todayShifts} />
       {/* Display past shifts */}
       <ShiftTable header="Past Shifts" shiftData={pastShifts} />
-    </Box>
+    </div>
   );
 }
 
