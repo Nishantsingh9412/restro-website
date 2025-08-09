@@ -12,12 +12,13 @@ export default function PrimaryActionButton({
   className = "",
   children,
   bgColor = "!bg-primary hover:!bg-[#5D5EDF]",
+  textColor = "!text-white",
   ...props
 }) {
   return (
     <button
       type="button"
-      className={` ${bgColor} !text-white !px-2 md:!px-4 !py-2 rounded flex items-center gap-2 ${className} !text-xs md:!text-sm`}
+      className={` ${bgColor} ${textColor} !px-2 md:!px-4 !py-2 rounded flex items-center gap-2 ${className} !text-xs md:!text-sm`}
       onClick={onClick}
       {...props}
     >
@@ -31,5 +32,6 @@ PrimaryActionButton.propTypes = {
   icon: PropTypes.node,
   className: PropTypes.string,
   bgColor: PropTypes.string,
+  textColor: PropTypes.string,
   children: PropTypes.node.isRequired,
 };

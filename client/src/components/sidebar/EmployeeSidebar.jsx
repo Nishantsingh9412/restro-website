@@ -19,7 +19,7 @@ const EmployeeSidebar = ({ routes }) => {
         width: "auto",
         minWidth: "64px",
         maxWidth: "80px",
-        paddingLeft: 0,
+        paddingLeft: 15,
         paddingRight: 0,
       }
     : { width: `${sidebarWidth}px`, maxWidth: "275px" };
@@ -49,7 +49,7 @@ const EmployeeSidebar = ({ routes }) => {
         style={tabletSidebarStyle}
       >
         <div className="flex justify-between items-center mr-4">
-          <h3 className="!font-semibold">TURGASTRO</h3>
+          <h3 className="!font-semibold lg:block hidden">TURGASTRO</h3>
           <MdOutlineViewSidebar
             className="bg-[#8b8a8a47] rounded-lg rotate-180 text-[#737272] w-8 h-8 !py-1.5 cursor-pointer"
             onClick={resetSidebarWidth}
@@ -105,7 +105,7 @@ const SidebarLink = ({
   return (
     <div
       className={`flex items-center justify-between ${
-        hideLabel ? "justify-between ml-1  mb-0.5 w-12" : "mb-2"
+        hideLabel ? "justify-between ml-1 mb-3 lg:mb-0.5 w-12" : "mb-2"
       }`}
       onClick={closeSidebar}
     >

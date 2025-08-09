@@ -12,6 +12,8 @@ const Modal = ({
   showCloseIcon = true,
   innerClassName = "",
   modalRef = null,
+  center = true, // new prop
+  topPos = 15,
 }) => {
   const { isLargeScreen } = useScreen();
 
@@ -20,10 +22,16 @@ const Modal = ({
   return (
     <div
       ref={modalRef}
-      className={`bg-white rounded-xl shadow-2xl w-full  ${maxWidth} ${border} animate-fadeIn max-h-4/5 overflow-y-auto  ${
+      className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} ${border} animate-fadeIn max-h-4/5 overflow-y-auto ${
         isLargeScreen
-          ? "top-[50%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200 "
-          : " fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"
+          ? center
+            ? // If centered
+              "top-[50%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200"
+            : // If not centered → vertically center, slightly lower horizontally
+              `top-[${topPos}%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200`
+          : center
+          ? "fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"
+          : "fixed z-200 top-[30%] left-[50%] translate-x-[-50%] translate-y-[0%]"
       }`}
     >
       {/* Modal Header */}
@@ -43,16 +51,7 @@ const Modal = ({
       )}
 
       {/* Modal Body */}
-      <div className={`${innerClassName}`}>{children}</div>
-      {/* Modal Footer */}
-      {/* <div className="flex justify-end pt-6 border-t mt-4">
-        <button
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
-          onClick={handleClose}
-        >
-          Close
-        </button>
-      </div> */}
+      <div className={innerClassName}>{children}</div>
     </div>
   );
 };
@@ -63,11 +62,12 @@ Modal.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node.isRequired,
   maxWidth: PropTypes.string,
-  center: PropTypes.bool,
+  center: PropTypes.bool, // added
   border: PropTypes.string,
   showCloseIcon: PropTypes.bool,
   innerClassName: PropTypes.string,
   modalRef: PropTypes.any,
+  topPos: PropTypes.number,
 };
 
 export default Modal;

@@ -81,7 +81,7 @@ export const useAuthActions = ({ type = authTypes.LOG_IN }) => {
 
   const handleRouteByRole = (role) => {
     const route = role?.split(" ")[0]?.toLowerCase();
-    navigate(`/employee/${route}/dashboard/default`);
+    navigate(`/employee/${route}/dashboard`);
   };
 
   const onSubmit = async (data) => {

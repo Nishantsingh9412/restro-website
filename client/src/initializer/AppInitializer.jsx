@@ -45,6 +45,14 @@ const AppInitializer = () => {
           }
         }
 
+        // useEffect(() => {
+        //   const token = localData?.token;
+        //   if (token) {
+        //     const decodedToken = jwtDecode(token);
+        //     if (decodedToken.exp * 1000 < Date.now()) handleLogout();
+        //   }
+        // }, [handleLogout, localData?.token]);
+
         // Navigate to login page
         if (!role) return navigate("/");
 

@@ -202,14 +202,6 @@ export const adminRoutes = [
         type: "link",
         component: <MainDashboard />,
       },
-      // {
-      //   // name: "Notifications",
-      //   // layout: "/admin",
-      //   // path: "/dashboard/notifications",
-      //   // icon: <FiBell />,
-      //   // type: "link",
-      //   component: <AdminNotifications />,
-      // },
     ],
   },
   {
