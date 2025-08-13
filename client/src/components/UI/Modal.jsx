@@ -13,7 +13,7 @@ const Modal = ({
   innerClassName = "",
   modalRef = null,
   center = true, // new prop
-  topPos = 15,
+  topPos = "top-[15%]",
 }) => {
   const { isLargeScreen } = useScreen();
 
@@ -28,7 +28,7 @@ const Modal = ({
             ? // If centered
               "top-[50%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200"
             : // If not centered → vertically center, slightly lower horizontally
-              `top-[${topPos}%] left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200`
+              `${topPos} left-[55%] translate-x-[-50%] translate-y-[-50%] fixed z-200`
           : center
           ? "fixed z-200 top-[20%] left-[50%] translate-x-[-50%] translate-y-[0%]"
           : "fixed z-200 top-[30%] left-[50%] translate-x-[-50%] translate-y-[0%]"
@@ -67,7 +67,7 @@ Modal.propTypes = {
   showCloseIcon: PropTypes.bool,
   innerClassName: PropTypes.string,
   modalRef: PropTypes.any,
-  topPos: PropTypes.number,
+  topPos: PropTypes.string,
 };
 
 export default Modal;

@@ -62,7 +62,9 @@ const AvailableDeliveries = lazy(() =>
 const EmployeeNotification = lazy(() =>
   import("./views/employees/components/Notification")
 );
-const DeliveryHistory = lazy(() => import("./views/delivery/history"));
+const DeliveryHistory = lazy(() =>
+  import("./views/employees/delivery/history")
+);
 // const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
 const DeliveryDashboard = lazy(() =>
   import("./views/employees/delivery/dashboard")
@@ -119,66 +121,6 @@ const commonRoutes = [
     component: <OrderHistory />,
   },
 ];
-{
-  /* <SidebarSection title="Dashboard" icon={<FiGrid />}>
-          <SidebarLink to="/overview" icon={<FiList />} label="Overview" />
-       
-
-        <SidebarSection title="Orders" icon={<FiShoppingCart />}>
-          <SidebarLink
-            to="/orders/create"
-            icon={<FiShoppingCart />}
-            label="Create Orders"
-          />
-          <SidebarLink
-            to="/orders/menu"
-            icon={<FiList />}
-            label="Create Menu"
-          />
-          <SidebarLink
-            to="/orders/history"
-            icon={<FiClipboard />}
-            label="Order History"
-          />
-        </SidebarSection>
-
-        <SidebarSection title="Employee Planning" icon={<FiUser />}>
-          <SidebarLink
-            to="/employees/overview"
-            icon={<FiList />}
-            label="Overview"
-          />
-          <SidebarLink
-            to="/employees/shifts"
-            icon={<FiCalendar />}
-            label="Shift Schedule"
-          />
-          <SidebarLink
-            to="/employees/absence"
-            icon={<FiCalendar />}
-            label="Absence"
-          />
-          <SidebarLink
-            to="/employees/list"
-            icon={<FiUser />}
-            label="Employees"
-          />
-        </SidebarSection>
-
-        <SidebarSection title="Delivery Partners" icon={<FiTruck />}>
-          <SidebarLink
-            to="/delivery-partners/overview"
-            icon={<FiList />}
-            label="Order Tracking"
-          />
-
-          <SidebarLink
-            to="/delivery-partners/list"
-            icon={<FiUser />}
-            label="Rider Tracking"
-          />
-        </SidebarSection> */
-}
 
 export const adminRoutes = [
   {
@@ -348,148 +290,6 @@ export const adminRoutes = [
       },
     ],
   },
-  // {
-  //   name: "Employee",
-  //   layout: "/admin",
-  //   path: "/employee-management",
-  //   type: "list",
-  //   icon: (
-  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-  //   ),
-  //   links: [
-  // {
-  //   name: "Assign Schedule",
-  //   layout: "/admin",
-  //   path: "/employee-management",
-  //   icon: <Icon as={MdEvent} width="20px" height="20px" color="inherit" />,
-  //   component: <EmployeeManagement />,
-  // },
-  // {
-  //   name: "Shift Schedule",
-  //   layout: "/admin",
-  //   path: "/shift-schedule",
-  //   icon: (
-  //     <Icon as={MdHistory} width="20px" height="20px" color="inherit" />
-  //   ),
-  //   component: <ShiftSchedule />,
-  // },
-  //   ],
-  // },
-
-  // {
-  //   name: "Invoices",
-  //   layout: "/admin",
-  //   path: "/invoices/re-ordering",
-  //   type: "list",
-  //   icon: (
-  //     <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-  //   ),
-  //   links: [
-  //     {
-  //       name: "Re-Ordering",
-  //       layout: "/admin",
-  //       path: "/invoices/re-ordering",
-  //       icon: (
-  //         <Icon as={TbReorder} color="inherit" width="20px" height="20px" />
-  //       ),
-  //       type: "link",
-  //       component: () => <></>,
-  //     },
-  //     {
-  //       name: "Tutorial Videos",
-  //       layout: "/admin",
-  //       path: "/invoices/tutorial-videos",
-  //       icon: (
-  //         <Icon
-  //           as={MdVideoLibrary}
-  //           color="inherit"
-  //           width="20px"
-  //           height="20px"
-  //         />
-  //       ),
-  //       type: "link",
-  //       component: () => <></>,
-  //     },
-  //     {
-  //       name: "Printer Setting",
-  //       layout: "/admin",
-  //       path: "/invoices/printer-setting",
-  //       icon: (
-  //         <Icon as={AiFillPrinter} color="inherit" width="20px" height="20px" />
-  //       ),
-  //       type: "link",
-  //       component: () => <></>,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   name: "Sign In",
-  //   layout: "/auth",
-  //   path: "/sign-in",
-  //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-  //   component: SignInCentered,
-  // },
-  // {
-  //   name: "Sign Up",
-  //   layout: "/auth",
-  //   path: "/sign-up",
-  //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-  //   component: SignUpCentered,
-  // },
-  // {
-  //   name: "Warehouse",
-  //   layout: "/admin",
-  //   path: "/warehouse",
-  //   type: "list",
-  //   icon: (
-  //     <>
-  //       <Icon as={MdChevronRight} color="inherit" width="15px" height="15px" />
-  //     </>
-  //   ),
-  //   links: [
-  //     {
-  //       name: "Contact Sales",
-  //       layout: "/admin",
-  //       path: "/warehouse/contact-sales",
-  //       icon: (
-  //         <Icon as={IoLockOpen} color="inherit" width="20px" height="20px" />
-  //       ),
-  //       type: "link",
-  //       component: <></>,
-  //     },
-  // {
-  //   name: 'Cost Tracking',
-  //   layout: '/admin',
-  //   path: '/tracking/cost-tracking',
-  //   icon: (
-  //     <Icon
-  //       as={FaMoneyBillTrendUp}
-  //       color="inherit"
-  //       width="20px"
-  //       height="20px"
-  //     />
-  //   ),
-  //   type: 'link',
-  //   component: () => <></>,
-  // },
-  // {
-  //   name: 'Waste Tracking',
-  //   layout: '/admin',
-  //   path: '/tracking/waste-tracking',
-  //   icon: (
-  //     <Icon
-  //       as={GiNuclearWaste}
-  //       color="inherit"
-  //       width="20px"
-  //       height="20px"
-  //     />
-  //   ),
-  //   type: 'link',
-  //   component: () => <></>,
-  // },
-  //   ],
-  // },
 ];
 
 // Delivery Employee Routes

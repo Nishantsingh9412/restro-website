@@ -22,7 +22,7 @@ function PhotoCaptureModal({
       modalRef={modalRef}
       center={false}
       maxWidth="max-w-sm sm:max-w-xl"
-      topPos={30}
+      topPos={"top-[30%]"}
     >
       <div className="p-5 flex flex-col items-center">
         {/* Heading */}
