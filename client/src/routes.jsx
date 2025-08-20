@@ -10,6 +10,7 @@ import {
   MdOutlineSchedule,
   MdOutlineHistory,
   MdOutlineAssignment,
+  MdAnalytics,
 } from "react-icons/md";
 import {
   FiBox,
@@ -27,6 +28,7 @@ import { IoBagHandleOutline } from "react-icons/io5"; //IoLockOpen
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { BiFoodMenu } from "react-icons/bi";
 import { RiBikeLine } from "react-icons/ri";
+import AnalyticsPage from "./views/employees/delivery/analytics";
 // Lazy-loaded components for better chunking
 const MainDashboard = lazy(() => import("./views/admin/default"));
 const ItemManagement = lazy(() =>
@@ -62,9 +64,7 @@ const AvailableDeliveries = lazy(() =>
 const EmployeeNotification = lazy(() =>
   import("./views/employees/components/Notification")
 );
-const DeliveryHistory = lazy(() =>
-  import("./views/employees/delivery/history")
-);
+
 // const DeliveryDashboard = lazy(() => import("./views/delivery/dashboard"));
 const DeliveryDashboard = lazy(() =>
   import("./views/employees/delivery/dashboard")
@@ -311,6 +311,14 @@ export const deliveryRoutes = [
         component: <DeliveryDashboard />,
       },
       {
+        name: "Analytics",
+        layout: "/employee",
+        path: "/delivery/analytics",
+        type: "link",
+        icon: <MdAnalytics />,
+        component: <AnalyticsPage />,
+      },
+      {
         name: "Available Deliveries",
         layout: "/employee",
         path: "/delivery/available-deliveries",
@@ -334,14 +342,7 @@ export const deliveryRoutes = [
         icon: <IoMdNotificationsOutline />,
         component: <EmployeeNotification />,
       },
-      {
-        name: "History",
-        layout: "/employee",
-        path: "/delivery/history",
-        type: "link",
-        icon: <MdHistory />,
-        component: <DeliveryHistory />,
-      },
+
       ...commonRoutes,
     ],
   },

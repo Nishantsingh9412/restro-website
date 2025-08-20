@@ -47,8 +47,8 @@ function DeliveryHistory() {
       </button>
 
       <CalendarOrders
-        orders={orders}
         isOpen={open}
+        orders={orders}
         onClose={() => setOpen(false)}
       />
     </>

@@ -33,7 +33,7 @@ function DeliveryDashboard() {
   const currentLocation = { lat: 50.9375, lng: 6.9603 };
 
   return (
-    <div className="relative">
+    <div className="relative bg-[#8b8a8a47] min-h-screen">
       <DeliveryMap currentLocation={currentLocation} dropPoints={[]} />
 
       {/* Location Permission Modal */}

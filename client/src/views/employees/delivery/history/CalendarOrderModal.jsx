@@ -57,7 +57,7 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-black/40 backdrop-blur-lg border-l border-white/10 text-white shadow-lg transition-transform duration-300 ${
+      className={`fixed top-0 right-0 h-full bg-black/40 backdrop-blur-lg border-l border-white/10 text-white shadow-lg transition-transform duration-300 z-[200] ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
       style={{ maxWidth: "300px", width: "100%" }}
