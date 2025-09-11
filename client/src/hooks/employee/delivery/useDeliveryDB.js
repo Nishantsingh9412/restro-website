@@ -13,6 +13,7 @@ import {
   clearError,
   updateOdometerReading,
 } from "../../../redux/action/Employees/employee.js";
+import { getCompletedDeliveriesAction } from "../../../redux/action/delivery.js";
 
 export const useDeliveryDashboard = () => {
   const showToast = useToast();
@@ -22,7 +23,7 @@ export const useDeliveryDashboard = () => {
   const userData = useSelector((state) => state.userReducer?.data);
   const empData = useSelector((state) => state?.userReducer?.data);
   const error = useSelector((state) => state?.employee?.error);
-
+  console.log(userData);
   const [location, setLocation] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(
@@ -38,10 +39,11 @@ export const useDeliveryDashboard = () => {
   const [capturedOdometerPhoto, setCapturedOdometerPhoto] = useState(null);
 
   const modals = {
-    locationModal: useModal(),
     cameraModal: useModal(),
+    locationModal: useModal(),
     odometerModal: useModal(),
     livePhotoModal: useModal(),
+    quickActionModal: useModal(),
   };
 
   const updateOnlineStatus = useCallback(async () => {
@@ -79,7 +81,7 @@ export const useDeliveryDashboard = () => {
   }, [dispatch, navigate, locationInterval]);
 
   const handleToggleStatus = async () => {
-    const newStatus = true;
+    const newStatus = !onlineStatus;
     setLoading(true);
     if (newStatus) {
       modals.locationModal.onOpen();
@@ -321,6 +323,12 @@ export const useDeliveryDashboard = () => {
     }
     return () => clearInterval(locationInterval);
   }, [empData?.role, locationInterval, onlineStatus, sendLiveLocation]);
+
+  useEffect(() => {
+    if (empData?.role === employeesRoles.DELIVERY_BOY) {
+      dispatch(getCompletedDeliveriesAction());
+    }
+  }, [dispatch, empData?.role]);
 
   return {
     modals,

@@ -201,8 +201,8 @@ export const getEmployee = async (req, res) => {
 
 // Update employee profile picture
 export const updateEmployeeProfilePic = async (req, res) => {
-  const id = req.user.id; // Extract employee ID from request user object
-  const profile_picture = req.file ? req.file.filename : null; // Extract profile picture filename if provided
+  const id = req.user.id;
+  const fileName = req.file ? req.file.filename : null;
 
   // Check if employee ID is provided
   if (!id) {
@@ -210,7 +210,7 @@ export const updateEmployeeProfilePic = async (req, res) => {
   }
 
   // Check if profile picture is provided
-  if (!profile_picture) {
+  if (!fileName) {
     return res.status(400).json({ message: "Profile picture is required" });
   }
 
@@ -223,26 +223,30 @@ export const updateEmployeeProfilePic = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Delete old profile picture if it exists
+    // Build new full URL
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${fileName}`;
+
+    // Delete old file (if exists)
     if (employee.profile_picture) {
-      const oldProfilePicPath = path.join("uploads/", employee.profile_picture);
-      if (fs.existsSync(oldProfilePicPath)) {
-        fs.unlink(oldProfilePicPath, (err) => {
-          if (err) {
-            console.error("Error deleting old profile picture:", err);
-          }
+      // If you stored full URL earlier, extract filename
+      const oldFile = path.basename(employee.profile_picture);
+      const oldPath = path.join("uploads", oldFile);
+
+      if (fs.existsSync(oldPath)) {
+        fs.unlink(oldPath, (err) => {
+          if (err) console.error("Error deleting old profile picture:", err);
         });
       }
     }
 
-    // Update employee's profile picture
-    employee.profile_picture = profile_picture;
-    await employee.save(); // Save changes to the database
+    // Save new URL
+    employee.profile_picture = fileUrl;
+    await employee.save();
 
-    // Send success response
     res.status(200).json({
+      success: true,
       message: "Profile picture updated successfully",
-      result: employee,
+      result: employee.profile_picture,
     });
   } catch (error) {
     // Handle invalid employee ID error
@@ -250,6 +254,54 @@ export const updateEmployeeProfilePic = async (req, res) => {
       return res.status(400).json({ message: "Invalid Employee ID" });
     }
     // Handle other errors
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//Update employee profile specific fields
+export const updateEmployeeProfile = async (req, res) => {
+  const id = req.user.id;
+  const { name, email, phone, experience, bio } = req.body;
+  // Check if employee ID is provided
+  if (!id) {
+    return res.status(400).json({ message: "Employee ID is required" });
+  }
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (bio !== undefined) updateFields.bio = bio;
+  if (name !== undefined) updateFields.name = name;
+  if (email !== undefined) updateFields.email = email;
+  if (phone !== undefined) updateFields.phone = phone;
+  if (experience !== undefined) updateFields.experience = experience;
+
+  // If no fields provided, return error
+  if (Object.keys(updateFields).length === 0) {
+    return res.status(400).json({ message: "No fields provided to update" });
+  }
+
+  try {
+    // Find and update employee
+    const employee = await Employee.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Employee profile updated successfully",
+      result: employee,
+    });
+  } catch (error) {
+    // Handle invalid employee ID error
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ message: "Invalid Employee ID" });
+    }
     res.status(500).json({ message: error.message });
   }
 };

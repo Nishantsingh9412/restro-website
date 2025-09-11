@@ -120,3 +120,11 @@ export const deleteSingleDeliveryAction = (id) => async (dispatch) => {
     "Delivery Deleted Successfully"
   );
 };
+
+export const showOrderDetailsAction = (orderData) => (dispatch) => {
+  dispatch({ type: "SHOW_ORDER_DETAILS", data: orderData });
+};
+
+export const hideOrderDetailsAction = () => (dispatch) => {
+  dispatch({ type: "HIDE_ORDER_DETAILS", data: null });
+};

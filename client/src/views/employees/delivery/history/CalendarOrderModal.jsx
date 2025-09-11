@@ -1,9 +1,46 @@
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { showOrderDetailsAction } from "../../../../redux/action/delivery";
 
 const daysShort = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-export default function CalendarOrders({ orders, isOpen, onClose }) {
+export default function CalendarOrders({ isOpen, onClose }) {
+  const dispatch = useDispatch();
+  const completedOrders = useSelector(
+    (state) => state.deliveryReducer?.completedDeliveries || []
+  );
+
+  // normalize API data -> { date, time, title, status }
+  const normalizedOrders = useMemo(() => {
+    return completedOrders.map((o) => {
+      const completedDate = new Date(o.completedAt);
+      const createdDate = new Date(o.createdAt);
+      const yyyy = completedDate.getFullYear();
+      const mm = String(completedDate.getMonth() + 1).padStart(2, "0");
+      const dd = String(completedDate.getDate()).padStart(2, "0");
+
+      return {
+        date: `${dd}-${mm}-${yyyy}`,
+        createdTime: createdDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        completedTime: completedDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        title: o?.orderId, // or `${o.customerName}` if preferred
+        status: o?.currentStatus,
+        dropAddress: o?.deliveryAddress || "N/A",
+        customerName: o?.customerName || "N/A",
+        customerPhone: o?.customerContact || "N/A",
+      };
+    });
+  }, [completedOrders]);
+
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -20,12 +57,12 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
   // Orders mapped by date
   const ordersByDate = useMemo(() => {
     const map = {};
-    orders.forEach((order) => {
+    normalizedOrders.forEach((order) => {
       if (!map[order.date]) map[order.date] = [];
       map[order.date].push(order);
     });
     return map;
-  }, [orders]);
+  }, [normalizedOrders]);
 
   const daysInMonth = new Date(
     selectedMonth.getFullYear(),
@@ -43,7 +80,7 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
     const yyyy = selectedMonth.getFullYear();
     const mm = String(selectedMonth.getMonth() + 1).padStart(2, "0");
     const dd = String(day).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
+    return `${dd}-${mm}-${yyyy}`;
   };
 
   const goToPrevMonth = () =>
@@ -104,10 +141,9 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
 
           const isToday =
             dateStr ===
-            `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
-              2,
-              "0"
-            )}-${String(today.getDate()).padStart(2, "0")}`;
+            `${String(today.getDate()).padStart(2, "0")}-${String(
+              today.getMonth() + 1
+            ).padStart(2, "0")}-${String(today.getFullYear())}`;
           const isSelected = dateStr === selectedDate;
 
           return (
@@ -130,15 +166,22 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
 
       {/* Orders List */}
       <div className="mt-4 px-4 pb-6">
-        <h3 className="text-sm font-bold mb-2">
-          {selectedDate.split("-").reverse().join("-")}
+        <div className="w-full h-[1px] bg-black/20"></div>
+        <h3 className="text-sm font-bold !my-3">
+          <b>Date</b> {selectedDate.split("-").reverse().join("-")}
         </h3>
+        <div className="w-full h-[1px] bg-black/20 mb-2"></div>
+
         {ordersByDate[selectedDate] ? (
           ordersByDate[selectedDate].map((o, idx) => (
-            <div key={idx} className="mb-3 flex items-start gap-2">
+            <div
+              key={idx}
+              className="mb-3 flex items-start gap-2 cursor-pointer"
+              onClick={() => dispatch(showOrderDetailsAction(o))} // Dispatch action to show order details
+            >
               <span
                 className={`mt-1 w-2 h-2 rounded-full ${
-                  o.status === "Completed"
+                  o.status === "Delivered"
                     ? "bg-green-500"
                     : o.status === "Rejected"
                     ? "bg-red-500"
@@ -146,9 +189,11 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
                 }`}
               ></span>
               <div>
-                <p className="text-xs text-gray-300">{o.time}</p>
+                <p className="text-xs text-gray-300">
+                  {o.createdTime} - {o.completedTime}
+                </p>
                 <p className="text-sm">
-                  {o.title} {o.status}
+                  <b>{o.title}</b> {o.status}
                 </p>
               </div>
             </div>
@@ -162,14 +207,6 @@ export default function CalendarOrders({ orders, isOpen, onClose }) {
 }
 
 CalendarOrders.propTypes = {
-  orders: PropTypes.arrayOf(
-    PropTypes.shape({
-      date: PropTypes.string.isRequired,
-      time: PropTypes.string.isRequired,
-      status: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    })
-  ).isRequired,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };

@@ -37,6 +37,8 @@ import {
   deliveryRoutes,
   bartenderRoutes,
 } from "./routes";
+import ProfilePage from "./views/employees/components/ProfileScreen";
+import DocumentsScreen from "./views/employees/components/DocumentScreen";
 
 // Render routes dynamically
 const renderRoutes = (routes) =>
@@ -96,6 +98,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     {renderRoutes(deliveryRoutes)}
                     {renderRoutes(bartenderRoutes)}
                   </Route>
+                  <Route path="/employees/profile" element={<ProfilePage />} />
+                  <Route
+                    path="/employees/documents"
+                    element={<DocumentsScreen />}
+                  />
                 </Routes>
               </Suspense>
               <ToastContainer style={{ zIndex: 99999 }} newestOnTop />

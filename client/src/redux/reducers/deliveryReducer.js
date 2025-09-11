@@ -3,6 +3,10 @@ const initialState = {
   deliveries: [],
   activeDelivery: null,
   completedDeliveries: [],
+  showOrderDetails: {
+    isVisible: false,
+    orderData: null,
+  },
 };
 
 // Helper function to update a delivery in the deliveries array
@@ -94,6 +98,18 @@ const deliveryReducer = (state = initialState, action) => {
 
     case "SET_ACTIVE_DELIVERY":
       return { ...state, activeDelivery: action.data };
+
+    case "SHOW_ORDER_DETAILS":
+      return {
+        ...state,
+        showOrderDetails: { isVisible: true, orderData: action.data },
+      };
+
+    case "HIDE_ORDER_DETAILS":
+      return {
+        ...state,
+        showOrderDetails: { isVisible: false, orderData: null },
+      };
 
     // Default case to return the current state
     default:

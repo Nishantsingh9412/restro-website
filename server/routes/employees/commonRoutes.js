@@ -5,6 +5,7 @@ import {
   getAllShiftByEmployee,
   updateEmployeeOnlineStatus,
   updateEmployeeProfilePic,
+  updateEmployeeProfile,
 } from "../../controllers/employees/commonController.js";
 
 import { upload } from "../../middleware/fileupload.js";
@@ -31,6 +32,13 @@ router.patch(
   accessMiddleware(),
   upload.single("profile_picture"),
   updateEmployeeProfilePic
+);
+
+// update employee profile
+router.patch(
+  "/update-profile-details",
+  accessMiddleware(),
+  updateEmployeeProfile
 );
 
 export default router;

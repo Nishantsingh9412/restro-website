@@ -85,6 +85,9 @@ export const getEmployeeShifts = () => API.get(`/common/get-all-shifts`);
 // Update Employee Profile Pic
 export const updateEmployeeProfilePic = (updatedData) =>
   API.patch(`/common/update-profile-pic`, updatedData);
+// Update Employee Profile Details
+export const updateEmployeeProfileDetails = (updatedData) =>
+  API.patch(`/common/update-profile-details`, updatedData);
 // Update Employee Availability Status
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);

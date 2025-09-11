@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import DeliveryCard from "./components/DeliveryCard";
@@ -10,6 +9,7 @@ import {
 import { statuses, Dialog_Boxes } from "../../../../utils/constant";
 import { toggleDeliveryPersonnelAvailability } from "../../../../api";
 import PageLoader from "../../../../components/UI/Loader";
+import DeliveryMap from "../dashboard/components/DeliveryMap";
 
 export default function AvailableDeliveries() {
   const dispatch = useDispatch();
@@ -98,11 +98,11 @@ export default function AvailableDeliveries() {
         </p>
       ) : (
         <>
-          {/* <DeliveryMap
+          <DeliveryMap
             currentLocation={currentLocation ?? pickupLocation}
             pickupLocation={pickupLocation}
             dropPoints={dropLocations}
-          /> */}
+          />
 
           <div className="flex justify-between items-center my-2">
             <h2 className="!text-lg !font-semibold text-[#767680]">

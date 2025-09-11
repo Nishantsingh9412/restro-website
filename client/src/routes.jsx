@@ -58,9 +58,9 @@ const ShiftSchedule = lazy(() =>
 );
 const Absence = lazy(() => import("./views/admin/employee/absense"));
 const Employee = lazy(() => import("./views/admin/employee/employees"));
-const AvailableDeliveries = lazy(() =>
-  import("./views/employees/delivery/availableDeliveries")
-);
+// const AvailableDeliveries = lazy(() =>
+//   import("./views/employees/delivery/availableDeliveries")
+// );
 const EmployeeNotification = lazy(() =>
   import("./views/employees/components/Notification")
 );
@@ -84,7 +84,7 @@ const ChefAvailableOrders = lazy(() =>
   import("./views/employees/Chef/AvailableOrders")
 );
 
-const commonRoutes = [
+export const commonRoutes = [
   {
     name: "Item Management",
     layout: "/employee",
@@ -318,14 +318,14 @@ export const deliveryRoutes = [
         icon: <MdAnalytics />,
         component: <AnalyticsPage />,
       },
-      {
-        name: "Available Deliveries",
-        layout: "/employee",
-        path: "/delivery/available-deliveries",
-        type: "link",
-        icon: <MdOutlineDeliveryDining />,
-        component: <AvailableDeliveries />,
-      },
+      // {
+      //   name: "Available Deliveries",
+      //   layout: "/employee",
+      //   path: "/delivery/available-deliveries",
+      //   type: "link",
+      //   icon: <MdOutlineDeliveryDining />,
+      //   component: <AvailableDeliveries />,
+      // },
       {
         name: "Available Shifts",
         layout: "/employee",

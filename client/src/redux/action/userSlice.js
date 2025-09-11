@@ -38,6 +38,26 @@ export const updateProfilePicAction = createAsyncThunk(
   }
 );
 
+export const updateProfileDetailsAction = createAsyncThunk(
+  "user/updateProfileDetails",
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const role = profileData["role"];
+      const formData = profileData["formData"];
+      console.log(role);
+      if (role === "admin") {
+        const { data } = await api.updateAdminProfileDetails(formData);
+        return data.result;
+      } else {
+        const { data } = await api.updateEmployeeProfileDetails(formData);
+        return data.result;
+      }
+    } catch (err) {
+      return rejectWithValue(err.response.data.error);
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -66,12 +86,23 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
+      .addCase(updateProfileDetailsAction.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProfileDetailsAction.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload;
+      })
+      .addCase(updateProfileDetailsAction.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
       .addCase(updateProfilePicAction.pending, (state) => {
         state.status = "loading";
       })
       .addCase(updateProfilePicAction.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.data = action.payload;
+        state.data.profile_picture = action.payload;
       })
       .addCase(updateProfilePicAction.rejected, (state, action) => {
         state.status = "failed";

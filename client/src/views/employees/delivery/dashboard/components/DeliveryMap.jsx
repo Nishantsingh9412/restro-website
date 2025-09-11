@@ -19,6 +19,7 @@ const DeliveryMap = ({
   currentLocation,
   pickupLocation = { lat: 0, lng: 0 },
   dropPoints,
+  setOrderColor,
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -153,6 +154,7 @@ const DeliveryMap = ({
         addMarker(map, point, `Drop Point (Order ID: ${point.orderId})`, color);
       }
       drawRoute(map, currentLocation ?? pickupLocation, point, color);
+      setOrderColor((prev) => ({ ...prev, [point.orderId]: color }));
     });
 
     // Remove any existing routes that are no longer needed
@@ -235,4 +237,5 @@ DeliveryMap.propTypes = {
       orderId: PropTypes.string.isRequired,
     })
   ).isRequired,
+  setOrderColor: PropTypes.func.isRequired,
 };

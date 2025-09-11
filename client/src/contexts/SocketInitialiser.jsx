@@ -2,7 +2,6 @@ import { socket } from "../api/socket"; // Import socket manager
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setDeliveryBoyLocation } from "../redux/action/location";
-import { useToast } from "./useToast";
 import {
   addDineInOrderToChef,
   addTakeAwayOrder,
@@ -11,15 +10,17 @@ import { addDineInOrderToWaiter } from "../redux/action/waiter";
 import { showDeliveryOffer } from "../redux/action/Employees/deliveryBoy";
 import { localStorageData } from "../utils/constant";
 import { addNotification } from "../redux/action/notificationSlice";
+import { useToast } from "./useToast";
 
 export default function SocketInitializer() {
+  const showToast = useToast();
   const dispatch = useDispatch();
   const user = localStorage.getItem(localStorageData.PROFILE_DATA);
-  const toast = useToast();
 
   useEffect(() => {
     const handleNotification = (data) => {
-      toast(data?.heading, "success");
+      console.log(data);
+      showToast(data?.heading, "success");
       dispatch(addNotification(data));
     };
 
@@ -99,7 +100,7 @@ export default function SocketInitializer() {
       socket.off("dineinchef", handleDineInOrderChef);
       socket.off("dineinwaiter", handleDineInOrderWaiter);
     };
-  }, [dispatch, toast, user?.result?._id]); // Only re-run when user._id changes
+  }, [dispatch, showToast, user?.result?._id]); // Only re-run when user._id changes
 
   return null; // No UI to render
 }

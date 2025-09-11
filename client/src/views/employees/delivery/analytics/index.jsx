@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import PrimaryActionButton from "../../../../components/UI/PrimaryActionButton";
 import { FiPlus, FiRefreshCcw } from "react-icons/fi";
 import InfoCard from "./components/InfoCard";
@@ -13,43 +13,94 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import DeliveryBoyStatus from "./components/StatusCard";
+import { useDispatch, useSelector } from "react-redux";
+import { getDeliveryDashboardDataAction } from "../../../../redux/action/deliveryDashboard";
+import PageLoader from "../../../../components/UI/Loader";
 
 function DeliveryAnalytics() {
-  const buttonFilters = ["Today", "Week", "Month"];
-  const [selectedFilter, setSelectedFilter] = useState("Today");
+  const buttonFilters = ["Week", "Month", "Year"];
+  const [selectedFilter, setSelectedFilter] = useState("Week");
+  const dashboardData = useSelector(
+    (state) => state.deliveryDashboardReducer.data
+  );
+  const {
+    averageTimeTaken,
+    longestTimeTaken,
+    smallestTimeTaken,
+    todayActiveDeliveries,
+    todayAssignedDeliveries,
+    totalAssignedDeliveries,
+    todayAvailableDeliveries,
+    totalCompletedDeliveries,
+    totalDeliveriesCompletedToday,
+    totalDeliveryCompletedPastWeekPerDay,
+    totalDeliveryCompletedPastMonthPerDay,
+    totalDeliveryCompletedPastYearPerMonth,
+  } = dashboardData;
 
-  // Dummy data based on filter
+  const dispatch = useDispatch();
+  const [utils, setUtils] = useState({
+    isLoading: false,
+    isError: false,
+  });
+
+  // Handle data refresh
+  const handleRefresh = useCallback(() => {
+    setUtils({ isLoading: true, isError: false });
+    dispatch(getDeliveryDashboardDataAction())
+      .then(() => setUtils({ isLoading: false, isError: false }))
+      .catch(() => setUtils({ isLoading: false, isError: true }));
+  }, [dispatch]);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    handleRefresh();
+  }, [handleRefresh]);
+
   const data = useMemo(() => {
-    if (selectedFilter === "Today") {
-      return [
-        { name: "8AM", orders: 50 },
-        { name: "10AM", orders: 120 },
-        { name: "12PM", orders: 200 },
-        { name: "2PM", orders: 170 },
-        { name: "4PM", orders: 250 },
-        { name: "6PM", orders: 300 },
-        { name: "8PM", orders: 180 },
-      ];
-    } else if (selectedFilter === "Week") {
-      return [
-        { name: "Mon", orders: 400 },
-        { name: "Tue", orders: 320 },
-        { name: "Wed", orders: 510 },
-        { name: "Thu", orders: 420 },
-        { name: "Fri", orders: 610 },
-        { name: "Sat", orders: 720 },
-        { name: "Sun", orders: 680 },
-      ];
+    if (selectedFilter === "Week") {
+      const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      return totalDeliveryCompletedPastWeekPerDay?.map((val, i) => ({
+        name: weekDays[i],
+        orders: val,
+      }));
+    } else if (selectedFilter === "Month") {
+      return totalDeliveryCompletedPastMonthPerDay?.map((val, i) => ({
+        name: `Day ${i + 1}`,
+        orders: val,
+      }));
     } else {
-      // Month
-      return [
-        { name: "Week 1", orders: 2200 },
-        { name: "Week 2", orders: 3100 },
-        { name: "Week 3", orders: 2700 },
-        { name: "Week 4", orders: 3500 },
+      // Yearly
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
       ];
+      return totalDeliveryCompletedPastYearPerMonth?.map((val, i) => ({
+        name: months[i],
+        orders: val,
+      }));
     }
-  }, [selectedFilter]);
+  }, [
+    selectedFilter,
+    totalDeliveryCompletedPastWeekPerDay,
+    totalDeliveryCompletedPastMonthPerDay,
+    totalDeliveryCompletedPastYearPerMonth,
+  ]);
+
+  console.log(data);
+
+  if (utils.isLoading) return <PageLoader />;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 min-h-screen flex flex-col">
@@ -88,6 +139,7 @@ function DeliveryAnalytics() {
             bgColor="!bg-[#FFFFFFFF] hover:!bg-[#F4F4F4FF]"
             textColor="!text-black"
             className="!border rounded-lg w-full sm:w-auto"
+            onClick={handleRefresh}
           >
             <FiRefreshCcw /> Refresh
           </PrimaryActionButton>
@@ -95,71 +147,108 @@ function DeliveryAnalytics() {
       </div>
 
       {/* Info Cards */}
+      {/* Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8 mb-6">
         <InfoCard
           title="DELIVERIES TODAY"
-          value="753"
+          value={totalDeliveriesCompletedToday || 0}
           details={[
-            { label: "Avg/Order", value: "256" },
-            { label: "Refunds", value: "5" },
+            {
+              label: "Assigned",
+              value: todayAssignedDeliveries || 0,
+            },
+            {
+              label: "Active",
+              value: todayActiveDeliveries || 0,
+            },
           ]}
         />
+
         <InfoCard
           title="AVG DELIVERY TIME"
-          value="75m"
+          value={`${Math.round((averageTimeTaken || 0) / 60)}m`}
           details={[
-            { label: "Avg/Order", value: "256" },
-            { label: "Best", value: "5m" },
+            {
+              label: "Best",
+              value: `${Math.round((smallestTimeTaken || 0) / 60)}m`,
+            },
+            {
+              label: "Longest",
+              value: `${Math.round((longestTimeTaken || 0) / 60)}m`,
+            },
           ]}
         />
+
         <InfoCard
           title="ACTIVE ORDER"
-          value="12"
+          value={todayActiveDeliveries || 0}
           details={[
-            { label: "Online", value: "25" },
-            { label: "Idle", value: "5" },
+            {
+              label: "Assigned",
+              value: todayAssignedDeliveries || 0,
+            },
+            {
+              label: "Available",
+              value: todayAvailableDeliveries || 0,
+            },
           ]}
         />
+
         <InfoCard
           title="SUCCESS RATE"
-          value="82%"
+          value={`${Math.round(
+            ((totalCompletedDeliveries || 0) / (totalAssignedDeliveries || 1)) *
+              100
+          )}%`}
           details={[
-            { label: "Cancelled", value: "2" },
-            { label: "Returned", value: "5" },
+            {
+              label: "Completed",
+              value: totalCompletedDeliveries || 0,
+            },
+            {
+              label: "Assigned",
+              value: totalAssignedDeliveries || 0,
+            },
           ]}
         />
       </div>
 
-      {/* Chart Section */}
-      <div className="flex-1 p-4 sm:p-6 rounded-xl shadow !border bg-white">
-        <h3 className="!text-base sm:!text-lg !font-semibold text-gray-700 !mb-4">
-          Orders Overview ({selectedFilter})
-        </h3>
-        <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
-              <XAxis dataKey="name" stroke="#64748B" />
-              <YAxis stroke="#64748B" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#F8FAFC",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "8px",
-                }}
-                labelStyle={{ color: "#0F172A" }}
-              />
-              <Line
-                type="monotone"
-                dataKey="orders"
-                stroke="#2563EB"
-                strokeWidth={3}
-                dot={{ r: 4, stroke: "#1E293B", strokeWidth: 2 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Chart + Delivery Boy Details Section */}
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        {/* Chart Section (70%) */}
+        <div className="md:w-[70%] w-full p-4 sm:p-6 rounded-xl shadow !border bg-white">
+          <h3 className="!text-base sm:!text-lg !font-semibold text-gray-700 !mb-4">
+            Orders Overview ({selectedFilter})
+          </h3>
+          <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#CBD5E1" />
+                <XAxis dataKey="name" stroke="#64748B" />
+                <YAxis stroke="#64748B" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#F8FAFC",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{ color: "#0F172A" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="orders"
+                  stroke="#2563EB"
+                  strokeWidth={3}
+                  dot={{ r: 4, stroke: "#1E293B", strokeWidth: 2 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
+
+        <DeliveryBoyStatus />
+        {/* Delivery Boy Details Sidebar (30%) */}
       </div>
     </div>
   );

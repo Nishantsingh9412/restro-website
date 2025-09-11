@@ -74,7 +74,7 @@ const EmployeeSidebar = ({ routes }) => {
       {/* Existing Sidebar for tablet/desktop */}
       <CalendarOrders
         isOpen={open}
-        orders={[]}
+        // orders={[]}
         onClose={() => setOpen(false)}
       />
       {sidebarWidth === 0 && !isTablet && (

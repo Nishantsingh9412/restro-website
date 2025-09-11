@@ -1,8 +1,8 @@
-import DeliveryMap from "../../../delivery/availableDeliveries/components/DeliveryMap";
 import { useOrderTracking } from "../../../../hooks/useOrderTracking";
 import { PageHeading } from "../../../../components/UI/PageHeading";
 import { SelectField } from "../../../../components/common/SelectField";
 import PageLoader from "../../../../components/UI/Loader";
+import DeliveryMap from "../../../employees/delivery/dashboard/components/DeliveryMap";
 
 const OrderTracking = () => {
   const {
