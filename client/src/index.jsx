@@ -39,6 +39,7 @@ import {
 } from "./routes";
 import ProfilePage from "./views/employees/components/ProfileScreen";
 import DocumentsScreen from "./views/employees/components/DocumentScreen";
+import LandingPageScreen from "./LandingPage";
 
 // Render routes dynamically
 const renderRoutes = (routes) =>
@@ -82,6 +83,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     path="/auth/forgot-password"
                     element={<ForgotPassword />}
                   />
+                  <Route path="/landing-page" element={<LandingPageScreen />} />
                   <Route path="/admin/*" element={<AdminLayout />}>
                     <Route
                       path="dashboard/notifications"

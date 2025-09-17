@@ -93,7 +93,8 @@ export const useAuthActions = ({ type = authTypes.LOG_IN }) => {
         res = await dispatch(
           loginAdmin({ email: data.email, password: data.password })
         );
-        if (res.payload?.success) navigate("/admin/dashboard/default");
+        // if (res.payload?.success) navigate("/admin/dashboard/default");
+        if (res.payload?.success) navigate("/landing-page");
       } else if (type === authTypes.LOG_IN_EMP) {
         res = await dispatch(
           loginEmployee({
