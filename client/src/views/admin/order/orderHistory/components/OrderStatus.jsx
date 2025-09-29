@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-
+import { MdSendToMobile } from "react-icons/md";
+import { orderTypes } from "../../../../../utils/constant";
 // Reusable label-value pair
 export const InfoRow = ({ label, children }) => (
   <div>
@@ -16,6 +17,8 @@ export const OrderStatus = ({
   orderId,
   onAllot,
   icon,
+  handleSendLink,
+  orderType,
 }) => {
   if (completedAt)
     return (
@@ -25,10 +28,19 @@ export const OrderStatus = ({
     );
   if (assignedTo)
     return (
-      <div className="bg-blue-100 mb-2 p-2 rounded">
+      <div className="bg-blue-100 mb-2 p-2 rounded flex justify-between items-center">
         <h2 className="text-md !font-semibold text-blue-700">
           Assigned to {assignedTo.name}
         </h2>
+        {/* Notify User */}
+        {orderType === orderTypes.DELIVERY && (
+          <div
+            className="rounded-full p-1 !border-[2px] !border-white text-blue-700 cursor-pointer"
+            onClick={handleSendLink}
+          >
+            <MdSendToMobile />
+          </div>
+        )}
       </div>
     );
   return (
@@ -61,4 +73,6 @@ OrderStatus.propTypes = {
   orderId: PropTypes.string,
   onAllot: PropTypes.func,
   icon: PropTypes.node.isRequired,
+  handleSendLink: PropTypes.func,
+  orderType: PropTypes.string,
 };

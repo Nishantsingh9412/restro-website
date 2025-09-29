@@ -23,7 +23,6 @@ export const useDeliveryDashboard = () => {
   const userData = useSelector((state) => state.userReducer?.data);
   const empData = useSelector((state) => state?.userReducer?.data);
   const error = useSelector((state) => state?.employee?.error);
-  console.log(userData);
   const [location, setLocation] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(
@@ -208,6 +207,7 @@ export const useDeliveryDashboard = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sendLocation = (loc) => {
+    console.log("sent location");
     dispatch(setCurrentLocation(loc));
     socket.emit("sendLocation", {
       delEmpName: empData?.name,
@@ -237,13 +237,23 @@ export const useDeliveryDashboard = () => {
     setRetake(null);
     handleCameraCapture();
   };
+  // generate random  latitude and longitude
+  // const randomLocation = () => {
+  //   const latitude = 50.9375 + (Math.random() - 0.5) * 0.01;
+  //   const longitude = 6.9603 + (Math.random() - 0.5) * 0.01;
+  //   return { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+  // };
 
   const sendLiveLocation = useCallback(() => {
     let intervalId = null;
     const updateLocation = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          // Generate random latitude and longitude for testing purpose
+          // const { latitude, longitude } = randomLocation();
+
           const { latitude, longitude } = pos.coords;
+          // console.log("gps:", latitude, longitude);
           const lastLocation = location ?? {
             latitude: empData?.lastLocation?.lat,
             longitude: empData?.lastLocation?.lng,
@@ -286,6 +296,7 @@ export const useDeliveryDashboard = () => {
     if (!locationInterval) {
       intervalId = setInterval(updateLocation, 10000);
       setLocationInterval(intervalId);
+      console.log("updated location");
     }
 
     return () => clearInterval(intervalId);

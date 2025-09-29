@@ -243,6 +243,11 @@ export const sendDeliveryOfferAPI = ({ id, deliveryBoyIds }) =>
     deliveryBoyIds,
   });
 
+// Generate Location Link
+export const generateLocationLink = (orderData) => {
+  API.post("/track/generate-token", orderData);
+};
+
 // Get Delivery Employees
 export const getDeliveryBoys = (orderId) =>
   API.get(`/delivery-order/get-delivery-employees/${orderId}`);

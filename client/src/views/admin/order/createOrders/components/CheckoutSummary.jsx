@@ -72,7 +72,6 @@ const CheckoutSummary = ({ isOpen, onClose, ref }) => {
 
   // Handle the payment method for particular order type
   const handlePaymentMethodChange = (value) => {
-    console.log("Selected payment method:", value);
     switch (orderType) {
       case orderTypes.DINE_IN:
         dispatch(setDineInInfo({ paymentMethod: value }));
@@ -215,6 +214,43 @@ const CheckoutSummary = ({ isOpen, onClose, ref }) => {
                     ))}
                   </div>
                 </div>
+                {/* Priority Radio Group */}
+                {orderType === orderTypes.DELIVERY && (
+                  <div className="my-2">
+                    <label className="block text-sm text-gray-600 font-bold mb-2">
+                      Priority:
+                    </label>
+                    <div className="flex gap-4">
+                      {[
+                        { label: "Normal", value: false },
+                        { label: "Urgent", value: true },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex items-center gap-1 cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            name="isPriority"
+                            defaultValue={false}
+                            value={option.value}
+                            checked={
+                              orderDetails[orderType]?.isPriority ===
+                              option.value
+                            }
+                            onChange={() =>
+                              dispatch(
+                                setDeliveryInfo({ isPriority: option.value })
+                              )
+                            }
+                            className="accent-blue-500"
+                          />
+                          <span className="capitalize">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               {/* Right Side: Live Cart */}
               <div className="flex-1 bg-white rounded-lg p-6">

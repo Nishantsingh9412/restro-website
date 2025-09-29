@@ -17,6 +17,7 @@ const initialState = {
     customerName: "",
     phoneNumber: "",
     paymentMethod: "",
+    isPriority: false,
     city: "",
     address: "",
     dropLocation: {

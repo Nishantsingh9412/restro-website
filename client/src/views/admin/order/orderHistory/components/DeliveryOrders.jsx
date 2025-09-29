@@ -6,7 +6,8 @@ import { InfoRow, OrderStatus } from "./OrderStatus";
 import PrimaryActionButton from "../../../../../components/UI/PrimaryActionButton";
 import OrderDetailsModal from "./OrderDetailsModal";
 import { useModal } from "../../../../../hooks/useModal";
-import { employeesRoles } from "../../../../../utils/constant";
+import { employeesRoles, orderTypes } from "../../../../../utils/constant";
+import { generateLocationLink } from "../../../../../api";
 
 const DeliveryOrders = ({ orderData, handleAllotOrder }) => {
   const { isOpen, onOpen, onClose, ref } = useModal();
@@ -26,6 +27,24 @@ const DeliveryOrders = ({ orderData, handleAllotOrder }) => {
     completedAt,
   } = orderData;
 
+  const handleSendLink = async () => {
+    try {
+      const req = {
+        orderId,
+        delEmpId: assignedTo._id,
+      };
+      const res = await generateLocationLink(req);
+
+      if (res.status === 200 || res.status === 201) {
+        console.log(res.data.result);
+      } else {
+        alert("Error");
+      }
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
+
   return (
     <>
       <div
@@ -40,6 +59,8 @@ const DeliveryOrders = ({ orderData, handleAllotOrder }) => {
           orderId={orderId}
           onAllot={() => handleAllotOrder(employeesRoles.DELIVERY_BOY)}
           icon={<MdLocalShipping />}
+          orderType={orderTypes.DELIVERY}
+          handleSendLink={handleSendLink}
         />
         <div className="!border-b mb-2" />
         <div className="space-y-2 mb-4">
@@ -116,6 +137,7 @@ DeliveryOrders.propTypes = {
       })
     ),
     assignedTo: PropTypes.shape({
+      _id: PropTypes.number,
       name: PropTypes.string,
     }),
     completedAt: PropTypes.string,

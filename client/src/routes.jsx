@@ -26,7 +26,7 @@ import {
 } from "react-icons/fi";
 import { IoBagHandleOutline } from "react-icons/io5"; //IoLockOpen
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { BiFoodMenu } from "react-icons/bi";
+import { BiFoodMenu, BiStore } from "react-icons/bi";
 import { RiBikeLine } from "react-icons/ri";
 import AnalyticsPage from "./views/employees/delivery/analytics";
 // Lazy-loaded components for better chunking
@@ -34,6 +34,7 @@ const MainDashboard = lazy(() => import("./views/admin/default"));
 const ItemManagement = lazy(() =>
   import("./views/admin/inventory/inventoryManagement")
 );
+const StoreManagement = lazy(() => import("./views/admin/storeManagement"));
 const InventoryDashboard = lazy(() =>
   import("./views/admin/inventory/overview")
 );
@@ -156,6 +157,14 @@ export const adminRoutes = [
         icon: <FiList />,
         type: "link",
         component: <InventoryDashboard />,
+      },
+      {
+        name: "Store Management",
+        layout: "/admin",
+        path: "/inventory/store-management",
+        icon: <BiStore />,
+        type: "link",
+        component: <StoreManagement />,
       },
       {
         name: "Item Management",

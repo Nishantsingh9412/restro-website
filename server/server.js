@@ -36,6 +36,8 @@ import managerRoutes from "./routes/employees/managerRoutes.js";
 import staffRoutes from "./routes/employees/staffRoutes.js";
 import waiterRoutes from "./routes/employees/waiterRoutes.js";
 import inventoryDashboardRoutes from "./routes/inventoryDashboardRoutes.js";
+import TrackingSchema from "./models/trackingSchema.js";
+import trackingRoute from "./routes/trackingRoute.js";
 import {
   sendLiveLocation,
   acceptOfferOrder,
@@ -97,11 +99,15 @@ app.use("/helper", helperEmpRoutes);
 app.use("/manager", managerRoutes);
 app.use("/staff", staffRoutes);
 
+// Tracking routes
+app.use("/track", trackingRoute);
+
 // ---------------------------- Deployment Configuration ----------------------------
 const __dirname = path.resolve(); // Set the __dirname to current directory
 
+app.use(express.static(path.join(__dirname, "public")));
 // Serve static files in production (e.g., frontend build files)
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV !== "production") {
   app.use(compression());
   app.use(
     express.static("./frontend/dist", {
@@ -119,6 +125,13 @@ if (process.env.NODE_ENV === "production") {
   // Development mode base route
   app.get("/", (req, res) => {
     res.send("Development server running on port 8000");
+  });
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "public", "tracking.html"));
+  });
+  // Serve tracking page
+  app.get("/track/:token", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "tracking.html"));
   });
 }
 // ---------------------------- Deployment Configuration ----------------------------
@@ -161,11 +174,28 @@ io.on("connection", (socket) => {
   });
 
   // Listen for send location from the delivery employee
-  socket.on("sendLocation", (data) => {
+  socket.on("sendLocation", async (data) => {
     console.log("Location received:", data);
     const { delEmpId, adminId, location, delEmpName } = data;
     sendLiveLocation(adminId, delEmpName, delEmpId, location);
+
+    // Broadcast to customer tracking sockets
+    const tokens = await TrackingSchema.find({
+      driverId: delEmpId,
+      expiresAt: { $gt: new Date() },
+    });
+    tokens.forEach((t) => {
+      console.log(t);
+      trackNamespace.to(t.token).emit("location", {
+        lat: location.latitude,
+        lng: location.longitude,
+        heading: location.heading || 0,
+        updatedAt: new Date(),
+      });
+    });
   });
+
+  //
 
   socket.on("acceptOrder", (data) => {
     console.log("Order accepted:", data);
@@ -192,6 +222,30 @@ io.on("connection", (socket) => {
   socket.on("test", (message) => {
     console.log("Test event received:", message);
   });
+});
+
+// Tracking namespace for real-time delivery tracking
+const trackNamespace = io.of("/track");
+trackNamespace.use(async (socket, next) => {
+  const { token } = socket.handshake.query;
+  if (!token) return next(new Error("Token required"));
+  const tracking = await TrackingSchema.findOne({ token });
+  if (!tracking) return next(new Error("Invalid token"));
+  if (tracking.expiresAt < new Date()) return next(new Error("Token expired"));
+
+  socket.data.driverId = tracking.driverId;
+  socket.data.token = token;
+  socket.join(token); // room name = token
+  next();
+});
+
+trackNamespace.on("connection", (socket) => {
+  console.log(
+    `Customer connected to tracking: ${socket.id}, token: ${socket.data.token}`
+  );
+  socket.on("disconnect", () =>
+    console.log(`Customer disconnected: ${socket.id}`)
+  );
 });
 
 // MongoDB Connection (Optimized)

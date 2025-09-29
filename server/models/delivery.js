@@ -88,6 +88,11 @@ const deliverySchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    // Is It Priority Order
+    isPriority: {
+      type: Boolean,
+      default: false,
+    },
     // Image URL of the restaurant
     restaurantImage: {
       type: String,

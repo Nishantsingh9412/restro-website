@@ -36,8 +36,10 @@ export default function AvailableDeliveriesModal({
     (state) => state.deliveryReducer.deliveries || []
   );
 
-  const handleCompleteDelivery = (id) => {
-    if (availableDeliveries.length === 1) toggleDeliveryPersonnelAvailability();
+  const handleCompleteDelivery = async (id) => {
+    if (availableDeliveries.length === 1) {
+      await toggleDeliveryPersonnelAvailability();
+    }
     dispatch(completeDeliveryAction(id)).then(() =>
       Dialog_Boxes.showOrderCompleted()
     );
@@ -48,7 +50,7 @@ export default function AvailableDeliveriesModal({
     dispatch(udpateDeliveryStatusAction(id, status));
   };
 
-  const handleUpdateAllToOutForDelivery = () => {
+  const handleUpdateAllToOutForDelivery = async () => {
     availableDeliveries.forEach((delivery) => {
       if (delivery?.currentStatus === statuses.PICKED_UP) {
         dispatch(
@@ -56,7 +58,7 @@ export default function AvailableDeliveriesModal({
         );
       }
     });
-    toggleDeliveryPersonnelAvailability();
+    await toggleDeliveryPersonnelAvailability();
   };
 
   // Load deliveries
@@ -195,6 +197,7 @@ AvailableDeliveriesModal.propTypes = {
 function DeliveryCard({ data, handleUpdateStatus, disabled, color }) {
   const primaryColor = "!bg-[#767680]";
   const primaryHover = "!hover:bg-[#5e5e68]";
+  console.log(data);
 
   const getNextStatus = (current) => {
     switch (current) {
@@ -244,10 +247,15 @@ function DeliveryCard({ data, handleUpdateStatus, disabled, color }) {
                 {data.paymentType?.toUpperCase()}
               </span>
             </div>
-            <div
-              className="w-12 h-4 rounded-md !border !border-[#767680]/30"
-              style={{ background: color }}
-            ></div>
+            <div className="flex">
+              <div
+                className="w-12 h-4 rounded-md !border !border-[#767680]/30"
+                style={{ background: color }}
+              ></div>
+              {data?.isPriority == true && (
+                <div className="rounded-full h-4 w-4 border-2 border-white bg-amber-600 mx-1"></div>
+              )}
+            </div>
           </div>
 
           {/* Distance & Time */}

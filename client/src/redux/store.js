@@ -1,24 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import userReducer from "./action/userSlice";
-// import itemsReducer from "./reducers/ItemsReducer";
-// import supplierReducer from "./reducers/supplierReducer";
-// import stocksReducer from "./reducers/stocks";
 import OrderItemReducer from "./reducers/orderItems";
 import QRItemsReducer from "./reducers/qrItems";
 import delBoyReducer from "./reducers/delboyReducer";
 import stepperFormReducer from "./reducers/delStepperReducer";
-// import deliveryOrderReducer from "./reducers/deliveryOrderReducer";
-// import dineInOrderReducer from "./reducers/dineInOrderReducer";
 import dineInStepperReducer from "./reducers/dineInStepperReducer";
-// import takeAwayOrderReducer from "./reducers/takeAwayOrderReducer";
 import dineInOrderReducer from "./action/dineInOrder";
 import deliveryOrderReducer from "./action/deliveryOrder";
 import takeAwayOrderReducer from "./action/takeAwayOrder";
 import takeAwayStepperReducer from "./reducers/takeAwayStepperReducer";
 import deliveryDashboardReducer from "./reducers/deliveryDashboardReducer";
 import deliveryReducer from "./reducers/deliveryReducer";
-// import notificationReducer from "./reducers/notificationReducer";
 import notificationReducer from "./action/notificationSlice";
 import adminReducer from "./action/admin";
 import waiterReducer from "./action/waiter";
@@ -35,9 +28,6 @@ const store = configureStore({
     authReducer,
     admin: adminReducer,
     userReducer,
-    // itemsReducer,
-    // stocksReducer,
-    // supplierReducer,
     OrderItemReducer,
     QRItemsReducer,
     delBoyReducer,

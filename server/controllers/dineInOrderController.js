@@ -24,7 +24,7 @@ const dineInOrderSchema = Joi.object({
   orderMethod: Joi.string().required(),
   totalPrice: Joi.number().required(),
   created_by: Joi.string().required(),
-  guests: Joi.array().optional().allow(""),  
+  guests: Joi.array().optional().allow(""),
 });
 
 // Function to validate dine-in order data against the schema
@@ -334,7 +334,7 @@ export const assignDineInOrderToChef = async (req, res) => {
     await sendDineInOfferToChef(chefId, order);
 
     const notification = await Notification.create({
-      sender: user.id, 
+      sender: user.id,
       senderModel: "Admin",
       receiver: chefId,
       heading: "New Dine-In Order Assigned",
@@ -403,7 +403,7 @@ export const updateDineInCurrentStatus = async (req, res) => {
     await order.save();
 
     const notification = await Notification.create({
-      sender: user.id, 
+      sender: user.id,
       senderModel: "Employee",
       receiver: user.created_by,
       heading: "Dine-In order status updated",
