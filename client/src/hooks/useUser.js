@@ -6,6 +6,6 @@ export function useUser() {
   return {
     userId: user?._id,
     userRole: user?.role,
+    permittedRoute: user?.permissions || [],
   };
 }
-  

@@ -1,10 +1,5 @@
-import { Box, Flex, useDisclosure } from "@chakra-ui/react";
-import Navbar from "../../components/navbar/EmployeeNavbar.jsx";
-import Sidebar from "../../components/sidebar/Sidebar.jsx";
-import SidebarRight from "../../components/sidebarRight/SidebarRight.jsx";
 import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { socket, connectSocketIfDisconnected } from "../../api/socket.js";
+import { Outlet } from "react-router-dom";
 import {
   waiterRoutes,
   deliveryRoutes,
@@ -13,150 +8,66 @@ import {
   staffRoutes,
   bartenderRoutes,
   helperRoutes,
+  commonRoutes,
 } from "../../routes.jsx";
-import OrderAcceptModal from "../../components/delivery/OrderAcceptModal.jsx";
-import { localStorageData } from "../../utils/constant.js";
+import { useUser } from "../../hooks/useUser.js";
+import { employeesRoles } from "../../utils/constant.js";
+import EmployeeSidebar from "../../components/sidebar/EmployeeSidebar.jsx";
 
-export default function EmployeeDashboard(props) {
-  const { ...rest } = props;
-  const [fixed] = useState(false);
+export default function EmployeeDashboard() {
+  const { userRole, permittedRoute } = useUser();
   const [routes, setRoutes] = useState([]);
-  const location = useLocation();
-  const { onOpen } = useDisclosure();
-  const [role, setRole] = useState(null);
-  const localData = JSON.parse(
-    localStorage.getItem(localStorageData.PROFILE_DATA)
-  );
 
-  // Load role from localStorage
+  const roleRouteMap = {
+    [employeesRoles.WAITER]: waiterRoutes,
+    [employeesRoles.DELIVERY_BOY]: deliveryRoutes,
+    [employeesRoles.MANAGER]: managerRoutes,
+    [employeesRoles.CHEF]: chefRoutes,
+    [employeesRoles.KITCHEN_STAFF]: staffRoutes,
+    [employeesRoles.BAR_TENDER]: bartenderRoutes,
+    [employeesRoles.HELPER]: helperRoutes,
+    [employeesRoles.CUSTOM]: [],
+  };
+
+  const permissionToRoutePaths = {
+    "Inventory-Management": ["/item-management"],
+    "Employee-Management": ["/employees"],
+    "Food-And-Drinks": ["/orders", "/order-history"],
+    "Delivery-Tracking": ["/delivery-tracking"],
+  };
+
   useEffect(() => {
-    if (!localData?.result?._id) return;
-    setRole(localData?.result?.role?.toLowerCase());
+    const allRoutes = roleRouteMap[userRole] || [];
 
-    // Connect to socket
-    connectSocketIfDisconnected();
+    let allowedPaths = [];
+    if (permittedRoute && permittedRoute.length > 0) {
+      allowedPaths = permittedRoute
+        .map((permission) => permissionToRoutePaths[permission.label] || [])
+        .flat();
+    }
 
-    const handleConnect = () => {
-      console.log("Socket Connected");
-      socket.emit("userJoined", localData?.result?._id);
-      const heartbeatInterval = setInterval(() => {
-        socket.emit("heartbeat", localData?.result?._id);
-      }, 10000);
-      return () => {
-        clearInterval(heartbeatInterval);
+    const updatedRoutes = allRoutes.map((route) => {
+      if (!route.links) return route;
+      return {
+        ...route,
+        links: route.links.filter((link) => {
+          const isCommon = commonRoutes.some((r) => r.path === link.path);
+          if (!isCommon) return true;
+          return allowedPaths.includes(link.path);
+        }),
       };
-    };
+    });
 
-    socket.on("connect", handleConnect);
-
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.disconnect();
-    };
-  }, [localData?.result?._id]);
-
-  useEffect(() => {
-    setRoutes(getRoutes(role));
-  }, [role]);
-
-  const getRoutes = (role) => {
-    switch (role) {
-      case "waiter":
-        return waiterRoutes;
-      case "delivery boy":
-        return deliveryRoutes;
-      case "manager":
-        return managerRoutes;
-      case "chef":
-        return chefRoutes;
-      case "staff":
-        return staffRoutes;
-      case "bar tender":
-        return bartenderRoutes;
-      case "helper":
-        return helperRoutes;
-      case "custom":
-        return [];
-      default:
-        return [];
-    }
-  };
-
-  const getActiveRoute = (routes) => {
-    const defaultRoute = "Default Brand Text";
-    for (let i = 0; i < routes.length; i++) {
-      if (routes[i].collapse) {
-        const activeRoute = getActiveRoute(routes[i].items);
-        if (activeRoute !== defaultRoute) return activeRoute;
-      } else if (routes[i].links) {
-        const activeRoute = getActiveRoute(routes[i].links);
-        if (activeRoute !== defaultRoute) return activeRoute;
-      } else if (location.pathname === routes[i].layout + routes[i].path) {
-        return routes[i].name;
-      }
-    }
-    return defaultRoute;
-  };
-
-  const getActiveNavbar = (routes) => {
-    for (let i = 0; i < routes.length; i++) {
-      if (routes[i].collapse) {
-        const collapseNavbar = getActiveNavbar(routes[i].items);
-        if (collapseNavbar) return collapseNavbar;
-      } else if (routes[i].category) {
-        const categoryNavbar = getActiveNavbar(routes[i].items);
-        if (categoryNavbar) return categoryNavbar;
-      } else if (location.pathname === routes[i].layout + routes[i].path) {
-        return routes[i].secondary;
-      }
-    }
-    return false;
-  };
-
-  const getActiveNavbarText = (routes) => {
-    const defaultText = "Default Navbar Text";
-    for (let i = 0; i < routes.length; i++) {
-      if (routes[i].collapse) {
-        const collapseNavbarText = getActiveNavbarText(routes[i].items);
-        if (collapseNavbarText !== defaultText) return collapseNavbarText;
-      } else if (routes[i].category) {
-        const categoryNavbarText = getActiveNavbarText(routes[i].items);
-        if (categoryNavbarText !== defaultText) return categoryNavbarText;
-      } else if (location.pathname === routes[i].layout + routes[i].path) {
-        return routes[i].messageNavbar;
-      }
-    }
-    return defaultText;
-  };
-
+    setRoutes(updatedRoutes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userRole]);
   return (
-    <Flex bg="var(--primary-bg)" h="100%">
-      <Sidebar routes={routes} display="none" {...rest} />
+    <div className="flex bg-primary-bg min-h-screen h-full max-w-screen">
+      <EmployeeSidebar routes={routes} />
 
-      <Box
-        minHeight="100vh"
-        overflow="auto"
-        position="relative"
-        flex="1"
-        pb="80px"
-      >
-        <Navbar
-          onOpen={onOpen}
-          logoText={"Horizon UI Dashboard PRO"}
-          brandText={getActiveRoute(routes)}
-          secondary={getActiveNavbar(routes)}
-          message={getActiveNavbarText(routes)}
-          fixed={fixed}
-          {...rest}
-        />
-        <OrderAcceptModal isOpen={true} onClose={() => {}} order={{}} />
-
-        <Box mt="130px" p="20px">
-          <Outlet />
-        </Box>
-      </Box>
-
-      <SidebarRight />
-    </Flex>
+      <main className="flex-1 min-h-screen h-full flex transition-all duration-300 bg-white">
+        <Outlet />
+      </main>
+    </div>
   );
 }

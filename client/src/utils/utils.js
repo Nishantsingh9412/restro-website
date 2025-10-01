@@ -61,6 +61,31 @@ export const formatInputToISO = (dateString) => {
   return date.toISOString();
 };
 
+//Function to format date to normal readable form
+export const formatDateForUI = (dateString) => {
+  if (!dateString) return null;
+  const date = formatDateForInput(dateString);
+  return date?.split("-").reverse().join("-");
+};
+
+export const getMonthName = (monthIndex) => {
+  const monthNames = {
+    0: "Jan",
+    1: "Feb",
+    2: "Mar",
+    3: "Apr",
+    4: "May",
+    5: "Jun",
+    6: "Jul",
+    7: "Aug",
+    8: "Sep",
+    9: "Oct",
+    10: "Nov",
+    11: "Dec",
+  };
+  return monthNames[monthIndex];
+};
+
 // Utility to get nested values from form data
 export const getNestedValue = (obj, path) => {
   return path.split(".").reduce((prev, key) => prev?.[key], obj);

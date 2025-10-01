@@ -203,7 +203,8 @@ export const assignTakeAwayOrderToChef = async (req, res) => {
     await sendTakeawayOffer(chefId, order);
 
     const notification = await Notification.create({
-      sender: user.id,
+      sender: user.id, 
+      senderModel: "Admin",
       receiver: chefId,
       heading: "New Take Away Order Assigned",
       body: `You have been assigned a new take away order with Order ID: ${order.orderId}.`,
@@ -271,7 +272,8 @@ export const updateTakeAwayCurrentStatus = async (req, res) => {
 
     // create notification
     const notification = await Notification.create({
-      sender: user.id,
+      sender: user.id, 
+      senderModel: "Employee",
       receiver: user.created_by,
       heading: "Take-Away order status updated",
       body: `Your take-away order ${orderId} status has been changed to ${status} by ${user.name}`,

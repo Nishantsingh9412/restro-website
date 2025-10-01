@@ -1,21 +1,17 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Flex, Heading, Text, Spinner } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { getAllReceivedNotifications } from "../../../redux/action/notifications";
 import NotificationItem from "../../employees/components/NotificationCard";
 import { userTypes } from "../../../utils/constant";
+import { getAllNotifications } from "../../../redux/action/notificationSlice";
 
 export default function Notifications() {
   const dispatch = useDispatch();
-  const notifications = useSelector(
-    (state) => state.notificationReducer.notifications
-  );
+  const notifications = useSelector((state) => state.notificationReducer.data);
   const [loading, setLoading] = useState(true);
 
-  // Fetch notifications on component mount
   useEffect(() => {
     const fetchNotifications = async () => {
-      await dispatch(getAllReceivedNotifications(userTypes.EMPLOYEE));
+      await dispatch(getAllNotifications(userTypes.EMPLOYEE));
       setLoading(false);
     };
     fetchNotifications();
@@ -24,31 +20,39 @@ export default function Notifications() {
   const memoizedNotifications = useMemo(() => notifications, [notifications]);
 
   return (
-    <>
-      <Heading mt={20} mb={5} fontSize={20}>
+    <div>
+      {/* Heading */}
+      <h2
+        className="!mt-10 !mx-2 !text-2xl !font-semibold"
+        style={{ color: "#767680" }}
+      >
         Notifications
-      </Heading>
+      </h2>
+
+      {/* Loading */}
       {loading ? (
-        <Flex justifyContent="center" alignItems="center" mt={20}>
-          <Spinner size="xl" />
-        </Flex>
-      ) : memoizedNotifications.length === 0 ? (
-        <Text
-          p={3}
-          w={"fit-content"}
-          bg={"rgba(255, 255, 255, 0.5)"}
-          mx={"auto"}
-          my={20}
+        <div className="flex justify-center items-center mt-20">
+          <div className="w-12 h-12 !border-4 !border-gray-300 !border-t-[#767680] rounded-full animate-spin"></div>
+        </div>
+      ) : memoizedNotifications?.length === 0 ? (
+        // Empty State
+        <div
+          className="p-3 w-fit mx-auto my-20 rounded-lg text-center"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.5)",
+            color: "#767680",
+          }}
         >
           No notifications yet
-        </Text>
+        </div>
       ) : (
-        <Flex flexDirection={"column"} borderRadius={20} bg={"#fff"}>
-          {memoizedNotifications.map((noti, i) => (
+        // Notifications List
+        <div className="flex flex-col rounded-2xl bg-white shadow p-5">
+          {memoizedNotifications?.map((noti, i) => (
             <NotificationItem key={i} notification={noti} />
           ))}
-        </Flex>
+        </div>
       )}
-    </>
+    </div>
   );
 }

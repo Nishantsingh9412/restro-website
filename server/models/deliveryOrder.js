@@ -60,6 +60,10 @@ const DeliveryOrder = new Schema(
       enum: ["cash", "card", "online", "offline", "alreadyPaid", "masterCard"], // Allowed payment methods
       default: "cash", // Default payment method
     },
+    isPriority: {
+      type: Boolean,
+      default: false, // Default to non-priority
+    },
     deliveryMethod: {
       type: String,
       enum: ["pickup", "delivery"], // Allowed delivery methods

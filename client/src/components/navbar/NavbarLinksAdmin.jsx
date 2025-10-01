@@ -1,157 +1,77 @@
 // Chakra Imports
-import {
-  Avatar,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-  useColorModeValue,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../redux/action/auth.js";
+import { logoutUser } from "../../redux/action/authSlice.js";
 import RestaurantModal from "../restaurant/RestaurantModal.jsx";
-import { localStorageData } from "../../utils/constant.js";
+
 export default function HeaderLinks({ secondary }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    isOpen: isRestaurantModalOpen,
-    onOpen: onRestaurantModalOpen,
-    onClose: onRestaurantModalClose,
-  } = useDisclosure();
-
-  // Fetching local data from local storage and handling potential parsing errors
-  const localData = (() => {
-    try {
-      return JSON.parse(localStorage.getItem(localStorageData.PROFILE_DATA));
-    } catch (error) {
-      console.error("Failed to parse local storage data:", error);
-      return null;
-    }
-  })();
+  const [isRestaurantModalOpen, setRestaurantModalOpen] = useState(false);
 
   // Getting user data from the Redux store
   const singleUserData = useSelector((state) => state.userReducer.data);
 
-  // Chakra UI color mode values
-  const menuBg = useColorModeValue("white", "navy.800");
-  const borderColor = useColorModeValue("#E6ECFA", "rgba(135, 140, 189, 0.3)");
-  const shadow = useColorModeValue(
-    "14px 17px 40px 4px rgba(112, 144, 176, 0.18)",
-    "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
-  );
+  console.log("Single User Data:", singleUserData);
 
   // Handle user logout
   const handleLogout = () => {
+    console.log("cleidkced");
     dispatch(logoutUser());
-    console.log("Logged out");
     navigate("/");
   };
 
-  // Effect to handle user data fetching and token expiration
-  useEffect(() => {
-    if (localData) {
-      const token = localData?.token;
-      
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        // Logout if the token is expired
-        if (decodedToken.exp * 1000 < Date.now()) {
-          handleLogout();
-        }
-      }
-    } else {
-      // Redirect if localData is not available
-      navigate("/");
-    }
-  }, [dispatch, localData, navigate]); // Added localData to dependencies
-
   return (
     <>
-      <Flex
-        w={{ sm: "100%", md: "auto" }}
-        alignItems="center"
-        flexDirection="row"
-        flexWrap={secondary ? { base: "wrap", md: "nowrap" } : "unset"}
-        p="10px"
-        borderRadius="30px"
-        boxShadow={shadow}
+      <div
+        className={`flex items-center ${
+          secondary ? "flex-wrap md:flex-nowrap" : ""
+        } p-2 rounded-2xl shadow-md bg-white/90 dark:bg-navy-800`}
       >
         {/* User Menu */}
-        <Menu>
-          <MenuButton p="0px">
-            <Avatar
-              _hover={{ cursor: "pointer" }}
-              color="white"
-              name={singleUserData?.username || "User"}
-              bg="#11047A"
-              size="sm"
-              w="40px"
-              h="40px"
-            />
-          </MenuButton>
-          <MenuList
-            boxShadow={shadow}
-            p="0px"
-            mt="10px"
-            borderRadius="20px"
-            bg={menuBg}
-            border="none"
+        <div className="relative group">
+          <button
+            className="p-0 focus:outline-none"
+            onClick={() => setRestaurantModalOpen((v) => !v)}
           >
-            <Flex w="100%" mb="0px">
-              <Text
-                ps="20px"
-                pt="16px"
-                pb="10px"
-                w="100%"
-                borderBottom="1px solid"
-                borderColor={borderColor}
-                fontSize="sm"
-                fontWeight="700"
-                color={"black"}
-              >
-                👋&nbsp; Hey, {singleUserData?.username || "User"}
-              </Text>
-            </Flex>
-            <Flex flexDirection="column" p="10px">
+            <img
+              src={"https://ui-avatars.com/api/?name=User"}
+              alt="avatar"
+              className="w-10 h-10 rounded-full object-cover border-2 border-primary hover:shadow-lg transition"
+            />
+          </button>
+          {/* Dropdown menu */}
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-navy-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 hidden group-focus-within:block group-hover:block">
+            <div className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700 text-sm font-bold !text-gray-800 dark:text-white">
+              👋&nbsp; Hey, {singleUserData?.username || "User"}
+            </div>
+            <div className="flex flex-col p-2">
               {!singleUserData?.isVerified && (
-                <MenuItem
-                  _hover={{ bg: "none" }}
-                  _focus={{ bg: "none" }}
-                  color="blue.400"
-                  borderRadius="8px"
-                  px="14px"
-                  onClick={onRestaurantModalOpen}
+                <button
+                  className="text-blue-500 hover:bg-blue-50 dark:hover:bg-navy-700 rounded-md px-3 py-2 text-sm text-left"
+                  onClick={() => setRestaurantModalOpen(true)}
                 >
-                  <Text fontSize="sm">Verify Restaurant</Text>
-                </MenuItem>
+                  Verify Restaurant
+                </button>
               )}
-              <MenuItem
-                _hover={{ bg: "none" }}
-                _focus={{ bg: "none" }}
-                color="red.400"
-                borderRadius="8px"
-                px="14px"
+              <button
+                className="text-red-500 hover:bg-red-50 dark:hover:bg-navy-700 rounded-md px-3 py-2 text-sm text-left"
                 onClick={handleLogout}
               >
-                <Text fontSize="sm">Log out</Text>
-              </MenuItem>
-            </Flex>
-          </MenuList>
-        </Menu>
-      </Flex>
-      {/* // Restaurant Modal */}
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Restaurant Modal */}
       {isRestaurantModalOpen && (
         <RestaurantModal
           isOpen={isRestaurantModalOpen}
-          onClose={onRestaurantModalClose}
+          onClose={() => setRestaurantModalOpen(false)}
           onSubmit={(data) => console.log(data)}
         />
       )}
@@ -159,7 +79,6 @@ export default function HeaderLinks({ secondary }) {
   );
 }
 
-// PropTypes validation
 HeaderLinks.propTypes = {
   secondary: PropTypes.bool,
 };

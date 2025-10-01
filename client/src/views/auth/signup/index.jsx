@@ -1,341 +1,148 @@
-import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Icon,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import DefaultAuth from "../../../layouts/auth/Default";
-import illustration from "../../../assets/img/auth/login-img.png";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
-import { RiEyeCloseLine } from "react-icons/ri";
-import { useDispatch } from "react-redux";
-import { signUpAdmin } from "../../../redux/action/auth.js";
-import { useToast } from "../../../contexts/useToast.jsx";
-import { localStorageData } from "../../../utils/constant.js";
+import { NavLink } from "react-router-dom";
+import { authTypes } from "../../../utils/constant";
+import authImage from "../../../assets/img/auth/auth-image.png";
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { useAuthActions } from "../../../hooks/useAuthActions";
+import { Input } from "../../../components/common/InputField";
+import PrimaryActionButton from "../../../components/UI/PrimaryActionButton";
 
-function SignUp() {
-  // Chakra color mode
-  const textColor = useColorModeValue("navy.700", "white");
-  const textColorSecondary = "gray.400";
-  const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
-  const textColorBrand = useColorModeValue("blue", "white");
-  const brandStars = useColorModeValue("brand.500", "brand.400");
-
-  // State variables
-  const [show, setShow] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [profilePicture, setProfilePicture] = useState(undefined);
-  const [loading, setLoading] = useState(false);
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const showToast = useToast();
-
-  // Check if user is already logged in
-  useEffect(() => {
-    const user = JSON.parse(
-      localStorage.getItem(localStorageData.PROFILE_DATA)
-    );
-    if (user) {
-      navigate("/admin/dashboards/default");
-    }
-  }, [navigate]);
-
-  // Toggle password visibility
-  const handleClick = () => setShow(!show);
-
-  // Auto-fill form for testing
-  const AutoAddValuestesting = () => {
-    const uniqueNumber = Math.floor(Math.random() * 1000);
-    setName(`John Doe ${uniqueNumber}`);
-    setEmail(`johndoe${uniqueNumber}@example.com`);
-    setPassword("111111");
-    setConfirmPassword("111111");
-  };
-
-  // Form validation
-  const validate = () => {
-    if (!name) {
-      showToast("Please Enter Your Name");
-      return false;
-    } else if (name.length < 3 || name.length > 20) {
-      showToast("Name should be between 3 and 20 characters long");
-      return false;
-    } else if (!email) {
-      showToast("Please Enter Your Email");
-      return false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showToast("Please enter a valid email");
-      return false;
-    } else if (!password) {
-      showToast("Please Enter your Password");
-      return false;
-    } else if (password.length < 6 || password.length > 20) {
-      showToast("Password should be between 6 and 20 characters long");
-      return false;
-    } else if (!confirmPassword) {
-      showToast("Please Confirm Your Password");
-      return false;
-    } else if (password !== confirmPassword) {
-      showToast("Passwords do not match");
-      return false;
-    } else if (
-      profilePicture &&
-      !["image/jpeg", "image/png", "image/jpg"].includes(profilePicture.type)
-    ) {
-      showToast("Please upload a valid image file");
-      return false;
-    } else if (profilePicture && profilePicture.size > 2000000) {
-      showToast("Image size should be less than 2MB");
-      return false;
-    }
-    return true;
-  };
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    if (!validate()) {
-      setLoading(false);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("password", password);
-    if (profilePicture) {
-      formData.append("profile_picture", profilePicture);
-    }
-
-    dispatch(signUpAdmin(formData)).then((res) => {
-      setLoading(false);
-      if (!res.payload.success) {
-        // showToast(res.payload);
-        showToast(res.payload, "error");
-      } else {
-        navigate("/admin/dashboards/default");
-      }
-    });
-  };
+export default function SignUp() {
+  const {
+    show,
+    errors,
+    loading,
+    register,
+    onSubmit,
+    toggleShow,
+    handleSubmit,
+    autoFillForm,
+    setValue,
+  } = useAuthActions({ type: authTypes.SIGN_UP });
 
   return (
-    <DefaultAuth illustrationBackground={illustration} image={illustration}>
-      <ToastContainer />
-      <Flex
-        maxW={{ base: "100%", md: "max-content" }}
-        w="100%"
-        mx={{ base: "auto", lg: "0px" }}
-        me="auto"
-        h="100%"
-        alignItems="start"
-        justifyContent="center"
-        mb={{ base: "30px", md: "60px" }}
-        px={{ base: "25px", md: "0px" }}
-        mt={{ base: "40px", md: "14vh" }}
-        flexDirection="column"
-      >
-        <Box me="auto">
-          <Heading color={textColor} fontSize="36px" mb="20px">
-            Sign Up
-          </Heading>
-          <Button onClick={AutoAddValuestesting}>Auto Add Values</Button>
-        </Box>
-        <Flex
-          zIndex="2"
-          direction="column"
-          w={{ base: "100%", md: "420px" }}
-          maxW="100%"
-          background="transparent"
-          borderRadius="15px"
-          mx={{ base: "auto", lg: "unset" }}
-          me="auto"
-          mb={{ base: "20px", md: "auto" }}
-        >
-          <form onSubmit={handleSubmit} encType="multipart/form-data">
-            <FormControl>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                mb="8px"
-              >
-                Name<Text color={brandStars}>*</Text>
-              </FormLabel>
-              <Input
-                isRequired
-                variant="auth"
-                fontSize="sm"
-                type="text"
-                placeholder="Your Name"
-                mb="24px"
-                fontWeight="500"
-                size="lg"
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-              />
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                mb="8px"
-              >
-                Email<Text color={brandStars}>*</Text>
-              </FormLabel>
-              <Input
-                isRequired
-                variant="auth"
-                fontSize="sm"
-                type="email"
-                placeholder="mail@example.com"
-                mb="24px"
-                fontWeight="500"
-                size="lg"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <FormLabel
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                display="flex"
-              >
-                Password<Text color={brandStars}>*</Text>
-              </FormLabel>
-              <InputGroup size="md">
-                <Input
-                  isRequired
-                  fontSize="sm"
-                  placeholder="please enter password"
-                  mb="24px"
-                  size="lg"
-                  type={show ? "text" : "password"}
-                  variant="auth"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <InputRightElement display="flex" alignItems="center" mt="4px">
-                  <Icon
-                    color={textColorSecondary}
-                    _hover={{ cursor: "pointer" }}
-                    as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-                    onClick={handleClick}
-                  />
-                </InputRightElement>
-              </InputGroup>
-              <FormLabel
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                display="flex"
-              >
-                Confirm Password<Text color={brandStars}>*</Text>
-              </FormLabel>
-              <InputGroup size="md">
-                <Input
-                  isRequired
-                  fontSize="sm"
-                  placeholder="Confirm your password"
-                  mb="24px"
-                  size="lg"
-                  type="password"
-                  variant="auth"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </InputGroup>
-              <FormLabel
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                color={textColor}
-                display="flex"
-              >
-                Profile Picture
-              </FormLabel>
-              <Input
-                variant="auth"
-                fontSize="sm"
-                type="file"
-                mb="24px"
-                fontWeight="500"
-                size="lg"
-                onChange={(e) => setProfilePicture(e.target.files[0])}
-              />
-              <Flex justifyContent="end" align="center" mb="24px">
-                <NavLink to="/auth/forgot-password">
-                  <Text
-                    color={textColorBrand}
-                    fontSize="sm"
-                    w="124px"
-                    fontWeight="500"
-                  >
-                    Forgot password?
-                  </Text>
-                </NavLink>
-              </Flex>
-              <Button
-                type="submit"
-                fontSize="sm"
-                colorScheme="blue"
-                fontWeight="500"
-                w="100%"
-                h="50"
-                mb="24px"
-                isLoading={loading}
-              >
-                Sign Up
-              </Button>
-            </FormControl>
-          </form>
-          <Flex
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="start"
-            paddingBottom={"4rem"}
-            maxW="100%"
-            mt="0px"
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 mx-auto max-w-5xl gap-10">
+      {/* Form section */}
+      <div className="w-full md:w-1/2 p-8 space-y-8 flex flex-col justify-center !border !border-primary rounded-xl bg-white shadow-lg">
+        <div>
+          <h2 className="text-center !text-2xl !font-bold text-primary mb-2">
+            Create Account
+          </h2>
+          <p className="text-gray-500 text-center mb-6">
+            Join us and manage your restaurant efficiently!
+          </p>
+          <button
+            type="button"
+            onClick={autoFillForm}
+            className="text-xs text-blue-500 underline mb-4 ml-auto"
           >
-            <Text color={textColorDetails} fontWeight="400" fontSize="14px">
-              Not registered yet?
-              <NavLink to="/">
-                <Text
-                  color={textColorBrand}
-                  as="span"
-                  ms="5px"
-                  fontWeight="500"
-                >
-                  Sign In
-                </Text>
-              </NavLink>
-            </Text>
-          </Flex>
-        </Flex>
-      </Flex>
-    </DefaultAuth>
+            Auto Fill Test Data
+          </button>
+        </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          encType="multipart/form-data"
+          className="space-y-5"
+        >
+          <Input
+            {...register("name")}
+            type="text"
+            label="Name"
+            required
+            placeholder="Your Name"
+            className="w-full"
+          />
+          {errors.name && (
+            <p className="text-red-600 text-xs mt-1">{errors.name.message}</p>
+          )}
+          <Input
+            {...register("email")}
+            type="email"
+            label="Email"
+            required
+            placeholder="mail@example.com"
+            className="w-full"
+          />
+          {errors.email && (
+            <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>
+          )}
+          <div className="relative">
+            <Input
+              {...register("password")}
+              type={show ? "text" : "password"}
+              label="Password"
+              required
+              placeholder="Enter password"
+              className="w-full"
+            />
+            <button
+              type="button"
+              onClick={toggleShow}
+              className="absolute inset-y-0 right-0 !pr-3 flex items-center !text-gray-500 text-xs cursor-pointer"
+              tabIndex={-1}
+            >
+              {show ? <IoEyeOff /> : <IoEye />}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-red-600 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
+          <Input
+            {...register("confirmPassword")}
+            type="password"
+            label="Confirm Password"
+            required
+            placeholder="Confirm your password"
+            className="w-full"
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-600 text-xs mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Profile Picture
+            </label>
+            <input
+              type="file"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              onChange={(e) => setValue("profilePicture", e.target.files[0])}
+            />
+          </div>
+          <div className="flex justify-end">
+            <NavLink
+              to="/auth/forgot-password"
+              className="text-xs text-primary hover:underline"
+            >
+              Forgot password?
+            </NavLink>
+          </div>
+          <PrimaryActionButton
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 rounded-lg shadow-sm text-sm font-semibold transition-all duration-150"
+          >
+            {loading ? "Signing up..." : "Sign Up"}
+          </PrimaryActionButton>
+        </form>
+        <div className="mt-6 text-sm text-gray-600 text-center">
+          Already have an account?{" "}
+          <NavLink to="/" className="text-primary font-medium hover:underline">
+            Sign In
+          </NavLink>
+        </div>
+      </div>
+      {/* Side image for large screens */}
+      <div className="hidden md:block md:w-1/2 relative">
+        <img
+          src={authImage}
+          alt="Sign Up Visual"
+          className="object-cover w-full h-full opacity-90"
+          loading="lazy"
+        />
+      </div>
+    </div>
   );
 }
-
-export default SignUp;

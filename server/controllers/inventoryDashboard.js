@@ -203,7 +203,7 @@ export const fetchInventoryData = async (userId) => {
 
   const inventoryItems = await InventoryItems.find(
     { created_by: userId },
-    "itemName availableQuantity"
+    "itemName availableQuantity itemUnit"
   );
 
   // Use aggregation pipeline to unwind actionHistory and sort by timestamp desc

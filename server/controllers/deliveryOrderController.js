@@ -77,6 +77,7 @@ export const createDeliveryOrder = async (req, res) => {
       phoneNumber,
       paymentMethod,
       deliveryMethod,
+      isPriority,
       dropLocation,
       dropLocationName,
       address,
@@ -116,6 +117,7 @@ export const createDeliveryOrder = async (req, res) => {
       phoneNumber,
       paymentMethod,
       deliveryMethod,
+      isPriority,
       dropLocation,
       dropLocationName,
       pickupLocation,
@@ -243,6 +245,7 @@ export const allotOrderDelivery = async (req, res) => {
       ]
         .filter(Boolean)
         .join(", "),
+      isPriority: delOrder?.isPriority || false,
       distance: routeInfo?.distance,
       estimatedTime: routeInfo?.duration,
       customerName: delOrder.customerName,
@@ -259,6 +262,7 @@ export const allotOrderDelivery = async (req, res) => {
       await sendDeliveryOffer(deliveryBoyId, delivery);
       const noti = await Notification.create({
         sender: supplier,
+        senderModel: "Admin",
         receiver: deliveryBoyId,
         heading: "Delivery Task Received",
         body: `You have received a delivery task for order ${orderId}`,
@@ -315,6 +319,7 @@ export const updateDeliveryOrder = async (req, res) => {
     city,
     state,
     zip,
+    isPriority,
     noteFromCustomer,
     orderItems,
     totalPrice,
@@ -330,6 +335,7 @@ export const updateDeliveryOrder = async (req, res) => {
         phoneNumber,
         paymentMethod,
         deliveryMethod,
+        isPriority,
         address,
         city,
         state,
@@ -444,7 +450,12 @@ const getSortedDeliveryBoys = async (
       status: "AVAILABLE",
     });
     if (availableDeliveryBoys.length === 0) {
-      throw new Error("Delivery boys not available");
+      // throw new Error("Delivery boys not available");
+      return {
+        success: true,
+        message: "No delivery boys available",
+        result: [],
+      };
     }
 
     const deliveryBoyDistances = await Promise.all(
@@ -625,6 +636,7 @@ export const acceptDeliveryOrder = async (orderId, delBoy, supplierId) => {
       console.log("Delivery created successfully");
       const noti = await Notification.create({
         sender: supplier,
+        senderModel: "Employee",
         receiver: delEmpId,
         heading: "Delivery Task Received",
         body: `You have received a delivery task for order ${orderId}`,

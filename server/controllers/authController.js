@@ -146,9 +146,10 @@ export const loginEmployeeController = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
+    console.log(admin);
     const employee = await Employee.findOne({
       phone,
-      created_by: admin,
+      created_by: admin._id,
     });
     if (!employee) {
       return res

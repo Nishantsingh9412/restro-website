@@ -271,6 +271,7 @@ export const actionsOnDelivery = async (req, res) => {
 
       const noti = await notification.create({
         sender: userId,
+        senderModel: "Employee",
         receiver: acceptedDeliveryItem.created_by,
         heading: "Order delivery accepted",
         body: `Your delivery order ${acceptedDeliveryItem.orderId} has been accepted by ${delPer.name}`,
@@ -285,6 +286,7 @@ export const actionsOnDelivery = async (req, res) => {
     } else {
       const noti = await notification.create({
         sender: userId,
+        senderModel: "Employee",
         receiver: deliveryItem._id,
         heading: "Order delivery rejected",
         body: `Your delivery order ${deliveryItem.orderId} has been rejected by ${delPer.name}`,
@@ -376,6 +378,7 @@ export const updateDeliveryStatus = async (req, res) => {
 
     const noti = await notification.create({
       sender: userId,
+      senderModel: "Employee",
       receiver: updatedDeliveryItem.created_by,
       heading: "Order delivery status update",
       body: `Your delivery order ${updatedDeliveryItem.orderId} status has been changed to ${updatedDeliveryItem.currentStatus} by ${delPer.name}`,

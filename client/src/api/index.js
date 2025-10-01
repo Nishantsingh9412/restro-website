@@ -53,11 +53,11 @@ API.interceptors.response.use(
 export default API;
 // Authentication APIs
 // Signup
-export const signUpAPI = (newUser) => API.post("/auth/signup", newUser);
+export const signUpAdminAPI = (newUser) => API.post("/auth/signup", newUser);
 // Login
-export const loginAPI = (userData) => API.post("/auth/login", userData);
+export const logInAdminAPI = (userData) => API.post("/auth/login", userData);
 // Login for Delivery Boy
-export const loginEmployee = (userData) =>
+export const loginEmployeeAPI = (userData) =>
   API.post("/auth/login-employee", userData);
 
 // Admin APIs
@@ -85,6 +85,9 @@ export const getEmployeeShifts = () => API.get(`/common/get-all-shifts`);
 // Update Employee Profile Pic
 export const updateEmployeeProfilePic = (updatedData) =>
   API.patch(`/common/update-profile-pic`, updatedData);
+// Update Employee Profile Details
+export const updateEmployeeProfileDetails = (updatedData) =>
+  API.patch(`/common/update-profile-details`, updatedData);
 // Update Employee Availability Status
 export const updateEmployeeOnlineStatus = (updatedData) =>
   API.put(`/common/update-online-status`, updatedData);
@@ -112,13 +115,10 @@ export const deleteInventoryItem = (id) =>
 // Use Item
 export const reduceInventoryItem = (id, updatedData) =>
   API.patch(`/inventory/use-item/${id}`, updatedData);
-// Stocks Management APIs
-// Get All Stocks
-export const getAllStocks = (localstorageId) =>
-  API.get(`/stock-management/get-all-stocks/${localstorageId}`);
-// Get Low Stocks
-export const getLowStocks = (localstorageId) =>
-  API.get(`/stock-management/get-low-stocks/${localstorageId}`);
+
+// Stocks APIs
+// Get Stocks Summary
+export const getStockSummary = () => API.get("/stock/get-stock-summary");
 
 // Supplier Management APIs
 // Add new Supplier
@@ -133,10 +133,10 @@ export const getSupplierContactsAPI = () =>
 export const getSingleSupplier = (id) =>
   API.get(`/supplier/get-supplier-single/${id}`);
 // Update Supplier
-export const UpdateSupplier = (id, updatedData) =>
+export const updateSupplier = (id, updatedData) =>
   API.patch(`/supplier/update-supplier/${id}`, updatedData);
 // Delete Supplier
-export const DeleteSupplier = (id) =>
+export const deleteSupplier = (id) =>
   API.delete(`/supplier/delete-supplier/${id}`);
 
 // Orders Management APIs
@@ -243,6 +243,11 @@ export const sendDeliveryOfferAPI = ({ id, deliveryBoyIds }) =>
     deliveryBoyIds,
   });
 
+// Generate Location Link
+export const generateLocationLink = (orderData) => {
+  API.post("/track/generate-token", orderData);
+};
+
 // Get Delivery Employees
 export const getDeliveryBoys = (orderId) =>
   API.get(`/delivery-order/get-delivery-employees/${orderId}`);
@@ -264,12 +269,12 @@ export const updateSingleDineInOrderAPI = (id, updatedData) =>
 export const deleteSingleDineInOrderAPI = (id) =>
   API.delete(`/dine-in-order/delete/${id}`);
 // Allot Dine-In Order to Waiter
-export const allotDineInOrderToWaiter = (orderId, waiterId) =>
+export const allotDineInOrderToWaiterAPI = (orderId, waiterId) =>
   API.post(`/dine-in/assign-to-waiter/${orderId}`, {
     waiterId: waiterId,
   });
 // Allot Dine-In Order to Chef
-export const allotDineInOrderToChef = (orderId, chefId) =>
+export const allotDineInOrderToChefAPI = (orderId, chefId) =>
   API.post(`/dine-in/assign-to-chef/${orderId}`, {
     chefId: chefId,
   });
@@ -296,7 +301,7 @@ export const deleteSingleTakeAwayOrderAPI = (id) =>
   API.delete(`/take-away/delete/${id}`);
 
 // Allot Take-Away Order to Chef
-export const allotTakeAwayOrderToChef = (orderId, chefId) =>
+export const allotTakeAwayOrderToChefAPI = (orderId, chefId) =>
   API.post(`/take-away/assign-to-chef/${orderId}`, {
     chefId: chefId,
   });
@@ -325,15 +330,14 @@ export const updateTaskAPI = (taskId, updatedData) =>
 
 // Employee Data APIs
 // Get Absent Data
-export const getAbsentdata = (employeeId) =>
-  API.get(`/absence/get-todays-leave/${employeeId}`);
+export const getTodayAbsentDataAPI = () => API.get(`/absence/get-todays-leave`);
 // Get Employee Shift Data
-export const getemployeshiftdata = () => API.get("/shift/get-todays-shift");
+export const getEmployeeShiftDataAPI = () => API.get("/shift/get-todays-shift");
 // Get Today's Employee Birthday Data
-export const getbirthdayapidata = () =>
+export const getBirthdayDataAPI = () =>
   API.get("/employee/get-todays-employee-birthday");
 // Get Upcoming Employee Birthday Data
-export const getupcomingbirthdayapidata = () =>
+export const getUpcomingBirthdayAPI = () =>
   API.get("/employee/get-upcoming-employee-birthday");
 // Get Employee Data
 export const getEmployeeAPI = () => API.get(`/employee/get-all-employee`);

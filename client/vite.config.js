@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,5 +25,5 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 500, // Optional: Reduce warning threshold
   },
-  plugins: [react(), visualizer({ open: true })],
+  plugins: [tailwindcss(), react(), visualizer({ open: true })],
 });

@@ -1,0 +1,66 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Track Delivery Order</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+html, body, #map { height:100%; margin:0 }
+.info { position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.9); padding:8px; border-radius:8px; z-index:1000;}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="info" id="info">Connecting…</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const token = window.location.pathname.split('/').pop();
+const socket = io('/track', { query: { token } });
+console.log(socket);
+let marker = null;
+// Center map to Cologne (Köln), Germany by default
+const map = L.map('map').setView([50.9375, 6.9603], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom:19 }).addTo(map);
+
+const coord = {
+  lat: 50.9375,
+  lng: 6.9603
+}
+
+const navSVG = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -32 32 64" width="48" height="48" class="nav-icon">
+  <path d="M0 -24 L12 12 L4 8 L0 4 L-4 8 L-12 12 Z" fill="#1e88e5" stroke="#0d47a1" stroke-width="1.5" />
+  <circle cx="0" cy="18" r="4" fill="#0d47a1"/>
+</svg>
+`;
+
+const riderIcon = L.icon({
+  iconUrl: 'data:image/svg+xml;utf8,' + encodeURIComponent(navSVG),
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+  className: '' // optional custom class
+});
+
+socket.on('connect', () => { document.getElementById('info').innerText = 'Connected'; });
+socket.on('connect_error', () => { document.getElementById('info').innerText = 'Connection error'; });
+socket.on('location', data => {
+  console.log(data)
+  if (!data.lat || !data.lng) return;
+  const { lat, lng, updatedAt } = data;
+  if (!marker) {   
+    marker = L.marker([lat, lng], { icon: riderIcon }).addTo(map);
+    map.setView([lat, lng], 15);
+  }
+  else { 
+    marker.setLatLng([lat,lng]); 
+    marker.setIcon(riderIcon)
+  }
+  document.getElementById('info').innerText = `Last updated: ${new Date(updatedAt).toLocaleTimeString()}`;
+});
+</script>
+</body>
+</html>

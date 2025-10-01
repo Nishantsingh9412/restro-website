@@ -13,8 +13,8 @@ import {
 import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import EmployeeNavbarLinks from "./EmployeeNabvarLinks";
-import { SidebarResponsive } from "../../components/sidebar/Sidebar";
-import routes from "../../routes";
+// import { SidebarResponsive } from "../../components/sidebar/Sidebar";
+// import routes from "../../routes";
 
 export default function EmployeeNavbar(props) {
   const [scrolled, setScrolled] = useState(false);
@@ -37,7 +37,7 @@ export default function EmployeeNavbar(props) {
   // Define styles based on color mode and state
   const mainText = useColorModeValue("white", "white");
   const secondaryText = useColorModeValue("gray.200", "white");
-  const navbarBg = useColorModeValue("var(--primary)", "rgba(11,20,55,0.5)");
+  const navbarBg = useColorModeValue("blue", "rgba(11,20,55,0.5)");
 
   return (
     <Box
@@ -83,7 +83,7 @@ export default function EmployeeNavbar(props) {
             <Text>Employee Name</Text>
           </Box>
         </Flex>
-        <SidebarResponsive routes={routes} />
+        {/* <SidebarResponsive routes={routes} /> */}
       </Flex>
 
       {/* Desktop view: Breadcrumb and Navbar Links */}

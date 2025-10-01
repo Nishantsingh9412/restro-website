@@ -1,18 +1,4 @@
-import React from "react";
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Box,
-  Heading,
-  Text,
-  Badge,
-} from "@chakra-ui/react";
-
-// ShiftTable component to display shift data in a table format
+import PropTypes from "prop-types";
 const ShiftTable = ({ shiftData, header }) => {
   // Function to convert time to a readable format
   const convertTime = (time) => {
@@ -35,63 +21,85 @@ const ShiftTable = ({ shiftData, header }) => {
   };
 
   return (
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      p={6}
-      boxShadow="lg"
-      my={10}
-    >
-      <Heading size="lg" mb={6} textAlign="left" color="teal.500">
+    <div className="!border !border-gray-300 rounded-lg overflow-hidden p-4 shadow-lg my-10 bg-white">
+      {/* Header */}
+      <h2 className="!text-2xl !font-bold !mb-2 text-left text-[#767680]">
         {header}
-      </Heading>
-      <Table variant="simple" colorScheme="blue">
-        <Thead bg="blue.100">
-          <Tr>
-            <Th>Date</Th>
-            <Th>Hours</Th>
-            <Th>Shift Start</Th>
-            <Th>Shift End</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {shiftData && shiftData.length > 0 ? (
-            shiftData.map((shift, index) => (
-              <Tr key={index} _hover={{ bg: "blue.50" }}>
-                <Td>
-                  <Text fontWeight="bold">
+      </h2>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse">
+          {/* Table Head */}
+          <thead className="bg-[#767680]/20">
+            <tr>
+              <th className="px-4 py-2 text-left font-semibold text-[#767680]">
+                Date
+              </th>
+              <th className="px-4 py-2 text-left font-semibold text-[#767680]">
+                Hours
+              </th>
+              <th className="px-4 py-2 text-left font-semibold text-[#767680]">
+                Shift Start
+              </th>
+              <th className="px-4 py-2 text-left font-semibold text-[#767680]">
+                Shift End
+              </th>
+              <th className="px-4 py-2 text-left font-semibold text-[#767680]">
+                Actions
+              </th>
+            </tr>
+          </thead>
+
+          {/* Table Body */}
+          <tbody>
+            {shiftData && shiftData.length > 0 ? (
+              shiftData.map((shift, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-[#767680]/10 transition-colors"
+                >
+                  <td className="px-4 py-2 font-bold text-gray-800">
                     {shift?.date ? convertDate(shift.date) : "N/A"}
-                  </Text>
-                </Td>
-                <Td>
-                  <Badge colorScheme="blue">{shift.duration || "N/A"}</Badge>
-                </Td>
-                <Td>{shift?.from ? convertTime(shift.from) : "N/A"}</Td>
-                <Td>{shift?.to ? convertTime(shift.to) : "N/A"}</Td>
-                <Td>
-                  <Badge
-                    colorScheme="green"
-                    onClick={() => console.log("clicked")}
-                    cursor="pointer"
-                  >
-                    View
-                  </Badge>
-                </Td>
-              </Tr>
-            ))
-          ) : (
-            <Tr>
-              <Td colSpan="5" textAlign="center">
-                No shift available
-              </Td>
-            </Tr>
-          )}
-        </Tbody>
-      </Table>
-    </Box>
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className="px-3 py-1 rounded-full bg-[#767680]/20 text-[#767680] text-sm font-semibold">
+                      {shift.duration || "N/A"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    {shift?.from ? convertTime(shift.from) : "N/A"}
+                  </td>
+                  <td className="px-4 py-2">
+                    {shift?.to ? convertTime(shift.to) : "N/A"}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span
+                      onClick={() => console.log("clicked")}
+                      className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold cursor-pointer hover:bg-green-200 transition-colors"
+                    >
+                      View
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="px-4 py-4 text-center text-gray-500">
+                  No shift available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
+};
+
+ShiftTable.propTypes = {
+  shiftData: PropTypes.object,
+  header: PropTypes.string,
 };
 
 export default ShiftTable;

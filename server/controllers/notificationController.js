@@ -1,40 +1,6 @@
 import mongoose from "mongoose";
 import Notification from "../models/notification.js";
 
-// Get notifications by user ID
-export const getNotificationByEmployee = async (req, res) => {
-  const id = req.user.id;
-  try {
-    // Validate user ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid User ID" });
-    }
-    // Fetch notifications for the user
-    const notifications = await Notification.find({ receiver: id }).sort({
-      createdAt: -1,
-    });
-    if (!notifications.length) {
-      return res.status(200).json({
-        success: false,
-        message: "No notifications found for this user",
-      });
-    }
-    // Return notifications
-    return res.status(200).json({
-      success: true,
-      message: "Notifications retrieved",
-      result: notifications,
-    });
-  } catch (err) {
-    console.error("Error from getNotificationByUser Controller:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-};
-
 // Get all notifications
 export const getAllNotifications = async (req, res) => {
   try {
@@ -59,6 +25,42 @@ export const getAllNotifications = async (req, res) => {
   }
 };
 
+// Get notifications by user ID
+export const getNotificationByEmployee = async (req, res) => {
+  const id = req.user.id;
+  try {
+    // Validate user ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid User ID" });
+    }
+    // Fetch notifications for the user
+    const notifications = await Notification.find({ receiver: id })
+      .populate("sender.email")
+      .sort({
+        createdAt: -1,
+      });
+    if (!notifications.length) {
+      return res.status(200).json({
+        success: false,
+        message: "No notifications found for this user",
+      });
+    }
+    // Return notifications
+    return res.status(200).json({
+      success: true,
+      message: "Notifications retrieved",
+      result: notifications,
+    });
+  } catch (err) {
+    console.error("Error from getNotificationByUser Controller:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 export const getNotificationByAdmin = async (req, res) => {
   const id = req.user.id;
   try {
@@ -69,9 +71,14 @@ export const getNotificationByAdmin = async (req, res) => {
         .json({ success: false, message: "Invalid Admin ID" });
     }
     // Fetch notifications for the admin
-    const notifications = await Notification.find({ receiver: id }).sort({
-      createdAt: -1,
-    });
+    const notifications = await Notification.find({ receiver: id })
+      .populate({
+        path: "sender",
+        select: "name email role", // 👈 this is how you pick fields
+      })
+      .sort({
+        createdAt: -1,
+      });
     if (!notifications.length) {
       return res.status(200).json({
         success: false,

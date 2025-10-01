@@ -25,14 +25,14 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../redux/action/auth.js";
+import { logoutUser } from "../../redux/action/authSlice.js";
 import {
   updateEmployeeOnlineStatus,
   clearError,
   updateOdometerReading,
 } from "../../redux/action/Employees/employee.js";
 import { socket } from "../../api/socket";
-import { clearEmpData } from "../../redux/action/user.js";
+import { clearEmpData } from "../../redux/action/userSlice.js";
 import PropTypes from "prop-types";
 import { employeesRoles, localStorageData } from "../../utils/constant.js";
 import { setCurrentLocation } from "../../redux/action/location.js";

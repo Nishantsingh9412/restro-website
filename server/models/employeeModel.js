@@ -136,6 +136,14 @@ const employeeSchema = new Schema(
       default:
         "https://res.cloudinary.com/dezifvepx/image/upload/v1712570097/restro-website/dtqy5kkrwuuhamtp9gim.png",
     },
+    experience: {
+      type: String,
+      trim: true,
+    },
+    bio: {
+      type: String,
+      trim: true,
+    },
     notes: {
       type: String,
       trim: true,

@@ -1,39 +1,47 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { lazy, Suspense } from "react";
-import ReactDOM from "react-dom/client";
-import "./assets/css/App.css";
+import "./styles.css";
 import "./assets/css/toast.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react";
-import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
-import { Provider } from "react-redux";
-import { ToastContainer } from "react-toastify";
-import theme from "./theme/theme";
 import store from "./redux/store";
-import SocketInitializer from "./contexts/SocketInitialiser";
+import { Provider } from "react-redux";
+import ReactDOM from "react-dom/client";
+import React, { lazy, Suspense } from "react";
 import { ToastProvider } from "./contexts/ToastContext";
+import { SidebarProvider } from "./contexts/SidebarContext";
+import AppInitializer from "./initializer/AppInitializer";
+import SocketInitializer from "./contexts/SocketInitialiser";
+import NotFoundPage from "./components/NotFoundPage/NotFound";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+//TODO:Will Be removed
+import theme from "./theme/theme";
+import { ToastContainer } from "react-toastify";
+import { ChakraProvider } from "@chakra-ui/react";
+// import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
 
 // Lazy load heavy components
+const SignUp = lazy(() => import("./views/auth/signup"));
+const SignIn = lazy(() => import("./views/auth/signIn"));
 const AdminLayout = lazy(() => import("./layouts/admin"));
 const EmployeeLayout = lazy(() => import("./layouts/employee"));
-const SignIn = lazy(() => import("./views/auth/signIn"));
-const SignUp = lazy(() => import("./views/auth/signup"));
 const ForgotPassword = lazy(() => import("./views/auth/forgotPassword"));
+const AdminNotifications = lazy(() =>
+  import("./views/admin/default/notification")
+);
 
-// adminRoutes,
-import adminRoutes, {
-  staffRoutes,
-  deliveryRoutes,
-  waiterRoutes,
-  managerRoutes,
-  helperRoutes,
-  bartenderRoutes,
+import {
+  adminRoutes,
   chefRoutes,
+  staffRoutes,
+  waiterRoutes,
+  helperRoutes,
+  managerRoutes,
+  deliveryRoutes,
+  bartenderRoutes,
 } from "./routes";
-import NotFound from "./components/NotFoundPage/NotFound";
+import ProfilePage from "./views/employees/components/ProfileScreen";
+import DocumentsScreen from "./views/employees/components/DocumentScreen";
+import LandingPageScreen from "./LandingPage";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-
+// Render routes dynamically
 const renderRoutes = (routes) =>
   routes.map((route, index) =>
     route.links
@@ -55,41 +63,55 @@ const renderRoutes = (routes) =>
         )
   );
 
-root.render(
+// Root of the app
+ReactDOM.createRoot(document.getElementById("root")).render(
   <ChakraProvider theme={theme}>
     <Provider store={store}>
       <React.StrictMode>
-        <ToastProvider>
-          <SocketInitializer />
-          <ThemeEditorProvider>
+        <SocketInitializer />
+        <SidebarProvider>
+          <ToastProvider>
+            {/* <ThemeEditorProvider> */}
             <Router>
+              <AppInitializer />
               <Suspense fallback={null}>
                 <Routes>
-                  <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={<NotFoundPage />} />
                   <Route path="/" element={<SignIn />} />
                   <Route path="/auth/sign-up" element={<SignUp />} />
                   <Route
                     path="/auth/forgot-password"
                     element={<ForgotPassword />}
                   />
+                  <Route path="/landing-page" element={<LandingPageScreen />} />
                   <Route path="/admin/*" element={<AdminLayout />}>
-                    {renderRoutes(adminRoutes)}
+                    <Route
+                      path="dashboard/notifications"
+                      element={<AdminNotifications />}
+                    ></Route>
+                    ...{renderRoutes(adminRoutes)}
                   </Route>
                   <Route path="/employee/*" element={<EmployeeLayout />}>
-                    {renderRoutes(deliveryRoutes)}
-                    {renderRoutes(waiterRoutes)}
                     {renderRoutes(chefRoutes)}
-                    {renderRoutes(managerRoutes)}
                     {renderRoutes(staffRoutes)}
+                    {renderRoutes(waiterRoutes)}
                     {renderRoutes(helperRoutes)}
+                    {renderRoutes(managerRoutes)}
+                    {renderRoutes(deliveryRoutes)}
                     {renderRoutes(bartenderRoutes)}
                   </Route>
+                  <Route path="/employees/profile" element={<ProfilePage />} />
+                  <Route
+                    path="/employees/documents"
+                    element={<DocumentsScreen />}
+                  />
                 </Routes>
               </Suspense>
               <ToastContainer style={{ zIndex: 99999 }} newestOnTop />
             </Router>
-          </ThemeEditorProvider>
-        </ToastProvider>
+            {/* </ThemeEditorProvider> */}
+          </ToastProvider>
+        </SidebarProvider>
       </React.StrictMode>
     </Provider>
   </ChakraProvider>
